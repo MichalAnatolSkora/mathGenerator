@@ -13,12 +13,12 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0}
-  body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
   .appbar{padding:14px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;}
   .appbar h1{margin:0;font-size:18px;}
   .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
   .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
-  @media (max-width:880px){ .wrap{flex-direction:column;} }
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
 
   /* ---- controls ---- */
   .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
@@ -78,7 +78,7 @@
     .appbar{padding:12px 14px;}
     .wrap{padding:10px;gap:12px;}
     input[type=text],input[type=number],select{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
-    .sheet{padding:14px 12px;}
+    .sheet{padding:14px 12px;max-width:100%;}
     .sheet-head{flex-wrap:wrap;gap:10px;}
     .title{font-size:18px;}
     .namebox{flex:1 1 100%;}
@@ -600,8 +600,10 @@ function fitGrid(){
   const sheet = document.querySelector(".sheet");
   if(!sheet) return;
   const cs = getComputedStyle(sheet);
-  const avail = sheet.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 1;
-  const px = Math.max(14, Math.min(Math.floor(avail / current.layout.cols), 46));
+  const inner = sheet.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const vwCap = (window.innerWidth || sheet.clientWidth) - 28;   // hard cap: never exceed the screen
+  const avail = Math.max(60, Math.min(inner, vwCap)) - 1;
+  const px = Math.max(13, Math.min(Math.floor(avail / current.layout.cols), 46));
   document.documentElement.style.setProperty("--cell", px + "px");
 }
 function regenerate(){
@@ -623,6 +625,7 @@ function regenerate(){
   current=W;
   applyPrintCell(W.layout.cols, W.layout.rows);   // mm for A4 print
   fitGrid();                                       // px to fit the current screen
+  requestAnimationFrame(fitGrid);                  // re-fit once layout has settled
 }
 function newWorksheet(){ $("seed").value=randomSeed(); regenerate(); }
 
