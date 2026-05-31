@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Crossword Worksheet Generator</title>
+<style>
+  :root{
+    --cell: 48px;
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#2f6df0; --accent-d:#1f51c6;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --key:#c0252b;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  .appbar{padding:14px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .grp:last-child{margin-bottom:0;}
+  label.field{display:block;font-size:13px;color:#333;margin-bottom:6px;}
+  .row{display:flex;gap:8px;align-items:center;}
+  input[type=text],input[type=number],select{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  input[type=number]{width:100%;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .presets button{font:inherit;font-size:12.5px;padding:5px 9px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .minmax{display:flex;gap:8px;}
+  .minmax > div{flex:1;}
+  .ops{display:flex;gap:6px;}
+  .ops label{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #ccd2dd;border-radius:8px;padding:6px 0;cursor:pointer;font-size:18px;background:#fff;user-select:none;}
+  .ops label.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .ops input{display:none;}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font:inherit;font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;}
+  button.primary:hover{background:var(--accent-d);}
+  button.ghost{font:inherit;padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;}
+  button.ghost:hover{border-color:var(--accent);}
+  #randSeed{flex:0 0 auto;width:auto;padding:7px 10px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---- sheets ---- */
+  .stage{flex:1;min-width:0;}
+  .sheetscroll{overflow-x:auto;}
+  .sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:26px 28px;margin:0 auto 18px;max-width:820px;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:12px;}
+  .title{font-size:20px;font-weight:700;}
+  .subtitle{font-size:12.5px;color:var(--muted);text-transform:capitalize;}
+  .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:4px;}
+  .namebox{flex:0 0 200px;border:1px solid #bbb;border-radius:6px;padding:10px 12px;font-size:13px;color:#555;min-height:42px;}
+  .instr{font-size:13px;color:#444;margin:0 0 16px;}
+  .grid{display:grid;gap:3px;justify-content:center;margin:0 auto;width:max-content;}
+  .c{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .c.num{border:2px solid var(--line);border-radius:6px;font-weight:600;background:#fff;}
+  .c.num.blank{background:#fbfcff;}
+  .c.num.filled{color:var(--key);}
+  .c.op{font-size:22px;color:#222;font-weight:500;}
+  .c.eq{font-size:22px;color:#222;}
+  .c.blk{}
+  .foot{margin-top:16px;font-size:11px;color:#999;text-align:center;}
+  .keytag{color:var(--key);}
+
+  /* ---- print ---- */
+  @media print{
+    :root{--cell:34px;}
+    @page{ margin:14mm; }
+    body{background:#fff;}
+    .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .stage{width:100%;}
+    .sheetscroll{overflow:visible;}
+    .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;max-width:none;}
+    .sheet.key{page-break-before:always;}
+    .grid{gap:2px;}
+    .c{font-size:16px;}
+    .c.op,.c.eq{font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <h1>Math Crossword Worksheet Generator</h1>
+  <p>Seed-based, printable arithmetic crosswords — every equation reads <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, across and down.</p>
+</div>
+
+<div class="wrap">
+  <!-- CONTROLS -->
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2>Seed</h2>
+      <div class="row">
+        <input type="text" id="seed" autocomplete="off" spellcheck="false" aria-label="Seed">
+        <button type="button" id="randSeed" title="Random seed">🎲</button>
+      </div>
+      <div class="hint">Same seed + same range/operators ⇒ identical worksheet.</div>
+    </div>
+
+    <div class="grp">
+      <h2>Number range</h2>
+      <div class="presets" id="presets">
+        <button type="button" data-min="0" data-max="10">0–10</button>
+        <button type="button" data-min="0" data-max="20">0–20</button>
+        <button type="button" data-min="0" data-max="100">0–100</button>
+        <button type="button" data-min="-10" data-max="10">−10–10</button>
+      </div>
+      <div class="minmax">
+        <div><label class="field" for="min">Min</label><input type="number" id="min" step="1"></div>
+        <div><label class="field" for="max">Max</label><input type="number" id="max" step="1"></div>
+      </div>
+      <div class="hint">Min may be negative (enables negative answers).</div>
+    </div>
+
+    <div class="grp">
+      <h2>Operators</h2>
+      <div class="ops" id="ops">
+        <label data-op="+"><input type="checkbox" class="op-cb" value="+" checked>+</label>
+        <label data-op="-"><input type="checkbox" class="op-cb" value="-" checked>−</label>
+        <label data-op="*"><input type="checkbox" class="op-cb" value="*" checked>·</label>
+        <label data-op="/"><input type="checkbox" class="op-cb" value="/" checked>:</label>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h2>Puzzle</h2>
+      <label class="field" for="size">Size</label>
+      <select id="size">
+        <option value="small">Small</option>
+        <option value="medium" selected>Medium</option>
+        <option value="large">Large</option>
+      </select>
+      <label class="field" for="difficulty" style="margin-top:8px">Difficulty (how many blanks)</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <div class="grp">
+      <h2>Display</h2>
+      <label class="field" for="notation">Notation</label>
+      <select id="notation">
+        <option value="eu" selected>· and : (European)</option>
+        <option value="std">× and ÷</option>
+      </select>
+      <label class="check" style="margin-top:10px"><input type="checkbox" id="operandBlanks" checked> Allow operand blanks (inverse ops)</label>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="answerKey" checked> Include answer key</label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="newBtn">New worksheet</button>
+      <button type="button" class="ghost" id="printBtn">Print / Save PDF</button>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+  </form>
+
+  <!-- SHEETS -->
+  <div class="stage">
+    <div class="sheetscroll"><div id="sheets"></div></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   Math Crossword Worksheet Generator — single-file implementation of PRD.md
+   Sections referenced as (§x) / function ids (FR-n) match the PRD.
+   ========================================================================== */
+
+/* ---- constants ---- */
+const INVALID = Symbol("INVALID");
+const GLYPH = { eu:{ "+":"+","-":"−","*":"·","/":":" }, std:{ "+":"+","-":"−","*":"×","/":"÷" } };
+const OPWORD = { "+":"addition","-":"subtraction","*":"multiplication","/":"division" };
+const SIZE_TARGET = { small:6, medium:10, large:15 };
+const DIFF = { easy:{ratio:0.30}, medium:{ratio:0.42}, hard:{ratio:0.55} };
+const MAXDIM = 17;          // bounding-box cap so sheets stay printable (§7.6, O6)
+const CAND_CAP = 24;        // candidates kept per equation during fill
+const SEED_TRIES = 300;     // sampling budget for the 3-free seed equation
+const MAX_STALL = 200;      // layout growth give-up
+const TOTAL_BUDGET = 80;    // layout+fill attempts before fallback (§7.7, FR-8)
+
+/* ---- FR-5: seedable PRNG (cyrb-style hash -> mulberry32), no deps (§7.2) ---- */
+function makePRNG(seed){
+  const str = String(seed);
+  let h = 1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){ h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h<<13)|(h>>>19); }
+  let a = h >>> 0;
+  const rnd = () => { a|=0; a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; };
+  const rndInt = (lo,hi) => lo + Math.floor(rnd()*(hi-lo+1));
+  const pick = arr => arr[Math.floor(rnd()*arr.length)];
+  const shuffle = arr => { for(let i=arr.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; };
+  return { rnd, rndInt, pick, shuffle };
+}
+
+/* ---- core engine: one source of truth (§11) ---- */
+const inRange = (x,o) => Number.isInteger(x) && x>=o.minValue && x<=o.maxValue;
+
+// FR-1
+function evaluate(values, operators, opts){
+  let acc = values[0];
+  if(!inRange(acc,opts)) return INVALID;
+  for(let k=0;k<operators.length;k++){
+    const n = values[k+1];
+    switch(operators[k]){
+      case "+": acc = acc + n; break;
+      case "-": acc = acc - n; break;
+      case "*": acc = acc * n; break;
+      case "/": if(n===0 || acc % n !== 0) return INVALID; acc = acc / n; break;
+    }
+    if(!inRange(acc,opts)) return INVALID;   // VR1/VR4: every value stays in [min,max]
+  }
+  return acc;
+}
+// FR-2
+function checkEquation(a, op, b, c, opts){
+  if(!inRange(a,opts) || !inRange(b,opts) || !inRange(c,opts)) return false;
+  if(op==="/" && (b===0 || a % b !== 0)) return false;
+  return evaluate([a,b],[op],opts) === c;
+}
+// FR-3
+function checkGrid(layout, assign, opAssign, opts){
+  const status = layout.equations.map(e =>
+    checkEquation(assign.get(e.a), opAssign.get(e.op), assign.get(e.b), assign.get(e.c), opts));
+  return { status, consistent: status.every(Boolean) };
+}
+// inverse table for A op B = C with one unknown -> forced integer in range, or null
+function computeMissing(op, unknown, vals, opts){
+  let a=vals.a, b=vals.b, c=vals.c, x;
+  if(unknown==="c"){ const r=evaluate([a,b],[op],opts); return r===INVALID ? null : r; }
+  if(unknown==="a"){
+    if(op==="+") x=c-b;
+    else if(op==="-") x=c+b;
+    else if(op==="*"){ if(b===0||c%b!==0) return null; x=c/b; }
+    else /* "/" */ { x=c*b; }
+  } else { // unknown === "b"
+    if(op==="+") x=c-a;
+    else if(op==="-") x=a-c;
+    else if(op==="*"){ if(a===0||c%a!==0) return null; x=c/a; }
+    else /* "/" */ { if(c===0||a%c!==0) return null; x=a/c; }
+  }
+  if(!Number.isInteger(x) || x<opts.minValue || x>opts.maxValue) return null;
+  const f={a,b,c}; f[unknown]=x;
+  return checkEquation(f.a, op, f.b, f.c, opts) ? x : null;   // final guard (÷0, exactness, range)
+}
+
+/* ---- FR-4: single-step deduction solver (uniqueness + blank validation, §9.1) ---- */
+function solveOneUnknown(e, values, opAssign, opts){
+  const op = opAssign.get(e.op);
+  const known = {}; let unknown=null;
+  for(const k of ["a","b","c"]){ const id=e[k]; if(values.has(id)) known[k]=values.get(id); else unknown=k; }
+  const x = computeMissing(op, unknown, known, opts);
+  return x===null ? null : { id:e[unknown], val:x };
+}
+function solveByPropagation(layout, givens, opAssign, opts){
+  const v = new Map(givens);
+  let progressed=true;
+  while(progressed){
+    progressed=false;
+    for(const e of layout.equations){
+      const unknowns = ["a","b","c"].filter(k=>!v.has(e[k]));
+      if(unknowns.length===1){
+        const r = solveOneUnknown(e, v, opAssign, opts);
+        if(r){
+          if(v.has(r.id)){ if(v.get(r.id)!==r.val) return "CONTRADICTION"; }
+          else { v.set(r.id, r.val); progressed=true; }
+        }
+      }
+    }
+  }
+  return layout.numberCells.every(id=>v.has(id)) ? v : "STUCK";
+}
+
+/* ---- FR-6: procedural layout growth (§7.4–7.5) ---- */
+const key = (r,c) => r+","+c;
+function growLayout(prng, settings){
+  const cells = new Map();          // "r,c" -> {r,c,role,dirs:Set}
+  const equations = [];
+  let minR=0,maxR=0,minC=0,maxC=0;
+  const setCell = (r,c,role) => {
+    cells.set(key(r,c), {r,c,role,dirs:new Set()});
+    if(r<minR)minR=r; if(r>maxR)maxR=r; if(c<minC)minC=c; if(c>maxC)maxC=c;
+  };
+  const lineCells = (sr,sc,dir) => {
+    const list=[];
+    for(let i=0;i<5;i++) list.push({ r: sr+(dir==="v"?i:0), c: sc+(dir==="h"?i:0) });
+    return list;
+  };
+  const ROLES = ["num","op","num","eq","num"];
+  function commit(list, dir){
+    for(let i=0;i<5;i++){ const k=key(list[i].r,list[i].c); if(!cells.has(k)) setCell(list[i].r,list[i].c,ROLES[i]); }
+    [0,2,4].forEach(i=>cells.get(key(list[i].r,list[i].c)).dirs.add(dir));
+    equations.push({
+      a:key(list[0].r,list[0].c), op:key(list[1].r,list[1].c), b:key(list[2].r,list[2].c),
+      eq:key(list[3].r,list[3].c), c:key(list[4].r,list[4].c), dir
+    });
+  }
+  function isValid(list, X){
+    let a=minR,bb=maxR,cc=minC,dd=maxC;
+    for(const p of list){ if(p.r<a)a=p.r; if(p.r>bb)bb=p.r; if(p.c<cc)cc=p.c; if(p.c>dd)dd=p.c; }
+    if((bb-a+1)>MAXDIM || (dd-cc+1)>MAXDIM) return false;
+    const inList=(r,c)=>list.some(p=>p.r===r&&p.c===c);
+    for(let i=0;i<5;i++){
+      const p=list[i];
+      if(X && p.r===X.r && p.c===X.c){ if(i%2!==0) return false; continue; } // crossing must sit on a num offset
+      if(cells.has(key(p.r,p.c))) return false;                              // non-X cells must be empty
+      for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){                     // no-touch except at crossing
+        const nr=p.r+dr, nc=p.c+dc;
+        if(cells.has(key(nr,nc)) && !inList(nr,nc)) return false;
+      }
+    }
+    return true;
+  }
+  // seed equation
+  const seedDir = prng.pick(["h","v"]);
+  commit(lineCells(0,0,seedDir), seedDir);
+
+  const target = SIZE_TARGET[settings.size] || 10;
+  let stall=0;
+  while(equations.length<target && stall<MAX_STALL){
+    const cands=[];
+    for(const cell of cells.values()){ if(cell.role==="num" && cell.dirs.size===1) cands.push(cell); }
+    if(cands.length===0) break;
+    const X = prng.pick(cands);
+    const newDir = ([...X.dirs][0]==="h") ? "v" : "h";
+    const posOff = prng.pick([0,2,4]);
+    const sr = newDir==="v" ? X.r-posOff : X.r;
+    const sc = newDir==="h" ? X.c-posOff : X.c;
+    const list = lineCells(sr,sc,newDir);
+    if(isValid(list, X)){ commit(list, newDir); stall=0; }
+    else stall++;
+  }
+
+  // normalize to (0,0) origin
+  const remap = k => { const [r,c]=k.split(",").map(Number); return key(r-minR,c-minC); };
+  const ncells = new Map(); const numberCells=[]; const crossings=[];
+  for(const cell of cells.values()){
+    const nk = key(cell.r-minR, cell.c-minC);
+    ncells.set(nk, { r:cell.r-minR, c:cell.c-minC, role:cell.role });
+    if(cell.role==="num"){ numberCells.push(nk); if(cell.dirs.size===2) crossings.push(nk); }
+  }
+  const eqs = equations.map(e=>({ a:remap(e.a), op:remap(e.op), b:remap(e.b), eq:remap(e.eq), c:remap(e.c), dir:e.dir }));
+  return { cells:ncells, equations:eqs, numberCells, crossings, rows:maxR-minR+1, cols:maxC-minC+1 };
+}
+
+/* ---- FR-7: CSP fill — equations in creation order, ≤1 pre-assigned cell each (tree) ---- */
+function shuffledRange(mn,mx,prng){ const a=[]; for(let v=mn;v<=mx;v++) a.push(v); return prng.shuffle(a); }
+function equationCandidates(e, assign, ops, prng, opts){
+  const res=[];
+  const fa=assign.has(e.a), fb=assign.has(e.b), fc=assign.has(e.c);
+  const A=assign.get(e.a), B=assign.get(e.b), C=assign.get(e.c);
+  for(const op of prng.shuffle(ops.slice())){
+    if(!fa && !fb && !fc){                       // seed: sample a,b -> derive c
+      let t=0;
+      while(res.length<CAND_CAP && t<SEED_TRIES){
+        t++;
+        const a=prng.rndInt(opts.minValue,opts.maxValue), b=prng.rndInt(opts.minValue,opts.maxValue);
+        const c=computeMissing(op,"c",{a,b},opts);
+        if(c!==null) res.push({a,b,c,op});
+      }
+    } else if(fa && !fb && !fc){                 // a fixed: iterate b -> derive c
+      for(const b of shuffledRange(opts.minValue,opts.maxValue,prng)){
+        const c=computeMissing(op,"c",{a:A,b},opts);
+        if(c!==null){ res.push({a:A,b,c,op}); if(res.length>=CAND_CAP) break; }
+      }
+    } else if(!fa && fb && !fc){                 // b fixed: iterate a -> derive c
+      for(const a of shuffledRange(opts.minValue,opts.maxValue,prng)){
+        const c=computeMissing(op,"c",{a,b:B},opts);
+        if(c!==null){ res.push({a,b:B,c,op}); if(res.length>=CAND_CAP) break; }
+      }
+    } else if(!fa && !fb && fc){                 // c fixed: iterate a -> derive b (inverse)
+      for(const a of shuffledRange(opts.minValue,opts.maxValue,prng)){
+        const b=computeMissing(op,"b",{a,c:C},opts);
+        if(b!==null){ res.push({a,b,c:C,op}); if(res.length>=CAND_CAP) break; }
+      }
+    } else {                                     // 2 fixed (defensive; not expected in tree)
+      const unk = !fa?"a":(!fb?"b":(!fc?"c":null));
+      if(unk===null){ if(checkEquation(A,op,B,C,opts)) res.push({a:A,b:B,c:C,op}); }
+      else { const x=computeMissing(op,unk,{a:A,b:B,c:C},opts); if(x!==null){ const o={a:A,b:B,c:C,op}; o[unk]=x; res.push(o); } }
+    }
+    if(res.length>=CAND_CAP) break;
+  }
+  return prng.shuffle(res).slice(0,CAND_CAP);
+}
+function fillLayout(layout, prng, settings){
+  const ops = settings.operators.slice();
+  const order = layout.equations;       // creation order: parent before child
+  const assign = new Map(), opAssign = new Map();
+  function rec(i){
+    if(i===order.length) return true;
+    const e = order[i];
+    for(const cand of equationCandidates(e, assign, ops, prng, settings)){
+      const applied=[];
+      if(!assign.has(e.a)){ assign.set(e.a,cand.a); applied.push(e.a); }
+      if(!assign.has(e.b)){ assign.set(e.b,cand.b); applied.push(e.b); }
+      if(!assign.has(e.c)){ assign.set(e.c,cand.c); applied.push(e.c); }
+      opAssign.set(e.op,cand.op);
+      if(assign.get(e.a)===cand.a && assign.get(e.b)===cand.b && assign.get(e.c)===cand.c &&
+         checkEquation(cand.a,cand.op,cand.b,cand.c,settings) && rec(i+1)) return true;
+      for(const id of applied) assign.delete(id);
+      opAssign.delete(e.op);
+    }
+    return false;
+  }
+  return rec(0) ? { assign, opAssign } : null;
+}
+
+/* ---- FR-9: blank selection — keep a blank only if propagation still fully resolves ---- */
+function chooseBlanks(layout, assign, opAssign, prng, settings){
+  const ratio = (DIFF[settings.difficulty]||DIFF.medium).ratio;
+  const resultOnly = !(settings.operandBlanks && settings.difficulty!=="easy");
+  const resultSet = new Set(layout.equations.map(e=>e.c));
+  const candidates = prng.shuffle(layout.numberCells.filter(id => resultOnly ? resultSet.has(id) : true));
+  const target = Math.max(1, Math.round(ratio * layout.numberCells.length));
+  const blanks = new Set();
+  for(const id of candidates){
+    if(blanks.size>=target) break;
+    const trial = new Set(blanks); trial.add(id);
+    const givens = new Map();
+    for(const nc of layout.numberCells) if(!trial.has(nc)) givens.set(nc, assign.get(nc));
+    const res = solveByPropagation(layout, givens, opAssign, settings);
+    if(res!=="STUCK" && res!=="CONTRADICTION"){
+      let ok=true;
+      for(const nc of layout.numberCells){ if(res.get(nc)!==assign.get(nc)){ ok=false; break; } }
+      if(ok) blanks.add(id);
+    }
+  }
+  return blanks;
+}
+
+/* ---- FR-8: deterministic top-level generate (§10) ---- */
+function generate(seed, settings){
+  const prng = makePRNG(seed);
+  function attempt(ops){
+    const s = Object.assign({}, settings, { operators:ops });
+    for(let k=0;k<TOTAL_BUDGET;k++){
+      const layout = growLayout(prng, s);
+      const fill = fillLayout(layout, prng, s);
+      if(fill && checkGrid(layout, fill.assign, fill.opAssign, s).consistent){
+        const blanks = chooseBlanks(layout, fill.assign, fill.opAssign, prng, s);
+        return { layout, assign:fill.assign, opAssign:fill.opAssign, blanks, seed, settings:s };
+      }
+    }
+    return null;
+  }
+  let r = attempt(settings.operators);
+  if(!r){                                   // graceful fallback: relax operators (FR-7)
+    const has = ch => settings.operators.includes(ch);
+    const relaxed = (has("+")&&has("-")) ? ["+","-"] : (has("+")?["+"]:(has("-")?["-"]:["+"]));
+    r = attempt(relaxed) || attempt(["+"]) || attempt(["-"]);
+  }
+  return r || { error:true };
+}
+
+/* ============================ rendering (§8) ============================== */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function rangeTitle(s){ return s.minValue<0 ? `Mixed math operations from ${s.minValue} to ${s.maxValue}` : `Mixed math operations to ${s.maxValue}`; }
+function opsSubtitle(s){ return s.operators.map(o=>OPWORD[o]).join(", "); }
+
+function buildSheet(W, isKey){
+  const { layout, assign, opAssign, blanks, settings:s, seed } = W;
+  const root = document.createElement("div");
+  root.className = "sheet" + (isKey ? " key" : "");
+
+  const head = document.createElement("div");
+  head.className = "sheet-head";
+  head.innerHTML =
+    `<div><div class="title">${escapeHtml(rangeTitle(s))}${isKey?' <span class="keytag">— Answer key</span>':""}</div>`+
+    `<div class="subtitle">${escapeHtml(opsSubtitle(s))} · left → right, top → bottom</div>`+
+    `<div class="seedlabel">seed: ${escapeHtml(seed)}</div></div>`+
+    (isKey ? "" : `<div class="namebox">Name:</div>`);
+  root.appendChild(head);
+
+  if(!isKey){
+    const p=document.createElement("p"); p.className="instr";
+    p.textContent="Fill in the blank boxes so every equation is true. Each equation reads A op B = C — across or down.";
+    root.appendChild(p);
+  }
+
+  const grid=document.createElement("div"); grid.className="grid";
+  grid.style.gridTemplateColumns=`repeat(${layout.cols}, var(--cell))`;
+  grid.style.gridTemplateRows=`repeat(${layout.rows}, var(--cell))`;
+  const gl = GLYPH[s.notation] || GLYPH.eu;
+  for(let r=0;r<layout.rows;r++){
+    for(let c=0;c<layout.cols;c++){
+      const cell=layout.cells.get(key(r,c));
+      const d=document.createElement("div");
+      if(!cell){ d.className="c blk"; }
+      else if(cell.role==="op"){ d.className="c op"; d.textContent=gl[opAssign.get(key(r,c))]; }
+      else if(cell.role==="eq"){ d.className="c eq"; d.textContent="="; }
+      else {
+        const id=key(r,c);
+        const hidden = blanks.has(id);
+        d.className = "c num" + (hidden && !isKey ? " blank" : "") + (hidden && isKey ? " filled" : "");
+        d.textContent = (hidden && !isKey) ? "" : String(assign.get(id));
+      }
+      grid.appendChild(d);
+    }
+  }
+  root.appendChild(grid);
+  return root;
+}
+
+/* ============================ UI wiring ================================== */
+let current=null;
+const $ = id => document.getElementById(id);
+
+function randomSeed(){
+  const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s=""; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s + "-" + (100+Math.floor(Math.random()*900));
+}
+function readSettings(){
+  return {
+    seed: ($("seed").value.trim() || "SEED"),
+    size: $("size").value,
+    minValue: parseInt($("min").value,10),
+    maxValue: parseInt($("max").value,10),
+    operators: [...document.querySelectorAll(".op-cb:checked")].map(cb=>cb.value),
+    notation: $("notation").value,
+    difficulty: $("difficulty").value,
+    operandBlanks: $("operandBlanks").checked,
+    answerKey: $("answerKey").checked,
+    header:{ footer:"" }
+  };
+}
+function validateSettings(s){
+  if(!Number.isInteger(s.minValue) || !Number.isInteger(s.maxValue)) return "Min and Max must be whole numbers.";
+  if(s.minValue > s.maxValue) return "Min must be ≤ Max.";
+  if(s.operators.length===0) return "Select at least one operator.";
+  if(s.maxValue - s.minValue < 2) return "Range is too narrow — widen Min/Max.";
+  return null;
+}
+function syncOpStyles(){ document.querySelectorAll("#ops label").forEach(l=>{ l.classList.toggle("on", l.querySelector("input").checked); }); }
+function syncPresets(s){
+  document.querySelectorAll("#presets button").forEach(b=>{
+    b.classList.toggle("active", parseInt(b.dataset.min,10)===s.minValue && parseInt(b.dataset.max,10)===s.maxValue);
+  });
+}
+function persist(s){ try{ localStorage.setItem("mxw", JSON.stringify(s)); }catch(_){ } }
+function restore(){
+  try{
+    const s=JSON.parse(localStorage.getItem("mxw")||"null"); if(!s) return false;
+    $("seed").value=s.seed||randomSeed();
+    $("size").value=s.size||"medium";
+    $("min").value=s.minValue; $("max").value=s.maxValue;
+    document.querySelectorAll(".op-cb").forEach(cb=>cb.checked=(s.operators||["+","-","*","/"]).includes(cb.value));
+    $("notation").value=s.notation||"eu";
+    $("difficulty").value=s.difficulty||"medium";
+    $("operandBlanks").checked=s.operandBlanks!==false;
+    $("answerKey").checked=s.answerKey!==false;
+    return true;
+  }catch(_){ return false; }
+}
+
+function regenerate(){
+  const s = readSettings();
+  syncOpStyles(); syncPresets(s);
+  const msg=$("msg");
+  const err=validateSettings(s);
+  if(err){ msg.textContent=err; msg.className="msg error"; return; }
+  const W = generate(s.seed, s);
+  if(W.error){
+    msg.textContent="Couldn't generate with these settings — try a wider range or more operators.";
+    msg.className="msg error"; $("sheets").innerHTML=""; return;
+  }
+  msg.textContent="✓ worksheet ready"; msg.className="msg";
+  persist(s);
+  const host=$("sheets"); host.innerHTML="";
+  host.appendChild(buildSheet(W, false));
+  if(s.answerKey) host.appendChild(buildSheet(W, true));
+  current=W;
+}
+function newWorksheet(){ $("seed").value=randomSeed(); regenerate(); }
+
+function wire(){
+  ["size","min","max","notation","difficulty","seed"].forEach(id=>{
+    $(id).addEventListener("change", regenerate);
+  });
+  $("seed").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); regenerate(); } });
+  document.querySelectorAll(".op-cb").forEach(cb=>cb.addEventListener("change", regenerate));
+  $("operandBlanks").addEventListener("change", regenerate);
+  $("answerKey").addEventListener("change", regenerate);
+  document.querySelectorAll("#presets button").forEach(b=>b.addEventListener("click", ()=>{
+    $("min").value=b.dataset.min; $("max").value=b.dataset.max; regenerate();
+  }));
+  $("randSeed").addEventListener("click", newWorksheet);
+  $("newBtn").addEventListener("click", newWorksheet);
+  $("printBtn").addEventListener("click", ()=>window.print());
+}
+
+function init(){
+  if(!restore()){
+    $("min").value=0; $("max").value=20;
+    $("seed").value=randomSeed();
+  }
+  if(!$("seed").value) $("seed").value=randomSeed();
+  wire();
+  if(location.search.indexOf("selftest")!==-1) selfTest();
+  regenerate();
+}
+
+/* ============================ self-test (?selftest) ====================== */
+function sameWorksheet(a,b){
+  if(a.layout.rows!==b.layout.rows || a.layout.cols!==b.layout.cols) return false;
+  if(a.layout.equations.length!==b.layout.equations.length) return false;
+  for(const nc of a.layout.numberCells){ if(a.assign.get(nc)!==b.assign.get(nc)) return false; }
+  for(const e of a.layout.equations){ if(a.opAssign.get(e.op)!==b.opAssign.get(e.op)) return false; }
+  if(a.blanks.size!==b.blanks.size) return false;
+  for(const id of a.blanks) if(!b.blanks.has(id)) return false;
+  return true;
+}
+function selfTest(){
+  const ranges=[{minValue:0,maxValue:10},{minValue:0,maxValue:20},{minValue:0,maxValue:100},{minValue:-10,maxValue:10}];
+  const base={size:"medium",operators:["+","-","*","/"],notation:"eu",difficulty:"medium",operandBlanks:true,answerKey:true,header:{}};
+  let gen=0,err=0,cFail=0,uFail=0,dFail=0,noBlank=0,minEq=Infinity,maxEq=0;
+  for(const rg of ranges){
+    for(let i=0;i<150;i++){
+      const seed="T_"+rg.minValue+"_"+rg.maxValue+"_"+i;
+      const s=Object.assign({},base,rg,{seed});
+      const W=generate(seed,s);
+      if(W.error){ err++; continue; }
+      gen++;
+      minEq=Math.min(minEq,W.layout.equations.length); maxEq=Math.max(maxEq,W.layout.equations.length);
+      if(!checkGrid(W.layout,W.assign,W.opAssign,s).consistent) cFail++;
+      const givens=new Map();
+      for(const nc of W.layout.numberCells) if(!W.blanks.has(nc)) givens.set(nc,W.assign.get(nc));
+      const res=solveByPropagation(W.layout,givens,W.opAssign,s);
+      if(res==="STUCK"||res==="CONTRADICTION") uFail++;
+      else for(const nc of W.layout.numberCells){ if(res.get(nc)!==W.assign.get(nc)){ uFail++; break; } }
+      if(W.blanks.size<1) noBlank++;
+      if(!sameWorksheet(W, generate(seed,s))) dFail++;
+    }
+  }
+  const pass = (cFail===0 && uFail===0 && dFail===0 && noBlank===0);
+  console.log(`[SELFTEST] generated=${gen} errors=${err} eqRange=${minEq}-${maxEq}`);
+  console.log(`[SELFTEST] consistencyFail=${cFail} uniqueFail=${uFail} determinismFail=${dFail} noBlank=${noBlank}`);
+  console.log("[SELFTEST] " + (pass ? "PASS ✅" : "FAIL ❌"));
+  return pass;
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
