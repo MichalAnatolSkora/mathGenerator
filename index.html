@@ -73,6 +73,18 @@
   .foot{margin-top:16px;font-size:11px;color:#999;text-align:center;}
   .keytag{color:var(--key);}
 
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+    input[type=text],input[type=number],select{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+    .sheet{padding:14px 12px;}
+    .sheet-head{flex-wrap:wrap;gap:10px;}
+    .title{font-size:18px;}
+    .namebox{flex:1 1 100%;}
+    .instr{font-size:12px;}
+  }
+
   /* ---- print ---- */
   @media print{
     @page{ size:A4; margin:12mm; }
@@ -574,15 +586,23 @@ function restore(){
   }catch(_){ return false; }
 }
 
-// Size cells so the grid fits A4 in print (mm) and the sheet on screen (px).
-function applyCellSize(cols, rows){
+// Print: size cells (mm) so the grid fits an A4 page. Screen sizing is done by fitGrid().
+function applyPrintCell(cols, rows){
   const A4W=210, A4H=297, M=12, HEADER=40;                       // A4 minus margins, minus header room
   let mm = Math.min((A4W-2*M)/cols, (A4H-2*M-HEADER)/rows, 12);  // cap so small puzzles aren't huge
   mm = Math.max(mm, 5);
-  const px = Math.max(16, Math.min(Math.floor(740/cols), 44));   // screen: fit the sheet width
-  const root = document.documentElement.style;
-  root.setProperty("--cell", px+"px");
-  root.setProperty("--cell-print", mm.toFixed(2)+"mm");
+  document.documentElement.style.setProperty("--cell-print", mm.toFixed(2)+"mm");
+}
+// Screen: measure the REAL sheet width and size cells so the whole grid fits — this is what
+// makes it scale on phones (and on orientation change, via the resize listener in wire()).
+function fitGrid(){
+  if(!current) return;
+  const sheet = document.querySelector(".sheet");
+  if(!sheet) return;
+  const cs = getComputedStyle(sheet);
+  const avail = sheet.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 1;
+  const px = Math.max(14, Math.min(Math.floor(avail / current.layout.cols), 46));
+  document.documentElement.style.setProperty("--cell", px + "px");
 }
 function regenerate(){
   const s = readSettings();
@@ -595,17 +615,19 @@ function regenerate(){
     msg.textContent="Couldn't generate with these settings — try a wider range or more operators.";
     msg.className="msg error"; $("sheets").innerHTML=""; return;
   }
-  applyCellSize(W.layout.cols, W.layout.rows);
   msg.textContent="✓ worksheet ready"; msg.className="msg";
   persist(s);
   const host=$("sheets"); host.innerHTML="";
   host.appendChild(buildSheet(W, false));
   if(s.answerKey) host.appendChild(buildSheet(W, true));
   current=W;
+  applyPrintCell(W.layout.cols, W.layout.rows);   // mm for A4 print
+  fitGrid();                                       // px to fit the current screen
 }
 function newWorksheet(){ $("seed").value=randomSeed(); regenerate(); }
 
 function wire(){
+  window.addEventListener("resize", fitGrid);     // re-fit on rotate / window resize
   ["size","min","max","notation","difficulty","seed"].forEach(id=>{
     $(id).addEventListener("change", regenerate);
   });
