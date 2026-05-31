@@ -7,7 +7,7 @@
 <style>
   :root{
     --cell: 48px;
-    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#2f6df0; --accent-d:#1f51c6;
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --gridline:#7a7a7a; --accent:#2f6df0; --accent-d:#1f51c6;
     --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --key:#c0252b;
     --radius:10px;
   }
@@ -61,13 +61,14 @@
   .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:4px;}
   .namebox{flex:0 0 200px;border:1px solid #bbb;border-radius:6px;padding:10px 12px;font-size:13px;color:#555;min-height:42px;}
   .instr{font-size:13px;color:#444;margin:0 0 16px;}
-  .grid{display:grid;gap:3px;justify-content:center;margin:0 auto;width:max-content;}
+  .grid{display:grid;gap:0;justify-content:center;margin:0 auto;width:max-content;}
   .c{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:20px;}
-  .c.num{border:2px solid var(--line);border-radius:6px;font-weight:600;background:#fff;}
-  .c.num.blank{background:#fbfcff;}
+  .c.num,.c.op,.c.eq{border:1px solid var(--gridline);background:#fff;}   /* connected grid, like the reference */
+  .c.num{font-weight:700;}
+  .c.num.blank{background:#fff;}
   .c.num.filled{color:var(--key);}
-  .c.op{font-size:22px;color:#222;font-weight:500;}
-  .c.eq{font-size:22px;color:#222;}
+  .c.op{font-size:21px;color:#111;}
+  .c.eq{font-size:21px;color:#111;}
   .c.blk{}
   .foot{margin-top:16px;font-size:11px;color:#999;text-align:center;}
   .keytag{color:var(--key);}
@@ -83,7 +84,7 @@
     .sheetscroll{overflow:visible;}
     .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;max-width:none;}
     .sheet.key{page-break-before:always;}
-    .grid{gap:2px;}
+    .grid{gap:0;}
     .c{font-size:16px;}
     .c.op,.c.eq{font-size:17px;}
   }
@@ -183,13 +184,9 @@
 const INVALID = Symbol("INVALID");
 const GLYPH = { eu:{ "+":"+","-":"−","*":"·","/":":" }, std:{ "+":"+","-":"−","*":"×","/":"÷" } };
 const OPWORD = { "+":"addition","-":"subtraction","*":"multiplication","/":"division" };
-const SIZE_TARGET = { small:6, medium:10, large:15 };
 const DIFF = { easy:{ratio:0.30}, medium:{ratio:0.42}, hard:{ratio:0.55} };
-const MAXDIM = 17;          // bounding-box cap so sheets stay printable (§7.6, O6)
-const CAND_CAP = 24;        // candidates kept per equation during fill
-const SEED_TRIES = 300;     // sampling budget for the 3-free seed equation
-const MAX_STALL = 200;      // layout growth give-up
-const TOTAL_BUDGET = 80;    // layout+fill attempts before fallback (§7.7, FR-8)
+const SEED_TRIES = 300;     // sampling budget for the free seed equation
+const TOTAL_BUDGET = 80;    // build attempts before relaxing operators (§7.7, FR-8)
 
 /* ---- FR-5: seedable PRNG (cyrb-style hash -> mulberry32), no deps (§7.2) ---- */
 function makePRNG(seed){
@@ -282,138 +279,144 @@ function solveByPropagation(layout, givens, opAssign, opts){
   return layout.numberCells.every(id=>v.has(id)) ? v : "STUCK";
 }
 
-/* ---- FR-6: procedural layout growth (§7.4–7.5) ---- */
+/* ---- physical cell-id helper (used by render + builder) ---- */
 const key = (r,c) => r+","+c;
-function growLayout(prng, settings){
-  const cells = new Map();          // "r,c" -> {r,c,role,dirs:Set}
-  const equations = [];
-  let minR=0,maxR=0,minC=0,maxC=0;
-  const setCell = (r,c,role) => {
-    cells.set(key(r,c), {r,c,role,dirs:new Set()});
-    if(r<minR)minR=r; if(r>maxR)maxR=r; if(c<minC)minC=c; if(c>maxC)maxC=c;
-  };
-  const lineCells = (sr,sc,dir) => {
-    const list=[];
-    for(let i=0;i<5;i++) list.push({ r: sr+(dir==="v"?i:0), c: sc+(dir==="h"?i:0) });
-    return list;
-  };
-  const ROLES = ["num","op","num","eq","num"];
-  function commit(list, dir){
-    for(let i=0;i<5;i++){ const k=key(list[i].r,list[i].c); if(!cells.has(k)) setCell(list[i].r,list[i].c,ROLES[i]); }
-    [0,2,4].forEach(i=>cells.get(key(list[i].r,list[i].c)).dirs.add(dir));
-    equations.push({
-      a:key(list[0].r,list[0].c), op:key(list[1].r,list[1].c), b:key(list[2].r,list[2].c),
-      eq:key(list[3].r,list[3].c), c:key(list[4].r,list[4].c), dir
-    });
-  }
-  function isValid(list, X){
-    let a=minR,bb=maxR,cc=minC,dd=maxC;
-    for(const p of list){ if(p.r<a)a=p.r; if(p.r>bb)bb=p.r; if(p.c<cc)cc=p.c; if(p.c>dd)dd=p.c; }
-    if((bb-a+1)>MAXDIM || (dd-cc+1)>MAXDIM) return false;
-    const inList=(r,c)=>list.some(p=>p.r===r&&p.c===c);
-    for(let i=0;i<5;i++){
-      const p=list[i];
-      if(X && p.r===X.r && p.c===X.c){ if(i%2!==0) return false; continue; } // crossing must sit on a num offset
-      if(cells.has(key(p.r,p.c))) return false;                              // non-X cells must be empty
-      for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){                     // no-touch except at crossing
-        const nr=p.r+dr, nc=p.c+dc;
-        if(cells.has(key(nr,nc)) && !inList(nr,nc)) return false;
-      }
-    }
-    return true;
-  }
-  // seed equation
-  const seedDir = prng.pick(["h","v"]);
-  commit(lineCells(0,0,seedDir), seedDir);
 
-  const target = SIZE_TARGET[settings.size] || 10;
-  let stall=0;
-  while(equations.length<target && stall<MAX_STALL){
-    const cands=[];
-    for(const cell of cells.values()){ if(cell.role==="num" && cell.dirs.size===1) cands.push(cell); }
-    if(cands.length===0) break;
-    const X = prng.pick(cands);
-    const newDir = ([...X.dirs][0]==="h") ? "v" : "h";
-    const posOff = prng.pick([0,2,4]);
-    const sr = newDir==="v" ? X.r-posOff : X.r;
-    const sc = newDir==="h" ? X.c-posOff : X.c;
-    const list = lineCells(sr,sc,newDir);
-    if(isValid(list, X)){ commit(list, newDir); stall=0; }
-    else stall++;
+/* ---- value selection ---- */
+// Shuffled values in range; in the "avoidZero" pass we drop 0 (and 1 for ×/÷, which give
+// trivial a·1=a / a:1=a) so puzzles read like real arithmetic instead of 0·x=0 cascades.
+function poolVals(opts, prng, avoidZero, op){
+  const a=[];
+  for(let v=opts.minValue;v<=opts.maxValue;v++){
+    if(avoidZero && v===0) continue;
+    if(avoidZero && v===1 && (op==="*"||op==="/")) continue;
+    a.push(v);
   }
-
-  // normalize to (0,0) origin
-  const remap = k => { const [r,c]=k.split(",").map(Number); return key(r-minR,c-minC); };
-  const ncells = new Map(); const numberCells=[]; const crossings=[];
-  for(const cell of cells.values()){
-    const nk = key(cell.r-minR, cell.c-minC);
-    ncells.set(nk, { r:cell.r-minR, c:cell.c-minC, role:cell.role });
-    if(cell.role==="num"){ numberCells.push(nk); if(cell.dirs.size===2) crossings.push(nk); }
-  }
-  const eqs = equations.map(e=>({ a:remap(e.a), op:remap(e.op), b:remap(e.b), eq:remap(e.eq), c:remap(e.c), dir:e.dir }));
-  return { cells:ncells, equations:eqs, numberCells, crossings, rows:maxR-minR+1, cols:maxC-minC+1 };
+  return prng.shuffle(a);
 }
 
-/* ---- FR-7: CSP fill — equations in creation order, ≤1 pre-assigned cell each (tree) ---- */
-function shuffledRange(mn,mx,prng){ const a=[]; for(let v=mn;v<=mx;v++) a.push(v); return prng.shuffle(a); }
-function equationCandidates(e, assign, ops, prng, opts){
-  const res=[];
-  const fa=assign.has(e.a), fb=assign.has(e.b), fc=assign.has(e.c);
-  const A=assign.get(e.a), B=assign.get(e.b), C=assign.get(e.c);
-  for(const op of prng.shuffle(ops.slice())){
-    if(!fa && !fb && !fc){                       // seed: sample a,b -> derive c
-      let t=0;
-      while(res.length<CAND_CAP && t<SEED_TRIES){
-        t++;
-        const a=prng.rndInt(opts.minValue,opts.maxValue), b=prng.rndInt(opts.minValue,opts.maxValue);
-        const c=computeMissing(op,"c",{a,b},opts);
-        if(c!==null) res.push({a,b,c,op});
-      }
-    } else if(fa && !fb && !fc){                 // a fixed: iterate b -> derive c
-      for(const b of shuffledRange(opts.minValue,opts.maxValue,prng)){
-        const c=computeMissing(op,"c",{a:A,b},opts);
-        if(c!==null){ res.push({a:A,b,c,op}); if(res.length>=CAND_CAP) break; }
-      }
-    } else if(!fa && fb && !fc){                 // b fixed: iterate a -> derive c
-      for(const a of shuffledRange(opts.minValue,opts.maxValue,prng)){
-        const c=computeMissing(op,"c",{a,b:B},opts);
-        if(c!==null){ res.push({a,b:B,c,op}); if(res.length>=CAND_CAP) break; }
-      }
-    } else if(!fa && !fb && fc){                 // c fixed: iterate a -> derive b (inverse)
-      for(const a of shuffledRange(opts.minValue,opts.maxValue,prng)){
-        const b=computeMissing(op,"b",{a,c:C},opts);
-        if(b!==null){ res.push({a,b,c:C,op}); if(res.length>=CAND_CAP) break; }
-      }
-    } else {                                     // 2 fixed (defensive; not expected in tree)
-      const unk = !fa?"a":(!fb?"b":(!fc?"c":null));
-      if(unk===null){ if(checkEquation(A,op,B,C,opts)) res.push({a:A,b:B,c:C,op}); }
-      else { const x=computeMissing(op,unk,{a:A,b:B,c:C},opts); if(x!==null){ const o={a:A,b:B,c:C,op}; o[unk]=x; res.push(o); } }
-    }
-    if(res.length>=CAND_CAP) break;
-  }
-  return prng.shuffle(res).slice(0,CAND_CAP);
+// In the preferred ("nice") pass, reject boring equations: any zero, or ×1 / ÷1.
+function isTrivial(op,a,b,c){
+  if(a===0||b===0||c===0) return true;
+  if((op==="*"||op==="/") && (Math.abs(a)===1||Math.abs(b)===1)) return true;
+  return false;
 }
-function fillLayout(layout, prng, settings){
-  const ops = settings.operators.slice();
-  const order = layout.equations;       // creation order: parent before child
-  const assign = new Map(), opAssign = new Map();
-  function rec(i){
-    if(i===order.length) return true;
-    const e = order[i];
-    for(const cand of equationCandidates(e, assign, ops, prng, settings)){
-      const applied=[];
-      if(!assign.has(e.a)){ assign.set(e.a,cand.a); applied.push(e.a); }
-      if(!assign.has(e.b)){ assign.set(e.b,cand.b); applied.push(e.b); }
-      if(!assign.has(e.c)){ assign.set(e.c,cand.c); applied.push(e.c); }
-      opAssign.set(e.op,cand.op);
-      if(assign.get(e.a)===cand.a && assign.get(e.b)===cand.b && assign.get(e.c)===cand.c &&
-         checkEquation(cand.a,cand.op,cand.b,cand.c,settings) && rec(i+1)) return true;
-      for(const id of applied) assign.delete(id);
-      opAssign.delete(e.op);
+// Find op-consistent values for ONE equation given some fixed cells (undefined = free).
+// Returns {a,b,c} satisfying checkEquation, or null. With avoidZero=true it also rejects
+// trivial equations so puzzles read like real arithmetic. Assigning values AS we grow is
+// what makes every placed equation already hold (consistency by construction).
+function satisfyOnce(op, vals, prng, opts, avoidZero){
+  const fa=vals.a===undefined, fb=vals.b===undefined, fc=vals.c===undefined;
+  const free=(fa?1:0)+(fb?1:0)+(fc?1:0);
+  const accept=(a,b,c)=> (avoidZero && isTrivial(op,a,b,c)) ? null : {a,b,c};
+  if(free===0) return checkEquation(vals.a,op,vals.b,vals.c,opts) ? accept(vals.a,vals.b,vals.c) : null;
+  if(free===1){
+    const unk = fa?"a":(fb?"b":"c");
+    const x = computeMissing(op, unk, {a:vals.a,b:vals.b,c:vals.c}, opts);
+    if(x===null) return null;
+    const r={a:vals.a,b:vals.b,c:vals.c}; r[unk]=x; return accept(r.a,r.b,r.c);
+  }
+  if(free===2){
+    const P=poolVals(opts,prng,avoidZero,op);
+    if(!fa){ for(const b of P){ const c=computeMissing(op,"c",{a:vals.a,b},opts); if(c!==null){ const r=accept(vals.a,b,c); if(r) return r; } } }
+    else if(!fb){ for(const a of P){ const c=computeMissing(op,"c",{a,b:vals.b},opts); if(c!==null){ const r=accept(a,vals.b,c); if(r) return r; } } }
+    else { for(const a of P){ const b=computeMissing(op,"b",{a,c:vals.c},opts); if(b!==null){ const r=accept(a,b,vals.c); if(r) return r; } } }
+    return null;
+  }
+  const P=poolVals(opts,prng,avoidZero,op); if(P.length===0) return null;   // free===3 (seed)
+  let t=0;
+  while(t<SEED_TRIES){ t++;
+    const a=P[Math.floor(prng.rnd()*P.length)], b=P[Math.floor(prng.rnd()*P.length)];
+    const c=computeMissing(op,"c",{a,b},opts);
+    if(c!==null){ const r=accept(a,b,c); if(r) return r; }
+  }
+  return null;
+}
+
+/* ---- FR-6/7: grow a DENSE interlocking mesh while assigning values (§7.4–7.5).
+   Equations live on a logical lattice — number cell (i,j) maps to physical (2i,2j), with
+   operator/equals cells in the gaps. A new equation may cross the existing structure at
+   SEVERAL number cells, forming LOOPS like the reference worksheet. Each equation is
+   satisfied the moment it is placed, so the whole grid is consistent by construction. */
+const LAT_SPAN   = { small:4, medium:6, large:7 };    // logical bbox cap -> physical ≤ 2*span+1
+const LAT_TARGET = { small:14, medium:30, large:48 }; // soft cap; growth also stops at saturation
+function buildPuzzle(prng, settings){
+  const SPAN = LAT_SPAN[settings.size] || 6;
+  const TARGET = LAT_TARGET[settings.size] || 30;
+  const val=new Map(), hUsed=new Set(), vUsed=new Set(), eqs=[];
+  let minI=0,maxI=0,minJ=0,maxJ=0, started=false;
+  const lk=(i,j)=>i+","+j;
+  const cellsOf=(dir,i,j)=> dir==="h" ? [[i,j],[i,j+1],[i,j+2]] : [[i,j],[i+1,j],[i+2,j]];
+  function spanOK(cs){
+    let a=minI,b=maxI,c=minJ,d=maxJ;
+    if(!started){ a=b=cs[0][0]; c=d=cs[0][1]; }
+    for(const [ci,cj] of cs){ a=Math.min(a,ci);b=Math.max(b,ci);c=Math.min(c,cj);d=Math.max(d,cj); }
+    return (b-a)<=SPAN && (d-c)<=SPAN;
+  }
+  function tryPlace(dir,i,j,connected){
+    const cs=cellsOf(dir,i,j);
+    const used = dir==="h"?hUsed:vUsed;
+    for(const [ci,cj] of cs) if(used.has(lk(ci,cj))) return false;       // no same-direction overlap
+    if(!spanOK(cs)) return false;
+    const cur={ a:val.get(lk(cs[0][0],cs[0][1])), b:val.get(lk(cs[1][0],cs[1][1])), c:val.get(lk(cs[2][0],cs[2][1])) };
+    const free=(cur.a===undefined?1:0)+(cur.b===undefined?1:0)+(cur.c===undefined?1:0);
+    if(connected && free===3) return false;                             // must touch the mesh
+    for(const avoidZero of [true,false]){            // try ALL ops preferring non-trivial; relax only if forced
+      for(const op of prng.shuffle(settings.operators.slice())){
+        const sol=satisfyOnce(op, cur, prng, settings, avoidZero);
+        if(sol){
+          const trip=[sol.a,sol.b,sol.c];
+          for(let k=0;k<3;k++){ const ci=cs[k][0], cj=cs[k][1];
+            val.set(lk(ci,cj),trip[k]); used.add(lk(ci,cj));
+            if(!started){ minI=maxI=ci; minJ=maxJ=cj; started=true; }
+            minI=Math.min(minI,ci);maxI=Math.max(maxI,ci);minJ=Math.min(minJ,cj);maxJ=Math.max(maxJ,cj);
+          }
+          eqs.push({dir,i,j,op});
+          return true;
+        }
+      }
     }
     return false;
   }
-  return rec(0) ? { assign, opAssign } : null;
+  tryPlace(prng.pick(["h","v"]), 0, 0, false);    // seed equation
+  let rounds=0;
+  while(eqs.length<TARGET && rounds<200){
+    rounds++;
+    const cands=[], seen=new Set();
+    for(const k of val.keys()){
+      const [i,j]=k.split(",").map(Number);
+      for(const s of [["h",i,j],["h",i,j-1],["h",i,j-2],["v",i,j],["v",i-1,j],["v",i-2,j]]){
+        const id=s[0]+":"+s[1]+","+s[2]; if(!seen.has(id)){ seen.add(id); cands.push(s); }
+      }
+    }
+    prng.shuffle(cands);
+    let placed=false;
+    for(const [dir,i,j] of cands){ if(eqs.length>=TARGET) break; if(tryPlace(dir,i,j,true)) placed=true; }
+    if(!placed) break;                            // saturated
+  }
+  // ---- convert the logical equations to a physical grid ----
+  const raw=[]; let pminR=Infinity,pminC=Infinity,pmaxR=-Infinity,pmaxC=-Infinity;
+  for(const e of eqs){
+    const cs=cellsOf(e.dir,e.i,e.j);
+    let A,B,C,O,E;
+    if(e.dir==="h"){ A=[2*e.i,2*e.j]; B=[2*e.i,2*e.j+2]; C=[2*e.i,2*e.j+4]; O=[2*e.i,2*e.j+1]; E=[2*e.i,2*e.j+3]; }
+    else            { A=[2*e.i,2*e.j]; B=[2*e.i+2,2*e.j]; C=[2*e.i+4,2*e.j]; O=[2*e.i+1,2*e.j]; E=[2*e.i+3,2*e.j]; }
+    raw.push({ A,B,C,O,E, op:e.op, dir:e.dir,
+      av:val.get(lk(cs[0][0],cs[0][1])), bv:val.get(lk(cs[1][0],cs[1][1])), cv:val.get(lk(cs[2][0],cs[2][1])) });
+    for(const p of [A,B,C,O,E]){ pminR=Math.min(pminR,p[0]);pmaxR=Math.max(pmaxR,p[0]);pminC=Math.min(pminC,p[1]);pmaxC=Math.max(pmaxC,p[1]); }
+  }
+  if(raw.length===0) return { layout:{cells:new Map(),equations:[],numberCells:[],crossings:[],rows:0,cols:0}, assign:new Map(), opAssign:new Map() };
+  const nk=p=>(p[0]-pminR)+","+(p[1]-pminC);
+  const cells=new Map(), assign=new Map(), opAssign=new Map(), equations=[];
+  for(const e of raw){
+    cells.set(nk(e.A),{role:"num"}); cells.set(nk(e.B),{role:"num"}); cells.set(nk(e.C),{role:"num"});
+    cells.set(nk(e.O),{role:"op"});  cells.set(nk(e.E),{role:"eq"});
+    assign.set(nk(e.A),e.av); assign.set(nk(e.B),e.bv); assign.set(nk(e.C),e.cv);
+    opAssign.set(nk(e.O),e.op);
+    equations.push({ a:nk(e.A), op:nk(e.O), b:nk(e.B), eq:nk(e.E), c:nk(e.C), dir:e.dir });
+  }
+  const numberCells=[...cells.keys()].filter(k=>cells.get(k).role==="num");
+  return { layout:{ cells, equations, numberCells, crossings:[], rows:pmaxR-pminR+1, cols:pmaxC-pminC+1 }, assign, opAssign };
 }
 
 /* ---- FR-9: blank selection — keep a blank only if propagation still fully resolves ---- */
@@ -442,15 +445,24 @@ function chooseBlanks(layout, assign, opAssign, prng, settings){
 /* ---- FR-8: deterministic top-level generate (§10) ---- */
 function generate(seed, settings){
   const prng = makePRNG(seed);
+  const minEq = ({ small:5, medium:9, large:12 })[settings.size] || 8;
   function attempt(ops){
     const s = Object.assign({}, settings, { operators:ops });
+    let best=null;
     for(let k=0;k<TOTAL_BUDGET;k++){
-      const layout = growLayout(prng, s);
-      const fill = fillLayout(layout, prng, s);
-      if(fill && checkGrid(layout, fill.assign, fill.opAssign, s).consistent){
-        const blanks = chooseBlanks(layout, fill.assign, fill.opAssign, prng, s);
-        return { layout, assign:fill.assign, opAssign:fill.opAssign, blanks, seed, settings:s };
+      const b = buildPuzzle(prng, s);
+      const ne = b.layout.equations.length;
+      if(ne>=1 && checkGrid(b.layout, b.assign, b.opAssign, s).consistent){
+        if(!best || ne>best.layout.equations.length) best=b;
+        if(ne>=minEq){
+          const blanks = chooseBlanks(b.layout, b.assign, b.opAssign, prng, s);
+          return { layout:b.layout, assign:b.assign, opAssign:b.opAssign, blanks, seed, settings:s };
+        }
       }
+    }
+    if(best && best.layout.equations.length>=4){
+      const blanks = chooseBlanks(best.layout, best.assign, best.opAssign, prng, s);
+      return { layout:best.layout, assign:best.assign, opAssign:best.opAssign, blanks, seed, settings:s };
     }
     return null;
   }
