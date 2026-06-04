@@ -231,10 +231,15 @@ returns an inconsistent grid**, and is **deterministic** in `(seed, maths-settin
 - **Seed label** (e.g. `seed: 8F3K-217`) so a printout is self-identifying/reproducible.
 - **"Name:"** line.
 - One-line **instruction**.
-- The **grid**: connected bordered square cells (numbers, operators, `=`); given numbers printed,
-  blanks as empty boxes; background cells empty.
-- **Answer key** (optional): the fully-filled grid on a **separate page**, blanks shown in red,
-  labelled with the same seed.
+- The **grid** — the visual centrepiece: a **connected crossword grid of square, thin-gray-bordered
+  cells** (`gap:0`, ~`#7a7a7a` lines). **Every** cell is boxed — numbers (bold), operators, and `=`
+  each in their own cell (like the reference worksheet). Given numbers are printed; blanks are
+  **empty white boxes** to write in; background cells are blank.
+- **Notation glyphs**: European `·` / `:` by default (switchable to `×` / `÷`); `−` for minus.
+- **Answer key** (optional): the same grid fully filled, with the **previously-blank cells in red**,
+  on its **own page**, labelled with the same seed.
+- Black-on-white, print-friendly; cell border and **font size scale with the cell** so it stays
+  legible at any size.
 
 ---
 
@@ -356,13 +361,22 @@ operandBlanks`. Rendering-only: `notation, answerKey, header`.*
 
 ---
 
-## 15. Responsive / on-screen behaviour
-- The grid cell size on screen comes from **`fitGrid()`**, which measures the **actual sheet width**
-  and divides by the column count (clamped 14–46px) → the whole puzzle fits the viewport, **no
-  horizontal scroll**, on desktop and phones. A `resize` listener re-fits on rotate/resize.
-- A **≤600px breakpoint** stacks controls full-width, reduces sheet padding, wraps the header
-  ("Name:" below the title), and sets form inputs to **16px** (stops iOS zoom-on-focus).
-- Print sizing (`applyPrintCell`, mm) is independent of screen sizing.
+## 15. On-screen UI & responsive behaviour
+- **Two-zone layout**: a **controls panel** (seed + 🎲 randomize, range presets `0–10 / 0–20 /
+  0–100 / -10–10` and custom min/max, operator toggles, size, difficulty, notation, operand-blanks
+  & answer-key switches, **New worksheet** + **Print / Save PDF**) next to the **live worksheet
+  preview**. Light theme, system fonts, blue accent (`#2f6df0`); operator/preset chips highlight
+  when active; a short status line ("✓ worksheet ready" / error).
+- **Responsive grid sizing** — `fitGrid()` sets the on-screen cell size by measuring the **real sheet
+  width** ÷ column count (clamped 13–46px), **hard-capped to `window.innerWidth`** so the puzzle
+  always fits the screen with **no horizontal scroll and no zoom-out**, on desktop and phones. It
+  re-runs on the next frame and on every `resize`/rotate.
+- **Mobile (≤600px)**: controls stack full-width; the worksheet column **stretches to the viewport**
+  (so the grid never drives page width — the root-cause fix for mobile); sheet padding shrinks; the
+  header wraps ("Name:" below the title); inputs are **16px** (stops iOS zoom-on-focus);
+  `body{overflow-x:hidden}` is a safety net. Verified at 375px: every size (Small … A4) fits with
+  zero horizontal overflow.
+- Print sizing (`applyPrintCell`, mm) is independent of on-screen sizing.
 
 ---
 
