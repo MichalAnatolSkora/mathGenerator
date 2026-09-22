@@ -4,7 +4,7 @@
 |---|---|
 | **Product** | Math Crossword Worksheet Generator (working title) |
 | **Version** | 1.0 |
-| **Status** | Built — this document reflects the shipped `index.html` |
+| **Status** | Built — this document reflects the shipped `math-crossword/index.html` (linked from the site home page `../index.html`) |
 | **Date** | 2026-05-31 |
 | **Owner** | llm@infotek.pl |
 | **Target platform** | Static web page, hostable on GitHub Pages; output is a **printable A4 worksheet** (print / Save-as-PDF) |

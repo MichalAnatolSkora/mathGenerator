@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Crossword Worksheet Generator</title>
+<style>
+  :root{
+    --cell: 48px;
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --gridline:#7a7a7a; --accent:#2f6df0; --accent-d:#1f51c6;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --key:#c0252b;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  .appbar{padding:14px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:2px;}
+  .appbar .home{display:inline-block;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+  .appbar .home:hover{text-decoration:underline;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .grp:last-child{margin-bottom:0;}
+  label.field{display:block;font-size:13px;color:#333;margin-bottom:6px;}
+  .row{display:flex;gap:8px;align-items:center;}
+  input[type=text],input[type=number],select{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  input[type=number]{width:100%;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .presets button{font:inherit;font-size:12.5px;padding:5px 9px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .minmax{display:flex;gap:8px;}
+  .minmax > div{flex:1;}
+  .ops{display:flex;gap:6px;}
+  .ops label{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #ccd2dd;border-radius:8px;padding:6px 0;cursor:pointer;font-size:18px;background:#fff;user-select:none;}
+  .ops label.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .ops input{display:none;}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font:inherit;font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;}
+  button.primary:hover{background:var(--accent-d);}
+  button.ghost{font:inherit;padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;}
+  button.ghost:hover{border-color:var(--accent);}
+  #randSeed{flex:0 0 auto;width:auto;padding:7px 10px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---- sheets ---- */
+  .stage{flex:1;min-width:0;}
+  .sheetscroll{overflow-x:auto;}
+  .sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:26px 28px;margin:0 auto 18px;max-width:820px;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:12px;}
+  .title{font-size:20px;font-weight:700;}
+  .subtitle{font-size:12.5px;color:var(--muted);}
+  .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:4px;}
+  .namebox{flex:0 0 200px;border:1px solid #bbb;border-radius:6px;padding:10px 12px;font-size:13px;color:#555;min-height:42px;}
+  .instr{font-size:13px;color:#444;margin:0 0 16px;}
+  .grid{display:grid;gap:0;justify-content:center;margin:0 auto;width:max-content;}
+  .c{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cell)*0.42);line-height:1;}
+  .c.num,.c.op,.c.eq{border:1px solid var(--gridline);background:#fff;}   /* connected grid, like the reference */
+  .c.num{font-weight:700;}
+  .c.num.blank{background:#fff;}
+  .c.num.filled{color:var(--key);}
+  .c.op{font-size:calc(var(--cell)*0.46);color:#111;}
+  .c.eq{font-size:calc(var(--cell)*0.46);color:#111;}
+  .c.blk{}
+  .foot{margin-top:16px;font-size:11px;color:#999;text-align:center;}
+  .keytag{color:var(--key);}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+    input[type=text],input[type=number],select{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+    .sheet{padding:14px 12px;max-width:100%;}
+    .sheet-head{flex-wrap:wrap;gap:10px;}
+    .title{font-size:18px;}
+    .namebox{flex:1 1 100%;}
+    .instr{font-size:12px;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{background:#fff;}
+    .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .stage{width:100%;}
+    .sheetscroll{overflow:visible;}
+    .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;max-width:none;--cell:var(--cell-print);}
+    .sheet.key{page-break-before:always;}
+    .grid{gap:0;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="appbar-row">
+    <a class="home" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 All puzzles</a>
+    <nav class="langs" aria-label="Language"></nav>
+  </div>
+  <h1 data-i18n="title">Math Crossword Worksheet Generator</h1>
+  <p data-i18n-html="subtitle">Seed-based, printable arithmetic crosswords — every equation reads <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, across and down.</p>
+</div>
+
+<div class="wrap">
+  <!-- CONTROLS -->
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2 data-i18n="seed">Seed</h2>
+      <div class="row">
+        <input type="text" id="seed" autocomplete="off" spellcheck="false" data-i18n-attr="aria-label:seed" aria-label="Seed">
+        <button type="button" id="randSeed" data-i18n-attr="title:randomSeed,aria-label:randomSeed" title="Random seed">🎲</button>
+      </div>
+      <div class="hint" data-i18n="seedHint">Same seed + same range/operators ⇒ identical worksheet.</div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="range">Number range</h2>
+      <div class="presets" id="presets">
+        <button type="button" data-min="0" data-max="10">0–10</button>
+        <button type="button" data-min="0" data-max="20">0–20</button>
+        <button type="button" data-min="0" data-max="100">0–100</button>
+        <button type="button" data-min="-10" data-max="10">−10–10</button>
+      </div>
+      <div class="minmax">
+        <div><label class="field" for="min" data-i18n="min">Min</label><input type="number" id="min" step="1"></div>
+        <div><label class="field" for="max" data-i18n="max">Max</label><input type="number" id="max" step="1"></div>
+      </div>
+      <div class="hint" data-i18n="minHint">Min may be negative (enables negative answers).</div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="operators">Operators</h2>
+      <div class="ops" id="ops">
+        <label data-op="+"><input type="checkbox" class="op-cb" value="+" checked>+</label>
+        <label data-op="-"><input type="checkbox" class="op-cb" value="-" checked>−</label>
+        <label data-op="*"><input type="checkbox" class="op-cb" value="*" checked>·</label>
+        <label data-op="/"><input type="checkbox" class="op-cb" value="/" checked>:</label>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="puzzle">Puzzle</h2>
+      <label class="field" for="size" data-i18n="size">Size</label>
+      <select id="size">
+        <option value="small" data-i18n="sizeSmall">Small</option>
+        <option value="medium" selected data-i18n="sizeMedium">Medium</option>
+        <option value="large" data-i18n="sizeLarge">Large</option>
+        <option value="a4" data-i18n="sizeA4">Full page (A4)</option>
+      </select>
+      <label class="field" for="difficulty" style="margin-top:8px" data-i18n="difficulty">Difficulty (how many blanks)</label>
+      <select id="difficulty">
+        <option value="easy" data-i18n="diffEasy">Easy</option>
+        <option value="medium" selected data-i18n="diffMedium">Medium</option>
+        <option value="hard" data-i18n="diffHard">Hard</option>
+      </select>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="display">Display</h2>
+      <label class="field" for="notation" data-i18n="notation">Notation</label>
+      <select id="notation">
+        <option value="eu" selected data-i18n="notationEu">· and : (European)</option>
+        <option value="std" data-i18n="notationStd">× and ÷</option>
+      </select>
+      <label class="check" style="margin-top:10px"><input type="checkbox" id="operandBlanks" checked> <span data-i18n="operandBlanks">Allow operand blanks (inverse ops)</span></label>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="answerKey" checked> <span data-i18n="answerKey">Include answer key</span></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="newBtn" data-i18n="newWorksheet">New worksheet</button>
+      <button type="button" class="ghost" id="printBtn" data-i18n="print">Print / Save PDF</button>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+  </form>
+
+  <!-- SHEETS -->
+  <div class="stage">
+    <div class="sheetscroll"><div id="sheets"></div></div>
+  </div>
+</div>
+
+<script src="../i18n.js"></script>
+<script>
+"use strict";
+/* ---- user-facing text in four languages (pl, en, uk, vi); the language helper is ../i18n.js ---- */
+const MC_STRINGS = {
+  en: {
+    allPuzzles:'🧩 All puzzles', title:'Math Crossword Worksheet Generator',
+    subtitle:'Seed-based, printable arithmetic crosswords — every equation reads <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, across and down.',
+    seed:'Seed', randomSeed:'Random seed', seedHint:'Same seed + same range/operators ⇒ identical worksheet.',
+    range:'Number range', min:'Min', max:'Max', minHint:'Min may be negative (enables negative answers).',
+    operators:'Operators', puzzle:'Puzzle', size:'Size', sizeSmall:'Small', sizeMedium:'Medium', sizeLarge:'Large', sizeA4:'Full page (A4)',
+    difficulty:'Difficulty (how many blanks)', diffEasy:'Easy', diffMedium:'Medium', diffHard:'Hard',
+    display:'Display', notation:'Notation', notationEu:'· and : (European)', notationStd:'× and ÷',
+    operandBlanks:'Allow operand blanks (inverse ops)', answerKey:'Include answer key',
+    newWorksheet:'New worksheet', print:'Print / Save PDF', ready:'✓ worksheet ready',
+    errWhole:'Min and Max must be whole numbers.', errMinMax:'Min must be ≤ Max.', errOps:'Select at least one operator.',
+    errNarrow:'Range is too narrow — widen Min/Max.', errGen:"Couldn't generate with these settings — try a wider range or more operators.",
+    rangeTitleTo:max=>`Mixed math operations to ${max}`, rangeTitleFrom:(min,max)=>`Mixed math operations from ${min} to ${max}`,
+    keyTag:'— Answer key', opAdd:'addition', opSub:'subtraction', opMul:'multiplication', opDiv:'division',
+    direction:'left → right, top → bottom', seedLabel:'seed:', name:'Name:',
+    instr:'Fill in the blank boxes so every equation is true. Each equation reads A op B = C — across or down.',
+    langLabel:'Language',
+  },
+  pl: {
+    allPuzzles:'🧩 Wszystkie zagadki', title:'Generator krzyżówek matematycznych',
+    subtitle:'Krzyżówki z działaniami do druku, generowane z ziarna — każde równanie czyta się <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, w poziomie i w pionie.',
+    seed:'Ziarno', randomSeed:'Losowe ziarno', seedHint:'To samo ziarno + ten sam zakres/działania ⇒ identyczna karta pracy.',
+    range:'Zakres liczb', min:'Min', max:'Maks', minHint:'Min może być ujemne (pojawią się ujemne wyniki).',
+    operators:'Działania', puzzle:'Krzyżówka', size:'Rozmiar', sizeSmall:'Mała', sizeMedium:'Średnia', sizeLarge:'Duża', sizeA4:'Cała strona (A4)',
+    difficulty:'Trudność (ile pustych pól)', diffEasy:'Łatwa', diffMedium:'Średnia', diffHard:'Trudna',
+    display:'Wygląd', notation:'Zapis działań', notationEu:'· i : (europejski)', notationStd:'× i ÷',
+    operandBlanks:'Puste pola także w składnikach (działania odwrotne)', answerKey:'Dołącz rozwiązanie',
+    newWorksheet:'Nowa karta pracy', print:'Drukuj / Zapisz PDF', ready:'✓ karta pracy gotowa',
+    errWhole:'Min i Maks muszą być liczbami całkowitymi.', errMinMax:'Min musi być ≤ Maks.', errOps:'Wybierz co najmniej jedno działanie.',
+    errNarrow:'Zakres jest za wąski — rozszerz Min/Maks.', errGen:'Nie udało się wygenerować z tymi ustawieniami — spróbuj szerszego zakresu lub więcej działań.',
+    rangeTitleTo:max=>`Działania do ${max}`, rangeTitleFrom:(min,max)=>`Działania od ${min} do ${max}`,
+    keyTag:'— Rozwiązanie', opAdd:'dodawanie', opSub:'odejmowanie', opMul:'mnożenie', opDiv:'dzielenie',
+    direction:'od lewej do prawej, z góry na dół', seedLabel:'ziarno:', name:'Imię:',
+    instr:'Wpisz liczby w puste pola tak, aby każde równanie było prawdziwe. Każde równanie czyta się A op B = C — w poziomie lub w pionie.',
+    langLabel:'Język',
+  },
+  uk: {
+    allPuzzles:'🧩 Усі головоломки', title:'Генератор математичних кросвордів',
+    subtitle:'Кросворди з прикладами для друку, створені із зерна — кожна рівність читається <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, по горизонталі й по вертикалі.',
+    seed:'Зерно', randomSeed:'Випадкове зерно', seedHint:'Те саме зерно + той самий діапазон/дії ⇒ однаковий аркуш.',
+    range:'Діапазон чисел', min:'Мін', max:'Макс', minHint:"Мін може бути від'ємним (з'являться від'ємні відповіді).",
+    operators:'Дії', puzzle:'Кросворд', size:'Розмір', sizeSmall:'Малий', sizeMedium:'Середній', sizeLarge:'Великий', sizeA4:'Уся сторінка (A4)',
+    difficulty:'Складність (скільки порожніх клітинок)', diffEasy:'Легка', diffMedium:'Середня', diffHard:'Складна',
+    display:'Вигляд', notation:'Запис дій', notationEu:'· і : (європейський)', notationStd:'× і ÷',
+    operandBlanks:'Порожні клітинки також у доданках (обернені дії)', answerKey:'Додати відповіді',
+    newWorksheet:'Новий аркуш', print:'Друк / Зберегти PDF', ready:'✓ аркуш готовий',
+    errWhole:'Мін і Макс мають бути цілими числами.', errMinMax:'Мін має бути ≤ Макс.', errOps:'Вибери принаймні одну дію.',
+    errNarrow:'Діапазон надто вузький — розшир Мін/Макс.', errGen:'Не вдалося створити з цими налаштуваннями — спробуй ширший діапазон або більше дій.',
+    rangeTitleTo:max=>`Приклади до ${max}`, rangeTitleFrom:(min,max)=>`Приклади від ${min} до ${max}`,
+    keyTag:'— Відповіді', opAdd:'додавання', opSub:'віднімання', opMul:'множення', opDiv:'ділення',
+    direction:'зліва направо, згори донизу', seedLabel:'зерно:', name:"Ім'я:",
+    instr:'Заповни порожні клітинки так, щоб кожна рівність була правильною. Кожна рівність читається A op B = C — по горизонталі або по вертикалі.',
+    langLabel:'Мова',
+  },
+  vi: {
+    allPuzzles:'🧩 Tất cả câu đố', title:'Trình tạo ô chữ toán học',
+    subtitle:'Ô chữ phép tính để in, tạo từ mã hạt giống — mỗi phép tính đọc là <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, theo hàng ngang và hàng dọc.',
+    seed:'Hạt giống', randomSeed:'Hạt giống ngẫu nhiên', seedHint:'Cùng hạt giống + cùng phạm vi/phép tính ⇒ phiếu giống hệt nhau.',
+    range:'Phạm vi số', min:'Nhỏ nhất', max:'Lớn nhất', minHint:'Số nhỏ nhất có thể âm (cho phép kết quả âm).',
+    operators:'Phép tính', puzzle:'Ô chữ', size:'Kích cỡ', sizeSmall:'Nhỏ', sizeMedium:'Vừa', sizeLarge:'Lớn', sizeA4:'Cả trang (A4)',
+    difficulty:'Độ khó (số ô trống)', diffEasy:'Dễ', diffMedium:'Vừa', diffHard:'Khó',
+    display:'Hiển thị', notation:'Ký hiệu', notationEu:'· và : (kiểu châu Âu)', notationStd:'× và ÷',
+    operandBlanks:'Cho phép ô trống ở số hạng (phép tính ngược)', answerKey:'Kèm đáp án',
+    newWorksheet:'Phiếu mới', print:'In / Lưu PDF', ready:'✓ phiếu đã sẵn sàng',
+    errWhole:'Nhỏ nhất và Lớn nhất phải là số nguyên.', errMinMax:'Nhỏ nhất phải ≤ Lớn nhất.', errOps:'Chọn ít nhất một phép tính.',
+    errNarrow:'Phạm vi quá hẹp — hãy nới rộng Nhỏ nhất/Lớn nhất.', errGen:'Không tạo được với cài đặt này — hãy thử phạm vi rộng hơn hoặc thêm phép tính.',
+    rangeTitleTo:max=>`Phép tính đến ${max}`, rangeTitleFrom:(min,max)=>`Phép tính từ ${min} đến ${max}`,
+    keyTag:'— Đáp án', opAdd:'phép cộng', opSub:'phép trừ', opMul:'phép nhân', opDiv:'phép chia',
+    direction:'trái → phải, trên → dưới', seedLabel:'hạt giống:', name:'Tên:',
+    instr:'Điền số vào các ô trống sao cho mọi phép tính đều đúng. Mỗi phép tính đọc là A op B = C — theo hàng ngang hoặc hàng dọc.',
+    langLabel:'Ngôn ngữ',
+  },
+};
+const tt = (k, ...a) => I18N.t(MC_STRINGS, k, ...a);
+const OPKEY = { "+":"opAdd", "-":"opSub", "*":"opMul", "/":"opDiv" };
+function applyLanguage(){
+  I18N.apply(MC_STRINGS);
+  document.title = tt("title");
+  document.querySelector(".langs").setAttribute("aria-label", tt("langLabel"));
+}
+/* ============================================================================
+   Math Crossword Worksheet Generator — single-file implementation of PRD.md
+   Sections referenced as (§x) / function ids (FR-n) match the PRD.
+   ========================================================================== */
+
+/* ---- constants ---- */
+const INVALID = Symbol("INVALID");
+const GLYPH = { eu:{ "+":"+","-":"−","*":"·","/":":" }, std:{ "+":"+","-":"−","*":"×","/":"÷" } };
+const OPWORD = { "+":"addition","-":"subtraction","*":"multiplication","/":"division" };
+const DIFF = { easy:{ratio:0.30}, medium:{ratio:0.42}, hard:{ratio:0.55} };
+const SEED_TRIES = 300;     // sampling budget for the free seed equation
+const TOTAL_BUDGET = 80;    // build attempts before relaxing operators (§7.7, FR-8)
+
+/* ---- FR-5: seedable PRNG (cyrb-style hash -> mulberry32), no deps (§7.2) ---- */
+function makePRNG(seed){
+  const str = String(seed);
+  let h = 1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){ h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h<<13)|(h>>>19); }
+  let a = h >>> 0;
+  const rnd = () => { a|=0; a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; };
+  const rndInt = (lo,hi) => lo + Math.floor(rnd()*(hi-lo+1));
+  const pick = arr => arr[Math.floor(rnd()*arr.length)];
+  const shuffle = arr => { for(let i=arr.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; };
+  return { rnd, rndInt, pick, shuffle };
+}
+
+/* ---- core engine: one source of truth (§11) ---- */
+const inRange = (x,o) => Number.isInteger(x) && x>=o.minValue && x<=o.maxValue;
+
+// FR-1
+function evaluate(values, operators, opts){
+  let acc = values[0];
+  if(!inRange(acc,opts)) return INVALID;
+  for(let k=0;k<operators.length;k++){
+    const n = values[k+1];
+    switch(operators[k]){
+      case "+": acc = acc + n; break;
+      case "-": acc = acc - n; break;
+      case "*": acc = acc * n; break;
+      case "/": if(n===0 || acc % n !== 0) return INVALID; acc = acc / n; break;
+    }
+    if(!inRange(acc,opts)) return INVALID;   // VR1/VR4: every value stays in [min,max]
+  }
+  return acc;
+}
+// FR-2
+function checkEquation(a, op, b, c, opts){
+  if(!inRange(a,opts) || !inRange(b,opts) || !inRange(c,opts)) return false;
+  if(op==="/" && (b===0 || a % b !== 0)) return false;
+  return evaluate([a,b],[op],opts) === c;
+}
+// FR-3
+function checkGrid(layout, assign, opAssign, opts){
+  const status = layout.equations.map(e =>
+    checkEquation(assign.get(e.a), opAssign.get(e.op), assign.get(e.b), assign.get(e.c), opts));
+  return { status, consistent: status.every(Boolean) };
+}
+// inverse table for A op B = C with one unknown -> forced integer in range, or null
+function computeMissing(op, unknown, vals, opts){
+  let a=vals.a, b=vals.b, c=vals.c, x;
+  if(unknown==="c"){ const r=evaluate([a,b],[op],opts); return r===INVALID ? null : r; }
+  if(unknown==="a"){
+    if(op==="+") x=c-b;
+    else if(op==="-") x=c+b;
+    else if(op==="*"){ if(b===0||c%b!==0) return null; x=c/b; }
+    else /* "/" */ { x=c*b; }
+  } else { // unknown === "b"
+    if(op==="+") x=c-a;
+    else if(op==="-") x=a-c;
+    else if(op==="*"){ if(a===0||c%a!==0) return null; x=c/a; }
+    else /* "/" */ { if(c===0||a%c!==0) return null; x=a/c; }
+  }
+  if(!Number.isInteger(x) || x<opts.minValue || x>opts.maxValue) return null;
+  const f={a,b,c}; f[unknown]=x;
+  return checkEquation(f.a, op, f.b, f.c, opts) ? x : null;   // final guard (÷0, exactness, range)
+}
+
+/* ---- FR-4: single-step deduction solver (uniqueness + blank validation, §9.1) ---- */
+function solveOneUnknown(e, values, opAssign, opts){
+  const op = opAssign.get(e.op);
+  const known = {}; let unknown=null;
+  for(const k of ["a","b","c"]){ const id=e[k]; if(values.has(id)) known[k]=values.get(id); else unknown=k; }
+  const x = computeMissing(op, unknown, known, opts);
+  return x===null ? null : { id:e[unknown], val:x };
+}
+function solveByPropagation(layout, givens, opAssign, opts){
+  const v = new Map(givens);
+  let progressed=true;
+  while(progressed){
+    progressed=false;
+    for(const e of layout.equations){
+      const unknowns = ["a","b","c"].filter(k=>!v.has(e[k]));
+      if(unknowns.length===1){
+        const r = solveOneUnknown(e, v, opAssign, opts);
+        if(r){
+          if(v.has(r.id)){ if(v.get(r.id)!==r.val) return "CONTRADICTION"; }
+          else { v.set(r.id, r.val); progressed=true; }
+        }
+      }
+    }
+  }
+  return layout.numberCells.every(id=>v.has(id)) ? v : "STUCK";
+}
+
+/* ---- physical cell-id helper (used by render + builder) ---- */
+const key = (r,c) => r+","+c;
+
+/* ---- value selection ---- */
+// Shuffled values in range; in the "avoidZero" pass we drop 0 (and 1 for ×/÷, which give
+// trivial a·1=a / a:1=a) so puzzles read like real arithmetic instead of 0·x=0 cascades.
+function poolVals(opts, prng, avoidZero, op){
+  const a=[];
+  for(let v=opts.minValue;v<=opts.maxValue;v++){
+    if(avoidZero && v===0) continue;
+    if(avoidZero && v===1 && (op==="*"||op==="/")) continue;
+    a.push(v);
+  }
+  return prng.shuffle(a);
+}
+
+// In the preferred ("nice") pass, reject boring equations: any zero, or ×1 / ÷1.
+function isTrivial(op,a,b,c){
+  if(a===0||b===0||c===0) return true;
+  if((op==="*"||op==="/") && (Math.abs(a)===1||Math.abs(b)===1)) return true;
+  return false;
+}
+// Find op-consistent values for ONE equation given some fixed cells (undefined = free).
+// Returns {a,b,c} satisfying checkEquation, or null. With avoidZero=true it also rejects
+// trivial equations so puzzles read like real arithmetic. Assigning values AS we grow is
+// what makes every placed equation already hold (consistency by construction).
+function satisfyOnce(op, vals, prng, opts, avoidZero){
+  const fa=vals.a===undefined, fb=vals.b===undefined, fc=vals.c===undefined;
+  const free=(fa?1:0)+(fb?1:0)+(fc?1:0);
+  const accept=(a,b,c)=> (avoidZero && isTrivial(op,a,b,c)) ? null : {a,b,c};
+  if(free===0) return checkEquation(vals.a,op,vals.b,vals.c,opts) ? accept(vals.a,vals.b,vals.c) : null;
+  if(free===1){
+    const unk = fa?"a":(fb?"b":"c");
+    const x = computeMissing(op, unk, {a:vals.a,b:vals.b,c:vals.c}, opts);
+    if(x===null) return null;
+    const r={a:vals.a,b:vals.b,c:vals.c}; r[unk]=x; return accept(r.a,r.b,r.c);
+  }
+  if(free===2){
+    const P=poolVals(opts,prng,avoidZero,op);
+    if(!fa){ for(const b of P){ const c=computeMissing(op,"c",{a:vals.a,b},opts); if(c!==null){ const r=accept(vals.a,b,c); if(r) return r; } } }
+    else if(!fb){ for(const a of P){ const c=computeMissing(op,"c",{a,b:vals.b},opts); if(c!==null){ const r=accept(a,vals.b,c); if(r) return r; } } }
+    else { for(const a of P){ const b=computeMissing(op,"b",{a,c:vals.c},opts); if(b!==null){ const r=accept(a,b,vals.c); if(r) return r; } } }
+    return null;
+  }
+  const P=poolVals(opts,prng,avoidZero,op); if(P.length===0) return null;   // free===3 (seed)
+  let t=0;
+  while(t<SEED_TRIES){ t++;
+    const a=P[Math.floor(prng.rnd()*P.length)], b=P[Math.floor(prng.rnd()*P.length)];
+    const c=computeMissing(op,"c",{a,b},opts);
+    if(c!==null){ const r=accept(a,b,c); if(r) return r; }
+  }
+  return null;
+}
+
+/* ---- FR-6/7: grow a DENSE interlocking mesh while assigning values (§7.4–7.5).
+   Equations live on a logical lattice — number cell (i,j) maps to physical (2i,2j), with
+   operator/equals cells in the gaps. A new equation may cross the existing structure at
+   SEVERAL number cells, forming LOOPS like the reference worksheet. Each equation is
+   satisfied the moment it is placed, so the whole grid is consistent by construction. */
+const LAT_SPAN   = { small:{r:4,c:4}, medium:{r:6,c:6}, large:{r:8,c:7}, a4:{r:11,c:9} }; // logical bbox cap (rows,cols) -> physical 2*span+1
+const LAT_TARGET = { small:14, medium:30, large:50, a4:130 };                            // soft cap; growth also stops at saturation
+function buildPuzzle(prng, settings){
+  const SP = LAT_SPAN[settings.size] || {r:6,c:6};
+  const TARGET = LAT_TARGET[settings.size] || 30;
+  const val=new Map(), hUsed=new Set(), vUsed=new Set(), eqs=[];
+  let minI=0,maxI=0,minJ=0,maxJ=0, started=false;
+  const lk=(i,j)=>i+","+j;
+  const cellsOf=(dir,i,j)=> dir==="h" ? [[i,j],[i,j+1],[i,j+2]] : [[i,j],[i+1,j],[i+2,j]];
+  function spanOK(cs){
+    let a=minI,b=maxI,c=minJ,d=maxJ;
+    if(!started){ a=b=cs[0][0]; c=d=cs[0][1]; }
+    for(const [ci,cj] of cs){ a=Math.min(a,ci);b=Math.max(b,ci);c=Math.min(c,cj);d=Math.max(d,cj); }
+    return (b-a)<=SP.r && (d-c)<=SP.c;
+  }
+  function tryPlace(dir,i,j,connected){
+    const cs=cellsOf(dir,i,j);
+    const used = dir==="h"?hUsed:vUsed;
+    for(const [ci,cj] of cs) if(used.has(lk(ci,cj))) return false;       // no same-direction overlap
+    if(!spanOK(cs)) return false;
+    const cur={ a:val.get(lk(cs[0][0],cs[0][1])), b:val.get(lk(cs[1][0],cs[1][1])), c:val.get(lk(cs[2][0],cs[2][1])) };
+    const free=(cur.a===undefined?1:0)+(cur.b===undefined?1:0)+(cur.c===undefined?1:0);
+    if(connected && free===3) return false;                             // must touch the mesh
+    for(const avoidZero of [true,false]){            // try ALL ops preferring non-trivial; relax only if forced
+      for(const op of prng.shuffle(settings.operators.slice())){
+        const sol=satisfyOnce(op, cur, prng, settings, avoidZero);
+        if(sol){
+          const trip=[sol.a,sol.b,sol.c];
+          for(let k=0;k<3;k++){ const ci=cs[k][0], cj=cs[k][1];
+            val.set(lk(ci,cj),trip[k]); used.add(lk(ci,cj));
+            if(!started){ minI=maxI=ci; minJ=maxJ=cj; started=true; }
+            minI=Math.min(minI,ci);maxI=Math.max(maxI,ci);minJ=Math.min(minJ,cj);maxJ=Math.max(maxJ,cj);
+          }
+          eqs.push({dir,i,j,op});
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  tryPlace(prng.pick(["h","v"]), 0, 0, false);    // seed equation
+  let rounds=0;
+  while(eqs.length<TARGET && rounds<200){
+    rounds++;
+    const cands=[], seen=new Set();
+    for(const k of val.keys()){
+      const [i,j]=k.split(",").map(Number);
+      for(const s of [["h",i,j],["h",i,j-1],["h",i,j-2],["v",i,j],["v",i-1,j],["v",i-2,j]]){
+        const id=s[0]+":"+s[1]+","+s[2]; if(!seen.has(id)){ seen.add(id); cands.push(s); }
+      }
+    }
+    prng.shuffle(cands);
+    let placed=false;
+    for(const [dir,i,j] of cands){ if(eqs.length>=TARGET) break; if(tryPlace(dir,i,j,true)) placed=true; }
+    if(!placed) break;                            // saturated
+  }
+  // ---- convert the logical equations to a physical grid ----
+  const raw=[]; let pminR=Infinity,pminC=Infinity,pmaxR=-Infinity,pmaxC=-Infinity;
+  for(const e of eqs){
+    const cs=cellsOf(e.dir,e.i,e.j);
+    let A,B,C,O,E;
+    if(e.dir==="h"){ A=[2*e.i,2*e.j]; B=[2*e.i,2*e.j+2]; C=[2*e.i,2*e.j+4]; O=[2*e.i,2*e.j+1]; E=[2*e.i,2*e.j+3]; }
+    else            { A=[2*e.i,2*e.j]; B=[2*e.i+2,2*e.j]; C=[2*e.i+4,2*e.j]; O=[2*e.i+1,2*e.j]; E=[2*e.i+3,2*e.j]; }
+    raw.push({ A,B,C,O,E, op:e.op, dir:e.dir,
+      av:val.get(lk(cs[0][0],cs[0][1])), bv:val.get(lk(cs[1][0],cs[1][1])), cv:val.get(lk(cs[2][0],cs[2][1])) });
+    for(const p of [A,B,C,O,E]){ pminR=Math.min(pminR,p[0]);pmaxR=Math.max(pmaxR,p[0]);pminC=Math.min(pminC,p[1]);pmaxC=Math.max(pmaxC,p[1]); }
+  }
+  if(raw.length===0) return { layout:{cells:new Map(),equations:[],numberCells:[],crossings:[],rows:0,cols:0}, assign:new Map(), opAssign:new Map() };
+  const nk=p=>(p[0]-pminR)+","+(p[1]-pminC);
+  const cells=new Map(), assign=new Map(), opAssign=new Map(), equations=[];
+  for(const e of raw){
+    cells.set(nk(e.A),{role:"num"}); cells.set(nk(e.B),{role:"num"}); cells.set(nk(e.C),{role:"num"});
+    cells.set(nk(e.O),{role:"op"});  cells.set(nk(e.E),{role:"eq"});
+    assign.set(nk(e.A),e.av); assign.set(nk(e.B),e.bv); assign.set(nk(e.C),e.cv);
+    opAssign.set(nk(e.O),e.op);
+    equations.push({ a:nk(e.A), op:nk(e.O), b:nk(e.B), eq:nk(e.E), c:nk(e.C), dir:e.dir });
+  }
+  const numberCells=[...cells.keys()].filter(k=>cells.get(k).role==="num");
+  return { layout:{ cells, equations, numberCells, crossings:[], rows:pmaxR-pminR+1, cols:pmaxC-pminC+1 }, assign, opAssign };
+}
+
+/* ---- FR-9: blank selection — keep a blank only if propagation still fully resolves ---- */
+function chooseBlanks(layout, assign, opAssign, prng, settings){
+  const ratio = (DIFF[settings.difficulty]||DIFF.medium).ratio;
+  const resultOnly = !(settings.operandBlanks && settings.difficulty!=="easy");
+  const resultSet = new Set(layout.equations.map(e=>e.c));
+  const candidates = prng.shuffle(layout.numberCells.filter(id => resultOnly ? resultSet.has(id) : true));
+  const target = Math.max(1, Math.round(ratio * layout.numberCells.length));
+  const blanks = new Set();
+  for(const id of candidates){
+    if(blanks.size>=target) break;
+    const trial = new Set(blanks); trial.add(id);
+    const givens = new Map();
+    for(const nc of layout.numberCells) if(!trial.has(nc)) givens.set(nc, assign.get(nc));
+    const res = solveByPropagation(layout, givens, opAssign, settings);
+    if(res!=="STUCK" && res!=="CONTRADICTION"){
+      let ok=true;
+      for(const nc of layout.numberCells){ if(res.get(nc)!==assign.get(nc)){ ok=false; break; } }
+      if(ok) blanks.add(id);
+    }
+  }
+  return blanks;
+}
+
+/* ---- FR-8: deterministic top-level generate (§10) ---- */
+function generate(seed, settings){
+  const prng = makePRNG(seed);
+  const minEq = ({ small:5, medium:9, large:12, a4:30 })[settings.size] || 8;
+  function attempt(ops){
+    const s = Object.assign({}, settings, { operators:ops });
+    let best=null;
+    for(let k=0;k<TOTAL_BUDGET;k++){
+      const b = buildPuzzle(prng, s);
+      const ne = b.layout.equations.length;
+      if(ne>=1 && checkGrid(b.layout, b.assign, b.opAssign, s).consistent){
+        if(!best || ne>best.layout.equations.length) best=b;
+        if(ne>=minEq){
+          const blanks = chooseBlanks(b.layout, b.assign, b.opAssign, prng, s);
+          return { layout:b.layout, assign:b.assign, opAssign:b.opAssign, blanks, seed, settings:s };
+        }
+      }
+    }
+    if(best && best.layout.equations.length>=4){
+      const blanks = chooseBlanks(best.layout, best.assign, best.opAssign, prng, s);
+      return { layout:best.layout, assign:best.assign, opAssign:best.opAssign, blanks, seed, settings:s };
+    }
+    return null;
+  }
+  let r = attempt(settings.operators);
+  if(!r){                                   // graceful fallback: relax operators (FR-7)
+    const has = ch => settings.operators.includes(ch);
+    const relaxed = (has("+")&&has("-")) ? ["+","-"] : (has("+")?["+"]:(has("-")?["-"]:["+"]));
+    r = attempt(relaxed) || attempt(["+"]) || attempt(["-"]);
+  }
+  return r || { error:true };
+}
+
+/* ============================ rendering (§8) ============================== */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function rangeTitle(s){ return s.minValue<0 ? tt("rangeTitleFrom", s.minValue, s.maxValue) : tt("rangeTitleTo", s.maxValue); }
+function opsSubtitle(s){ const w=s.operators.map(o=>tt(OPKEY[o])).join(", "); return w.charAt(0).toUpperCase()+w.slice(1); }
+
+function buildSheet(W, isKey){
+  const { layout, assign, opAssign, blanks, settings:s, seed } = W;
+  const root = document.createElement("div");
+  root.className = "sheet" + (isKey ? " key" : "");
+
+  const head = document.createElement("div");
+  head.className = "sheet-head";
+  head.innerHTML =
+    `<div><div class="title">${escapeHtml(rangeTitle(s))}${isKey?` <span class="keytag">${escapeHtml(tt("keyTag"))}</span>`:""}</div>`+
+    `<div class="subtitle">${escapeHtml(opsSubtitle(s))} · ${escapeHtml(tt("direction"))}</div>`+
+    `<div class="seedlabel">${escapeHtml(tt("seedLabel"))} ${escapeHtml(seed)}</div></div>`+
+    (isKey ? "" : `<div class="namebox">${escapeHtml(tt("name"))}</div>`);
+  root.appendChild(head);
+
+  if(!isKey){
+    const p=document.createElement("p"); p.className="instr";
+    p.textContent=tt("instr");
+    root.appendChild(p);
+  }
+
+  const grid=document.createElement("div"); grid.className="grid";
+  grid.style.gridTemplateColumns=`repeat(${layout.cols}, var(--cell))`;
+  grid.style.gridTemplateRows=`repeat(${layout.rows}, var(--cell))`;
+  const gl = GLYPH[s.notation] || GLYPH.eu;
+  for(let r=0;r<layout.rows;r++){
+    for(let c=0;c<layout.cols;c++){
+      const cell=layout.cells.get(key(r,c));
+      const d=document.createElement("div");
+      if(!cell){ d.className="c blk"; }
+      else if(cell.role==="op"){ d.className="c op"; d.textContent=gl[opAssign.get(key(r,c))]; }
+      else if(cell.role==="eq"){ d.className="c eq"; d.textContent="="; }
+      else {
+        const id=key(r,c);
+        const hidden = blanks.has(id);
+        d.className = "c num" + (hidden && !isKey ? " blank" : "") + (hidden && isKey ? " filled" : "");
+        d.textContent = (hidden && !isKey) ? "" : String(assign.get(id));
+      }
+      grid.appendChild(d);
+    }
+  }
+  root.appendChild(grid);
+  return root;
+}
+
+/* ============================ UI wiring ================================== */
+let current=null;
+const $ = id => document.getElementById(id);
+
+function randomSeed(){
+  const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s=""; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s + "-" + (100+Math.floor(Math.random()*900));
+}
+function readSettings(){
+  return {
+    seed: ($("seed").value.trim() || "SEED"),
+    size: $("size").value,
+    minValue: parseInt($("min").value,10),
+    maxValue: parseInt($("max").value,10),
+    operators: [...document.querySelectorAll(".op-cb:checked")].map(cb=>cb.value),
+    notation: $("notation").value,
+    difficulty: $("difficulty").value,
+    operandBlanks: $("operandBlanks").checked,
+    answerKey: $("answerKey").checked,
+    header:{ footer:"" }
+  };
+}
+function validateSettings(s){
+  if(!Number.isInteger(s.minValue) || !Number.isInteger(s.maxValue)) return tt("errWhole");
+  if(s.minValue > s.maxValue) return tt("errMinMax");
+  if(s.operators.length===0) return tt("errOps");
+  if(s.maxValue - s.minValue < 2) return tt("errNarrow");
+  return null;
+}
+function syncOpStyles(){ document.querySelectorAll("#ops label").forEach(l=>{ l.classList.toggle("on", l.querySelector("input").checked); }); }
+function syncPresets(s){
+  document.querySelectorAll("#presets button").forEach(b=>{
+    b.classList.toggle("active", parseInt(b.dataset.min,10)===s.minValue && parseInt(b.dataset.max,10)===s.maxValue);
+  });
+}
+function persist(s){ try{ localStorage.setItem("mxw", JSON.stringify(s)); }catch(_){ } }
+function restore(){
+  try{
+    const s=JSON.parse(localStorage.getItem("mxw")||"null"); if(!s) return false;
+    $("seed").value=s.seed||randomSeed();
+    $("size").value=s.size||"medium";
+    $("min").value=s.minValue; $("max").value=s.maxValue;
+    document.querySelectorAll(".op-cb").forEach(cb=>cb.checked=(s.operators||["+","-","*","/"]).includes(cb.value));
+    $("notation").value=s.notation||"eu";
+    $("difficulty").value=s.difficulty||"medium";
+    $("operandBlanks").checked=s.operandBlanks!==false;
+    $("answerKey").checked=s.answerKey!==false;
+    return true;
+  }catch(_){ return false; }
+}
+
+// Print: size cells (mm) so the grid fits an A4 page. Screen sizing is done by fitGrid().
+function applyPrintCell(cols, rows){
+  const A4W=210, A4H=297, M=12, HEADER=40;                       // A4 minus margins, minus header room
+  let mm = Math.min((A4W-2*M)/cols, (A4H-2*M-HEADER)/rows, 12);  // cap so small puzzles aren't huge
+  mm = Math.max(mm, 5);
+  document.documentElement.style.setProperty("--cell-print", mm.toFixed(2)+"mm");
+}
+// Screen: measure the REAL sheet width and size cells so the whole grid fits — this is what
+// makes it scale on phones (and on orientation change, via the resize listener in wire()).
+function fitGrid(){
+  if(!current) return;
+  const sheet = document.querySelector(".sheet");
+  if(!sheet) return;
+  const cs = getComputedStyle(sheet);
+  const inner = sheet.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const vwCap = (window.innerWidth || sheet.clientWidth) - 28;   // hard cap: never exceed the screen
+  const avail = Math.max(60, Math.min(inner, vwCap)) - 1;
+  const px = Math.max(13, Math.min(Math.floor(avail / current.layout.cols), 46));
+  document.documentElement.style.setProperty("--cell", px + "px");
+}
+function regenerate(){
+  const s = readSettings();
+  syncOpStyles(); syncPresets(s);
+  const msg=$("msg");
+  const err=validateSettings(s);
+  if(err){ msg.textContent=err; msg.className="msg error"; return; }
+  const W = generate(s.seed, s);
+  if(W.error){
+    msg.textContent=tt("errGen");
+    msg.className="msg error"; $("sheets").innerHTML=""; return;
+  }
+  msg.textContent=tt("ready"); msg.className="msg";
+  persist(s);
+  const host=$("sheets"); host.innerHTML="";
+  host.appendChild(buildSheet(W, false));
+  if(s.answerKey) host.appendChild(buildSheet(W, true));
+  current=W;
+  applyPrintCell(W.layout.cols, W.layout.rows);   // mm for A4 print
+  fitGrid();                                       // px to fit the current screen
+  requestAnimationFrame(fitGrid);                  // re-fit once layout has settled
+}
+function newWorksheet(){ $("seed").value=randomSeed(); regenerate(); }
+
+function wire(){
+  window.addEventListener("resize", fitGrid);     // re-fit on rotate / window resize
+  ["size","min","max","notation","difficulty","seed"].forEach(id=>{
+    $(id).addEventListener("change", regenerate);
+  });
+  $("seed").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); regenerate(); } });
+  document.querySelectorAll(".op-cb").forEach(cb=>cb.addEventListener("change", regenerate));
+  $("operandBlanks").addEventListener("change", regenerate);
+  $("answerKey").addEventListener("change", regenerate);
+  document.querySelectorAll("#presets button").forEach(b=>b.addEventListener("click", ()=>{
+    $("min").value=b.dataset.min; $("max").value=b.dataset.max; regenerate();
+  }));
+  $("randSeed").addEventListener("click", newWorksheet);
+  $("newBtn").addEventListener("click", newWorksheet);
+  $("printBtn").addEventListener("click", ()=>window.print());
+}
+
+function init(){
+  if(!restore()){
+    $("min").value=0; $("max").value=20;
+    $("seed").value=randomSeed();
+  }
+  if(!$("seed").value) $("seed").value=randomSeed();
+  wire();
+  applyLanguage();
+  I18N.onChange(()=>{ applyLanguage(); regenerate(); });
+  if(location.search.indexOf("selftest")!==-1) selfTest();
+  regenerate();
+}
+
+/* ============================ self-test (?selftest) ====================== */
+function sameWorksheet(a,b){
+  if(a.layout.rows!==b.layout.rows || a.layout.cols!==b.layout.cols) return false;
+  if(a.layout.equations.length!==b.layout.equations.length) return false;
+  for(const nc of a.layout.numberCells){ if(a.assign.get(nc)!==b.assign.get(nc)) return false; }
+  for(const e of a.layout.equations){ if(a.opAssign.get(e.op)!==b.opAssign.get(e.op)) return false; }
+  if(a.blanks.size!==b.blanks.size) return false;
+  for(const id of a.blanks) if(!b.blanks.has(id)) return false;
+  return true;
+}
+function selfTest(){
+  const ranges=[{minValue:0,maxValue:10},{minValue:0,maxValue:20},{minValue:0,maxValue:100},{minValue:-10,maxValue:10}];
+  const base={size:"medium",operators:["+","-","*","/"],notation:"eu",difficulty:"medium",operandBlanks:true,answerKey:true,header:{}};
+  let gen=0,err=0,cFail=0,uFail=0,dFail=0,noBlank=0,minEq=Infinity,maxEq=0;
+  for(const rg of ranges){
+    for(let i=0;i<150;i++){
+      const seed="T_"+rg.minValue+"_"+rg.maxValue+"_"+i;
+      const s=Object.assign({},base,rg,{seed});
+      const W=generate(seed,s);
+      if(W.error){ err++; continue; }
+      gen++;
+      minEq=Math.min(minEq,W.layout.equations.length); maxEq=Math.max(maxEq,W.layout.equations.length);
+      if(!checkGrid(W.layout,W.assign,W.opAssign,s).consistent) cFail++;
+      const givens=new Map();
+      for(const nc of W.layout.numberCells) if(!W.blanks.has(nc)) givens.set(nc,W.assign.get(nc));
+      const res=solveByPropagation(W.layout,givens,W.opAssign,s);
+      if(res==="STUCK"||res==="CONTRADICTION") uFail++;
+      else for(const nc of W.layout.numberCells){ if(res.get(nc)!==W.assign.get(nc)){ uFail++; break; } }
+      if(W.blanks.size<1) noBlank++;
+      if(!sameWorksheet(W, generate(seed,s))) dFail++;
+    }
+  }
+  const pass = (cFail===0 && uFail===0 && dFail===0 && noBlank===0);
+  console.log(`[SELFTEST] generated=${gen} errors=${err} eqRange=${minEq}-${maxEq}`);
+  console.log(`[SELFTEST] consistencyFail=${cFail} uniqueFail=${uFail} determinismFail=${dFail} noBlank=${noBlank}`);
+  console.log("[SELFTEST] " + (pass ? "PASS ✅" : "FAIL ❌"));
+  return pass;
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cipher Detective</title>
+<meta name="description" content="A code-breaking guessing game for kids: see a message and its secret code, then work out which cipher was used.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --hint-line:#f1d98a; --hint-soft:#fff6d6;
+    --code:#25305a; --tile:32px; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+  button{font:inherit;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#f5f7fb;}
+  .seg button{font-weight:600;font-size:14px;border:0;background:transparent;padding:6px 14px;border-radius:999px;cursor:pointer;color:var(--muted);min-height:34px;}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
+  .navlink{font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
+  .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:820px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .card h2{font-size:17px;margin:0 0 10px;}
+  .case-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .case-head h2{margin:0;font-size:18px;}
+  .badge{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:var(--accent-soft);color:var(--accent-d);}
+  .badge.hard{background:#ffe8dc;color:#b4441b;}
+  .lead{margin:0 0 12px;color:var(--muted);font-size:15px;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;border:1.5px solid #cfd6e6;background:#fff;}
+  .legend i.dark{background:var(--code);border-color:var(--code);}
+
+  /* ---- letter tiles ---- */
+  .letters{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;padding:10px 0 4px;}
+  .word{display:flex;flex-direction:column;gap:4px;}
+  .r{display:flex;gap:3px;}
+  .t{width:var(--tile);height:var(--tile);display:flex;align-items:center;justify-content:center;font:700 calc(var(--tile)*.55)/1 ui-monospace,Menlo,Consolas,monospace;border-radius:7px;}
+  .r.plain .t{background:#fff;border:1.5px solid #cfd6e6;color:var(--ink);}
+  .r.code .t{background:var(--code);color:#fff;border:1.5px solid var(--code);}
+  .r.shift{display:none;}
+  .r.shift .t{height:18px;font-size:11.5px;font-weight:700;color:var(--accent-d);background:var(--accent-soft);border-radius:4px;}
+  .letters.mag .r.shift{display:flex;}
+  .magnote{display:none;font-size:13px;color:var(--muted);margin:6px 0 0;text-align:center;}
+  .letters.mag + .magnote{display:block;}
+
+  /* ---- tools & hints ---- */
+  .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .tools button{font-weight:600;font-size:14px;border:1px solid var(--line);background:#f5f7fb;border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px;}
+  .tools button:hover{border-color:var(--accent);}
+  .tools button[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-d);}
+  .tools button:disabled{opacity:.5;cursor:default;border-color:var(--line);}
+  .hints{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .hint{background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:10px;padding:10px 12px;font-size:15px;}
+  .hint b{margin-right:4px;}
+
+  /* ---- choices ---- */
+  .choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;}
+  .choice{display:flex;gap:10px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px;cursor:pointer;min-height:64px;color:var(--ink);}
+  .choice:hover{border-color:var(--accent);}
+  .choice .ic{font-size:24px;line-height:1;}
+  .choice .txt{flex:1;}
+  .choice b{display:block;font-size:15px;}
+  .choice small{color:var(--muted);font-size:12.5px;line-height:1.3;display:block;margin-top:2px;}
+  .choice .k{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 6px;line-height:1.4;}
+  .choice.correct{border-color:var(--good);background:var(--good-soft);}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .choice:disabled{cursor:default;}
+  .choice:disabled:not(.correct):not(.wrong){opacity:.55;}
+
+  /* ---- result ---- */
+  .result{border-width:2px;animation:pop .3s ease-out;}
+  .result.ok{border-color:var(--good);}
+  .result.no{border-color:var(--bad);}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion:reduce){.result{animation:none;}}
+  .verdict{font-size:22px;font-weight:800;margin:0 0 4px;}
+  .stars{font-size:22px;letter-spacing:2px;margin:0 0 10px;min-height:28px;}
+  .explain{margin:0 0 8px;font-size:15.5px;}
+  .whynot{margin:0 0 8px;font-size:14.5px;color:#5a4a00;background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:10px;padding:8px 12px;}
+  .whynot:empty{display:none;}
+  details{margin:10px 0 0;font-size:13px;color:var(--muted);}
+  details pre{background:#f5f7fb;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;color:var(--ink);}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
+  .primary:hover{background:var(--accent-d);}
+
+  /* ---- footer stats ---- */
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .ghost{font-size:13px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .ghost:hover{border-color:var(--bad);color:var(--bad);}
+
+  /* ---- guide dialog ---- */
+  dialog{border:0;border-radius:var(--radius);padding:0;max-width:min(760px,calc(100vw - 24px));width:100%;box-shadow:0 20px 60px rgba(0,0,0,.28);}
+  dialog::backdrop{background:rgba(20,25,50,.5);}
+  .dlg{padding:18px;max-height:88vh;overflow:auto;}
+  .dlg-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .dlg-head h2{margin:0;font-size:20px;flex:1;}
+  .dlg-head button{border:1px solid var(--line);background:#f5f7fb;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px;line-height:1;}
+  .steps{background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 30px;margin:0 0 14px;font-size:14.5px;}
+  .steps li{margin:4px 0;}
+  .gcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;}
+  .gcard .gh{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+  .gcard .gh b{font-size:16px;}
+  .gcard .gh .ic{font-size:22px;}
+  .gcard p{margin:4px 0;font-size:14.5px;}
+  .gcard .ex{font:600 13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#f5f7fb;border-radius:8px;padding:6px 10px;margin-top:6px;overflow:auto;}
+  .gcard .ex .arrow{color:var(--muted);margin:0 6px;}
+  .alpha{font:600 12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);background:#f5f7fb;border-radius:8px;padding:6px 10px;margin:0 0 14px;overflow:auto;white-space:nowrap;}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    :root{--tile:26px;}
+    .top{padding:8px 12px;}
+    .brand{font-size:18px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:14px;}
+    .letters{gap:8px 12px;}
+    .choices{grid-template-columns:1fr;}
+    .choice .k{display:none;}
+    .score span{padding:3px 8px;font-size:13px;}
+  }
+  @media (max-width:360px){ :root{--tile:22px;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 All puzzles</a>
+  <h1 class="brand" data-i18n="brand">🕵️ Cipher Detective</h1>
+  <div class="seg" role="group" aria-label="Level">
+    <button type="button" data-level="easy" aria-pressed="true" data-i18n="easy">Easy</button>
+    <button type="button" data-level="hard" aria-pressed="false" data-i18n="hard">Hard</button>
+  </div>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Print worksheet</a>
+  <nav class="langs" aria-label="Language"></nav>
+  <div class="score" aria-live="polite">
+    <span id="scoreStars" data-i18n-attr="title:starsTitle" title="Total stars">⭐ 0</span>
+    <span id="scoreStreak" data-i18n-attr="title:streakTitle" title="Current streak">🔥 0</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" id="caseCard">
+    <div class="case-head">
+      <h2 id="caseTitle">Case #1</h2>
+      <span class="badge" id="levelBadge">Easy</span>
+    </div>
+    <p class="lead" data-i18n="lead"></p>
+    <div class="legend">
+      <span><i></i> <span data-i18n="legendMessage">Message</span></span>
+      <span><i class="dark"></i> <span data-i18n="legendCode">In code</span></span>
+      <span id="legendMag" hidden data-i18n="legendMag">🔍 Steps each letter moved</span>
+    </div>
+    <div id="letters" class="letters"></div>
+    <p class="magnote" data-i18n="magnote"></p>
+
+    <div class="tools">
+      <button type="button" id="hintBtn">💡</button>
+      <button type="button" id="magBtn" aria-pressed="false" data-i18n="magnifier">🔍 Magnifier</button>
+      <button type="button" id="guideBtn" data-i18n="guide">📖 Cipher guide</button>
+    </div>
+    <div id="hints" class="hints" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2 data-i18n="whichCipher">Which cipher was used?</h2>
+    <div id="choices" class="choices"></div>
+  </section>
+
+  <section class="card result" id="result" hidden aria-live="polite">
+    <p class="verdict" id="verdict"></p>
+    <p class="stars" id="stars"></p>
+    <p class="explain" id="explain"></p>
+    <p class="whynot" id="whynot"></p>
+    <details>
+      <summary data-i18n="jsonSummary">Puzzle JSON</summary>
+      <pre id="json"></pre>
+    </details>
+    <button type="button" class="primary" id="nextBtn" data-i18n="next">Next case ➜</button>
+  </section>
+
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset">Reset progress</button>
+  </div>
+</main>
+
+<dialog id="guide" aria-labelledby="guideTitle">
+  <div class="dlg">
+    <div class="dlg-head">
+      <h2 id="guideTitle" data-i18n="guideTitle">📖 Cipher guide</h2>
+      <button type="button" id="guideClose" data-i18n-attr="aria-label:guideClose,title:guideClose" aria-label="Close guide">✕</button>
+    </div>
+    <div id="guideBody"></div>
+  </div>
+</dialog>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const STORE = 'cipherDetective.v1';
+
+  // UI strings per language = game texts + a few shared ones (brand, level names)
+  const UI = {};
+  for (const l of Object.keys(ENGINE.TEXT)) {
+    const T = ENGINE.TEXT[l];
+    UI[l] = { ...T.game, brand: T.sheet.sheetTitle, easy: T.levels.easy, hard: T.levels.hard };
+  }
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const lang = () => I18N.get();
+  const TX = () => ENGINE.textFor(lang());
+  const levelName = l => TX().levels[l];
+  const paramLabel = (id, p) => {
+    const P = TX().params;
+    if (id === 'caesar') return P.shift(p.shift);
+    if (id === 'vigenere' || id === 'beaufort') return P.key(p.key);
+    if (id === 'affine') return P.affine(p.a, p.b);
+    return '';
+  };
+
+  const state = {
+    level: 'easy', puzzle: null, hintsUsed: 0, answered: false, guess: null, cheer: 0, caseNo: 0, mag: false,
+    last: { cipher: null, msg: null },
+    stats: { stars: 0, solved: 0, played: 0, streak: 0, best: 0 },
+  };
+
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (j && typeof j === 'object') {
+        if (ENGINE.LEVELS[j.level]) state.level = j.level;
+        if (j.stats) Object.assign(state.stats, j.stats);
+        state.mag = !!j.mag;
+      }
+    } catch (e) { /* storage unavailable: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, stats: state.stats, mag: state.mag })); } catch (e) { /* ignore */ }
+  }
+
+  // ---------- rendering ----------
+  function renderHeader() {
+    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.level === state.level)));
+    $('#scoreStars').textContent = `⭐ ${state.stats.stars}`;
+    $('#scoreStreak').textContent = `🔥 ${state.stats.streak}`;
+    const badge = $('#levelBadge');
+    badge.textContent = levelName(state.level);
+    badge.className = 'badge' + (state.level === 'hard' ? ' hard' : '');
+    $('#caseTitle').textContent = t('caseTitle', state.caseNo);
+    const s = state.stats;
+    $('#statsText').textContent = t('stats', s.solved, s.played, s.stars, s.best);
+    document.title = t('brand').replace(/^\S+\s/, '');
+  }
+
+  function renderLetters() {
+    const box = $('#letters');
+    box.innerHTML = '';
+    const { plaintext, ciphertext } = state.puzzle;
+    const pairs = ENGINE.letterPairs(plaintext, ciphertext);
+    let li = 0;
+    const words = plaintext.split(' '), cwords = ciphertext.split(' ');
+    words.forEach((w, wi) => {
+      const cw = cwords[wi];
+      const word = el('div', 'word');
+      const rp = el('div', 'r plain'), rc = el('div', 'r code'), rs = el('div', 'r shift');
+      for (let i = 0; i < w.length; i++) {
+        const p = w[i], c = cw[i], isL = /[A-Z]/.test(p);
+        rp.appendChild(el('span', 't', p));
+        rc.appendChild(el('span', 't', c));
+        rs.appendChild(el('span', 't', isL ? String(pairs[li++].s) : ''));
+      }
+      word.append(rp, rc, rs);
+      box.appendChild(word);
+    });
+    box.classList.toggle('mag', state.mag);
+    $('#legendMag').hidden = !state.mag;
+    $('#magBtn').setAttribute('aria-pressed', String(state.mag));
+  }
+
+  function renderChoices() {
+    const box = $('#choices');
+    box.innerHTML = '';
+    const p = state.puzzle;
+    ENGINE.LEVELS[state.level].forEach((id, i) => {
+      const c = ENGINE.CIPHERS[id], tx = TX().ciphers[id];
+      const b = el('button', 'choice');
+      b.type = 'button'; b.dataset.id = id;
+      const txt = el('span', 'txt');
+      txt.append(el('b', null, tx.name), el('small', null, tx.blurb));
+      b.append(el('span', 'ic', c.icon), txt, el('span', 'k', String(i + 1)));
+      b.addEventListener('click', () => choose(id));
+      if (state.answered) {
+        b.disabled = true;
+        if (id === p.cipher_id) b.classList.add('correct');
+        else if (id === state.guess) b.classList.add('wrong');
+      }
+      box.appendChild(b);
+    });
+  }
+
+  function renderHints() {
+    const box = $('#hints');
+    box.innerHTML = '';
+    const hints = ENGINE.puzzleText(state.puzzle, lang()).hints;
+    for (let i = 0; i < state.hintsUsed; i++) {
+      const h = el('div', 'hint');
+      h.append(el('b', null, t('hintLabel', i + 1)), document.createTextNode(hints[i]));
+      box.appendChild(h);
+    }
+    const left = 2 - state.hintsUsed;
+    const btn = $('#hintBtn');
+    btn.textContent = left > 0 ? t('hintBtn', left) : t('noHints');
+    btn.disabled = left <= 0 || state.answered;
+  }
+
+  function renderResult() {
+    const r = $('#result');
+    if (!state.answered) { r.hidden = true; r.className = 'card result'; return; }
+    const p = state.puzzle, id = state.guess;
+    const correct = id === p.cipher_id;
+    const stars = correct ? Math.max(1, 3 - state.hintsUsed) : 0;
+    const full = ENGINE.cipherFull(p.cipher_id, lang());
+    const text = ENGINE.puzzleText(p, lang());
+    r.hidden = false;
+    r.className = 'card result ' + (correct ? 'ok' : 'no');
+    $('#verdict').textContent = correct ? t('correct', full, t('cheers')[state.cheer]) : t('notThisTime', full);
+    $('#stars').textContent = correct ? '⭐'.repeat(stars) + '☆'.repeat(3 - stars) : t('keepGoing');
+    $('#explain').textContent = text.explanation;
+    $('#whynot').textContent = correct ? '' : ENGINE.whyNot(id, p, lang());
+    $('#json').textContent = JSON.stringify({ cipher_id: p.cipher_id, params: p.params, plaintext: p.plaintext, ciphertext: p.ciphertext, hint: text.hints[0], hint2: text.hints[1], explanation: text.explanation }, null, 2);
+  }
+
+  function renderAll() {
+    I18N.apply(UI);
+    renderHeader(); renderLetters(); renderChoices(); renderHints(); renderResult();
+    $('#guideBody').innerHTML = '';   // rebuilt in the current language on next open
+  }
+
+  // ---------- game flow ----------
+  function newCase() {
+    state.puzzle = ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: lang() });
+    state.last = { cipher: state.puzzle.cipher_id, msg: state.puzzle.plaintext };
+    state.caseNo++;
+    state.hintsUsed = 0;
+    state.answered = false;
+    state.guess = null;
+    renderAll();
+    $('#caseCard').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  function choose(id) {
+    if (state.answered || !state.puzzle) return;
+    state.answered = true;
+    state.guess = id;
+    state.cheer = Math.floor(Math.random() * t('cheers').length);
+    const p = state.puzzle, s = state.stats;
+    const correct = id === p.cipher_id;
+    const stars = correct ? Math.max(1, 3 - state.hintsUsed) : 0;
+    s.played++;
+    if (correct) { s.solved++; s.stars += stars; s.streak++; s.best = Math.max(s.best, s.streak); }
+    else s.streak = 0;
+    save();
+    renderHeader(); renderChoices(); renderHints(); renderResult();
+    $('#result').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    $('#nextBtn').focus({ preventScroll: true });
+  }
+
+  function useHint() {
+    if (state.answered || state.hintsUsed >= 2) return;
+    state.hintsUsed++;
+    renderHints();
+  }
+
+  function toggleMag() {
+    state.mag = !state.mag;
+    save();
+    renderLetters();
+  }
+
+  function setLevel(level) {
+    if (!ENGINE.LEVELS[level] || level === state.level) return;
+    state.level = level;
+    save();
+    newCase();
+  }
+
+  function resetProgress() {
+    if (!confirm(t('resetConfirm'))) return;
+    state.stats = { stars: 0, solved: 0, played: 0, streak: 0, best: 0 };
+    save();
+    renderHeader();
+  }
+
+  // ---------- guide ----------
+  const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: 'KEY' }, affine: { a: 5, b: 8 }, beaufort: { key: 'KEY' } };
+  function buildGuide() {
+    const body = $('#guideBody');
+    if (body.childElementCount) return;
+    const steps = el('ol', 'steps');
+    steps.innerHTML = t('guideSteps').map(s => `<li>${s}</li>`).join('');
+    body.appendChild(steps);
+    const alpha = el('div', 'alpha');
+    alpha.textContent = t('letterNumbers') + '  ' + Array.from({ length: 26 }, (_, i) => `${ENGINE.C(i)}=${i}`).join('  ');
+    body.appendChild(alpha);
+    const sample = 'HELLO SPY';
+    for (const id of ENGINE.LEVELS.hard) {
+      const c = ENGINE.CIPHERS[id], tx = TX().ciphers[id], p = GUIDE_EXAMPLES[id];
+      const card = el('div', 'gcard');
+      const gh = el('div', 'gh');
+      gh.append(el('span', 'ic', c.icon), el('b', null, tx.name), el('span', 'badge' + (c.level === 'hard' ? ' hard' : ''), levelName(c.level)));
+      card.appendChild(gh);
+      card.appendChild(el('p', null, tx.how));
+      const spot = el('p'); spot.append(el('b', null, t('howToSpot')), document.createTextNode(tx.spot));
+      card.appendChild(spot);
+      const ex = el('div', 'ex');
+      const lbl = paramLabel(id, p);
+      ex.append(document.createTextNode((lbl ? `(${lbl})  ` : '') + sample), el('span', 'arrow', '→'), document.createTextNode(ENGINE.encrypt(id, sample, p)));
+      card.appendChild(ex);
+      body.appendChild(card);
+    }
+  }
+  function openGuide() {
+    buildGuide();
+    const d = $('#guide');
+    if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+  }
+  function closeGuide() { const d = $('#guide'); if (d.open) d.close(); else d.removeAttribute('open'); }
+
+  // ---------- wiring ----------
+  $('#hintBtn').addEventListener('click', useHint);
+  $('#magBtn').addEventListener('click', toggleMag);
+  $('#guideBtn').addEventListener('click', openGuide);
+  $('#guideClose').addEventListener('click', closeGuide);
+  $('#guide').addEventListener('click', e => { if (e.target === e.currentTarget) closeGuide(); });
+  $('#nextBtn').addEventListener('click', newCase);
+  $('#resetBtn').addEventListener('click', resetProgress);
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setLevel(b.dataset.level)));
+
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if ($('#guide').open) { if (k === 'escape') closeGuide(); return; }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^[1-6]$/.test(k)) { const ids = ENGINE.LEVELS[state.level]; if (ids[+k - 1]) choose(ids[+k - 1]); }
+    else if (k === 'h') useHint();
+    else if (k === 'm') toggleMag();
+    else if (k === 'g') openGuide();
+    else if ((k === 'n' || k === 'enter') && state.answered) { e.preventDefault(); newCase(); }
+  });
+
+  I18N.onChange(() => { renderAll(); });
+
+  load();
+  state.caseNo = state.stats.played;   // case numbers continue across visits
+  newCase();
+  window.CipherDetective = { engine: ENGINE, state };
+})();
+</script>
+</body>
+</html>
