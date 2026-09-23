@@ -1,7 +1,9 @@
 # Cipher Detective
 
 A code-breaking guessing game for kids (ages ~8–12). The child sees a short message and its
-encrypted version and must work out **which cipher** was used. Comes in two forms:
+encrypted version and must work out **which cipher** was used. A second mode, **What shift?**, shows
+only the code: the cipher is known (Caesar) and the child has to find the shift and read the message.
+Comes in two forms:
 
 - **`index.html` — the online game.** Two hints per case (gentle, then specific), a "magnifier"
   that shows how many steps each letter moved, a cipher guide, and a kid-friendly explanation after
@@ -55,12 +57,23 @@ then visit <http://localhost:8123/cipher-detective/> (game) or
 - **🔍 Magnifier** — shows the shift (code number − letter number, mod n) under every letter. Free to use.
 - **🔤 Alphabet** — the alphabet with letter numbers; tap a letter in the message to see its jump.
 - **📖 Cipher guide** — how each cipher works, how to spot it, and a live example.
+- **🔓 What shift?** (the mode tabs above the case, or `?mode=shift`) — only the Caesar code is shown.
+  Turn the wheel (− / + or the slider) and read the code with that shift; the wheel lists every code
+  letter with the letter it decodes to, and letters that appear in the code are highlighted.
+  **Easy** decodes the whole message live under the code; **Hard** shows the message only once the
+  shift is right, so the child reads it off the wheel. **🔓 Check** — each wrong check costs a star
+  (3 tries, the third wrong one closes the case); hint 1 points at the shortest code word, hint 2
+  gives the first letter of the message. Keys: `←`/`→` turn the wheel, `Enter` checks.
 - Keyboard: `1`–`6` pick a cipher, `H` hint, `M` magnifier, `A` alphabet, `G` guide, `Enter`/`N` next case.
 - Stars, streak and solved count are saved in `localStorage` (Reset progress clears them).
 
 ## Print worksheets
 
-- **Seed** — the same seed + level always gives the same worksheet (and the same answer key).
+- **Task** — *Which cipher?* (tick the cipher) or *What shift?* (Caesar only: write the shift in
+  the box and the decoded message in the white boxes under the code; **Easy** gives the first letter
+  of every message, **Hard** gives none; the guide page explains how to find a shift and the answer
+  key shows the shift and the message; never the same shift twice in a row).
+- **Seed** — the same seed + level + task always gives the same worksheet (and the same answer key).
   A longer worksheet starts with the same cases as a shorter one.
 - **Level** Easy (3 ciphers) or Hard (6). **Cases** 1–10; about 6 fit on one A4 page.
 - **Options**: step boxes (a blank row under each word for counting the shift), hints printed
@@ -70,7 +83,7 @@ then visit <http://localhost:8123/cipher-detective/> (game) or
 - Ciphers are dealt evenly across the cases, never the same one twice in a row, and no message
   repeats within a sheet.
 - The page also accepts `?seed=…&level=easy|hard&n=…` in the URL, e.g.
-  `worksheet.html?seed=SPY-4821&level=hard&n=6`.
+  `worksheet.html?seed=SPY-4821&level=hard&n=6` or `worksheet.html?seed=SPY-4821&mode=shift`.
 - Print settings are saved in `localStorage`; the browser's print dialog does the rest
   (A4, 12 mm margins are set by the page; enable "background graphics" if the grey code tiles
   print white — they still have a thick border either way).
@@ -90,6 +103,9 @@ ENGINE.whyNot('caesar', puzzle, 'vi')    // → why the guess does not fit
 ENGINE.cipherInfo('rot13', 'pl', ENGINE.alphabet('en'))   // → { name:'ROT13', full, blurb, how, spot } Polish text, English alphabet
 ENGINE.generateWorksheet('SPY-4821', 'hard', 6, 'pl')
 // → { seed, level, count, lang, cases:[puzzle, …] }   deterministic for seed + level + language
+ENGINE.generateShiftPuzzle({ lang: 'pl' })   // "What shift?": a Caesar puzzle with mode:'shift' and its own hints
+ENGINE.shiftText(puzzle, 'en')           // → { hints, explanation } for a shift puzzle
+ENGINE.generateWorksheet('SPY-4821', 'easy', 6, 'pl', 'shift')   // Caesar-only worksheet, mode:'shift'
 ```
 
 The same puzzle JSON (with `hint2`) is shown under "Puzzle JSON" after each answer in the game.

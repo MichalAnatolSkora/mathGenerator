@@ -135,6 +135,28 @@
   .gcard .ex .arrow{color:var(--muted);margin:0 6px;}
   .alpha{font:600 12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);background:#f5f7fb;border-radius:8px;padding:6px 10px;margin:0 0 14px;overflow:auto;white-space:nowrap;}
 
+  /* ---- modes + "what shift?" decoder ---- */
+  .modes.seg{display:flex;background:var(--panel);}
+  .modes.seg button{flex:1;font-size:15px;min-height:44px;}
+  .r.guess .t{background:#fff;border:1.5px dashed #aab3cc;color:var(--accent-d);}
+  .r.guess.solved .t{border-style:solid;border-color:var(--good);background:var(--good-soft);color:var(--ink);}
+  .legend i.try{border-style:dashed;border-color:#aab3cc;}
+  .dial{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .dialbtn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:#f5f7fb;font-size:24px;font-weight:700;line-height:1;cursor:pointer;color:var(--ink);}
+  .dialbtn:hover{border-color:var(--accent);}
+  .dialbtn:disabled{opacity:.5;cursor:default;}
+  .dialnum{min-width:64px;height:64px;padding:0 8px;border-radius:999px;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font:800 28px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--accent-d);background:var(--accent-soft);}
+  .dial .primary{margin:0 0 0 auto;}
+  .dial .primary:disabled{opacity:.5;cursor:default;}
+  .shiftrange{width:100%;margin:12px 0 0;accent-color:var(--accent);height:32px;}
+  .wheel{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px;margin-top:8px;}
+  .wh{display:flex;flex-direction:column;border:1.5px solid var(--line);border-radius:7px;overflow:hidden;font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;text-align:center;}
+  .wh b{background:var(--code);color:#fff;padding:5px 0;}
+  .wh span{padding:5px 0;background:#fff;color:var(--ink);}
+  .wh.used{border-color:var(--accent);}
+  .wh.used span{background:var(--accent-soft);color:var(--accent-d);}
+  .tries{margin:10px 0 0;font-weight:700;font-size:14.5px;}
+
   /* ---- phone ---- */
   @media (max-width:600px){
     :root{--tile:26px;}
@@ -149,6 +171,10 @@
     .al small{font-size:9px;}
     .choices{grid-template-columns:1fr;}
     .choice .k{display:none;}
+    .modes.seg button{font-size:14px;padding:6px 8px;}
+    .dial .primary{flex:1 1 100%;margin:0;}
+    .wheel{grid-template-columns:repeat(auto-fill,minmax(32px,1fr));gap:3px;}
+    .wh{font-size:13px;}
     .score span{padding:3px 8px;font-size:13px;}
   }
   @media (max-width:360px){ :root{--tile:22px;} }
@@ -172,16 +198,23 @@
 </header>
 
 <main class="wrap">
+  <div class="modes seg" role="group" data-i18n-attr="aria-label:modeLabel" aria-label="Game mode">
+    <button type="button" data-mode="which" aria-pressed="true" data-i18n="modeWhich">🔎 Which cipher?</button>
+    <button type="button" data-mode="shift" aria-pressed="false" data-i18n="modeShift">🔓 What shift?</button>
+  </div>
+
   <section class="card" id="caseCard">
     <div class="case-head">
       <h2 id="caseTitle">Case #1</h2>
       <span class="badge" id="levelBadge">Easy</span>
+      <span class="badge" id="knownBadge" hidden></span>
     </div>
-    <p class="lead" data-i18n="lead"></p>
+    <p class="lead" id="lead"></p>
     <div class="msglang"><span data-i18n="msgLang">Message language:</span><nav class="flags" id="msgFlags" data-i18n-attr="aria-label:msgLang" aria-label="Message language"></nav></div>
     <div class="legend">
-      <span><i></i> <span data-i18n="legendMessage">Message</span></span>
+      <span id="legendPlain"><i></i> <span data-i18n="legendMessage">Message</span></span>
       <span><i class="dark"></i> <span data-i18n="legendCode">In code</span></span>
+      <span id="legendGuess" hidden><i class="try"></i> <span data-i18n="legendGuess">Your try</span></span>
       <span id="legendMag" hidden data-i18n="legendMag">🔍 Steps each letter moved</span>
     </div>
     <div id="letters" class="letters"></div>
@@ -198,9 +231,24 @@
     <div id="hints" class="hints" aria-live="polite"></div>
   </section>
 
-  <section class="card">
+  <section class="card" id="whichCard">
     <h2 data-i18n="whichCipher">Which cipher was used?</h2>
     <div id="choices" class="choices"></div>
+  </section>
+
+  <section class="card" id="shiftCard" hidden>
+    <h2 data-i18n="whatShift">What was the shift?</h2>
+    <div class="dial">
+      <button type="button" class="dialbtn" id="shiftDown" data-i18n-attr="aria-label:shiftDown,title:shiftDown" aria-label="Smaller shift">−</button>
+      <output class="dialnum" id="shiftOut" data-i18n-attr="aria-label:shiftLabel" aria-label="Shift">1</output>
+      <button type="button" class="dialbtn" id="shiftUp" data-i18n-attr="aria-label:shiftUp,title:shiftUp" aria-label="Bigger shift">+</button>
+      <button type="button" class="primary" id="checkBtn" data-i18n="check">🔓 Check</button>
+    </div>
+    <input type="range" class="shiftrange" id="shiftRange" min="1" max="25" step="1" value="1" data-i18n-attr="aria-label:shiftLabel" aria-label="Shift">
+    <div id="wheel" class="wheel"></div>
+    <p class="alphanote" data-i18n="wheelNote"></p>
+    <p class="tries" id="tries" aria-live="polite"></p>
+    <p class="whynot" id="tryFb" aria-live="polite"></p>
   </section>
 
   <section class="card result" id="result" hidden aria-live="polite">
@@ -239,6 +287,7 @@
   const $ = s => document.querySelector(s);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const STORE = 'cipherDetective.v1', MSG_STORE = 'cipherDetective.msgLang';
+  const MAX_TRIES = 3;   // "What shift?" mode: the third wrong check closes the case
 
   // UI strings per language = game texts + a few shared ones (brand, level names)
   const UI = {};
@@ -261,6 +310,8 @@
 
   const state = {
     level: 'easy', puzzle: null, hintsUsed: 0, answered: false, guess: null, cheer: 0, caseNo: 0, mag: false, alpha: false, pick: null,
+    mode: 'which',                          // 'which' = which cipher?  'shift' = Caesar is known, find the shift
+    trial: 1, wrong: 0, tryFb: '',          // "What shift?": shift on the wheel, wrong checks, feedback for the last one
     msgLang: null, msgLangExplicit: false,   // language of the secret message + alphabet; null = same as the page language
     last: { cipher: null, msg: null },
     stats: { stars: 0, solved: 0, played: 0, streak: 0, best: 0 },
@@ -274,8 +325,11 @@
         if (j.stats) Object.assign(state.stats, j.stats);
         state.mag = !!j.mag;
         state.alpha = !!j.alpha;
+        if (j.mode === 'shift') state.mode = 'shift';
       }
     } catch (e) { /* storage unavailable: play without saving */ }
+    const qm = new URLSearchParams(location.search).get('mode');
+    if (qm === 'shift' || qm === 'which') state.mode = qm;
     const q = new URLSearchParams(location.search).get('msg');
     let stored = null; try { stored = localStorage.getItem(MSG_STORE); } catch (e) { /* ignore */ }
     if (I18N.isValid(q)) { state.msgLang = q; state.msgLangExplicit = true; saveMsgLang(); }
@@ -289,12 +343,21 @@
     newCase();
   }
   function save() {
-    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, stats: state.stats, mag: state.mag, alpha: state.alpha })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, mode: state.mode, stats: state.stats, mag: state.mag, alpha: state.alpha })); } catch (e) { /* ignore */ }
   }
 
   // ---------- rendering ----------
   function renderHeader() {
-    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.level === state.level)));
+    const shift = state.mode === 'shift';
+    document.querySelectorAll('.seg button[data-level]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.level === state.level)));
+    document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+    $('#lead').textContent = shift ? t('leadShift', state.level) : t('lead');
+    const known = $('#knownBadge');
+    known.hidden = !shift;
+    if (shift) known.textContent = `${ENGINE.CIPHERS.caesar.icon} ${ENGINE.cipherName('caesar', lang(), PA())}`;
+    $('#whichCard').hidden = shift; $('#shiftCard').hidden = !shift;
+    $('#magBtn').hidden = shift; $('#alphaBtn').hidden = shift;
+    $('#legendPlain').hidden = shift; $('#legendGuess').hidden = !shift;
     $('#scoreStars').textContent = `⭐ ${state.stats.stars}`;
     $('#scoreStreak').textContent = `🔥 ${state.stats.streak}`;
     const badge = $('#levelBadge');
@@ -306,10 +369,11 @@
     document.title = t('brand').replace(/^\S+\s/, '');
     I18N.renderFlags($('#msgFlags'), state.msgLang, setMsgLang);
     const link = document.querySelector('a[href^="worksheet.html"]');
-    if (link) { const u = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (state.msgLangExplicit) q.set('msg', state.msgLang); else q.delete('msg'); const qs = q.toString(); link.setAttribute('href', u + (qs ? '?' + qs : '')); }
+    if (link) { const u = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (state.msgLangExplicit) q.set('msg', state.msgLang); else q.delete('msg'); if (state.mode === 'shift') q.set('mode', 'shift'); else q.delete('mode'); const qs = q.toString(); link.setAttribute('href', u + (qs ? '?' + qs : '')); }
   }
 
   function renderLetters() {
+    if (state.mode === 'shift') return renderShiftLetters();
     const box = $('#letters');
     box.innerHTML = '';
     const { plaintext, ciphertext } = state.puzzle, A = PA();
@@ -341,11 +405,69 @@
     $('#magBtn').setAttribute('aria-pressed', String(state.mag));
   }
 
+  /** "What shift?": the code on top, the child's try underneath (easy: live, hard: only once solved). */
+  function renderShiftLetters() {
+    const box = $('#letters');
+    box.innerHTML = '';
+    box.classList.remove('mag', 'pickable');
+    $('#legendMag').hidden = true;
+    const p = state.puzzle, A = PA();
+    const guess = state.answered ? p.plaintext
+      : state.level === 'easy' ? ENGINE.decrypt('caesar', p.ciphertext, { shift: state.trial }, p.lang) : null;
+    const cwords = p.ciphertext.split(' '), gwords = guess ? guess.split(' ') : [];
+    cwords.forEach((cStr, wi) => {
+      const cw = [...cStr], gw = guess ? [...gwords[wi]] : [];
+      const word = el('div', 'word');
+      const rc = el('div', 'r code'), rg = el('div', 'r guess' + (state.answered ? ' solved' : ''));
+      cw.forEach((c, i) => { rc.appendChild(el('span', 't', c)); rg.appendChild(el('span', 't', guess ? gw[i] : (A.has(c) ? '' : c))); });
+      word.append(rc, rg);
+      box.appendChild(word);
+    });
+  }
+
+  function renderShift() {
+    if (state.mode !== 'shift') return;
+    const p = state.puzzle, A = PA(), done = state.answered;
+    $('#shiftOut').textContent = String(state.trial);
+    const range = $('#shiftRange');
+    range.max = String(A.n - 1); range.value = String(state.trial); range.disabled = done;
+    $('#shiftDown').disabled = done; $('#shiftUp').disabled = done; $('#checkBtn').disabled = done;
+    const wheel = $('#wheel');
+    wheel.innerHTML = '';
+    const used = new Set([...p.ciphertext]);
+    A.letters.forEach((ch, i) => {
+      const cell = el('div', 'wh' + (used.has(ch) ? ' used' : ''));
+      cell.append(el('b', null, ch), el('span', null, A.at(i - state.trial)));
+      wheel.appendChild(cell);
+    });
+    const left = MAX_TRIES - state.wrong;
+    $('#tries').textContent = done ? '' : `${t('triesLeft', left)} ${'❤️'.repeat(left)}${'🤍'.repeat(state.wrong)}`;
+    $('#tryFb').textContent = done ? '' : state.tryFb;
+  }
+
+  function setTrial(v) {
+    if (state.answered || state.mode !== 'shift') return;
+    const n = PA().n;
+    state.trial = ((Math.round(v) - 1) % (n - 1) + (n - 1)) % (n - 1) + 1;   // 1 … n−1, wrapping around
+    renderLetters(); renderShift();
+  }
+
+  function checkShift() {
+    if (state.answered || state.mode !== 'shift') return;
+    const p = state.puzzle;
+    if (state.trial === p.params.shift) return finish(true);
+    state.wrong++;
+    if (state.wrong >= MAX_TRIES) return finish(false);
+    const first = ENGINE.decrypt('caesar', p.ciphertext.split(' ')[0], { shift: state.trial }, p.lang);
+    state.tryFb = t('wrongTry', state.trial, first);
+    renderShift();
+  }
+
   function renderAlpha() {
-    const strip = $('#alpha'), note = $('#alphaNote');
+    const strip = $('#alpha'), note = $('#alphaNote'), on = state.alpha && state.mode === 'which';
     $('#alphaBtn').setAttribute('aria-pressed', String(state.alpha));
-    strip.hidden = !state.alpha; note.hidden = !state.alpha;
-    if (!state.alpha) return;
+    strip.hidden = !on; note.hidden = !on;
+    if (!on) return;
     const A = PA();
     if (strip.dataset.lang !== A.lang) {
       strip.innerHTML = ''; strip.dataset.lang = A.lang;
@@ -387,7 +509,7 @@
   function renderHints() {
     const box = $('#hints');
     box.innerHTML = '';
-    const hints = ENGINE.puzzleText(state.puzzle, lang()).hints;
+    const hints = puzzleText().hints;
     for (let i = 0; i < state.hintsUsed; i++) {
       const h = el('div', 'hint');
       h.append(el('b', null, t('hintLabel', i + 1)), document.createTextNode(hints[i]));
@@ -402,52 +524,64 @@
   function renderResult() {
     const r = $('#result');
     if (!state.answered) { r.hidden = true; r.className = 'card result'; return; }
-    const p = state.puzzle, id = state.guess;
-    const correct = id === p.cipher_id;
-    const stars = correct ? Math.max(1, 3 - state.hintsUsed) : 0;
+    const p = state.puzzle, shift = p.mode === 'shift', correct = isCorrect();
+    const stars = starsFor(correct);
     const full = ENGINE.cipherFull(p.cipher_id, lang(), PA());
-    const text = ENGINE.puzzleText(p, lang());
+    const text = puzzleText(), cheer = t('cheers')[state.cheer];
     r.hidden = false;
     r.className = 'card result ' + (correct ? 'ok' : 'no');
-    $('#verdict').textContent = correct ? t('correct', full, t('cheers')[state.cheer]) : t('notThisTime', full);
+    $('#verdict').textContent = shift ? (correct ? t('shiftCorrect', p.params.shift, cheer) : t('shiftLost', p.params.shift))
+      : correct ? t('correct', full, cheer) : t('notThisTime', full);
     $('#stars').textContent = correct ? '⭐'.repeat(stars) + '☆'.repeat(3 - stars) : t('keepGoing');
     $('#explain').textContent = text.explanation;
-    $('#whynot').textContent = correct ? '' : ENGINE.whyNot(id, p, lang());
-    $('#json').textContent = JSON.stringify({ cipher_id: p.cipher_id, params: p.params, plaintext: p.plaintext, ciphertext: p.ciphertext, hint: text.hints[0], hint2: text.hints[1], explanation: text.explanation }, null, 2);
+    $('#whynot').textContent = correct || shift ? '' : ENGINE.whyNot(state.guess, p, lang());
+    $('#json').textContent = JSON.stringify({ ...(shift ? { mode: 'shift' } : {}), cipher_id: p.cipher_id, params: p.params, plaintext: p.plaintext, ciphertext: p.ciphertext, hint: text.hints[0], hint2: text.hints[1], explanation: text.explanation }, null, 2);
   }
+
+  const puzzleText = () => state.puzzle.mode === 'shift' ? ENGINE.shiftText(state.puzzle, lang()) : ENGINE.puzzleText(state.puzzle, lang());
+  const isCorrect = () => state.puzzle.mode === 'shift' ? state.guess === state.puzzle.params.shift : state.guess === state.puzzle.cipher_id;
+  /** 3 stars, minus one per hint (and per wrong check in "What shift?"), at least 1 when solved. */
+  const starsFor = correct => correct ? Math.max(1, 3 - state.hintsUsed - state.wrong) : 0;
 
   function renderAll() {
     I18N.apply(UI);
-    renderHeader(); renderLetters(); renderAlpha(); renderChoices(); renderHints(); renderResult();
+    renderHeader(); renderLetters(); renderAlpha(); renderChoices(); renderShift(); renderHints(); renderResult();
     $('#guideBody').innerHTML = '';   // rebuilt in the current language on next open
   }
 
   // ---------- game flow ----------
   function newCase() {
-    state.puzzle = ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: state.msgLang });
+    state.puzzle = state.mode === 'shift'
+      ? ENGINE.generateShiftPuzzle({ avoidMessage: state.last.msg, lang: state.msgLang })
+      : ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: state.msgLang });
     state.last = { cipher: state.puzzle.cipher_id, msg: state.puzzle.plaintext };
     state.caseNo++;
     state.hintsUsed = 0;
     state.answered = false;
     state.guess = null;
     state.pick = null;
+    state.trial = 1; state.wrong = 0; state.tryFb = '';
     renderAll();
     $('#caseCard').scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
   function choose(id) {
-    if (state.answered || !state.puzzle) return;
-    state.answered = true;
+    if (state.answered || !state.puzzle || state.mode !== 'which') return;
     state.guess = id;
+    finish(id === state.puzzle.cipher_id);
+  }
+
+  /** Close the case: count it, save, and show the result. */
+  function finish(correct) {
+    state.answered = true;
+    if (state.puzzle.mode === 'shift') state.guess = correct ? state.puzzle.params.shift : state.trial;
     state.cheer = Math.floor(Math.random() * t('cheers').length);
-    const p = state.puzzle, s = state.stats;
-    const correct = id === p.cipher_id;
-    const stars = correct ? Math.max(1, 3 - state.hintsUsed) : 0;
+    const s = state.stats, stars = starsFor(correct);
     s.played++;
     if (correct) { s.solved++; s.stars += stars; s.streak++; s.best = Math.max(s.best, s.streak); }
     else s.streak = 0;
     save();
-    renderHeader(); renderChoices(); renderHints(); renderResult();
+    renderHeader(); renderLetters(); renderChoices(); renderShift(); renderHints(); renderResult();
     $('#result').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     $('#nextBtn').focus({ preventScroll: true });
   }
@@ -459,12 +593,14 @@
   }
 
   function toggleMag() {
+    if (state.mode !== 'which') return;
     state.mag = !state.mag;
     save();
     renderLetters();
   }
 
   function toggleAlpha() {
+    if (state.mode !== 'which') return;
     state.alpha = !state.alpha;
     save();
     renderLetters(); renderAlpha();
@@ -476,6 +612,13 @@
     if (!tile) return;
     state.pick = +tile.dataset.li;
     renderLetters(); renderAlpha();
+  }
+
+  function setMode(mode) {
+    if (mode === state.mode) return;
+    state.mode = mode;
+    save();
+    newCase();
   }
 
   function setLevel(level) {
@@ -498,14 +641,15 @@
     if (body.childElementCount) return;
     const A = ENGINE.alphabet(state.msgLang), G = ENGINE.textFor(state.msgLang).guide;
     const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: G.key }, affine: { a: 5, b: 8 }, beaufort: { key: G.key } };
+    const shift = state.mode === 'shift';
     const steps = el('ol', 'steps');
-    steps.innerHTML = t('guideSteps', A).map(s => `<li>${s}</li>`).join('');
+    steps.innerHTML = t(shift ? 'crackSteps' : 'guideSteps', A).map(s => `<li>${s}</li>`).join('');
     body.appendChild(steps);
     const alpha = el('div', 'alpha');
     alpha.textContent = t('letterNumbers') + '  ' + A.letters.map((ch, i) => `${ch}=${i}`).join('  ');
     body.appendChild(alpha);
     const sample = G.sample;
-    for (const id of ENGINE.LEVELS.hard) {
+    for (const id of shift ? ['caesar'] : ENGINE.LEVELS.hard) {
       const c = ENGINE.CIPHERS[id], tx = ENGINE.cipherInfo(id, lang(), A), p = GUIDE_EXAMPLES[id];
       const card = el('div', 'gcard');
       const gh = el('div', 'gh');
@@ -538,12 +682,23 @@
   $('#guide').addEventListener('click', e => { if (e.target === e.currentTarget) closeGuide(); });
   $('#nextBtn').addEventListener('click', newCase);
   $('#resetBtn').addEventListener('click', resetProgress);
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setLevel(b.dataset.level)));
+  document.querySelectorAll('.seg button[data-level]').forEach(b => b.addEventListener('click', () => setLevel(b.dataset.level)));
+  document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $('#shiftDown').addEventListener('click', () => setTrial(state.trial - 1));
+  $('#shiftUp').addEventListener('click', () => setTrial(state.trial + 1));
+  $('#shiftRange').addEventListener('input', e => setTrial(+e.target.value));
+  $('#checkBtn').addEventListener('click', checkShift);
 
   document.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
     if ($('#guide').open) { if (k === 'escape') closeGuide(); return; }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const inControl = e.target.closest && e.target.closest('button, input');
+    if (state.mode === 'shift' && !state.answered) {
+      if (!inControl && (k === 'arrowleft' || k === '-')) { e.preventDefault(); return setTrial(state.trial - 1); }
+      if (!inControl && (k === 'arrowright' || k === '+' || k === '=')) { e.preventDefault(); return setTrial(state.trial + 1); }
+      if (!inControl && k === 'enter') { e.preventDefault(); return checkShift(); }
+    }
     if (/^[1-6]$/.test(k)) { const ids = ENGINE.LEVELS[state.level]; if (ids[+k - 1]) choose(ids[+k - 1]); }
     else if (k === 'h') useHint();
     else if (k === 'm') toggleMag();

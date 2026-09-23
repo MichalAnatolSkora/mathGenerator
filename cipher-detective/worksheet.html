@@ -75,6 +75,9 @@
   .r.plain .t{border:0.35mm solid #444;background:#fff;}
   .r.code .t{border:0.5mm solid #000;background:#e4e4e4;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
   .r.steps .t{height:4.2mm;border:0.3mm dashed #888;font:700 2.8mm/1 ui-monospace,Menlo,Consolas,monospace;color:#333;}
+  .shiftbox{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;}
+  .sbox{display:inline-flex;align-items:center;justify-content:center;width:12mm;height:7mm;border:0.4mm solid #222;border-radius:1mm;font:800 4mm/1 ui-monospace,Menlo,Consolas,monospace;}
+  .r.plain .t.given{color:#555;}
   .flip{transform:rotate(180deg);margin-top:14px;padding-top:6px;border-top:1px dashed #bbb;font-size:10.5px;color:#444;line-height:1.5;}
   .flip b{margin-right:2px;}
   .muted{color:var(--muted);font-weight:400;}
@@ -145,10 +148,18 @@
     </div>
 
     <div class="grp">
+      <h2 data-i18n="taskType">Task</h2>
+      <div class="presets" id="modes">
+        <button type="button" data-mode="which" class="active" data-i18n="modeWhich">🔎 Which cipher?</button>
+        <button type="button" data-mode="shift" data-i18n="modeShift">🔓 What shift?</button>
+      </div>
+    </div>
+
+    <div class="grp">
       <h2 data-i18n="level">Level</h2>
       <div class="presets" id="levels">
-        <button type="button" data-level="easy" class="active" data-i18n="easyN">Easy · 3 ciphers</button>
-        <button type="button" data-level="hard" data-i18n="hardN">Hard · 6 ciphers</button>
+        <button type="button" data-level="easy" class="active">Easy · 3 ciphers</button>
+        <button type="button" data-level="hard">Hard · 6 ciphers</button>
       </div>
     </div>
 
@@ -167,7 +178,7 @@
     <div class="grp">
       <h2 data-i18n="options">Options</h2>
       <label class="check"><input type="checkbox" id="optAlpha" checked> <span data-i18n="optAlpha"></span></label>
-      <label class="check"><input type="checkbox" id="optSteps" checked> <span data-i18n="optSteps"></span></label>
+      <label class="check" id="optStepsRow"><input type="checkbox" id="optSteps" checked> <span data-i18n="optSteps"></span></label>
       <label class="check"><input type="checkbox" id="optHints"> <span data-i18n="optHints"></span></label>
       <label class="check"><input type="checkbox" id="optGuide" checked> <span data-i18n="optGuide"></span></label>
       <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
@@ -194,7 +205,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const STORE = 'cdw', MSG_STORE = 'cipherDetective.msgLang';
-  let level = 'easy';
+  let level = 'easy', mode = 'which';   // mode: 'which' = which cipher?  'shift' = Caesar, find the shift
   let msgLang = null, msgLangExplicit = false;   // language of the messages + alphabet; follows the page language unless chosen
 
   const UI = {};
@@ -221,7 +232,7 @@
     const n = parseInt($('count').value, 10);
     return {
       seed: $('seed').value.trim() || 'SEED',
-      level,
+      level, mode,
       count: Number.isFinite(n) ? Math.max(1, Math.min(10, n)) : 6,
       alpha: $('optAlpha').checked, steps: $('optSteps').checked, hints: $('optHints').checked,
       guide: $('optGuide').checked, key: $('optKey').checked,
@@ -233,6 +244,7 @@
       const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!s) return false;
       $('seed').value = s.seed || randomSeed();
       level = ENGINE.LEVELS[s.level] ? s.level : 'easy';
+      mode = s.mode === 'shift' ? 'shift' : 'which';
       $('count').value = s.count || 6;
       $('optAlpha').checked = s.alpha !== false;
       $('optSteps').checked = s.steps !== false;
@@ -262,11 +274,46 @@
     }).join('') + '</div>';
   }
 
+  /** "What shift?" tiles: the code, and white boxes for the message underneath.
+   *  fill: 'first' (only the first letter, easy level), 'all' (answer key) or 'none'. */
+  function shiftTilesHTML(p, fill) {
+    const A = ENGINE.alphabet(p.lang);
+    const words = p.plaintext.split(' '), cwords = p.ciphertext.split(' ');
+    return '<div class="letters">' + cwords.map((cStr, wi) => {
+      const cw = [...cStr], w = [...words[wi]];
+      let rc = '', rp = '';
+      for (let i = 0; i < cw.length; i++) {
+        const show = fill === 'all' || (fill === 'first' && wi === 0 && i === 0) || !A.has(w[i]);
+        rc += `<span class="t">${esc(cw[i])}</span>`;
+        rp += `<span class="t${fill === 'first' && show ? ' given' : ''}">${show ? esc(w[i]) : ''}</span>`;
+      }
+      return `<div class="word"><div class="r code">${rc}</div><div class="r plain">${rp}</div></div>`;
+    }).join('') + '</div>';
+  }
+  const shiftBoxHTML = value => `<span class="shiftbox">${esc(t('shiftBox'))} <span class="sbox">${value == null ? '' : esc(value)}</span></span>`;
+
   function headHTML(title, subtitle, seed, namebox) {
     return `<div class="sheet-head"><div><div class="title">${esc(title)}</div><div class="subtitle">${esc(subtitle)}</div><div class="seedlabel">${esc(t('seedLabel'))} ${esc(seed)}</div></div>${namebox ? `<div class="namebox">${esc(t('name'))}<br>${esc(t('date'))}</div>` : ''}</div>`;
   }
 
+  function renderShiftWorksheet(W, s) {
+    const A = AL(), tx = ENGINE.cipherInfo('caesar', lang(), A);
+    const cases = W.cases.map((p, i) =>
+      `<div class="case"><div class="case-top"><span class="case-no">${esc(t('caseN', i + 1))}</span>${shiftBoxHTML()}</div>${shiftTilesHTML(p, s.level === 'easy' ? 'first' : 'none')}</div>`).join('');
+    const hints = s.hints
+      ? `<div class="flip"><b>${esc(t('hintsFlip'))}</b> — ${W.cases.map((p, i) => `<b>${i + 1}:</b> ${esc(ENGINE.shiftText(p, lang()).hints[0])}`).join(' ')}</div>`
+      : '';
+    const alpha = s.alpha ? `<div class="alpha-row" style="grid-template-columns:repeat(${A.n},1fr)">${A.letters.map((ch, i) => `<span>${ch}<small>${i}</small></span>`).join('')}</div>` : '';
+    return `<div class="sheet">
+      ${headHTML(t('sheetTitle'), t('sheetSubShift', levelName(s.level), W.cases.length), W.seed, true)}
+      <p class="instr">${esc(t('instrShift', s.level))}</p>
+      <div class="legend" style="grid-template-columns:1fr"><div><b>${ENGINE.CIPHERS.caesar.icon} ${esc(tx.name)}</b> — ${esc(tx.blurb)}</div></div>
+      ${alpha}${cases}${hints}
+    </div>`;
+  }
+
   function renderWorksheet(W, s) {
+    if (s.mode === 'shift') return renderShiftWorksheet(W, s);
     const ids = ENGINE.LEVELS[s.level], A = AL(), CT = {};
     ids.forEach(id => { CT[id] = ENGINE.cipherInfo(id, lang(), A); });
     const ticks = ids.map(id => `<span class="tick"><span class="cb"></span>${esc(CT[id].name)}</span>`).join('');
@@ -286,9 +333,10 @@
   }
 
   function renderGuide(W, s) {
-    const ids = ENGINE.LEVELS[s.level], A = AL(), G = ENGINE.textFor(msgLang).guide;
+    const shift = s.mode === 'shift';
+    const ids = shift ? ['caesar'] : ENGINE.LEVELS[s.level], A = AL(), G = ENGINE.textFor(msgLang).guide;
     const CT = {}; ids.forEach(id => { CT[id] = ENGINE.cipherInfo(id, lang(), A); });
-    const steps = t('checklist', A).slice(0, s.level === 'hard' ? 6 : 3);
+    const steps = shift ? t('checklistShift', A) : t('checklist', A).slice(0, s.level === 'hard' ? 6 : 3);
     const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: G.key }, affine: { a: 5, b: 8 }, beaufort: { key: G.key } };
     const alpha = A.letters.map((ch, i) => `<span>${ch}=${i}</span>`).join('');
     const cards = ids.map(id => {
@@ -298,7 +346,7 @@
         <div class="ex">${lbl ? `(${esc(lbl)})  ` : ''}${esc(G.sample)} → ${esc(ENGINE.encrypt(id, G.sample, p, msgLang))}</div></div>`;
     }).join('');
     return `<div class="sheet guide">
-      ${headHTML(t('guideTitle'), t('guideSub', levelName(s.level)), W.seed, false)}
+      ${headHTML(t('guideTitle'), t(shift ? 'guideSubShift' : 'guideSub', levelName(s.level)), W.seed, false)}
       <ol class="checklist">${steps.map(x => `<li>${x}</li>`).join('')}</ol>
       <div class="alpha">${alpha}</div>
       ${cards}
@@ -306,14 +354,16 @@
   }
 
   function renderKey(W, s) {
-    const A = AL();
+    const A = AL(), shift = s.mode === 'shift';
     const items = W.cases.map((p, i) => {
+      if (shift) return `<div class="case"><div class="kline"><b>${esc(t('caseN', i + 1))} — ${shiftBoxHTML(p.params.shift)}</b></div>
+        <p class="kexp">${esc(ENGINE.shiftText(p, lang()).explanation)}</p>${shiftTilesHTML(p, 'all')}</div>`;
       const c = ENGINE.CIPHERS[p.cipher_id], tx = ENGINE.cipherInfo(p.cipher_id, lang(), A), lbl = paramLabel(p.cipher_id, p.params);
       return `<div class="case"><div class="kline"><b>${esc(t('caseN', i + 1))} — ${c.icon} ${esc(tx.name)}</b>${lbl ? ` <span class="muted">(${esc(lbl)})</span>` : ''}</div>
         <p class="kexp">${esc(ENGINE.puzzleText(p, lang()).explanation)}</p>${tilesHTML(p, 'filled')}</div>`;
     }).join('');
     return `<div class="sheet key">
-      ${headHTML(t('keyTitle'), t('keySub', levelName(s.level), W.cases.length), W.seed, false)}
+      ${headHTML(t('keyTitle'), t(shift ? 'keySubShift' : 'keySub', levelName(s.level), W.cases.length), W.seed, false)}
       ${items}
     </div>`;
   }
@@ -324,7 +374,7 @@
     persist(s);
     const msg = $('msg'); msg.className = 'msg';
     try {
-      const W = ENGINE.generateWorksheet(s.seed, s.level, s.count, msgLang);
+      const W = ENGINE.generateWorksheet(s.seed, s.level, s.count, msgLang, s.mode);
       let html = renderWorksheet(W, s);
       if (s.guide) html += renderGuide(W, s);
       if (s.key) html += renderKey(W, s);
@@ -341,11 +391,23 @@
     level = l;
     document.querySelectorAll('#levels button').forEach(b => b.classList.toggle('active', b.dataset.level === l));
   }
+  /** Task type; the level buttons and options follow it (steps boxes only make sense for "Which cipher?"). */
+  function setMode(m) {
+    mode = m === 'shift' ? 'shift' : 'which';
+    document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    renderModeLabels();
+    renderMsgFlags();   // keeps ?mode= on the "Play online" link
+  }
+  function renderModeLabels() {
+    const shift = mode === 'shift';
+    document.querySelectorAll('#levels button').forEach(b => { b.textContent = t(b.dataset.level + (shift ? 'Shift' : 'N')); });
+    $('optStepsRow').hidden = shift;
+  }
   function saveMsgLang() { try { localStorage.setItem(MSG_STORE, msgLang); } catch (_) { } }
   function renderMsgFlags() {
     I18N.renderFlags($('msgFlags'), msgLang, code => { if (code === msgLang) return; msgLang = code; msgLangExplicit = true; saveMsgLang(); renderMsgFlags(); regenerate(); });
     const link = document.querySelector('a[href^="index.html"]');
-    if (link) { const base = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (msgLangExplicit) q.set('msg', msgLang); else q.delete('msg'); const qs = q.toString(); link.setAttribute('href', base + (qs ? '?' + qs : '')); }
+    if (link) { const base = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (msgLangExplicit) q.set('msg', msgLang); else q.delete('msg'); if (mode === 'shift') q.set('mode', 'shift'); else q.delete('mode'); const qs = q.toString(); link.setAttribute('href', base + (qs ? '?' + qs : '')); }
   }
 
   function wire() {
@@ -354,10 +416,11 @@
     $('count').addEventListener('change', regenerate);
     ['optAlpha', 'optSteps', 'optHints', 'optGuide', 'optKey'].forEach(id => $(id).addEventListener('change', regenerate));
     document.querySelectorAll('#levels button').forEach(b => b.addEventListener('click', () => { setLevel(b.dataset.level); regenerate(); }));
+    document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => { setMode(b.dataset.mode); regenerate(); }));
     $('randSeed').addEventListener('click', newWorksheet);
     $('newBtn').addEventListener('click', newWorksheet);
     $('printBtn').addEventListener('click', () => window.print());
-    I18N.onChange(() => { I18N.apply(UI); if (!msgLangExplicit) msgLang = I18N.get(); renderMsgFlags(); regenerate(); });
+    I18N.onChange(() => { I18N.apply(UI); renderModeLabels(); if (!msgLangExplicit) msgLang = I18N.get(); renderMsgFlags(); regenerate(); });
   }
 
   function init() {
@@ -365,6 +428,7 @@
     if (!restore()) $('seed').value = randomSeed();
     if (q.get('seed')) $('seed').value = q.get('seed');
     if (ENGINE.LEVELS[q.get('level')]) level = q.get('level');
+    if (q.get('mode') === 'shift' || q.get('mode') === 'which') mode = q.get('mode');
     if (q.get('n')) $('count').value = q.get('n');
     for (const [k, id] of [['alpha', 'optAlpha'], ['steps', 'optSteps'], ['hints', 'optHints'], ['guide', 'optGuide'], ['key', 'optKey']]) {
       if (q.has(k)) $(id).checked = q.get(k) === '1' || q.get(k) === 'true';
@@ -376,6 +440,7 @@
     setLevel(level);
     wire();
     I18N.apply(UI);
+    setMode(mode);
     renderMsgFlags();
     regenerate();
   }

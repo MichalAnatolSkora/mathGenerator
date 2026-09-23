@@ -303,6 +303,20 @@ const ENGINE = (() => {
     throw new Error('Could not generate a valid puzzle: ' + lastErr);
   }
 
+  // ---------- "crack the shift" mode: the cipher (Caesar) is known, only the code is shown ----------
+  /** Hints [gentle, specific] and the explanation for a shift puzzle, in a language. */
+  function shiftText(puzzle, lang) {
+    const t = textFor(lang).crack, ex = example(puzzle), A = alphabet(puzzle.lang);
+    const shortest = puzzle.ciphertext.split(' ').filter(Boolean).reduce((a, w) => [...w].length < [...a].length ? w : a);
+    return { hints: t.hints(puzzle.params.shift, ex, shortest, A), explanation: t.explain(puzzle.params.shift, ex, A) };
+  }
+  /** A Caesar puzzle where the child has to find the shift (opts as in generatePuzzle, `cipher` is ignored). */
+  function generateShiftPuzzle(opts = {}) {
+    const p = generatePuzzle('easy', { ...opts, cipher: 'caesar', avoidCipher: null });
+    const text = shiftText(p, p.lang);
+    return { ...p, mode: 'shift', hint: text.hints[0], hints: text.hints, explanation: text.explanation };
+  }
+
   /** Friendly reason why the child's guess does not fit this puzzle ('' if nothing simple to say). */
   function whyNot(guess, puzzle, lang) {
     const actual = puzzle.cipher_id;
@@ -365,17 +379,25 @@ const ENGINE = (() => {
    * A printable worksheet: `count` distinct cases for `level` in `lang`, reproducible from `seed`.
    * The same seed + level + language gives the same sequence of cases, so a longer worksheet
    * starts with the same cases as a shorter one. Ciphers are dealt evenly (shuffled rounds),
-   * and no message repeats.
+   * and no message repeats. mode 'shift' ("What shift?") deals Caesar cases only, for finding the shift.
    */
-  function generateWorksheet(seed, level, count, lang) {
+  function generateWorksheet(seed, level, count, lang, mode) {
     const allowed = LEVELS[level];
     if (!allowed) throw new Error('Unknown level: ' + level);
     lang = ALPHA[lang] ? lang : 'en';
+    const shift = mode === 'shift';
     count = Math.max(1, Math.min(bank(lang).messages.length, Math.floor(count) || 1));
-    const prng = makePRNG(String(seed) + '|' + level + '|' + lang);
+    const prng = makePRNG(String(seed) + '|' + level + '|' + lang + (shift ? '|shift' : ''));
     const used = new Set(), cases = [];
     let bag = [], last = null;
     for (let i = 0; i < count; i++) {
+      if (shift) {   // "What shift?": Caesar only, never the same shift twice in a row
+        let p;
+        do p = generateShiftPuzzle({ rng: prng.rnd, excludeMessages: used, lang }); while (last !== null && p.params.shift === last);
+        used.add(p.plaintext); last = p.params.shift;
+        cases.push(p);
+        continue;
+      }
       if (!bag.length) {
         bag = prng.shuffle(allowed.slice());
         if (bag.length > 1 && bag[0] === last) bag.push(bag.shift());   // no cipher twice in a row
@@ -385,11 +407,11 @@ const ENGINE = (() => {
       used.add(p.plaintext); last = cipher;
       cases.push(p);
     }
-    return { seed: String(seed), level, count, lang, cases };
+    return { seed: String(seed), level, count, lang, ...(shift ? { mode: 'shift' } : {}), cases };
   }
 
   return { CIPHERS, LEVELS, ALPHABETS, BANK, TEXT, alphabet, bank, textFor, encrypt, decrypt, letterPairs, example,
-           puzzleText, cipherInfo, cipherName, cipherFull, resolve, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
+           puzzleText, shiftText, generateShiftPuzzle, cipherInfo, cipherName, cipherFull, resolve, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = ENGINE;

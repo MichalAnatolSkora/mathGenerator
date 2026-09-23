@@ -16,7 +16,7 @@ alphabet) can be in a different language than the game texts (`?msg=`).
 |---|---|
 | [`index.html`](index.html) | **Home page** — pick a puzzle (four languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (flags, `?lang=`, saved choice) |
-| [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? |
+| [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
 

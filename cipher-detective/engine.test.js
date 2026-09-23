@@ -80,6 +80,25 @@ for (const lang of LANGS) {
   eq(`${lang}: guide sample encrypts`, E.encrypt('vigenere', E.TEXT[lang].guide.sample, { key: E.TEXT[lang].guide.key }, lang) !== E.TEXT[lang].guide.sample, true);
   eq(`${lang}: guide sample uses its alphabet`, [...E.TEXT[lang].guide.sample.replace(/ /g, '')].every(ch => E.alphabet(lang).has(ch)), true);
 
+  // "What shift?" mode: Caesar puzzles, texts, worksheets
+  for (let i = 0; i < 300; i++) {
+    const p = E.generateShiftPuzzle({ lang });
+    const v = E.validatePuzzle(p, 'easy');
+    if (!v.ok || p.cipher_id !== 'caesar' || p.mode !== 'shift' || !p.hints[0] || !p.hints[1] || !p.explanation) { fails++; console.log('FAIL shift puzzle', lang, v.errors, p); }
+  }
+  const sp = E.generateShiftPuzzle({ lang });
+  eq(`${lang}: shift puzzle texts differ from which-cipher texts`, E.shiftText(sp, lang).hints[0] !== E.puzzleText(sp, lang).hints[0], true);
+  eq(`${lang}.crack complete`, ['hints', 'explain'].filter(k => typeof E.TEXT[lang].crack[k] !== 'function').join(','), '');
+  for (let i = 0; i < 40; i++) {
+    const level = i % 2 ? 'hard' : 'easy', n = 1 + (i % 10);
+    const W = E.generateWorksheet('S' + i, level, n, lang, 'shift');
+    if (W.mode !== 'shift' || W.cases.length !== n || new Set(W.cases.map(c => c.plaintext)).size !== n) { fails++; console.log('FAIL shift worksheet', lang, W); }
+    for (let j = 1; j < n; j++) if (W.cases[j].params.shift === W.cases[j - 1].params.shift) { fails++; console.log('FAIL same shift twice in a row', lang, W); }
+    for (const c of W.cases) if (c.cipher_id !== 'caesar' || !E.validatePuzzle(c, 'easy').ok) { fails++; console.log('FAIL shift worksheet case', lang, c); }
+  }
+  eq(`${lang}: shift worksheet deterministic`, JSON.stringify(E.generateWorksheet('SPY-4821', 'easy', 6, lang, 'shift')), JSON.stringify(E.generateWorksheet('SPY-4821', 'easy', 6, lang, 'shift')));
+  eq(`${lang}: shift worksheet differs from which-cipher worksheet`, JSON.stringify(E.generateWorksheet('SPY-4821', 'easy', 6, lang, 'shift').cases) !== JSON.stringify(E.generateWorksheet('SPY-4821', 'easy', 6, lang).cases), true);
+
   // Worksheets
   const w1 = E.generateWorksheet('SPY-4821', 'hard', 6, lang), w2 = E.generateWorksheet('SPY-4821', 'hard', 6, lang), w3 = E.generateWorksheet('SPY-4821', 'hard', 3, lang);
   eq(`${lang}: worksheet deterministic`, JSON.stringify(w1), JSON.stringify(w2));
@@ -112,6 +131,11 @@ for (const ui of LANGS) for (const ml of LANGS) {
     if (!tx.hints[0] || !tx.hints[1] || !tx.explanation) bad++;
     for (const g of E.LEVELS.hard) if (g !== p.cipher_id && !E.whyNot(g, p, ui)) empty++;
   }
+  for (let i = 0; i < 50; i++) {
+    const tx = E.shiftText(E.generateShiftPuzzle({ lang: ml }), ui);
+    if (!tx.hints[0] || !tx.hints[1] || !tx.explanation) bad++;
+  }
+  if (E.TEXT[ui].game.crackSteps(A).length !== 5 || E.TEXT[ui].sheet.checklistShift(A).length !== 5) bad++;
   if (typeof E.TEXT[ui].game.magnote(A) !== 'string' || E.TEXT[ui].game.guideSteps(A).length !== 6 || E.TEXT[ui].sheet.checklist(A).length !== 6 || typeof E.TEXT[ui].sheet.instrSteps(A) !== 'string') bad++;
   eq(`${ui} texts / ${ml} alphabet: all texts present`, bad, 0);
   eq(`${ui} texts / ${ml} alphabet: whyNot never empty`, empty, 0);
