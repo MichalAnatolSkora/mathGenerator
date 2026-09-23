@@ -14,6 +14,14 @@ Both pages share **`engine.js`** (the puzzle engine, logic only) and **`strings.
 user-facing text in Polish, English, Ukrainian and Vietnamese: cipher descriptions, hints,
 explanations, "why not" notes, and the UI of both pages). The language helper is `../i18n.js`.
 
+There are **two language choices**: the flags in the header set the language of the game
+texts (hints, explanations, guide), and a second row of flags ("Message language") sets the
+language of the secret messages and their alphabet. The message language follows the text
+language until you pick one explicitly; the choice is remembered (localStorage
+`cipherDetective.msgLang`) and can be forced with `?msg=pl|en|uk|vi`. Texts that name letters
+or counts (ROT13 vs ROT16, A ↔ Z vs A ↔ Ż) are computed from the message alphabet, so any
+combination works, e.g. Ukrainian explanations for a Polish message.
+
 Each language has its **own alphabet, message bank and key words**:
 
 | Language | Alphabet | Letters | Half-turn cipher | Affine `a` |
@@ -77,8 +85,9 @@ freestyled), then **validated by decrypting** before they are returned. In the b
 ```js
 ENGINE.generatePuzzle('easy', { lang: 'pl' })   // Polish message, Polish alphabet, Polish texts
 // → { cipher_id, params, plaintext, ciphertext, lang, hint, hints:[gentle, specific], explanation }
-ENGINE.puzzleText(puzzle, 'uk')          // → { hints, explanation } in another language
+ENGINE.puzzleText(puzzle, 'uk')          // → { hints, explanation } in another language (the puzzle keeps its alphabet)
 ENGINE.whyNot('caesar', puzzle, 'vi')    // → why the guess does not fit
+ENGINE.cipherInfo('rot13', 'pl', ENGINE.alphabet('en'))   // → { name:'ROT13', full, blurb, how, spot } Polish text, English alphabet
 ENGINE.generateWorksheet('SPY-4821', 'hard', 6, 'pl')
 // → { seed, level, count, lang, cases:[puzzle, …] }   deterministic for seed + level + language
 ```

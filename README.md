@@ -8,8 +8,9 @@ worksheets with answer keys.
 **Languages:** Polish (default), English, Ukrainian, Vietnamese. Every page has flag buttons; the
 choice is remembered in the browser and follows the links between pages. A language can also be
 forced with `?lang=pl|en|uk|vi`. The shared helper is [`i18n.js`](i18n.js); each page keeps its own
-dictionary of strings. Cipher Detective also switches the **alphabet and the secret messages** with
-the language (Polish letters incl. ą/ż, the Ukrainian Cyrillic alphabet, the Vietnamese alphabet).
+dictionary of strings. Cipher Detective has a second choice, the **message language**: the alphabet
+and the secret messages (Polish letters incl. ą/ż, the Ukrainian Cyrillic alphabet, the Vietnamese
+alphabet) can be in a different language than the game texts (`?msg=`).
 
 | Page | What it is |
 |---|---|

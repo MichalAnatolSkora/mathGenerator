@@ -38,7 +38,8 @@
   .case-head h2{margin:0;font-size:18px;}
   .badge{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:var(--accent-soft);color:var(--accent-d);}
   .badge.hard{background:#ffe8dc;color:#b4441b;}
-  .lead{margin:0 0 12px;color:var(--muted);font-size:15px;}
+  .lead{margin:0 0 8px;color:var(--muted);font-size:15px;}
+  .msglang{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:0 0 8px;}
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:8px;}
   .legend span{display:inline-flex;align-items:center;gap:6px;}
   .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;border:1.5px solid #cfd6e6;background:#fff;}
@@ -176,13 +177,14 @@
       <span class="badge" id="levelBadge">Easy</span>
     </div>
     <p class="lead" data-i18n="lead"></p>
+    <div class="msglang"><span data-i18n="msgLang">Message language:</span><nav class="flags" id="msgFlags" data-i18n-attr="aria-label:msgLang" aria-label="Message language"></nav></div>
     <div class="legend">
       <span><i></i> <span data-i18n="legendMessage">Message</span></span>
       <span><i class="dark"></i> <span data-i18n="legendCode">In code</span></span>
       <span id="legendMag" hidden data-i18n="legendMag">🔍 Steps each letter moved</span>
     </div>
     <div id="letters" class="letters"></div>
-    <p class="magnote" data-i18n="magnote"></p>
+    <p class="magnote" id="magnote"></p>
 
     <div class="tools">
       <button type="button" id="hintBtn">💡</button>
@@ -235,7 +237,7 @@
 (() => {
   const $ = s => document.querySelector(s);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const STORE = 'cipherDetective.v1';
+  const STORE = 'cipherDetective.v1', MSG_STORE = 'cipherDetective.msgLang';
 
   // UI strings per language = game texts + a few shared ones (brand, level names)
   const UI = {};
@@ -258,6 +260,7 @@
 
   const state = {
     level: 'easy', puzzle: null, hintsUsed: 0, answered: false, guess: null, cheer: 0, caseNo: 0, mag: false, alpha: false, pick: null,
+    msgLang: null, msgLangExplicit: false,   // language of the secret message + alphabet; null = same as the page language
     last: { cipher: null, msg: null },
     stats: { stars: 0, solved: 0, played: 0, streak: 0, best: 0 },
   };
@@ -272,6 +275,17 @@
         state.alpha = !!j.alpha;
       }
     } catch (e) { /* storage unavailable: play without saving */ }
+    const q = new URLSearchParams(location.search).get('msg');
+    let stored = null; try { stored = localStorage.getItem(MSG_STORE); } catch (e) { /* ignore */ }
+    if (I18N.isValid(q)) { state.msgLang = q; state.msgLangExplicit = true; saveMsgLang(); }
+    else if (I18N.isValid(stored)) { state.msgLang = stored; state.msgLangExplicit = true; }
+    else state.msgLang = I18N.get();
+  }
+  function saveMsgLang() { try { localStorage.setItem(MSG_STORE, state.msgLang); } catch (e) { /* ignore */ } }
+  function setMsgLang(code) {
+    if (!I18N.isValid(code) || code === state.msgLang) return;
+    state.msgLang = code; state.msgLangExplicit = true; saveMsgLang();
+    newCase();
   }
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, stats: state.stats, mag: state.mag, alpha: state.alpha })); } catch (e) { /* ignore */ }
@@ -289,6 +303,9 @@
     const s = state.stats;
     $('#statsText').textContent = t('stats', s.solved, s.played, s.stars, s.best);
     document.title = t('brand').replace(/^\S+\s/, '');
+    I18N.renderFlags($('#msgFlags'), state.msgLang, setMsgLang);
+    const link = document.querySelector('a[href^="worksheet.html"]');
+    if (link) { const u = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (state.msgLangExplicit) q.set('msg', state.msgLang); else q.delete('msg'); const qs = q.toString(); link.setAttribute('href', u + (qs ? '?' + qs : '')); }
   }
 
   function renderLetters() {
@@ -318,6 +335,7 @@
     });
     box.classList.toggle('mag', state.mag);
     box.classList.toggle('pickable', state.alpha);
+    $('#magnote').textContent = t('magnote', A);
     $('#legendMag').hidden = !state.mag;
     $('#magBtn').setAttribute('aria-pressed', String(state.mag));
   }
@@ -347,9 +365,9 @@
   function renderChoices() {
     const box = $('#choices');
     box.innerHTML = '';
-    const p = state.puzzle;
+    const p = state.puzzle, A = PA();
     ENGINE.LEVELS[state.level].forEach((id, i) => {
-      const c = ENGINE.CIPHERS[id], tx = TX().ciphers[id];
+      const c = ENGINE.CIPHERS[id], tx = ENGINE.cipherInfo(id, lang(), A);
       const b = el('button', 'choice');
       b.type = 'button'; b.dataset.id = id;
       const txt = el('span', 'txt');
@@ -386,7 +404,7 @@
     const p = state.puzzle, id = state.guess;
     const correct = id === p.cipher_id;
     const stars = correct ? Math.max(1, 3 - state.hintsUsed) : 0;
-    const full = ENGINE.cipherFull(p.cipher_id, lang());
+    const full = ENGINE.cipherFull(p.cipher_id, lang(), PA());
     const text = ENGINE.puzzleText(p, lang());
     r.hidden = false;
     r.className = 'card result ' + (correct ? 'ok' : 'no');
@@ -405,7 +423,7 @@
 
   // ---------- game flow ----------
   function newCase() {
-    state.puzzle = ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: lang() });
+    state.puzzle = ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: state.msgLang });
     state.last = { cipher: state.puzzle.cipher_id, msg: state.puzzle.plaintext };
     state.caseNo++;
     state.hintsUsed = 0;
@@ -477,17 +495,17 @@
   function buildGuide() {
     const body = $('#guideBody');
     if (body.childElementCount) return;
-    const A = ENGINE.alphabet(lang()), G = TX().guide;
+    const A = ENGINE.alphabet(state.msgLang), G = ENGINE.textFor(state.msgLang).guide;
     const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: G.key }, affine: { a: 5, b: 8 }, beaufort: { key: G.key } };
     const steps = el('ol', 'steps');
-    steps.innerHTML = t('guideSteps').map(s => `<li>${s}</li>`).join('');
+    steps.innerHTML = t('guideSteps', A).map(s => `<li>${s}</li>`).join('');
     body.appendChild(steps);
     const alpha = el('div', 'alpha');
     alpha.textContent = t('letterNumbers') + '  ' + A.letters.map((ch, i) => `${ch}=${i}`).join('  ');
     body.appendChild(alpha);
     const sample = G.sample;
     for (const id of ENGINE.LEVELS.hard) {
-      const c = ENGINE.CIPHERS[id], tx = TX().ciphers[id], p = GUIDE_EXAMPLES[id];
+      const c = ENGINE.CIPHERS[id], tx = ENGINE.cipherInfo(id, lang(), A), p = GUIDE_EXAMPLES[id];
       const card = el('div', 'gcard');
       const gh = el('div', 'gh');
       gh.append(el('span', 'ic', c.icon), el('b', null, tx.name), el('span', 'badge' + (c.level === 'hard' ? ' hard' : ''), levelName(c.level)));
@@ -497,7 +515,7 @@
       card.appendChild(spot);
       const ex = el('div', 'ex');
       const lbl = paramLabel(id, p);
-      ex.append(document.createTextNode((lbl ? `(${lbl})  ` : '') + sample), el('span', 'arrow', '→'), document.createTextNode(ENGINE.encrypt(id, sample, p, lang())));
+      ex.append(document.createTextNode((lbl ? `(${lbl})  ` : '') + sample), el('span', 'arrow', '→'), document.createTextNode(ENGINE.encrypt(id, sample, p, state.msgLang)));
       card.appendChild(ex);
       body.appendChild(card);
     }
@@ -533,7 +551,10 @@
     else if ((k === 'n' || k === 'enter') && state.answered) { e.preventDefault(); newCase(); }
   });
 
-  I18N.onChange(() => { newCase(); });   // new language = new alphabet and messages
+  I18N.onChange(() => {
+    if (state.msgLangExplicit) renderAll();                     // texts change, the message stays
+    else { state.msgLang = I18N.get(); newCase(); }              // message language follows the page
+  });
 
   load();
   state.caseNo = state.stats.played;   // case numbers continue across visits

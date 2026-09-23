@@ -78,6 +78,7 @@ for (const lang of LANGS) {
   const p = E.generatePuzzle('hard', { lang, cipher: 'beaufort' });
   eq(`${lang}: text in ${other} works`, typeof E.puzzleText(p, other).explanation, 'string');
   eq(`${lang}: guide sample encrypts`, E.encrypt('vigenere', E.TEXT[lang].guide.sample, { key: E.TEXT[lang].guide.key }, lang) !== E.TEXT[lang].guide.sample, true);
+  eq(`${lang}: guide sample uses its alphabet`, [...E.TEXT[lang].guide.sample.replace(/ /g, '')].every(ch => E.alphabet(lang).has(ch)), true);
 
   // Worksheets
   const w1 = E.generateWorksheet('SPY-4821', 'hard', 6, lang), w2 = E.generateWorksheet('SPY-4821', 'hard', 6, lang), w3 = E.generateWorksheet('SPY-4821', 'hard', 3, lang);
@@ -93,6 +94,27 @@ for (const lang of LANGS) {
     const allowed = E.LEVELS[level];
     if (n >= allowed.length && new Set(W.cases.map(c => c.cipher_id)).size !== allowed.length) { fails++; console.log('FAIL worksheet does not cover all ciphers', lang, W); }
   }
+}
+
+// Mixed languages: texts in one language for a message (alphabet) in another
+for (const ui of LANGS) for (const ml of LANGS) {
+  const A = E.alphabet(ml);
+  let bad = 0, empty = 0;
+  for (const id of E.LEVELS.hard) {
+    const info = E.cipherInfo(id, ui, A);
+    for (const k of ['name', 'full', 'blurb', 'how', 'spot']) if (typeof info[k] !== 'string' || !info[k]) bad++;
+  }
+  eq(`${ui} texts / ${ml} alphabet: ROT name`, E.cipherInfo('rot13', ui, A).name, 'ROT' + A.half);
+  eq(`${ui} texts / ${ml} alphabet: Atbash how mentions first↔last`, E.cipherInfo('atbash', ui, A).how.includes(`${A.letters[0]} ↔ ${A.letters[A.n - 1]}`), true);
+  for (let i = 0; i < 200; i++) {
+    const p = E.generatePuzzle('hard', { lang: ml });
+    const tx = E.puzzleText(p, ui);
+    if (!tx.hints[0] || !tx.hints[1] || !tx.explanation) bad++;
+    for (const g of E.LEVELS.hard) if (g !== p.cipher_id && !E.whyNot(g, p, ui)) empty++;
+  }
+  if (typeof E.TEXT[ui].game.magnote(A) !== 'string' || E.TEXT[ui].game.guideSteps(A).length !== 6 || E.TEXT[ui].sheet.checklist(A).length !== 6 || typeof E.TEXT[ui].sheet.instrSteps(A) !== 'string') bad++;
+  eq(`${ui} texts / ${ml} alphabet: all texts present`, bad, 0);
+  eq(`${ui} texts / ${ml} alphabet: whyNot never empty`, empty, 0);
 }
 
 // Validation catches bad puzzles

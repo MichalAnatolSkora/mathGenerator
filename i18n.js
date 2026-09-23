@@ -28,22 +28,32 @@ const I18N = (() => {
   let lang = detect();
   const listeners = [];
 
-  const withLang = href => href.split('?')[0].split('#')[0] + (lang === DEFAULT ? '' : '?lang=' + lang);
+  /** Same link with the current language in ?lang= (other query parameters are kept). */
+  const withLang = href => {
+    const [base, q = ''] = href.split('#')[0].split('?');
+    const p = new URLSearchParams(q);
+    if (lang === DEFAULT) p.delete('lang'); else p.set('lang', lang);
+    const qs = p.toString();
+    return base + (qs ? '?' + qs : '');
+  };
   function decorateLinks() {
     document.querySelectorAll('a[data-keep-lang]').forEach(a => a.setAttribute('href', withLang(a.getAttribute('href'))));
   }
-  function renderSwitchers() {
-    document.querySelectorAll('.langs').forEach(nav => {
-      nav.innerHTML = '';
-      LANGS.forEach(l => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.textContent = l.flag; b.title = l.name;
-        b.setAttribute('aria-label', l.name); b.setAttribute('lang', l.code);
-        b.setAttribute('aria-pressed', String(l.code === lang));
-        b.addEventListener('click', () => set(l.code));
-        nav.appendChild(b);
-      });
+  /** Render flag buttons into `nav` for any language value (used for the page language and, in
+   *  Cipher Detective, for the separate message language). */
+  function renderFlags(nav, current, onSelect) {
+    nav.innerHTML = '';
+    LANGS.forEach(l => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = l.flag; b.title = l.name;
+      b.setAttribute('aria-label', l.name); b.setAttribute('lang', l.code);
+      b.setAttribute('aria-pressed', String(l.code === current));
+      b.addEventListener('click', () => onSelect(l.code));
+      nav.appendChild(b);
     });
+  }
+  function renderSwitchers() {
+    document.querySelectorAll('.langs').forEach(nav => renderFlags(nav, lang, set));
   }
   function set(code) {
     if (!valid(code) || code === lang) return;
@@ -84,10 +94,11 @@ const I18N = (() => {
   }
 
   const style = document.createElement('style');
-  style.textContent = '.langs{display:inline-flex;gap:2px;align-items:center}.langs button{font:inherit;font-size:20px;line-height:1;background:transparent;border:2px solid transparent;border-radius:8px;padding:3px 5px;cursor:pointer;min-width:40px;min-height:40px}.langs button:hover{border-color:#c5cbe0}.langs button[aria-pressed=true]{border-color:#4f5bd5;background:#e9ebff}';
+  style.textContent = '.langs,.flags{display:inline-flex;gap:2px;align-items:center}.langs button,.flags button{font:inherit;font-size:20px;line-height:1;background:transparent;border:2px solid transparent;border-radius:8px;padding:3px 5px;cursor:pointer;min-width:40px;min-height:40px}.langs button:hover,.flags button:hover{border-color:#c5cbe0}.langs button[aria-pressed=true],.flags button[aria-pressed=true]{border-color:#4f5bd5;background:#e9ebff}';
   document.head.appendChild(style);
   document.documentElement.lang = lang;
   document.addEventListener('DOMContentLoaded', () => { renderSwitchers(); decorateLinks(); });
 
-  return { LANGS, DEFAULT, get, set, onChange, t, apply, plural, withLang };
+  const valid_ = valid;
+  return { LANGS, DEFAULT, get, set, onChange, t, apply, plural, withLang, renderFlags, isValid: valid_ };
 })();

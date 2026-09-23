@@ -220,9 +220,15 @@ const ENGINE = (() => {
     const t = textFor(lang).ciphers[puzzle.cipher_id], ex = example(puzzle), A = alphabet(puzzle.lang);
     return { hints: t.hints(puzzle.params, ex, A), explanation: t.explain(puzzle.params, ex, A) };
   }
-  /** Cipher name (short) and full name for sentences, in a language. */
-  const cipherName = (id, lang) => textFor(lang).ciphers[id].name;
-  const cipherFull = (id, lang) => textFor(lang).ciphers[id].full || textFor(lang).ciphers[id].name;
+  /** Cipher texts (name, full name for sentences, blurb, how, spot) in a language, for the message alphabet A.
+   *  Texts that mention letters or counts are functions of the alphabet (e.g. ROT13 vs ROT16, A ↔ Z vs A ↔ Ż). */
+  const resolve = (v, A) => typeof v === 'function' ? v(A) : v;
+  function cipherInfo(id, lang, A) {
+    const c = textFor(lang).ciphers[id]; A = A || alphabet(lang);
+    return { name: resolve(c.name, A), full: resolve(c.full || c.name, A), blurb: resolve(c.blurb, A), how: resolve(c.how, A), spot: resolve(c.spot, A) };
+  }
+  const cipherName = (id, lang, A) => cipherInfo(id, lang, A).name;
+  const cipherFull = (id, lang, A) => cipherInfo(id, lang, A).full;
 
   function checkMessage(text, lang) {
     const A = alphabet(lang), B = bank(lang), errors = [];
@@ -302,7 +308,7 @@ const ENGINE = (() => {
     const actual = puzzle.cipher_id;
     if (guess === actual) return '';
     const W = textFor(lang).whyNot, A = alphabet(puzzle.lang);
-    const gname = cipherFull(guess, lang);
+    const gname = cipherFull(guess, lang, A);
     const pairs = letterPairs(puzzle.plaintext, puzzle.ciphertext, puzzle.lang);
     const sameShift = pairs.every(x => x.s === pairs[0].s);
     const mirrored = pairs.every(x => x.pn + x.cn === A.n - 1);
@@ -383,7 +389,7 @@ const ENGINE = (() => {
   }
 
   return { CIPHERS, LEVELS, ALPHABETS, BANK, TEXT, alphabet, bank, textFor, encrypt, decrypt, letterPairs, example,
-           puzzleText, cipherName, cipherFull, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
+           puzzleText, cipherInfo, cipherName, cipherFull, resolve, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = ENGINE;
