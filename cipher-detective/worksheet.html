@@ -58,6 +58,9 @@
   .namebox{flex:0 0 220px;border:1px solid #bbb;border-radius:6px;padding:6px 12px;font-size:12.5px;color:#555;line-height:2.1;}
   .instr{font-size:12px;color:#333;margin:0 0 8px;}
   .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 14px;font-size:11.5px;color:#333;margin:0 0 4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;}
+  .alpha-row{display:grid;gap:0.6mm;margin:4px 0 6px;}
+  .alpha-row span{border:0.3mm solid #999;border-radius:1mm;text-align:center;font:800 9.5px/1.15 ui-monospace,Menlo,Consolas,monospace;padding:1mm 0 0.6mm;}
+  .alpha-row small{display:block;font-size:7.5px;font-weight:600;color:#666;}
   .case{padding:6px 0 8px;border-top:1px dashed #bbb;break-inside:avoid;page-break-inside:avoid;}
   .case-top{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-bottom:4px;}
   .case-no{font-weight:800;font-size:14px;}
@@ -76,15 +79,15 @@
   .muted{color:var(--muted);font-weight:400;}
 
   /* guide page */
-  .checklist{margin:0 0 10px;padding-left:20px;font-size:12px;}
-  .checklist li{margin:3px 0;}
-  .alpha{display:grid;grid-template-columns:repeat(13,1fr);gap:1mm;margin:0 0 12px;}
+  .checklist{margin:0 0 8px;padding-left:20px;font-size:11.5px;line-height:1.4;}
+  .checklist li{margin:2px 0;}
+  .alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(11mm,1fr));gap:0.8mm;margin:0 0 8px;}
   .alpha span{border:0.3mm solid #999;border-radius:1mm;text-align:center;font:700 11px/1.6 ui-monospace,Menlo,Consolas,monospace;}
-  .gcard{border:1px solid #ccc;border-radius:6px;padding:8px 10px;margin-bottom:8px;break-inside:avoid;page-break-inside:avoid;}
-  .gcard .gh{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;margin-bottom:2px;}
+  .gcard{border:1px solid #ccc;border-radius:6px;padding:6px 10px;margin-bottom:6px;break-inside:avoid;page-break-inside:avoid;}
+  .gcard .gh{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;margin-bottom:1px;}
   .gcard .lvl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid #999;border-radius:999px;padding:0 6px;color:#555;}
-  .gcard p{margin:2px 0;font-size:11.5px;}
-  .gcard .ex{font:700 11px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#f3f3f3;border-radius:4px;padding:3px 8px;margin-top:4px;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  .gcard p{margin:1px 0;font-size:11px;line-height:1.4;}
+  .gcard .ex{font:700 10.5px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#f3f3f3;border-radius:4px;padding:2px 8px;margin-top:3px;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
 
   /* key page */
   .key .case{padding:6px 0 8px;}
@@ -156,6 +159,7 @@
 
     <div class="grp">
       <h2 data-i18n="options">Options</h2>
+      <label class="check"><input type="checkbox" id="optAlpha" checked> <span data-i18n="optAlpha"></span></label>
       <label class="check"><input type="checkbox" id="optSteps" checked> <span data-i18n="optSteps"></span></label>
       <label class="check"><input type="checkbox" id="optHints"> <span data-i18n="optHints"></span></label>
       <label class="check"><input type="checkbox" id="optGuide" checked> <span data-i18n="optGuide"></span></label>
@@ -183,7 +187,6 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const STORE = 'cdw';
-  const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: 'KEY' }, affine: { a: 5, b: 8 }, beaufort: { key: 'KEY' } };
   let level = 'easy';
 
   const UI = {};
@@ -192,6 +195,7 @@
   const lang = () => I18N.get();
   const TX = () => ENGINE.textFor(lang());
   const levelName = l => TX().levels[l];
+  const AL = () => ENGINE.alphabet(lang());
   function paramLabel(id, p) {
     const P = TX().params;
     if (id === 'caesar') return P.shift(p.shift);
@@ -211,7 +215,7 @@
       seed: $('seed').value.trim() || 'SEED',
       level,
       count: Number.isFinite(n) ? Math.max(1, Math.min(10, n)) : 6,
-      steps: $('optSteps').checked, hints: $('optHints').checked,
+      alpha: $('optAlpha').checked, steps: $('optSteps').checked, hints: $('optHints').checked,
       guide: $('optGuide').checked, key: $('optKey').checked,
     };
   }
@@ -222,6 +226,7 @@
       $('seed').value = s.seed || randomSeed();
       level = ENGINE.LEVELS[s.level] ? s.level : 'easy';
       $('count').value = s.count || 6;
+      $('optAlpha').checked = s.alpha !== false;
       $('optSteps').checked = s.steps !== false;
       $('optHints').checked = !!s.hints;
       $('optGuide').checked = s.guide !== false;
@@ -232,13 +237,14 @@
 
   /** Message/code tiles for one case. mode: 'blank' (empty step boxes), 'filled' (steps shown), 'none' (no step row). */
   function tilesHTML(p, mode) {
-    const pairs = ENGINE.letterPairs(p.plaintext, p.ciphertext);
+    const A = ENGINE.alphabet(p.lang), pairs = ENGINE.letterPairs(p.plaintext, p.ciphertext, p.lang);
     let li = 0;
     const words = p.plaintext.split(' '), cwords = p.ciphertext.split(' ');
-    return '<div class="letters">' + words.map((w, wi) => {
+    return '<div class="letters">' + words.map((wStr, wi) => {
+      const w = [...wStr], cw = [...cwords[wi]];
       let rp = '', rc = '', rs = '';
       for (let i = 0; i < w.length; i++) {
-        const ch = w[i], c = cwords[wi][i], isL = /[A-Z]/.test(ch);
+        const ch = w[i], c = cw[i], isL = A.has(ch);
         rp += `<span class="t">${esc(ch)}</span>`;
         rc += `<span class="t">${esc(c)}</span>`;
         rs += `<span class="t">${mode === 'filled' && isL ? pairs[li].s : ''}</span>`;
@@ -261,23 +267,27 @@
     const hints = s.hints
       ? `<div class="flip"><b>${esc(t('hintsFlip'))}</b> — ${W.cases.map((p, i) => `<b>${i + 1}:</b> ${esc(ENGINE.puzzleText(p, lang()).hints[0])}`).join(' ')}</div>`
       : '';
+    const A = AL();
+    const alpha = s.alpha ? `<div class="alpha-row" style="grid-template-columns:repeat(${A.n},1fr)">${A.letters.map((ch, i) => `<span>${ch}<small>${i}</small></span>`).join('')}</div>` : '';
     return `<div class="sheet">
       ${headHTML(t('sheetTitle'), t('sheetSub', levelName(s.level), W.cases.length), W.seed, true)}
       <p class="instr">${esc(t('instr'))}${s.steps ? esc(t('instrSteps')) : ''}</p>
       <div class="legend">${legend}</div>
-      ${cases}${hints}
+      ${alpha}${cases}${hints}
     </div>`;
   }
 
   function renderGuide(W, s) {
     const ids = ENGINE.LEVELS[s.level], CT = TX().ciphers;
     const steps = t('checklist').slice(0, s.level === 'hard' ? 6 : 3);
-    const alpha = Array.from({ length: 26 }, (_, i) => `<span>${ENGINE.C(i)}=${i}</span>`).join('');
+    const A = AL(), G = TX().guide;
+    const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: G.key }, affine: { a: 5, b: 8 }, beaufort: { key: G.key } };
+    const alpha = A.letters.map((ch, i) => `<span>${ch}=${i}</span>`).join('');
     const cards = ids.map(id => {
       const c = ENGINE.CIPHERS[id], tx = CT[id], p = GUIDE_EXAMPLES[id], lbl = paramLabel(id, p);
       return `<div class="gcard"><div class="gh">${c.icon} ${esc(tx.name)} <span class="lvl">${esc(levelName(c.level))}</span></div>
         <p>${esc(tx.how)}</p><p><b>${esc(t('howToSpot'))}</b> ${esc(tx.spot)}</p>
-        <div class="ex">${lbl ? `(${esc(lbl)})  ` : ''}HELLO SPY → ${ENGINE.encrypt(id, 'HELLO SPY', p)}</div></div>`;
+        <div class="ex">${lbl ? `(${esc(lbl)})  ` : ''}${esc(G.sample)} → ${esc(ENGINE.encrypt(id, G.sample, p, lang()))}</div></div>`;
     }).join('');
     return `<div class="sheet guide">
       ${headHTML(t('guideTitle'), t('guideSub', levelName(s.level)), W.seed, false)}
@@ -328,7 +338,7 @@
     $('seed').addEventListener('change', regenerate);
     $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); regenerate(); } });
     $('count').addEventListener('change', regenerate);
-    ['optSteps', 'optHints', 'optGuide', 'optKey'].forEach(id => $(id).addEventListener('change', regenerate));
+    ['optAlpha', 'optSteps', 'optHints', 'optGuide', 'optKey'].forEach(id => $(id).addEventListener('change', regenerate));
     document.querySelectorAll('#levels button').forEach(b => b.addEventListener('click', () => { setLevel(b.dataset.level); regenerate(); }));
     $('randSeed').addEventListener('click', newWorksheet);
     $('newBtn').addEventListener('click', newWorksheet);
@@ -342,7 +352,7 @@
     if (q.get('seed')) $('seed').value = q.get('seed');
     if (ENGINE.LEVELS[q.get('level')]) level = q.get('level');
     if (q.get('n')) $('count').value = q.get('n');
-    for (const [k, id] of [['steps', 'optSteps'], ['hints', 'optHints'], ['guide', 'optGuide'], ['key', 'optKey']]) {
+    for (const [k, id] of [['alpha', 'optAlpha'], ['steps', 'optSteps'], ['hints', 'optHints'], ['guide', 'optGuide'], ['key', 'optKey']]) {
       if (q.has(k)) $(id).checked = q.get(k) === '1' || q.get(k) === 'true';
     }
     setLevel(level);

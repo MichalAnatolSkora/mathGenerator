@@ -2,20 +2,25 @@
  * Cipher Detective — all user-facing text, in four languages (pl, en, uk, vi).
  * Classic script loaded after engine.js; registers one dictionary per language in ENGINE.TEXT.
  *
- * Each dictionary: { levels, ciphers, whyNot, params, game, sheet }.
- * `ex` in hints/explain is the first letter pair of the puzzle: { p, c, pn, cn } (letter, code letter, numbers).
+ * Each dictionary: { levels, guide, ciphers, whyNot, params, game, sheet }.
+ * Cipher hints/explain receive (params, ex, A): `ex` is the first letter pair of the puzzle
+ * { p, c, pn, cn } (letter, code letter, their numbers) and `A` the puzzle's alphabet
+ * { n, half, idx(ch), at(i), letters }. Each language has its own alphabet, so the letter
+ * examples in the texts (A ↔ Z, A=0 … Z=25, ROT13 …) are written for that alphabet:
+ *   en 26 letters, half 13 · pl 32, half 16 · uk 33, half 16 · vi 29, half 14.
  */
 (function (E) {
   const T = E.TEXT;
   const mod = (n, m) => ((n % m) + m) % m;
-  const L = ch => ch.charCodeAt(0) - 65;
-  const nums = key => [...key].map(L).join(', ');
+  const nums = (key, A) => [...key].map(A.idx).join(', ');
+  const k0 = key => [...key][0];
   /** Polish/Ukrainian plural: one (1), few (2–4 except 12–14), many (rest). */
   const slav = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (n === 1) return one; if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return few; return many; };
 
   /* ======================================================================== EN */
   T.en = {
     levels: { easy: 'Easy', hard: 'Hard' },
+    guide: { sample: 'HELLO SPY', key: 'KEY' },
     ciphers: {
       caesar: {
         name: 'Caesar', full: 'Caesar',
@@ -52,10 +57,10 @@
         blurb: 'A key word gives each letter its own shift, repeating.',
         how: 'Choose a key word. Its letters are shifts (A=0, B=1 … Z=25). The 1st message letter moves by the 1st key letter, the 2nd by the 2nd, and the key repeats.',
         spot: 'The step numbers repeat in a short cycle of 3 or 4.',
-        hints: ({ key }) => [
+        hints: ({ key }, ex, A) => [
           'The steps change from letter to letter. But look closely — do they come back around and repeat?',
-          `The steps repeat every ${key.length} letters: ${nums(key)}. That is the key word ${key} added to the message.`],
-        explain: ({ key }, ex) => `This was a Vigenère cipher with the key word ${key}. Each letter moves by its key letter: ${ex.p} + ${key[0]} (${L(key[0])} steps) → ${ex.c}. The key repeats every ${key.length} letters.`,
+          `The steps repeat every ${[...key].length} letters: ${nums(key, A)}. That is the key word ${key} added to the message.`],
+        explain: ({ key }, ex, A) => `This was a Vigenère cipher with the key word ${key}. Each letter moves by its key letter: ${ex.p} + ${k0(key)} (${A.idx(k0(key))} steps) → ${ex.c}. The key repeats every ${[...key].length} letters.`,
       },
       affine: {
         name: 'Affine', full: 'Affine',
@@ -65,7 +70,7 @@
         hints: ({ a, b }) => [
           'The same letter always turns into the same code letter — but the steps jump around with no cycle.',
           `Each letter's number (A=0 … Z=25) was multiplied by ${a}, then ${b} was added.`],
-        explain: ({ a, b }, ex) => `This was an Affine cipher: each letter's number was multiplied by ${a}, then ${b} was added. ${ex.p} is ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, wrap around 26 → ${mod(a * ex.pn + b, 26)}, which is ${ex.c}.`,
+        explain: ({ a, b }, ex, A) => `This was an Affine cipher: each letter's number was multiplied by ${a}, then ${b} was added. ${ex.p} is ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, wrap around ${A.n} → ${mod(a * ex.pn + b, A.n)}, which is ${ex.c}.`,
       },
       beaufort: {
         name: 'Beaufort', full: 'Beaufort',
@@ -75,17 +80,17 @@
         hints: ({ key }) => [
           'There is a key word here — but the letters count backwards from the key, not forwards.',
           `The key word is ${key}. Each code letter = key letter − message letter (count backwards, wrapping around).`],
-        explain: ({ key }, ex) => `This was a Beaufort cipher with the key word ${key}. Count backwards from the key letter: ${key[0]} (${L(key[0])}) − ${ex.p} (${ex.pn}) = ${mod(L(key[0]) - ex.pn, 26)}, which is ${ex.c}.`,
+        explain: ({ key }, ex, A) => `This was a Beaufort cipher with the key word ${key}. Count backwards from the key letter: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, which is ${ex.c}.`,
       },
     },
     whyNot: {
-      closeRot13: 'So close! ROT13 is a special Caesar that moves exactly 13 steps — in this game it counts as its own cipher.',
-      closeCaesar: s => `Close! Every letter did move the same number of steps — but it was ${s}, not 13.`,
+      closeRot13: half => `So close! ROT${half} is a special Caesar that moves exactly ${half} steps — in this game it counts as its own cipher.`,
+      closeCaesar: (s, half) => `Close! Every letter did move the same number of steps — but it was ${s}, not ${half}.`,
       stepsDiffer: (g, a, b) => `It was not ${g}: the steps are not all the same. ${a.p}→${a.c} is ${a.s} steps, but ${b.p}→${b.c} is ${b.s}.`,
       notMirror: (p, m, c) => `It was not Atbash: in Atbash ${p} would become ${m}, but here it became ${c}.`,
       sameLetterDiff: (g, p, c1, c2) => `It was not ${g}: the same letter ${p} turned into ${c1} one time and ${c2} another time. That only happens with a key word.`,
       sameShift: (g, s, affine) => `It was not ${g}: every letter moved the same ${s} steps. ${affine ? 'Affine steps jump around.' : 'A key word would make the steps change.'}`,
-      mirrored: g => `It was not ${g}: every letter and its code letter are mirror images (A ↔ Z, B ↔ Y). That is the Atbash pattern.`,
+      mirrored: g => `It was not ${g}: every letter and its code letter are mirror images (first ↔ last letter of the alphabet). That is the Atbash pattern.`,
       monoClue: 'Clue: here every letter always became the same code letter — a sign that there was no changing key word.',
       cycle: (n, ns) => `It was not Beaufort: the steps repeat in a cycle of ${n} (${ns}). That is a key word added forwards — Vigenère.`,
       noCycle: 'It was not Vigenère: the steps do not repeat in a cycle. With a key word added forwards they would.',
@@ -100,6 +105,8 @@
       legendMessage: 'Message', legendCode: 'In code', legendMag: '🔍 Steps each letter moved',
       magnote: 'Numbers show how many steps each letter moved forward (A→B is 1, wrapping around after Z).',
       hintBtn: n => `💡 Hint (${n} left)`, noHints: '💡 No hints left', magnifier: '🔍 Magnifier', guide: '📖 Cipher guide',
+      alphabet: '🔤 Alphabet', alphaNote: 'Tap a letter in the message to see its jump on the alphabet.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${s} step${s === 1 ? '' : 's'} forward`,
       hintLabel: i => `💡 Hint ${i}:`,
       whichCipher: 'Which cipher was used?',
       correct: (full, cheer) => `🎉 Correct! It was ${full}. ${cheer}`,
@@ -129,6 +136,7 @@
       cases: 'Cases', casesHint: 'About 6 fit on one page; more spill onto extra pages.',
       options: 'Options', optSteps: 'Step boxes for counting the shift', optHints: 'Hints, printed upside-down at the bottom',
       optGuide: "Detective's guide page", optKey: 'Answer key page',
+      optAlpha: 'Alphabet strip for counting (help for younger kids)',
       newWorksheet: 'New worksheet', print: 'Print / Save PDF',
       casesCount: n => `${n} case${n === 1 ? '' : 's'}`, pagesCount: n => `${n} page${n === 1 ? '' : 's'}`,
       partSheet: 'worksheet', partGuide: 'guide', partKey: 'answer key',
@@ -152,79 +160,80 @@
     },
   };
 
-  /* ======================================================================== PL */
+  /* ======================================================================== PL  (32 liter: A Ą B C Ć D E Ę F G H I J K L Ł M N Ń O Ó P R S Ś T U W Y Z Ź Ż; pół alfabetu = 16) */
   T.pl = {
     levels: { easy: 'Łatwy', hard: 'Trudny' },
+    guide: { sample: 'CZEŚĆ SZPIEGU', key: 'KOT' },
     ciphers: {
       caesar: {
         name: 'Cezar', full: 'szyfr Cezara',
         blurb: 'Każda litera przesuwa się o tyle samo miejsc.',
-        how: 'Wybierz liczbę (przesunięcie). Przesuń każdą literę o tyle miejsc do przodu w alfabecie. Po Z wracasz do A.',
-        spot: 'Wszystkie liczby kroków są takie same — ale nie 13 (13 to ROT13).',
+        how: 'Wybierz liczbę (przesunięcie). Przesuń każdą literę o tyle miejsc do przodu w alfabecie. Po Ż wracasz do A.',
+        spot: 'Wszystkie liczby kroków są takie same — ale nie 16 (16 to ROT16).',
         hints: ({ shift }, ex) => [
           'Spójrz na pierwszą literę. Policz, o ile miejsc przesunęła się w alfabecie. Teraz sprawdź następną — czy to ta sama liczba?',
           `Każda litera przesunęła się dokładnie o ${shift} miejsc do przodu. ${ex.p} zmieniło się w ${ex.c}.`],
         explain: ({ shift }, ex) => `To był szyfr Cezara z przesunięciem ${shift}, więc ${ex.p} zmieniło się w ${ex.c}. Każda litera przesunęła się o te same ${shift} miejsc.`,
       },
       rot13: {
-        name: 'ROT13', full: 'ROT13',
-        blurb: 'Każda litera przesuwa się o 13 miejsc — pół alfabetu.',
-        how: 'Szyfr Cezara z przesunięciem dokładnie 13. Ponieważ 13 to połowa z 26, zrobienie tego dwa razy przywraca każdą literę.',
-        spot: 'Każda liczba kroków to 13. A ↔ N, B ↔ O.',
+        name: 'ROT16', full: 'ROT16',
+        blurb: 'Każda litera przesuwa się o 16 miejsc — pół alfabetu.',
+        how: 'Szyfr Cezara z przesunięciem dokładnie 16. Ponieważ 16 to połowa z 32 liter polskiego alfabetu, zrobienie tego dwa razy przywraca każdą literę.',
+        spot: 'Każda liczba kroków to 16. A ↔ M, Ą ↔ N.',
         hints: (_, ex) => [
           'Każda litera przesunęła się o tyle samo miejsc. Czy to duży skok — mniej więcej pół alfabetu?',
-          `Każda litera przesunęła się o 13 miejsc, dokładnie pół alfabetu. ${ex.p} zmieniło się w ${ex.c}. Przesuń o kolejne 13 i wracasz do początku!`],
-        explain: (_, ex) => `To był ROT13: każda litera przesunęła się o 13 miejsc, pół alfabetu, więc ${ex.p} zmieniło się w ${ex.c}. Zrobienie tego dwa razy przywraca literę.`,
+          `Każda litera przesunęła się o 16 miejsc, dokładnie pół alfabetu. ${ex.p} zmieniło się w ${ex.c}. Przesuń o kolejne 16 i wracasz do początku!`],
+        explain: (_, ex) => `To był ROT16: każda litera przesunęła się o 16 miejsc, pół alfabetu, więc ${ex.p} zmieniło się w ${ex.c}. Zrobienie tego dwa razy przywraca literę.`,
       },
       atbash: {
         name: 'Atbasz', full: 'Atbasz',
-        blurb: 'Alfabet jest odwrócony: A ↔ Z, B ↔ Y.',
-        how: 'Napisz alfabet od początku, a pod nim od końca. Każda litera zmienia się w tę pod spodem: A ↔ Z, B ↔ Y, C ↔ X.',
-        spot: 'Liczby kroków są różne, ale litera i jej szyfr są lustrzanym odbiciem: pierwsza litera (A) staje się ostatnią (Z), druga — przedostatnią.',
+        blurb: 'Alfabet jest odwrócony: A ↔ Ż, Ą ↔ Ź.',
+        how: 'Napisz alfabet od początku, a pod nim od końca. Każda litera zmienia się w tę pod spodem: A ↔ Ż, Ą ↔ Ź, B ↔ Z.',
+        spot: 'Liczby kroków są różne, ale litera i jej szyfr są lustrzanym odbiciem: pierwsza litera (A) staje się ostatnią (Ż), druga (Ą) — przedostatnią (Ź).',
         hints: (_, ex) => [
           'Spróbuj przeczytać alfabet od tyłu. W co zmieniłoby się A?',
-          `Alfabet jest odbity w lustrze: A ↔ Z, B ↔ Y, C ↔ X. Tutaj ${ex.p} zmieniło się w ${ex.c}.`],
-        explain: (_, ex) => `To był Atbasz: alfabet jest odwrócony, więc A ↔ Z i B ↔ Y. Tutaj ${ex.p} zmieniło się w ${ex.c}.`,
+          `Alfabet jest odbity w lustrze: A ↔ Ż, Ą ↔ Ź, B ↔ Z. Tutaj ${ex.p} zmieniło się w ${ex.c}.`],
+        explain: (_, ex) => `To był Atbasz: alfabet jest odwrócony, więc A ↔ Ż i Ą ↔ Ź. Tutaj ${ex.p} zmieniło się w ${ex.c}.`,
       },
       vigenere: {
         name: 'Vigenère', full: 'szyfr Vigenère\'a',
         blurb: 'Słowo-klucz daje każdej literze inne przesunięcie, w kółko.',
-        how: 'Wybierz słowo-klucz. Jego litery to przesunięcia (A=0, B=1 … Z=25). Pierwsza litera wiadomości przesuwa się o pierwszą literę klucza, druga o drugą, a klucz się powtarza.',
+        how: 'Wybierz słowo-klucz. Jego litery to przesunięcia (A=0, Ą=1 … Ż=31). Pierwsza litera wiadomości przesuwa się o pierwszą literę klucza, druga o drugą, a klucz się powtarza.',
         spot: 'Liczby kroków powtarzają się w krótkim cyklu co 3 lub 4 litery.',
-        hints: ({ key }) => [
+        hints: ({ key }, ex, A) => [
           'Kroki zmieniają się z litery na literę. Ale przyjrzyj się — czy po chwili wracają i się powtarzają?',
-          `Kroki powtarzają się co ${key.length} litery: ${nums(key)}. To słowo-klucz ${key} dodane do wiadomości.`],
-        explain: ({ key }, ex) => `To był szyfr Vigenère'a ze słowem-kluczem ${key}. Każda litera przesuwa się o swoją literę klucza: ${ex.p} + ${key[0]} (${L(key[0])} kroków) → ${ex.c}. Klucz powtarza się co ${key.length} litery.`,
+          `Kroki powtarzają się co ${[...key].length} litery: ${nums(key, A)}. To słowo-klucz ${key} dodane do wiadomości.`],
+        explain: ({ key }, ex, A) => `To był szyfr Vigenère'a ze słowem-kluczem ${key}. Każda litera przesuwa się o swoją literę klucza: ${ex.p} + ${k0(key)} (${A.idx(k0(key))} kroków) → ${ex.c}. Klucz powtarza się co ${[...key].length} litery.`,
       },
       affine: {
         name: 'Afiniczny', full: 'szyfr afiniczny',
         blurb: 'Numer każdej litery jest mnożony, a potem przesuwany.',
-        how: 'Zamień literę na liczbę (A=0 … Z=25). Pomnóż przez a, dodaj b i zawiń po 26. Zamień liczbę z powrotem na literę.',
+        how: 'Zamień literę na liczbę (A=0 … Ż=31). Pomnóż przez a, dodaj b i zawiń po 32. Zamień liczbę z powrotem na literę.',
         spot: 'Ta sama litera zawsze zmienia się w tę samą literę szyfru, ale liczby kroków skaczą bez cyklu i bez lustra.',
         hints: ({ a, b }) => [
           'Ta sama litera zawsze zmienia się w tę samą literę szyfru — ale kroki skaczą bez żadnego cyklu.',
-          `Numer każdej litery (A=0 … Z=25) został pomnożony przez ${a}, a potem dodano ${b}.`],
-        explain: ({ a, b }, ex) => `To był szyfr afiniczny: numer każdej litery pomnożono przez ${a}, a potem dodano ${b}. ${ex.p} to ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, zawinięte po 26 → ${mod(a * ex.pn + b, 26)}, czyli ${ex.c}.`,
+          `Numer każdej litery (A=0 … Ż=31) został pomnożony przez ${a}, a potem dodano ${b}.`],
+        explain: ({ a, b }, ex, A) => `To był szyfr afiniczny: numer każdej litery pomnożono przez ${a}, a potem dodano ${b}. ${ex.p} to ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, zawinięte po ${A.n} → ${mod(a * ex.pn + b, A.n)}, czyli ${ex.c}.`,
       },
       beaufort: {
         name: 'Beaufort', full: 'szyfr Beauforta',
         blurb: 'Słowo-klucz, ale liczysz do tyłu od litery klucza.',
-        how: 'Wybierz słowo-klucz. Dla każdej litery wiadomości zacznij od litery klucza i policz do tyłu o numer litery wiadomości (A=0, B=1 …). Klucz się powtarza.',
+        how: 'Wybierz słowo-klucz. Dla każdej litery wiadomości zacznij od litery klucza i policz do tyłu o numer litery wiadomości (A=0, Ą=1 …). Klucz się powtarza.',
         spot: 'Ta sama litera może zmienić się w różne litery szyfru, a liczby kroków nie powtarzają się w cyklu.',
         hints: ({ key }) => [
           'Jest tu słowo-klucz — ale litery liczy się do tyłu od klucza, nie do przodu.',
           `Słowo-klucz to ${key}. Każda litera szyfru = litera klucza − litera wiadomości (licz do tyłu, zawijając).`],
-        explain: ({ key }, ex) => `To był szyfr Beauforta ze słowem-kluczem ${key}. Licz do tyłu od litery klucza: ${key[0]} (${L(key[0])}) − ${ex.p} (${ex.pn}) = ${mod(L(key[0]) - ex.pn, 26)}, czyli ${ex.c}.`,
+        explain: ({ key }, ex, A) => `To był szyfr Beauforta ze słowem-kluczem ${key}. Licz do tyłu od litery klucza: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, czyli ${ex.c}.`,
       },
     },
     whyNot: {
-      closeRot13: 'Blisko! ROT13 to specjalny szyfr Cezara, który przesuwa dokładnie o 13 miejsc — w tej grze liczy się jako osobny szyfr.',
-      closeCaesar: s => `Blisko! Każda litera rzeczywiście przesunęła się o tyle samo miejsc — ale o ${s}, nie o 13.`,
+      closeRot13: half => `Blisko! ROT${half} to specjalny szyfr Cezara, który przesuwa dokładnie o ${half} miejsc — w tej grze liczy się jako osobny szyfr.`,
+      closeCaesar: (s, half) => `Blisko! Każda litera rzeczywiście przesunęła się o tyle samo miejsc — ale o ${s}, nie o ${half}.`,
       stepsDiffer: (g, a, b) => `To nie ${g}: kroki nie są wszędzie takie same. ${a.p}→${a.c} to ${a.s} kroków, ale ${b.p}→${b.c} to ${b.s}.`,
       notMirror: (p, m, c) => `To nie Atbasz: w Atbaszu ${p} zmieniłoby się w ${m}, a tutaj zmieniło się w ${c}.`,
       sameLetterDiff: (g, p, c1, c2) => `To nie ${g}: ta sama litera ${p} raz zmieniła się w ${c1}, a innym razem w ${c2}. Tak dzieje się tylko ze słowem-kluczem.`,
       sameShift: (g, s, affine) => `To nie ${g}: każda litera przesunęła się o te same ${s} kroków. ${affine ? 'W szyfrze afinicznym kroki skaczą.' : 'Słowo-klucz zmieniałoby kroki.'}`,
-      mirrored: g => `To nie ${g}: każda litera i jej szyfr są lustrzanym odbiciem (A ↔ Z, B ↔ Y). To wzór Atbasza.`,
+      mirrored: g => `To nie ${g}: każda litera i jej szyfr są lustrzanym odbiciem (pierwsza ↔ ostatnia litera alfabetu). To wzór Atbasza.`,
       monoClue: 'Wskazówka: tutaj każda litera zawsze zmieniała się w tę samą literę szyfru — znak, że nie było zmieniającego się słowa-klucza.',
       cycle: (n, ns) => `To nie szyfr Beauforta: kroki powtarzają się w cyklu co ${n} (${ns}). To słowo-klucz dodawane do przodu — Vigenère.`,
       noCycle: 'To nie szyfr Vigenère\'a: kroki nie powtarzają się w cyklu. Ze słowem-kluczem dodawanym do przodu by się powtarzały.',
@@ -235,10 +244,12 @@
       allPuzzles: '🧩 Wszystkie zagadki', printWorksheet: '🖨️ Karty pracy',
       starsTitle: 'Gwiazdki razem', streakTitle: 'Obecna seria',
       caseTitle: n => `Zagadka nr ${n}`,
-      lead: 'Szpieg wysłał tę wiadomość szyfrem. Porównaj wiadomość z szyfrem i odgadnij, jakiego szyfru użyto. Wiadomości są po angielsku (litery A–Z).',
-      legendMessage: 'Wiadomość', legendCode: 'Szyfr', legendMag: '🔍 O ile kroków przesunęła się litera',
-      magnote: 'Liczby pokazują, o ile kroków każda litera przesunęła się do przodu (A→B to 1, po Z zaczyna się od A).',
+      lead: 'Szpieg wysłał tę wiadomość szyfrem. Porównaj wiadomość z szyfrem i odgadnij, jakiego szyfru użyto.',
+      legendMessage: 'Wiadomość', legendCode: 'Szyfr', legendMag: '🔍 O ile miejsc przesunęła się litera',
+      magnote: 'Liczby pokazują, o ile miejsc każda litera przesunęła się do przodu w alfabecie (1 = następna litera, po Ż zaczyna się od A).',
       hintBtn: n => `💡 Podpowiedź (jeszcze ${n})`, noHints: '💡 Brak podpowiedzi', magnifier: '🔍 Lupa', guide: '📖 Przewodnik po szyfrach',
+      alphabet: '🔤 Alfabet', alphaNote: 'Dotknij litery w wiadomości, żeby zobaczyć jej skok na alfabecie.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${s} ${slav(s, 'miejsce', 'miejsca', 'miejsc')} do przodu`,
       hintLabel: i => `💡 Podpowiedź ${i}:`,
       whichCipher: 'Jakiego szyfru użyto?',
       correct: (full, cheer) => `🎉 Brawo! To był ${full}. ${cheer}`,
@@ -251,9 +262,9 @@
       reset: 'Wyzeruj postępy', resetConfirm: 'Wyzerować wszystkie gwiazdki i serie?',
       guideTitle: '📖 Przewodnik po szyfrach', guideClose: 'Zamknij przewodnik',
       guideSteps: [
-        'Włącz <b>🔍 Lupę</b>, żeby zobaczyć, o ile kroków przesunęła się każda litera.',
-        '<b>Czy wszystkie kroki są takie same?</b> Tak → <b>Cezar</b> (albo <b>ROT13</b>, jeśli wszystkie to 13).',
-        '<b>Czy litery są odbite w lustrze?</b> A ↔ Z, B ↔ Y, C ↔ X → <b>Atbasz</b>.',
+        'Włącz <b>🔍 Lupę</b>, żeby zobaczyć, o ile miejsc przesunęła się każda litera.',
+        '<b>Czy wszystkie kroki są takie same?</b> Tak → <b>Cezar</b> (albo <b>ROT16</b>, jeśli wszystkie to 16).',
+        '<b>Czy litery są odbite w lustrze?</b> A ↔ Ż, Ą ↔ Ź, B ↔ Z → <b>Atbasz</b>.',
         '<b>Czy kroki powtarzają się w cyklu</b> co 3 lub 4? → <b>Vigenère</b>.',
         '<b>Czy ta sama litera zawsze zmienia się w tę samą literę szyfru</b>, ale kroki skaczą? → <b>Afiniczny</b>.',
         '<b>Ta sama litera, różne litery szyfru i brak cyklu?</b> → <b>Beaufort</b>.'],
@@ -268,6 +279,7 @@
       cases: 'Zagadki', casesHint: 'Około 6 mieści się na jednej stronie; więcej przechodzi na kolejne.',
       options: 'Opcje', optSteps: 'Kratki na liczenie przesunięcia', optHints: 'Podpowiedzi, wydrukowane do góry nogami na dole',
       optGuide: 'Strona z przewodnikiem detektywa', optKey: 'Strona z odpowiedziami',
+      optAlpha: 'Alfabet do liczenia (pomoc dla młodszych dzieci)',
       newWorksheet: 'Nowa karta pracy', print: 'Drukuj / Zapisz PDF',
       casesCount: n => slav(n, '1 zagadka', `${n} zagadki`, `${n} zagadek`), pagesCount: n => slav(n, '1 strona', `${n} strony`, `${n} stron`),
       partSheet: 'karta pracy', partGuide: 'przewodnik', partKey: 'odpowiedzi',
@@ -276,94 +288,95 @@
       sheetSub: (level, n) => `${level} · ${slav(n, '1 zagadka', `${n} zagadki`, `${n} zagadek`)} · jakiego szyfru użył szpieg?`,
       seedLabel: 'ziarno:', name: 'Imię:', date: 'Data:',
       instr: 'Każda wiadomość została wysłana tajnym szyfrem. Porównaj wiadomość (białe kratki) z szyfrem (szare), odgadnij, jakiego szyfru użył szpieg, i zaznacz go.',
-      instrSteps: ' Policz, o ile kroków przesunęła się każda litera do przodu (A→B to 1, po Z zaczynasz od A) i wpisz to w małe kratki.',
+      instrSteps: ' Policz, o ile miejsc przesunęła się każda litera do przodu w alfabecie (1 = następna litera, po Ż zaczynasz od A) i wpisz to w małe kratki.',
       caseN: i => `Zagadka ${i}`, hintsFlip: 'Podpowiedzi (odwróć kartkę do góry nogami)',
       guideTitle: '📖 Przewodnik detektywa', guideSub: level => `${level} · jak rozpoznać szyfry`,
       checklist: [
-        'Policz, o ile kroków przesunęła się każda litera do przodu w alfabecie (A→B to 1, po Z zaczynasz od A) i wpisz to pod literą szyfru.',
-        '<b>Czy wszystkie kroki są takie same?</b> Tak → <b>Cezar</b>. Jeśli wszystkie to 13 → <b>ROT13</b>.',
-        '<b>Czy litery są odbite w lustrze?</b> A ↔ Z, B ↔ Y, C ↔ X (numer litery + numer szyfru = 25) → <b>Atbasz</b>.',
+        'Policz, o ile miejsc przesunęła się każda litera do przodu w alfabecie (1 = następna litera, po Ż zaczynasz od A) i wpisz to pod literą szyfru.',
+        '<b>Czy wszystkie kroki są takie same?</b> Tak → <b>Cezar</b>. Jeśli wszystkie to 16 → <b>ROT16</b>.',
+        '<b>Czy litery są odbite w lustrze?</b> A ↔ Ż, Ą ↔ Ź, B ↔ Z (numer litery + numer szyfru = 31) → <b>Atbasz</b>.',
         '<b>Czy kroki powtarzają się w cyklu</b> co 3 lub 4? → <b>Vigenère</b>.',
         '<b>Czy ta sama litera zawsze zmienia się w tę samą literę szyfru</b>, ale kroki skaczą bez cyklu? → <b>Afiniczny</b>.',
         '<b>Ta sama litera, różne litery szyfru i brak cyklu?</b> → <b>Beaufort</b>.'],
-      keyTitle: '🔑 Odpowiedzi', keySub: (level, n) => `${level} · ${slav(n, '1 zagadka', `${n} zagadki`, `${n} zagadek`)} · liczby pokazują, o ile kroków przesunęła się każda litera`,
+      keyTitle: '🔑 Odpowiedzi', keySub: (level, n) => `${level} · ${slav(n, '1 zagadka', `${n} zagadki`, `${n} zagadek`)} · liczby pokazują, o ile miejsc przesunęła się każda litera`,
       howToSpot: 'Jak go rozpoznać:',
     },
   };
 
-  /* ======================================================================== UK */
+  /* ======================================================================== UK  (33 літери: А Б В Г Ґ Д Е Є Ж З И І Ї Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ь Ю Я; половина = 16) */
   T.uk = {
     levels: { easy: 'Легкий', hard: 'Складний' },
+    guide: { sample: 'ПРИВІТ ШПИГУНЕ', key: 'КІТ' },
     ciphers: {
       caesar: {
         name: 'Цезар', full: 'шифр Цезаря',
         blurb: 'Кожна літера зсувається на однакову кількість кроків.',
-        how: 'Вибери число (зсув). Зсунь кожну літеру на стільки кроків уперед за абеткою. Після Z повертайся до A.',
-        spot: 'Усі числа кроків однакові — але не 13 (13 — це ROT13).',
+        how: 'Вибери число (зсув). Зсунь кожну літеру на стільки кроків уперед за абеткою. Після Я повертайся до А.',
+        spot: 'Усі числа кроків однакові — але не 16 (16 — це ROT16).',
         hints: ({ shift }, ex) => [
           'Подивись на першу літеру. Порахуй, на скільки кроків вона зсунулася за абеткою. Тепер перевір наступну — це те саме число?',
           `Кожна літера зсунулася рівно на ${shift} кроків уперед. ${ex.p} стало ${ex.c}.`],
         explain: ({ shift }, ex) => `Це був шифр Цезаря зі зсувом ${shift}, тому ${ex.p} стало ${ex.c}. Кожна літера зсунулася на ті самі ${shift} кроків.`,
       },
       rot13: {
-        name: 'ROT13', full: 'ROT13',
-        blurb: 'Кожна літера зсувається на 13 кроків — пів абетки.',
-        how: 'Шифр Цезаря зі зсувом рівно 13. Оскільки 13 — половина від 26, якщо зробити це двічі, кожна літера повернеться назад.',
-        spot: 'Кожне число кроків — 13. A ↔ N, B ↔ O.',
+        name: 'ROT16', full: 'ROT16',
+        blurb: 'Кожна літера зсувається на 16 кроків — майже пів абетки.',
+        how: 'Шифр Цезаря зі зсувом рівно 16 — приблизно половина з 33 літер української абетки.',
+        spot: 'Кожне число кроків — 16. А → М, Б → Н.',
         hints: (_, ex) => [
           'Кожна літера зсунулася на однакову кількість кроків. Це великий стрибок — приблизно пів абетки?',
-          `Кожна літера зсунулася на 13 кроків, рівно пів абетки. ${ex.p} стало ${ex.c}. Зсунь ще на 13 — і повернешся назад!`],
-        explain: (_, ex) => `Це був ROT13: кожна літера зсунулася на 13 кроків, пів абетки, тому ${ex.p} стало ${ex.c}. Якщо зробити це двічі, літера повертається.`,
+          `Кожна літера зсунулася на 16 кроків, майже пів абетки. ${ex.p} стало ${ex.c}.`],
+        explain: (_, ex) => `Це був ROT16: кожна літера зсунулася на 16 кроків, майже пів абетки, тому ${ex.p} стало ${ex.c}.`,
       },
       atbash: {
         name: 'Атбаш', full: 'Атбаш',
-        blurb: 'Абетка перевернута: A ↔ Z, B ↔ Y.',
-        how: 'Напиши абетку спочатку, а під нею — з кінця. Кожна літера стає тією, що під нею: A ↔ Z, B ↔ Y, C ↔ X.',
-        spot: 'Числа кроків різні, але літера та її шифр — дзеркальні: перша літера (A) стає останньою (Z), друга — передостанньою.',
+        blurb: 'Абетка перевернута: А ↔ Я, Б ↔ Ю.',
+        how: 'Напиши абетку спочатку, а під нею — з кінця. Кожна літера стає тією, що під нею: А ↔ Я, Б ↔ Ю, В ↔ Ь.',
+        spot: 'Числа кроків різні, але літера та її шифр — дзеркальні: перша літера (А) стає останньою (Я), друга (Б) — передостанньою (Ю).',
         hints: (_, ex) => [
-          'Спробуй прочитати абетку з кінця. На що перетворилося б A?',
-          `Абетка віддзеркалена: A ↔ Z, B ↔ Y, C ↔ X. Тут ${ex.p} стало ${ex.c}.`],
-        explain: (_, ex) => `Це був Атбаш: абетка перевернута, тому A ↔ Z і B ↔ Y. Тут ${ex.p} стало ${ex.c}.`,
+          'Спробуй прочитати абетку з кінця. На що перетворилося б А?',
+          `Абетка віддзеркалена: А ↔ Я, Б ↔ Ю, В ↔ Ь. Тут ${ex.p} стало ${ex.c}.`],
+        explain: (_, ex) => `Це був Атбаш: абетка перевернута, тому А ↔ Я і Б ↔ Ю. Тут ${ex.p} стало ${ex.c}.`,
       },
       vigenere: {
         name: 'Віженер', full: 'шифр Віженера',
         blurb: 'Ключове слово дає кожній літері свій зсув, по колу.',
-        how: 'Вибери ключове слово. Його літери — це зсуви (A=0, B=1 … Z=25). Перша літера повідомлення зсувається на першу літеру ключа, друга — на другу, а ключ повторюється.',
+        how: 'Вибери ключове слово. Його літери — це зсуви (А=0, Б=1 … Я=32). Перша літера повідомлення зсувається на першу літеру ключа, друга — на другу, а ключ повторюється.',
         spot: 'Числа кроків повторюються коротким циклом із 3 або 4.',
-        hints: ({ key }) => [
+        hints: ({ key }, ex, A) => [
           'Кроки змінюються від літери до літери. Але придивись — чи повертаються вони й повторюються?',
-          `Кроки повторюються кожні ${key.length} літери: ${nums(key)}. Це ключове слово ${key}, додане до повідомлення.`],
-        explain: ({ key }, ex) => `Це був шифр Віженера з ключовим словом ${key}. Кожна літера зсувається на свою літеру ключа: ${ex.p} + ${key[0]} (${L(key[0])} кроків) → ${ex.c}. Ключ повторюється кожні ${key.length} літери.`,
+          `Кроки повторюються кожні ${[...key].length} літери: ${nums(key, A)}. Це ключове слово ${key}, додане до повідомлення.`],
+        explain: ({ key }, ex, A) => `Це був шифр Віженера з ключовим словом ${key}. Кожна літера зсувається на свою літеру ключа: ${ex.p} + ${k0(key)} (${A.idx(k0(key))} кроків) → ${ex.c}. Ключ повторюється кожні ${[...key].length} літери.`,
       },
       affine: {
         name: 'Афінний', full: 'афінний шифр',
         blurb: 'Номер кожної літери множать, а потім зсувають.',
-        how: 'Перетвори літеру на число (A=0 … Z=25). Помнож на a, додай b і візьми остачу від ділення на 26. Перетвори число назад на літеру.',
+        how: 'Перетвори літеру на число (А=0 … Я=32). Помнож на a, додай b і візьми остачу від ділення на 33. Перетвори число назад на літеру.',
         spot: 'Та сама літера завжди стає тією самою літерою шифру, але числа кроків стрибають без циклу й без дзеркала.',
         hints: ({ a, b }) => [
           'Та сама літера завжди перетворюється на ту саму літеру шифру — але кроки стрибають без жодного циклу.',
-          `Номер кожної літери (A=0 … Z=25) помножили на ${a}, а потім додали ${b}.`],
-        explain: ({ a, b }, ex) => `Це був афінний шифр: номер кожної літери помножили на ${a}, а потім додали ${b}. ${ex.p} — це ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, остача від 26 → ${mod(a * ex.pn + b, 26)}, тобто ${ex.c}.`,
+          `Номер кожної літери (А=0 … Я=32) помножили на ${a}, а потім додали ${b}.`],
+        explain: ({ a, b }, ex, A) => `Це був афінний шифр: номер кожної літери помножили на ${a}, а потім додали ${b}. ${ex.p} — це ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, остача від ${A.n} → ${mod(a * ex.pn + b, A.n)}, тобто ${ex.c}.`,
       },
       beaufort: {
         name: 'Бофор', full: 'шифр Бофора',
         blurb: 'Ключове слово, але рахуєш назад від літери ключа.',
-        how: 'Вибери ключове слово. Для кожної літери повідомлення почни з літери ключа й відрахуй назад номер літери повідомлення (A=0, B=1 …). Ключ повторюється.',
+        how: 'Вибери ключове слово. Для кожної літери повідомлення почни з літери ключа й відрахуй назад номер літери повідомлення (А=0, Б=1 …). Ключ повторюється.',
         spot: 'Та сама літера може стати різними літерами шифру, а числа кроків не повторюються циклом.',
         hints: ({ key }) => [
           'Тут є ключове слово — але літери рахують назад від ключа, а не вперед.',
           `Ключове слово — ${key}. Кожна літера шифру = літера ключа − літера повідомлення (рахуй назад, по колу).`],
-        explain: ({ key }, ex) => `Це був шифр Бофора з ключовим словом ${key}. Рахуй назад від літери ключа: ${key[0]} (${L(key[0])}) − ${ex.p} (${ex.pn}) = ${mod(L(key[0]) - ex.pn, 26)}, тобто ${ex.c}.`,
+        explain: ({ key }, ex, A) => `Це був шифр Бофора з ключовим словом ${key}. Рахуй назад від літери ключа: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, тобто ${ex.c}.`,
       },
     },
     whyNot: {
-      closeRot13: 'Майже! ROT13 — це особливий шифр Цезаря, що зсуває рівно на 13 кроків. У цій грі він рахується окремим шифром.',
-      closeCaesar: s => `Близько! Кожна літера справді зсунулася на однакову кількість кроків — але на ${s}, а не на 13.`,
+      closeRot13: half => `Майже! ROT${half} — це особливий шифр Цезаря, що зсуває рівно на ${half} кроків. У цій грі він рахується окремим шифром.`,
+      closeCaesar: (s, half) => `Близько! Кожна літера справді зсунулася на однакову кількість кроків — але на ${s}, а не на ${half}.`,
       stepsDiffer: (g, a, b) => `Це не ${g}: кроки не всюди однакові. ${a.p}→${a.c} — це ${a.s} кроків, а ${b.p}→${b.c} — ${b.s}.`,
       notMirror: (p, m, c) => `Це не Атбаш: в Атбаші ${p} стало б ${m}, а тут воно стало ${c}.`,
       sameLetterDiff: (g, p, c1, c2) => `Це не ${g}: та сама літера ${p} один раз стала ${c1}, а іншим разом — ${c2}. Так буває лише з ключовим словом.`,
       sameShift: (g, s, affine) => `Це не ${g}: кожна літера зсунулася на ті самі ${s} кроків. ${affine ? 'В афінному шифрі кроки стрибають.' : 'Ключове слово змінювало б кроки.'}`,
-      mirrored: g => `Це не ${g}: кожна літера та її шифр — дзеркальні (A ↔ Z, B ↔ Y). Це схема Атбаша.`,
+      mirrored: g => `Це не ${g}: кожна літера та її шифр — дзеркальні (перша ↔ остання літера абетки). Це схема Атбаша.`,
       monoClue: 'Підказка: тут кожна літера завжди ставала тією самою літерою шифру — знак, що змінного ключового слова не було.',
       cycle: (n, ns) => `Це не шифр Бофора: кроки повторюються циклом із ${n} (${ns}). Це ключове слово, додане вперед, — Віженер.`,
       noCycle: 'Це не шифр Віженера: кроки не повторюються циклом. З ключовим словом, доданим уперед, вони б повторювалися.',
@@ -374,10 +387,12 @@
       allPuzzles: '🧩 Усі головоломки', printWorksheet: '🖨️ Робочі аркуші',
       starsTitle: 'Усього зірок', streakTitle: 'Поточна серія',
       caseTitle: n => `Справа №${n}`,
-      lead: 'Шпигун надіслав це повідомлення шифром. Порівняй повідомлення з шифром і визнач, який шифр використано. Повідомлення англійською (літери A–Z).',
+      lead: 'Шпигун надіслав це повідомлення шифром. Порівняй повідомлення з шифром і визнач, який шифр використано.',
       legendMessage: 'Повідомлення', legendCode: 'Шифр', legendMag: '🔍 На скільки кроків зсунулася літера',
-      magnote: 'Числа показують, на скільки кроків уперед зсунулася кожна літера (A→B — це 1, після Z починається A).',
+      magnote: 'Числа показують, на скільки кроків уперед зсунулася кожна літера (А→Б — це 1, після Я починається А).',
       hintBtn: n => `💡 Підказка (ще ${n})`, noHints: '💡 Підказок більше немає', magnifier: '🔍 Лупа', guide: '📖 Довідник шифрів',
+      alphabet: '🔤 Абетка', alphaNote: 'Торкнись літери в повідомленні, щоб побачити її стрибок на абетці.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${s} ${slav(s, 'крок', 'кроки', 'кроків')} уперед`,
       hintLabel: i => `💡 Підказка ${i}:`,
       whichCipher: 'Який шифр використано?',
       correct: (full, cheer) => `🎉 Правильно! Це був ${full}. ${cheer}`,
@@ -391,8 +406,8 @@
       guideTitle: '📖 Довідник шифрів', guideClose: 'Закрити довідник',
       guideSteps: [
         'Увімкни <b>🔍 Лупу</b>, щоб побачити, на скільки кроків зсунулася кожна літера.',
-        '<b>Усі кроки однакові?</b> Так → <b>Цезар</b> (або <b>ROT13</b>, якщо всі дорівнюють 13).',
-        '<b>Літери дзеркальні?</b> A ↔ Z, B ↔ Y, C ↔ X → <b>Атбаш</b>.',
+        '<b>Усі кроки однакові?</b> Так → <b>Цезар</b> (або <b>ROT16</b>, якщо всі дорівнюють 16).',
+        '<b>Літери дзеркальні?</b> А ↔ Я, Б ↔ Ю, В ↔ Ь → <b>Атбаш</b>.',
         '<b>Кроки повторюються циклом</b> із 3 або 4? → <b>Віженер</b>.',
         '<b>Та сама літера завжди стає тією самою літерою шифру</b>, але кроки стрибають? → <b>Афінний</b>.',
         '<b>Та сама літера, різні літери шифру і без циклу?</b> → <b>Бофор</b>.'],
@@ -407,6 +422,7 @@
       cases: 'Справи', casesHint: 'Приблизно 6 вміщується на одній сторінці; решта переходить на наступні.',
       options: 'Параметри', optSteps: 'Клітинки для підрахунку зсуву', optHints: 'Підказки, надруковані догори дриґом унизу',
       optGuide: 'Сторінка з довідником детектива', optKey: 'Сторінка з відповідями',
+      optAlpha: 'Абетка для підрахунку (допомога для молодших дітей)',
       newWorksheet: 'Новий аркуш', print: 'Друк / Зберегти PDF',
       casesCount: n => slav(n, '1 справа', `${n} справи`, `${n} справ`), pagesCount: n => slav(n, '1 сторінка', `${n} сторінки`, `${n} сторінок`),
       partSheet: 'аркуш', partGuide: 'довідник', partKey: 'відповіді',
@@ -415,13 +431,13 @@
       sheetSub: (level, n) => `${level} · ${slav(n, '1 справа', `${n} справи`, `${n} справ`)} · який шифр використав шпигун?`,
       seedLabel: 'зерно:', name: 'Ім\'я:', date: 'Дата:',
       instr: 'Кожне повідомлення надіслано таємним шифром. Порівняй повідомлення (білі клітинки) з шифром (сірі), визнач, який шифр використав шпигун, і познач його.',
-      instrSteps: ' Порахуй, на скільки кроків уперед зсунулася кожна літера (A→B — це 1, після Z починай з A), і запиши це в маленькі клітинки.',
+      instrSteps: ' Порахуй, на скільки кроків уперед зсунулася кожна літера (А→Б — це 1, після Я починай з А), і запиши це в маленькі клітинки.',
       caseN: i => `Справа ${i}`, hintsFlip: 'Підказки (переверни аркуш догори дриґом)',
       guideTitle: '📖 Довідник детектива', guideSub: level => `${level} · як розрізнити шифри`,
       checklist: [
-        'Порахуй, на скільки кроків уперед за абеткою зсунулася кожна літера (A→B — це 1, після Z починай з A), і запиши це під літерою шифру.',
-        '<b>Усі кроки однакові?</b> Так → <b>Цезар</b>. Якщо всі дорівнюють 13 → <b>ROT13</b>.',
-        '<b>Літери дзеркальні?</b> A ↔ Z, B ↔ Y, C ↔ X (номер літери + номер шифру = 25) → <b>Атбаш</b>.',
+        'Порахуй, на скільки кроків уперед за абеткою зсунулася кожна літера (А→Б — це 1, після Я починай з А), і запиши це під літерою шифру.',
+        '<b>Усі кроки однакові?</b> Так → <b>Цезар</b>. Якщо всі дорівнюють 16 → <b>ROT16</b>.',
+        '<b>Літери дзеркальні?</b> А ↔ Я, Б ↔ Ю, В ↔ Ь (номер літери + номер шифру = 32) → <b>Атбаш</b>.',
         '<b>Кроки повторюються циклом</b> із 3 або 4? → <b>Віженер</b>.',
         '<b>Та сама літера завжди стає тією самою літерою шифру</b>, але кроки стрибають без циклу? → <b>Афінний</b>.',
         '<b>Та сама літера, різні літери шифру і без циклу?</b> → <b>Бофор</b>.'],
@@ -430,79 +446,80 @@
     },
   };
 
-  /* ======================================================================== VI */
+  /* ======================================================================== VI  (29 chữ cái: A Ă Â B C D Đ E Ê G H I K L M N O Ô Ơ P Q R S T U Ư V X Y; nửa = 14) */
   T.vi = {
     levels: { easy: 'Dễ', hard: 'Khó' },
+    guide: { sample: 'CHAO ĐIÊP VIÊN', key: 'MEO' },
     ciphers: {
       caesar: {
         name: 'Caesar', full: 'mật mã Caesar',
         blurb: 'Mỗi chữ cái dịch đi cùng một số bước.',
-        how: 'Chọn một số (bước dịch). Dịch mỗi chữ cái tiến lên bấy nhiêu bước trong bảng chữ cái. Sau Z thì quay lại A.',
-        spot: 'Tất cả các số bước đều giống nhau — nhưng không phải 13 (13 là ROT13).',
+        how: 'Chọn một số (bước dịch). Dịch mỗi chữ cái tiến lên bấy nhiêu bước trong bảng chữ cái. Sau Y thì quay lại A.',
+        spot: 'Tất cả các số bước đều giống nhau — nhưng không phải 14 (14 là ROT14).',
         hints: ({ shift }, ex) => [
           'Nhìn chữ cái đầu tiên. Đếm xem nó dịch đi bao nhiêu bước trong bảng chữ cái. Rồi kiểm tra chữ tiếp theo — có cùng số không?',
           `Mỗi chữ cái dịch đúng ${shift} bước về phía trước. ${ex.p} trở thành ${ex.c}.`],
         explain: ({ shift }, ex) => `Đây là mật mã Caesar với bước dịch ${shift}, nên ${ex.p} trở thành ${ex.c}. Mỗi chữ cái đều dịch đi ${shift} bước như nhau.`,
       },
       rot13: {
-        name: 'ROT13', full: 'ROT13',
-        blurb: 'Mỗi chữ cái dịch 13 bước — nửa bảng chữ cái.',
-        how: 'Mật mã Caesar với bước dịch đúng bằng 13. Vì 13 là một nửa của 26, làm hai lần sẽ đưa mọi chữ cái về chỗ cũ.',
-        spot: 'Mọi số bước đều là 13. A ↔ N, B ↔ O.',
+        name: 'ROT14', full: 'ROT14',
+        blurb: 'Mỗi chữ cái dịch 14 bước — gần nửa bảng chữ cái.',
+        how: 'Mật mã Caesar với bước dịch đúng bằng 14 — khoảng một nửa của 29 chữ cái tiếng Việt.',
+        spot: 'Mọi số bước đều là 14. A → M, Ă → N.',
         hints: (_, ex) => [
           'Mỗi chữ cái dịch đi cùng một số bước. Có phải là một bước nhảy lớn — khoảng nửa bảng chữ cái?',
-          `Mỗi chữ cái dịch 13 bước, đúng nửa bảng chữ cái. ${ex.p} trở thành ${ex.c}. Dịch thêm 13 bước nữa là quay về!`],
-        explain: (_, ex) => `Đây là ROT13: mỗi chữ cái dịch 13 bước, nửa bảng chữ cái, nên ${ex.p} trở thành ${ex.c}. Làm hai lần sẽ đưa chữ cái về chỗ cũ.`,
+          `Mỗi chữ cái dịch 14 bước, gần nửa bảng chữ cái. ${ex.p} trở thành ${ex.c}.`],
+        explain: (_, ex) => `Đây là ROT14: mỗi chữ cái dịch 14 bước, gần nửa bảng chữ cái, nên ${ex.p} trở thành ${ex.c}.`,
       },
       atbash: {
         name: 'Atbash', full: 'Atbash',
-        blurb: 'Bảng chữ cái bị lật ngược: A ↔ Z, B ↔ Y.',
-        how: 'Viết bảng chữ cái xuôi, rồi viết ngược ở bên dưới. Mỗi chữ cái trở thành chữ ở ngay dưới nó: A ↔ Z, B ↔ Y, C ↔ X.',
-        spot: 'Các số bước khác nhau, nhưng chữ cái và chữ mã hóa là hình phản chiếu: chữ đầu (A) thành chữ cuối (Z), chữ thứ hai thành chữ áp chót.',
+        blurb: 'Bảng chữ cái bị lật ngược: A ↔ Y, Ă ↔ X.',
+        how: 'Viết bảng chữ cái xuôi, rồi viết ngược ở bên dưới. Mỗi chữ cái trở thành chữ ở ngay dưới nó: A ↔ Y, Ă ↔ X, Â ↔ V.',
+        spot: 'Các số bước khác nhau, nhưng chữ cái và chữ mã hóa là hình phản chiếu: chữ đầu (A) thành chữ cuối (Y), chữ thứ hai (Ă) thành chữ áp chót (X).',
         hints: (_, ex) => [
           'Thử đọc bảng chữ cái ngược lại. A sẽ trở thành gì?',
-          `Bảng chữ cái được phản chiếu: A ↔ Z, B ↔ Y, C ↔ X. Ở đây ${ex.p} trở thành ${ex.c}.`],
-        explain: (_, ex) => `Đây là Atbash: bảng chữ cái bị lật ngược, nên A ↔ Z và B ↔ Y. Ở đây ${ex.p} trở thành ${ex.c}.`,
+          `Bảng chữ cái được phản chiếu: A ↔ Y, Ă ↔ X, Â ↔ V. Ở đây ${ex.p} trở thành ${ex.c}.`],
+        explain: (_, ex) => `Đây là Atbash: bảng chữ cái bị lật ngược, nên A ↔ Y và Ă ↔ X. Ở đây ${ex.p} trở thành ${ex.c}.`,
       },
       vigenere: {
         name: 'Vigenère', full: 'mật mã Vigenère',
         blurb: 'Một từ khóa cho mỗi chữ cái một bước dịch riêng, lặp lại.',
-        how: 'Chọn một từ khóa. Các chữ cái của nó là các bước dịch (A=0, B=1 … Z=25). Chữ đầu của tin nhắn dịch theo chữ đầu của khóa, chữ thứ hai theo chữ thứ hai, và khóa lặp lại.',
+        how: 'Chọn một từ khóa. Các chữ cái của nó là các bước dịch (A=0, Ă=1 … Y=28). Chữ cái đầu của tin nhắn dịch theo chữ đầu của khóa, chữ thứ hai theo chữ thứ hai, và khóa lặp lại.',
         spot: 'Các số bước lặp lại theo một chu kỳ ngắn 3 hoặc 4.',
-        hints: ({ key }) => [
+        hints: ({ key }, ex, A) => [
           'Các bước thay đổi từ chữ này sang chữ khác. Nhưng nhìn kỹ — chúng có quay lại và lặp lại không?',
-          `Các bước lặp lại sau mỗi ${key.length} chữ cái: ${nums(key)}. Đó là từ khóa ${key} được cộng vào tin nhắn.`],
-        explain: ({ key }, ex) => `Đây là mật mã Vigenère với từ khóa ${key}. Mỗi chữ cái dịch theo chữ khóa của nó: ${ex.p} + ${key[0]} (${L(key[0])} bước) → ${ex.c}. Khóa lặp lại sau mỗi ${key.length} chữ cái.`,
+          `Các bước lặp lại sau mỗi ${[...key].length} chữ cái: ${nums(key, A)}. Đó là từ khóa ${key} được cộng vào tin nhắn.`],
+        explain: ({ key }, ex, A) => `Đây là mật mã Vigenère với từ khóa ${key}. Mỗi chữ cái dịch theo chữ khóa của nó: ${ex.p} + ${k0(key)} (${A.idx(k0(key))} bước) → ${ex.c}. Khóa lặp lại sau mỗi ${[...key].length} chữ cái.`,
       },
       affine: {
         name: 'Affine', full: 'mật mã Affine',
         blurb: 'Số của mỗi chữ cái được nhân lên, rồi dịch đi.',
-        how: 'Đổi chữ cái thành số (A=0 … Z=25). Nhân với a, cộng b, rồi lấy phần dư khi chia cho 26. Đổi số trở lại thành chữ cái.',
+        how: 'Đổi chữ cái thành số (A=0 … Y=28). Nhân với a, cộng b, rồi lấy phần dư khi chia cho 29. Đổi số trở lại thành chữ cái.',
         spot: 'Cùng một chữ cái luôn thành cùng một chữ mã hóa, nhưng các số bước nhảy lung tung, không chu kỳ và không phản chiếu.',
         hints: ({ a, b }) => [
           'Cùng một chữ cái luôn biến thành cùng một chữ mã hóa — nhưng các bước nhảy lung tung, không có chu kỳ.',
-          `Số của mỗi chữ cái (A=0 … Z=25) được nhân với ${a}, rồi cộng thêm ${b}.`],
-        explain: ({ a, b }, ex) => `Đây là mật mã Affine: số của mỗi chữ cái được nhân với ${a}, rồi cộng thêm ${b}. ${ex.p} là ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, lấy dư cho 26 → ${mod(a * ex.pn + b, 26)}, tức là ${ex.c}.`,
+          `Số của mỗi chữ cái (A=0 … Y=28) được nhân với ${a}, rồi cộng thêm ${b}.`],
+        explain: ({ a, b }, ex, A) => `Đây là mật mã Affine: số của mỗi chữ cái được nhân với ${a}, rồi cộng thêm ${b}. ${ex.p} là ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, lấy dư cho ${A.n} → ${mod(a * ex.pn + b, A.n)}, tức là ${ex.c}.`,
       },
       beaufort: {
         name: 'Beaufort', full: 'mật mã Beaufort',
         blurb: 'Một từ khóa, nhưng bạn đếm lùi từ chữ khóa.',
-        how: 'Chọn một từ khóa. Với mỗi chữ cái của tin nhắn, bắt đầu từ chữ khóa và đếm lùi theo số của chữ cái tin nhắn (A=0, B=1 …). Khóa lặp lại.',
+        how: 'Chọn một từ khóa. Với mỗi chữ cái của tin nhắn, bắt đầu từ chữ khóa và đếm lùi theo số của chữ cái tin nhắn (A=0, Ă=1 …). Khóa lặp lại.',
         spot: 'Cùng một chữ cái có thể thành những chữ mã hóa khác nhau, và các số bước không lặp lại theo chu kỳ.',
         hints: ({ key }) => [
           'Ở đây có một từ khóa — nhưng các chữ cái được đếm lùi từ khóa, không phải đếm tiến.',
           `Từ khóa là ${key}. Mỗi chữ mã hóa = chữ khóa − chữ tin nhắn (đếm lùi, quay vòng).`],
-        explain: ({ key }, ex) => `Đây là mật mã Beaufort với từ khóa ${key}. Đếm lùi từ chữ khóa: ${key[0]} (${L(key[0])}) − ${ex.p} (${ex.pn}) = ${mod(L(key[0]) - ex.pn, 26)}, tức là ${ex.c}.`,
+        explain: ({ key }, ex, A) => `Đây là mật mã Beaufort với từ khóa ${key}. Đếm lùi từ chữ khóa: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, tức là ${ex.c}.`,
       },
     },
     whyNot: {
-      closeRot13: 'Suýt đúng! ROT13 là một mật mã Caesar đặc biệt dịch đúng 13 bước — trong trò chơi này nó được tính là một mật mã riêng.',
-      closeCaesar: s => `Gần đúng! Mỗi chữ cái đúng là dịch đi cùng một số bước — nhưng là ${s}, không phải 13.`,
+      closeRot13: half => `Suýt đúng! ROT${half} là một mật mã Caesar đặc biệt dịch đúng ${half} bước — trong trò chơi này nó được tính là một mật mã riêng.`,
+      closeCaesar: (s, half) => `Gần đúng! Mỗi chữ cái đúng là dịch đi cùng một số bước — nhưng là ${s}, không phải ${half}.`,
       stepsDiffer: (g, a, b) => `Không phải ${g}: các bước không giống nhau hết. ${a.p}→${a.c} là ${a.s} bước, nhưng ${b.p}→${b.c} là ${b.s}.`,
       notMirror: (p, m, c) => `Không phải Atbash: trong Atbash, ${p} sẽ thành ${m}, nhưng ở đây nó thành ${c}.`,
       sameLetterDiff: (g, p, c1, c2) => `Không phải ${g}: cùng chữ ${p} có lúc thành ${c1}, lúc khác lại thành ${c2}. Điều đó chỉ xảy ra khi có từ khóa.`,
       sameShift: (g, s, affine) => `Không phải ${g}: mỗi chữ cái đều dịch cùng ${s} bước. ${affine ? 'Với Affine các bước nhảy lung tung.' : 'Một từ khóa sẽ làm các bước thay đổi.'}`,
-      mirrored: g => `Không phải ${g}: mỗi chữ cái và chữ mã hóa của nó là hình phản chiếu (A ↔ Z, B ↔ Y). Đó là kiểu Atbash.`,
+      mirrored: g => `Không phải ${g}: mỗi chữ cái và chữ mã hóa của nó là hình phản chiếu (chữ đầu ↔ chữ cuối bảng chữ cái). Đó là kiểu Atbash.`,
       monoClue: 'Gợi ý: ở đây mỗi chữ cái luôn thành cùng một chữ mã hóa — dấu hiệu là không có từ khóa thay đổi.',
       cycle: (n, ns) => `Không phải mật mã Beaufort: các bước lặp lại theo chu kỳ ${n} (${ns}). Đó là từ khóa cộng tiến — Vigenère.`,
       noCycle: 'Không phải mật mã Vigenère: các bước không lặp lại theo chu kỳ. Nếu có từ khóa cộng tiến thì chúng sẽ lặp lại.',
@@ -513,10 +530,12 @@
       allPuzzles: '🧩 Tất cả câu đố', printWorksheet: '🖨️ Phiếu bài tập',
       starsTitle: 'Tổng số sao', streakTitle: 'Chuỗi hiện tại',
       caseTitle: n => `Vụ án số ${n}`,
-      lead: 'Một điệp viên đã gửi tin nhắn này bằng mật mã. So sánh tin nhắn với bản mã và tìm ra mật mã nào đã được dùng. Tin nhắn bằng tiếng Anh (chữ cái A–Z).',
+      lead: 'Một điệp viên đã gửi tin nhắn này bằng mật mã. So sánh tin nhắn với bản mã và tìm ra mật mã nào đã được dùng.',
       legendMessage: 'Tin nhắn', legendCode: 'Mật mã', legendMag: '🔍 Số bước mỗi chữ cái dịch đi',
-      magnote: 'Các số cho biết mỗi chữ cái dịch tiến bao nhiêu bước (A→B là 1, sau Z quay lại A).',
+      magnote: 'Các số cho biết mỗi chữ cái dịch tiến bao nhiêu bước (A→Ă là 1, sau Y quay lại A).',
       hintBtn: n => `💡 Gợi ý (còn ${n})`, noHints: '💡 Hết gợi ý', magnifier: '🔍 Kính lúp', guide: '📖 Hướng dẫn mật mã',
+      alphabet: '🔤 Bảng chữ cái', alphaNote: 'Chạm vào một chữ cái trong tin nhắn để thấy bước nhảy của nó trên bảng chữ cái.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${s} bước về phía trước`,
       hintLabel: i => `💡 Gợi ý ${i}:`,
       whichCipher: 'Mật mã nào đã được dùng?',
       correct: (full, cheer) => `🎉 Đúng rồi! Đó là ${full}. ${cheer}`,
@@ -530,8 +549,8 @@
       guideTitle: '📖 Hướng dẫn mật mã', guideClose: 'Đóng hướng dẫn',
       guideSteps: [
         'Bật <b>🔍 Kính lúp</b> để xem mỗi chữ cái dịch đi bao nhiêu bước.',
-        '<b>Tất cả các bước có giống nhau không?</b> Có → <b>Caesar</b> (hoặc <b>ROT13</b> nếu tất cả đều là 13).',
-        '<b>Các chữ cái có phản chiếu không?</b> A ↔ Z, B ↔ Y, C ↔ X → <b>Atbash</b>.',
+        '<b>Tất cả các bước có giống nhau không?</b> Có → <b>Caesar</b> (hoặc <b>ROT14</b> nếu tất cả đều là 14).',
+        '<b>Các chữ cái có phản chiếu không?</b> A ↔ Y, Ă ↔ X, Â ↔ V → <b>Atbash</b>.',
         '<b>Các bước có lặp lại theo chu kỳ</b> 3 hoặc 4 không? → <b>Vigenère</b>.',
         '<b>Cùng một chữ cái có luôn thành cùng một chữ mã hóa</b>, nhưng các bước nhảy lung tung? → <b>Affine</b>.',
         '<b>Cùng chữ cái, khác chữ mã hóa, và không có chu kỳ?</b> → <b>Beaufort</b>.'],
@@ -546,6 +565,7 @@
       cases: 'Số vụ án', casesHint: 'Khoảng 6 vụ vừa một trang; nhiều hơn sẽ sang trang tiếp.',
       options: 'Tùy chọn', optSteps: 'Ô trống để đếm bước dịch', optHints: 'Gợi ý, in ngược ở cuối trang',
       optGuide: 'Trang hướng dẫn thám tử', optKey: 'Trang đáp án',
+      optAlpha: 'Bảng chữ cái để đếm (trợ giúp cho trẻ nhỏ)',
       newWorksheet: 'Phiếu mới', print: 'In / Lưu PDF',
       casesCount: n => `${n} vụ án`, pagesCount: n => `${n} trang`,
       partSheet: 'phiếu', partGuide: 'hướng dẫn', partKey: 'đáp án',
@@ -554,13 +574,13 @@
       sheetSub: (level, n) => `${level} · ${n} vụ án · điệp viên đã dùng mật mã nào?`,
       seedLabel: 'hạt giống:', name: 'Tên:', date: 'Ngày:',
       instr: 'Mỗi tin nhắn được gửi bằng mật mã bí mật. So sánh tin nhắn (ô trắng) với mật mã (ô xám), tìm ra điệp viên đã dùng mật mã nào và đánh dấu.',
-      instrSteps: ' Đếm xem mỗi chữ cái dịch tiến bao nhiêu bước (A→B là 1, sau Z quay lại A) và ghi vào các ô nhỏ.',
+      instrSteps: ' Đếm xem mỗi chữ cái dịch tiến bao nhiêu bước (A→Ă là 1, sau Y quay lại A) và ghi vào các ô nhỏ.',
       caseN: i => `Vụ án ${i}`, hintsFlip: 'Gợi ý (lật ngược trang)',
       guideTitle: '📖 Hướng dẫn thám tử', guideSub: level => `${level} · cách phân biệt các mật mã`,
       checklist: [
-        'Đếm xem mỗi chữ cái dịch tiến bao nhiêu bước trong bảng chữ cái (A→B là 1, sau Z quay lại A) và viết số đó dưới chữ mã hóa.',
-        '<b>Tất cả các bước có giống nhau không?</b> Có → <b>Caesar</b>. Nếu tất cả đều là 13 → <b>ROT13</b>.',
-        '<b>Các chữ cái có phản chiếu không?</b> A ↔ Z, B ↔ Y, C ↔ X (số chữ cái + số mã = 25) → <b>Atbash</b>.',
+        'Đếm xem mỗi chữ cái dịch tiến bao nhiêu bước trong bảng chữ cái (A→Ă là 1, sau Y quay lại A) và viết số đó dưới chữ mã hóa.',
+        '<b>Tất cả các bước có giống nhau không?</b> Có → <b>Caesar</b>. Nếu tất cả đều là 14 → <b>ROT14</b>.',
+        '<b>Các chữ cái có phản chiếu không?</b> A ↔ Y, Ă ↔ X, Â ↔ V (số chữ cái + số mã = 28) → <b>Atbash</b>.',
         '<b>Các bước có lặp lại theo chu kỳ</b> 3 hoặc 4 không? → <b>Vigenère</b>.',
         '<b>Cùng một chữ cái có luôn thành cùng một chữ mã hóa</b>, nhưng các bước nhảy lung tung, không chu kỳ? → <b>Affine</b>.',
         '<b>Cùng chữ cái, khác chữ mã hóa, và không có chu kỳ?</b> → <b>Beaufort</b>.'],

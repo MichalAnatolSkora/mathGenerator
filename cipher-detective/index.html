@@ -56,6 +56,19 @@
   .letters.mag .r.shift{display:flex;}
   .magnote{display:none;font-size:13px;color:var(--muted);margin:6px 0 0;text-align:center;}
   .letters.mag + .magnote{display:block;}
+  .letters.pickable .r.plain .t,.letters.pickable .r.code .t{cursor:pointer;}
+  .letters .t.sel{outline:3px solid var(--accent);outline-offset:1px;}
+
+  /* ---- alphabet strip (help for younger kids) ---- */
+  .alpha-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:4px;margin-top:14px;}
+  .al{display:flex;flex-direction:column;align-items:center;border:1.5px solid var(--line);border-radius:7px;padding:4px 0 3px;font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;background:#fff;color:var(--ink);}
+  .al small{font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;}
+  .al.path{background:#eef1f8;border-color:#c5cbe0;}
+  .al.from{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-d);}
+  .al.to{background:var(--code);border-color:var(--code);color:#fff;}
+  .al.to small{color:#cfd6ff;}
+  .alphanote{font-size:13px;color:var(--muted);text-align:center;margin:8px 0 0;}
+  .alphanote.jump{color:var(--ink);font-weight:700;font-size:15px;}
 
   /* ---- tools & hints ---- */
   .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
@@ -129,6 +142,9 @@
     .wrap{padding:10px;gap:10px;}
     .card{padding:14px;}
     .letters{gap:8px 12px;}
+    .alpha-strip{gap:3px;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));}
+    .al{font-size:13px;padding:3px 0 2px;border-radius:5px;}
+    .al small{font-size:9px;}
     .choices{grid-template-columns:1fr;}
     .choice .k{display:none;}
     .score span{padding:3px 8px;font-size:13px;}
@@ -171,8 +187,11 @@
     <div class="tools">
       <button type="button" id="hintBtn">💡</button>
       <button type="button" id="magBtn" aria-pressed="false" data-i18n="magnifier">🔍 Magnifier</button>
+      <button type="button" id="alphaBtn" aria-pressed="false" data-i18n="alphabet">🔤 Alphabet</button>
       <button type="button" id="guideBtn" data-i18n="guide">📖 Cipher guide</button>
     </div>
+    <div id="alpha" class="alpha-strip" hidden></div>
+    <p id="alphaNote" class="alphanote" hidden></p>
     <div id="hints" class="hints" aria-live="polite"></div>
   </section>
 
@@ -228,6 +247,7 @@
   const lang = () => I18N.get();
   const TX = () => ENGINE.textFor(lang());
   const levelName = l => TX().levels[l];
+  const PA = () => ENGINE.alphabet(state.puzzle ? state.puzzle.lang : lang());   // alphabet of the current puzzle
   const paramLabel = (id, p) => {
     const P = TX().params;
     if (id === 'caesar') return P.shift(p.shift);
@@ -237,7 +257,7 @@
   };
 
   const state = {
-    level: 'easy', puzzle: null, hintsUsed: 0, answered: false, guess: null, cheer: 0, caseNo: 0, mag: false,
+    level: 'easy', puzzle: null, hintsUsed: 0, answered: false, guess: null, cheer: 0, caseNo: 0, mag: false, alpha: false, pick: null,
     last: { cipher: null, msg: null },
     stats: { stars: 0, solved: 0, played: 0, streak: 0, best: 0 },
   };
@@ -249,11 +269,12 @@
         if (ENGINE.LEVELS[j.level]) state.level = j.level;
         if (j.stats) Object.assign(state.stats, j.stats);
         state.mag = !!j.mag;
+        state.alpha = !!j.alpha;
       }
     } catch (e) { /* storage unavailable: play without saving */ }
   }
   function save() {
-    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, stats: state.stats, mag: state.mag })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, stats: state.stats, mag: state.mag, alpha: state.alpha })); } catch (e) { /* ignore */ }
   }
 
   // ---------- rendering ----------
@@ -273,26 +294,54 @@
   function renderLetters() {
     const box = $('#letters');
     box.innerHTML = '';
-    const { plaintext, ciphertext } = state.puzzle;
-    const pairs = ENGINE.letterPairs(plaintext, ciphertext);
+    const { plaintext, ciphertext } = state.puzzle, A = PA();
+    const pairs = ENGINE.letterPairs(plaintext, ciphertext, state.puzzle.lang);
     let li = 0;
     const words = plaintext.split(' '), cwords = ciphertext.split(' ');
-    words.forEach((w, wi) => {
-      const cw = cwords[wi];
+    words.forEach((wStr, wi) => {
+      const w = [...wStr], cw = [...cwords[wi]];
       const word = el('div', 'word');
       const rp = el('div', 'r plain'), rc = el('div', 'r code'), rs = el('div', 'r shift');
       for (let i = 0; i < w.length; i++) {
-        const p = w[i], c = cw[i], isL = /[A-Z]/.test(p);
-        rp.appendChild(el('span', 't', p));
-        rc.appendChild(el('span', 't', c));
+        const p = w[i], c = cw[i], isL = A.has(p);
+        const tp = el('span', 't', p), tc = el('span', 't', c);
+        if (isL) {
+          tp.dataset.li = li; tc.dataset.li = li;
+          if (state.alpha && state.pick === li) { tp.classList.add('sel'); tc.classList.add('sel'); }
+        }
+        rp.appendChild(tp);
+        rc.appendChild(tc);
         rs.appendChild(el('span', 't', isL ? String(pairs[li++].s) : ''));
       }
       word.append(rp, rc, rs);
       box.appendChild(word);
     });
     box.classList.toggle('mag', state.mag);
+    box.classList.toggle('pickable', state.alpha);
     $('#legendMag').hidden = !state.mag;
     $('#magBtn').setAttribute('aria-pressed', String(state.mag));
+  }
+
+  function renderAlpha() {
+    const strip = $('#alpha'), note = $('#alphaNote');
+    $('#alphaBtn').setAttribute('aria-pressed', String(state.alpha));
+    strip.hidden = !state.alpha; note.hidden = !state.alpha;
+    if (!state.alpha) return;
+    const A = PA();
+    if (strip.dataset.lang !== A.lang) {
+      strip.innerHTML = ''; strip.dataset.lang = A.lang;
+      A.letters.forEach((ch, i) => { const cell = el('span', 'al', ch); cell.appendChild(el('small', null, String(i))); strip.appendChild(cell); });
+    }
+    const cells = strip.children;
+    for (const c of cells) c.className = 'al';
+    const pairs = ENGINE.letterPairs(state.puzzle.plaintext, state.puzzle.ciphertext, state.puzzle.lang);
+    const pr = state.pick != null ? pairs[state.pick] : null;
+    if (!pr) { note.className = 'alphanote'; note.textContent = t('alphaNote'); return; }
+    for (let k = 1; k < pr.s; k++) cells[(pr.pn + k) % A.n].classList.add('path');
+    cells[pr.pn].classList.add('from');
+    cells[pr.cn].classList.add('to');
+    note.className = 'alphanote jump';
+    note.textContent = t('alphaJump', pr.p, pr.c, pr.s);
   }
 
   function renderChoices() {
@@ -350,7 +399,7 @@
 
   function renderAll() {
     I18N.apply(UI);
-    renderHeader(); renderLetters(); renderChoices(); renderHints(); renderResult();
+    renderHeader(); renderLetters(); renderAlpha(); renderChoices(); renderHints(); renderResult();
     $('#guideBody').innerHTML = '';   // rebuilt in the current language on next open
   }
 
@@ -362,6 +411,7 @@
     state.hintsUsed = 0;
     state.answered = false;
     state.guess = null;
+    state.pick = null;
     renderAll();
     $('#caseCard').scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
@@ -395,6 +445,20 @@
     renderLetters();
   }
 
+  function toggleAlpha() {
+    state.alpha = !state.alpha;
+    save();
+    renderLetters(); renderAlpha();
+  }
+
+  function pickLetter(e) {
+    if (!state.alpha) return;
+    const tile = e.target.closest('.t[data-li]');
+    if (!tile) return;
+    state.pick = +tile.dataset.li;
+    renderLetters(); renderAlpha();
+  }
+
   function setLevel(level) {
     if (!ENGINE.LEVELS[level] || level === state.level) return;
     state.level = level;
@@ -410,17 +474,18 @@
   }
 
   // ---------- guide ----------
-  const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: 'KEY' }, affine: { a: 5, b: 8 }, beaufort: { key: 'KEY' } };
   function buildGuide() {
     const body = $('#guideBody');
     if (body.childElementCount) return;
+    const A = ENGINE.alphabet(lang()), G = TX().guide;
+    const GUIDE_EXAMPLES = { caesar: { shift: 3 }, rot13: {}, atbash: {}, vigenere: { key: G.key }, affine: { a: 5, b: 8 }, beaufort: { key: G.key } };
     const steps = el('ol', 'steps');
     steps.innerHTML = t('guideSteps').map(s => `<li>${s}</li>`).join('');
     body.appendChild(steps);
     const alpha = el('div', 'alpha');
-    alpha.textContent = t('letterNumbers') + '  ' + Array.from({ length: 26 }, (_, i) => `${ENGINE.C(i)}=${i}`).join('  ');
+    alpha.textContent = t('letterNumbers') + '  ' + A.letters.map((ch, i) => `${ch}=${i}`).join('  ');
     body.appendChild(alpha);
-    const sample = 'HELLO SPY';
+    const sample = G.sample;
     for (const id of ENGINE.LEVELS.hard) {
       const c = ENGINE.CIPHERS[id], tx = TX().ciphers[id], p = GUIDE_EXAMPLES[id];
       const card = el('div', 'gcard');
@@ -432,7 +497,7 @@
       card.appendChild(spot);
       const ex = el('div', 'ex');
       const lbl = paramLabel(id, p);
-      ex.append(document.createTextNode((lbl ? `(${lbl})  ` : '') + sample), el('span', 'arrow', '→'), document.createTextNode(ENGINE.encrypt(id, sample, p)));
+      ex.append(document.createTextNode((lbl ? `(${lbl})  ` : '') + sample), el('span', 'arrow', '→'), document.createTextNode(ENGINE.encrypt(id, sample, p, lang())));
       card.appendChild(ex);
       body.appendChild(card);
     }
@@ -447,6 +512,8 @@
   // ---------- wiring ----------
   $('#hintBtn').addEventListener('click', useHint);
   $('#magBtn').addEventListener('click', toggleMag);
+  $('#alphaBtn').addEventListener('click', toggleAlpha);
+  $('#letters').addEventListener('click', pickLetter);
   $('#guideBtn').addEventListener('click', openGuide);
   $('#guideClose').addEventListener('click', closeGuide);
   $('#guide').addEventListener('click', e => { if (e.target === e.currentTarget) closeGuide(); });
@@ -461,11 +528,12 @@
     if (/^[1-6]$/.test(k)) { const ids = ENGINE.LEVELS[state.level]; if (ids[+k - 1]) choose(ids[+k - 1]); }
     else if (k === 'h') useHint();
     else if (k === 'm') toggleMag();
+    else if (k === 'a') toggleAlpha();
     else if (k === 'g') openGuide();
     else if ((k === 'n' || k === 'enter') && state.answered) { e.preventDefault(); newCase(); }
   });
 
-  I18N.onChange(() => { renderAll(); });
+  I18N.onChange(() => { newCase(); });   // new language = new alphabet and messages
 
   load();
   state.caseNo = state.stats.played;   // case numbers continue across visits

@@ -13,8 +13,21 @@ encrypted version and must work out **which cipher** was used. Comes in two form
 Both pages share **`engine.js`** (the puzzle engine, logic only) and **`strings.js`** (every
 user-facing text in Polish, English, Ukrainian and Vietnamese: cipher descriptions, hints,
 explanations, "why not" notes, and the UI of both pages). The language helper is `../i18n.js`.
-The secret messages themselves stay English (letters A–Z). No build, no dependencies, no network.
-Works from `file://`, from any static server, and on GitHub Pages. Scales from desktop to phones.
+
+Each language has its **own alphabet, message bank and key words**:
+
+| Language | Alphabet | Letters | Half-turn cipher | Affine `a` |
+|---|---|---|---|---|
+| English | A–Z | 26 | ROT13 | 3, 5, 7, 11 |
+| Polish | A Ą B C Ć … Z Ź Ż | 32 | ROT16 | 3, 5, 7, 11 |
+| Ukrainian | А Б В Г Ґ … Ю Я | 33 | ROT16 | 5, 7, 2, 4 |
+| Vietnamese | A Ă Â B … X Y (base letters, no tone marks) | 29 | ROT14 | 3, 5, 7, 11 |
+
+Letters are numbered 0 … n−1 in alphabet order; Caesar shifts are 1 … n−1 except the half-turn;
+Atbash mirrors the alphabet (first ↔ last); Affine uses `a` coprime with n. An **alphabet strip**
+(🔤) with the letter numbers is available in the game and on the worksheets as help for younger
+kids. No build, no dependencies, no network. Works from `file://`, from any static server, and on
+GitHub Pages. Scales from desktop to phones.
 
 ## Run
 
@@ -31,9 +44,10 @@ then visit <http://localhost:8123/cipher-detective/> (game) or
 
 - **Easy**: Caesar, ROT13, Atbash. **Hard**: those three plus Vigenère, Affine, Beaufort.
 - **💡 Hint** — hint 1 is gentle, hint 2 is specific. Each hint used costs one star (3 → 2 → 1).
-- **🔍 Magnifier** — shows the shift (C − P mod 26) under every letter. Free to use.
+- **🔍 Magnifier** — shows the shift (code number − letter number, mod n) under every letter. Free to use.
+- **🔤 Alphabet** — the alphabet with letter numbers; tap a letter in the message to see its jump.
 - **📖 Cipher guide** — how each cipher works, how to spot it, and a live example.
-- Keyboard: `1`–`6` pick a cipher, `H` hint, `M` magnifier, `G` guide, `Enter`/`N` next case.
+- Keyboard: `1`–`6` pick a cipher, `H` hint, `M` magnifier, `A` alphabet, `G` guide, `Enter`/`N` next case.
 - Stars, streak and solved count are saved in `localStorage` (Reset progress clears them).
 
 ## Print worksheets
@@ -61,12 +75,12 @@ freestyled), then **validated by decrypting** before they are returned. In the b
 `strings.js`, which registers `ENGINE.TEXT.<lang>`.
 
 ```js
-ENGINE.generatePuzzle('easy', { lang: 'pl' })
-// → { cipher_id, params, plaintext, ciphertext, hint, hints:[gentle, specific], explanation }
+ENGINE.generatePuzzle('easy', { lang: 'pl' })   // Polish message, Polish alphabet, Polish texts
+// → { cipher_id, params, plaintext, ciphertext, lang, hint, hints:[gentle, specific], explanation }
 ENGINE.puzzleText(puzzle, 'uk')          // → { hints, explanation } in another language
 ENGINE.whyNot('caesar', puzzle, 'vi')    // → why the guess does not fit
 ENGINE.generateWorksheet('SPY-4821', 'hard', 6, 'pl')
-// → { seed, level, count, cases:[puzzle, …] }   same cases for a seed + level in every language
+// → { seed, level, count, lang, cases:[puzzle, …] }   deterministic for seed + level + language
 ```
 
 The same puzzle JSON (with `hint2`) is shown under "Puzzle JSON" after each answer in the game.
