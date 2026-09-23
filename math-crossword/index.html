@@ -17,7 +17,7 @@
   .appbar{padding:14px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;}
   .appbar h1{margin:0;font-size:18px;}
   .appbar-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:2px;}
-  .appbar .home{display:inline-block;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+  .appbar .home{display:inline-flex;align-items:center;min-height:40px;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
   .appbar .home:hover{text-decoration:underline;}
   .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
   .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
@@ -31,10 +31,10 @@
   .grp:last-child{margin-bottom:0;}
   label.field{display:block;font-size:13px;color:#333;margin-bottom:6px;}
   .row{display:flex;gap:8px;align-items:center;}
-  input[type=text],input[type=number],select{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  input[type=text],input[type=number],select{font:inherit;min-height:40px;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
   input[type=number]{width:100%;}
   .presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
-  .presets button{font:inherit;font-size:12.5px;padding:5px 9px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button{font:inherit;font-size:12.5px;min-height:38px;padding:5px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
   .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   .presets button:hover{border-color:var(--accent);}
   .minmax{display:flex;gap:8px;}
@@ -43,13 +43,14 @@
   .ops label{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #ccd2dd;border-radius:8px;padding:6px 0;cursor:pointer;font-size:18px;background:#fff;user-select:none;}
   .ops label.on{background:var(--accent);border-color:var(--accent);color:#fff;}
   .ops input{display:none;}
-  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;min-height:32px;}
+  .check input{width:18px;height:18px;flex:0 0 auto;}
   .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
   button.primary{font:inherit;font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;}
   button.primary:hover{background:var(--accent-d);}
   button.ghost{font:inherit;padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;}
   button.ghost:hover{border-color:var(--accent);}
-  #randSeed{flex:0 0 auto;width:auto;padding:7px 10px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  #randSeed{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
   .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
   .msg.error{color:var(--err);font-weight:600;}
   .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}

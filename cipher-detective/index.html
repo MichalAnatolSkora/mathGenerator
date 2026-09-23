@@ -23,9 +23,9 @@
   .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
   .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#f5f7fb;}
-  .seg button{font-weight:600;font-size:14px;border:0;background:transparent;padding:6px 14px;border-radius:999px;cursor:pointer;color:var(--muted);min-height:34px;}
+  .seg button{font-weight:600;font-size:14px;border:0;background:transparent;padding:6px 14px;border-radius:999px;cursor:pointer;color:var(--muted);min-height:38px;}
   .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
-  .navlink{font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
   .navlink:hover{border-color:var(--accent);}
   .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
   .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
@@ -114,7 +114,7 @@
   /* ---- footer stats ---- */
   .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
   .stats .grow{flex:1;}
-  .ghost{font-size:13px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .ghost{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
   .ghost:hover{border-color:var(--bad);color:var(--bad);}
 
   /* ---- guide dialog ---- */
@@ -123,7 +123,7 @@
   .dlg{padding:18px;max-height:88vh;overflow:auto;}
   .dlg-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
   .dlg-head h2{margin:0;font-size:20px;flex:1;}
-  .dlg-head button{border:1px solid var(--line);background:#f5f7fb;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px;line-height:1;}
+  .dlg-head button{border:1px solid var(--line);background:#f5f7fb;border-radius:999px;width:40px;height:40px;cursor:pointer;font-size:18px;line-height:1;}
   .steps{background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 30px;margin:0 0 14px;font-size:14.5px;}
   .steps li{margin:4px 0;}
   .gcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;}
@@ -138,8 +138,9 @@
   /* ---- phone ---- */
   @media (max-width:600px){
     :root{--tile:26px;}
-    .top{padding:8px 12px;}
+    .top{padding:8px 12px;position:static;gap:6px 8px;}
     .brand{font-size:18px;}
+    .score span{min-height:40px;display:inline-flex;align-items:center;}
     .wrap{padding:10px;gap:10px;}
     .card{padding:14px;}
     .letters{gap:8px 12px;}
