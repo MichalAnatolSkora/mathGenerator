@@ -7,9 +7,10 @@
  *
  * Every language has its own alphabet, message bank and key words (see ALPHABETS / BANK):
  *   en  A–Z (26)          pl  A Ą B … Ź Ż (32)        uk  А Б … Ю Я (33)        vi  A Ă Â … X Y (29)
+ *   fr  A–Z (26, messages written without accents: É → E, Ç → C)
  * Letters are indexed 0 … n−1 in alphabet order. Characters outside the alphabet (spaces) pass
  * through unchanged; `i` (the key index for Vigenère/Beaufort) counts letters only.
- * The "ROT13" cipher is the half-alphabet rotation: shift = floor(n / 2) (13, 16, 16, 14).
+ * The "ROT13" cipher is the half-alphabet rotation: shift = floor(n / 2) (13, 16, 16, 14, 13).
  */
 const ENGINE = (() => {
   const mod = (n, m) => ((n % m) + m) % m;
@@ -29,6 +30,7 @@ const ENGINE = (() => {
     pl: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ',
     uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ',
     vi: 'AĂÂBCDĐEÊGHIKLMNOÔƠPQRSTUƯVXY',
+    fr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   };
   const ALPHA = {};
   for (const [lang, str] of Object.entries(ALPHABETS)) {
@@ -143,6 +145,27 @@ const ENGINE = (() => {
       ],
       words: 'BA BAN BANH BAU BI BIÊT BONG BÂC BÂU BĂT BÔ BÔN BƠI CA CACAO CAI CANH CAO CHAO CHI CHIA CHIÊC CHIN CHO CHU CHUC CHUNG CHƠI CHƯNG CO COI CON CU CUA CUN CUNG CÂU CÂY CÔNG CƯA DEO DIÊU DƯƠI GA GIAI GIOI GIƠ GIƯƠNG GÂM GÂN GĂP HAI HANG HAT HOA HOP HÔM HÔP KEM KEO KHO KHOA KIÊM KÊU LA LAC LAM LANH LO LUC LUN LĂM LƠN LƠP MA MAI MANG MANH MAU MEO MU MUA MÂT MÔI MÔT MƠ MƠI MƯA MƯNG MƯƠI NAI NAO NAY NGON NHA NHAU NHAY NHE NHI NHIN NHÂT NOI NONG NƯƠC NƯƠNG NĂNG PHAO PHÂN PHƠ QUA QUY RA RAO RE ROBOT RUA RÂT RÔNG RƠI SACH SANG SAO SAU SINH SIÊU SOI SÔI SÔNG SĂN SƠ TA TAM TANG TAU TAY THA THAM THANG THICH THO THU THÂN THÂY THĂNG THƯ THƯƠNG TIM TIÊC TRA TRAI TRON TRONG TRĂNG TRƠI TRƯA TUYÊT TÂT TÔI TƯ UNG VAO VE VIÊN VOI VUI VUNG VƠI VƯƠN XANH XE XICH XIN XÂY ĐA ĐAI ĐAP ĐEN ĐEP ĐI ĐO ĐU ĐUA ĐÂP ĐÂU ĐÊM ĐÊN ĐIÊP ĐÔ ĐÔNG ĐƯƠC ÊCH Ơ ƠI ĂN TĂC BUYT',
     },
+    fr: {   // written without accents (like capitals in many French puzzles) and without apostrophes
+      keys: ['CHAT','LOUP','OURS','LION','MER','CLE','CODE','NUIT','LUNE','BLEU','VERT','ROSE','JEU','FEU','MIEL','NID','CERF','COQ','SOL','ROI'],
+      messages: [
+        'ON SE VOIT AU PARC', 'LE GATEAU EST PRET', 'REGARDE SOUS LE LIT', 'TU ES UN SUPER ESPION',
+        'PIZZA POUR LE DINER', 'LE CHIEN AIME DANSER', 'TROUVE LA CLE CACHEE', 'BRAVO JEUNE DETECTIVE',
+        'MON CHAT SAUTE TRES HAUT', 'COURONS VERS LE PARC', 'LA CARTE EST DANS LA BOITE', 'PRENDS TON BONNET BLEU',
+        'BON ANNIVERSAIRE MON AMI', 'LE SOLEIL BRILLE FORT', 'UNE GLACE AU CHOCOLAT', 'CONSTRUISONS UNE CABANE',
+        'LE ROBOT DIT BONJOUR', 'LE CLUB SECRET SE REUNIT', 'SAUTE DANS LA FLAQUE', 'LE PIRATE A PERDU SON CHAPEAU',
+        'LES BISCUITS SONT DANS LE POT', 'JE SUIS PRES DU TOBOGGAN', 'LE TRESOR EST TOUT PRES', 'PRENDS TON MAILLOT DE BAIN',
+        'LE HIBOU CHANTE LA NUIT', 'NOUS AVONS GAGNE LE MATCH', 'LA GRENOUILLE SAIT CHANTER', 'CHERCHE LA PORTE ROUGE',
+        'OUVRE LA BOITE AUX LETTRES', 'LA FETE COMMENCE CE SOIR', 'MAMIE A FAIT UNE TARTE', 'LA LUNE EST PLEINE CE SOIR',
+        'ALLONS JOUER AU BALLON', 'LE BUS ARRIVE BIENTOT', 'TAPE DANS MA MAIN', 'LE CHIOT A UNE CHAUSSETTE',
+        'LE CHENE EST TRES VIEUX', 'DESSINE UN GRAND DRAGON', 'LA NEIGE EST PARFAITE', 'TU AS CASSE LE CODE',
+        'AMIS POUR TOUJOURS', 'UN LUTIN VIT DANS LE JARDIN', 'CHOCOLAT CHAUD ET GUIMAUVES', 'LE ZOO OUVRE DEMAIN',
+        'LE PRIX EST DANS LA CABANE', 'REGARDE DERRIERE LE ROCHER', 'LA SORTIE EST VENDREDI', 'METS TES BOTTES DE PLUIE',
+        'LE RENARD SAUTE LA BARRIERE', 'UN GOUTER DANS LE JARDIN', 'TU ES UN MAITRE DU CODE', 'NOURRIS LES POISSONS ROUGES',
+        'LE TRAIN PART BIENTOT', 'MON VELO EST VERT', 'LE CHATON AIME LES BOITES', 'SAUTE DANS LES FEUILLES',
+        'LA RIVIERE EST FROIDE', 'BIEN JOUE PETIT ESPION', 'LA BIBLIOTHEQUE A DES LIVRES', 'LES ETOILES BRILLENT LA NUIT',
+      ],
+      words: 'A AIME ALLONS AMI AMIS ANNIVERSAIRE ARRIVE AS AU AUX AVONS BAIN BALLON BARRIERE BIBLIOTHEQUE BIEN BIENTOT BISCUITS BLEU BOITE BOITES BON BONJOUR BONNET BOTTES BRAVO BRILLE BRILLENT BUS CABANE CACHEE CARTE CASSE CE CHANTE CHANTER CHAPEAU CHAT CHATON CHAUD CHAUSSETTE CHENE CHERCHE CHIEN CHIOT CHOCOLAT CLE CLUB CODE COMMENCE CONSTRUISONS COURONS DANS DANSER DE DEMAIN DERRIERE DES DESSINE DETECTIVE DINER DIT DRAGON DU ES ESPION EST ET ETOILES FAIT FETE FEUILLES FLAQUE FORT FROIDE GAGNE GATEAU GLACE GOUTER GRAND GRENOUILLE GUIMAUVES HAUT HIBOU JARDIN JE JEUNE JOUE JOUER LA LE LES LETTRES LIT LIVRES LUNE LUTIN MA MAILLOT MAIN MAITRE MAMIE MATCH METS MON NEIGE NOURRIS NOUS NUIT ON OUVRE PARC PARFAITE PART PERDU PETIT PIRATE PIZZA PLEINE PLUIE POISSONS PORTE POT POUR PRENDS PRES PRET PRIX REGARDE RENARD REUNIT RIVIERE ROBOT ROCHER ROUGE ROUGES SAIT SAUTE SE SECRET SOIR SOLEIL SON SONT SORTIE SOUS SUIS SUPER TAPE TARTE TES TOBOGGAN TON TOUJOURS TOUT TRAIN TRES TRESOR TROUVE TU UN UNE VELO VENDREDI VERS VERT VIEUX VIT VOIT ZOO',
+    },
   };
   for (const b of Object.values(BANK)) { b.words = new Set(b.words.split(/\s+/)); b.messages = b.messages.map(m => m.normalize('NFC')); b.keys = b.keys.map(k => k.normalize('NFC')); }
   const bank = lang => BANK[lang] || BANK.en;
@@ -152,8 +175,8 @@ const ENGINE = (() => {
     caesar: {
       level: 'easy', icon: '🏛️',
       params(rng, A) { let s; do { s = 1 + Math.floor(rng() * (A.n - 1)); } while (s === A.half); return { shift: s }; },
-      enc: (p, { shift }, A) => mapLetters(p, x => x + shift, A),
-      dec: (c, { shift }, A) => mapLetters(c, x => x - shift, A),
+      enc: (p, { shift }, A) => mapLetters(p, x => x + Number(shift), A),   // Number(): a shift from JSON/URL may be "3"
+      dec: (c, { shift }, A) => mapLetters(c, x => x - Number(shift), A),
     },
     rot13: {   // half-alphabet rotation: 13 of 26, 16 of 32, 16 of 33, 14 of 29
       level: 'easy', icon: '🔄',
@@ -176,7 +199,7 @@ const ENGINE = (() => {
     affine: {
       level: 'hard', icon: '✖️',
       params(rng, A) { return { a: pick(A.affineA, rng), b: Math.floor(rng() * A.n) }; },
-      enc: (p, { a, b }, A) => mapLetters(p, x => a * x + b, A),
+      enc: (p, { a, b }, A) => mapLetters(p, x => a * x + Number(b), A),
       dec: (c, { a, b }, A) => { const inv = modInverse(a, A.n); return mapLetters(c, x => inv * (x - b), A); },
     },
     beaufort: {
@@ -198,7 +221,8 @@ const ENGINE = (() => {
   /** Letter-by-letter pairs: {p, c, pn, cn, s} where s = (cn − pn) mod n. */
   function letterPairs(plain, cipher, lang) {
     const A = alphabet(lang), out = [];
-    const P = [...plain], Cc = [...cipher];
+    const up = t => [...String(t).normalize('NFC').toUpperCase()];   // same form as mapLetters reads
+    const P = up(plain), Cc = up(cipher);
     for (let i = 0; i < P.length; i++) {
       const p = P[i], c = Cc[i];
       if (A.has(p)) out.push({ p, c, pn: A.idx(p), cn: A.idx(c), s: mod(A.idx(c) - A.idx(p), A.n) });

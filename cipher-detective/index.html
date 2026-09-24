@@ -367,7 +367,7 @@
     const s = state.stats;
     $('#statsText').textContent = t('stats', s.solved, s.played, s.stars, s.best);
     document.title = t('brand').replace(/^\S+\s/, '');
-    I18N.renderFlags($('#msgFlags'), state.msgLang, setMsgLang);
+    I18N.renderPicker($('#msgFlags'), state.msgLang, setMsgLang, t('msgLang').replace(/\s*:\s*$/, ''));
     const link = document.querySelector('a[href^="worksheet.html"]');
     if (link) { const u = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (state.msgLangExplicit) q.set('msg', state.msgLang); else q.delete('msg'); if (state.mode === 'shift') q.set('mode', 'shift'); else q.delete('mode'); const qs = q.toString(); link.setAttribute('href', u + (qs ? '?' + qs : '')); }
   }

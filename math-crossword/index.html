@@ -194,7 +194,7 @@
 <script src="../i18n.js"></script>
 <script>
 "use strict";
-/* ---- user-facing text in four languages (pl, en, uk, vi); the language helper is ../i18n.js ---- */
+/* ---- user-facing text in five languages (pl, en, uk, vi, fr); the language helper is ../i18n.js ---- */
 const MC_STRINGS = {
   en: {
     allPuzzles:'🧩 All puzzles', title:'Math Crossword Worksheet Generator',
@@ -212,7 +212,6 @@ const MC_STRINGS = {
     keyTag:'— Answer key', opAdd:'addition', opSub:'subtraction', opMul:'multiplication', opDiv:'division',
     direction:'left → right, top → bottom', seedLabel:'seed:', name:'Name:',
     instr:'Fill in the blank boxes so every equation is true. Each equation reads A op B = C — across or down.',
-    langLabel:'Language',
   },
   pl: {
     allPuzzles:'🧩 Wszystkie zagadki', title:'Generator krzyżówek matematycznych',
@@ -230,7 +229,6 @@ const MC_STRINGS = {
     keyTag:'— Rozwiązanie', opAdd:'dodawanie', opSub:'odejmowanie', opMul:'mnożenie', opDiv:'dzielenie',
     direction:'od lewej do prawej, z góry na dół', seedLabel:'ziarno:', name:'Imię:',
     instr:'Wpisz liczby w puste pola tak, aby każde równanie było prawdziwe. Każde równanie czyta się A op B = C — w poziomie lub w pionie.',
-    langLabel:'Język',
   },
   uk: {
     allPuzzles:'🧩 Усі головоломки', title:'Генератор математичних кросвордів',
@@ -248,7 +246,6 @@ const MC_STRINGS = {
     keyTag:'— Відповіді', opAdd:'додавання', opSub:'віднімання', opMul:'множення', opDiv:'ділення',
     direction:'зліва направо, згори донизу', seedLabel:'зерно:', name:"Ім'я:",
     instr:'Заповни порожні клітинки так, щоб кожна рівність була правильною. Кожна рівність читається A op B = C — по горизонталі або по вертикалі.',
-    langLabel:'Мова',
   },
   vi: {
     allPuzzles:'🧩 Tất cả câu đố', title:'Trình tạo ô chữ toán học',
@@ -266,7 +263,23 @@ const MC_STRINGS = {
     keyTag:'— Đáp án', opAdd:'phép cộng', opSub:'phép trừ', opMul:'phép nhân', opDiv:'phép chia',
     direction:'trái → phải, trên → dưới', seedLabel:'hạt giống:', name:'Tên:',
     instr:'Điền số vào các ô trống sao cho mọi phép tính đều đúng. Mỗi phép tính đọc là A op B = C — theo hàng ngang hoặc hàng dọc.',
-    langLabel:'Ngôn ngữ',
+  },
+  fr: {
+    allPuzzles:'🧩 Toutes les énigmes', title:'Générateur de mots croisés mathématiques',
+    subtitle:'Des mots croisés de calcul à imprimer, créés à partir d’une graine — chaque opération se lit <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, à l’horizontale et à la verticale.',
+    seed:'Graine', randomSeed:'Graine au hasard', seedHint:'Même graine + mêmes nombres/opérations ⇒ fiche identique.',
+    range:'Nombres', min:'Min', max:'Max', minHint:'Min peut être négatif (des résultats négatifs apparaissent).',
+    operators:'Opérations', puzzle:'Grille', size:'Taille', sizeSmall:'Petite', sizeMedium:'Moyenne', sizeLarge:'Grande', sizeA4:'Page entière (A4)',
+    difficulty:'Difficulté (nombre de cases vides)', diffEasy:'Facile', diffMedium:'Moyenne', diffHard:'Difficile',
+    display:'Affichage', notation:'Notation', notationEu:'· et : (européenne)', notationStd:'× et ÷',
+    operandBlanks:'Cases vides aussi dans les termes (opérations inverses)', answerKey:'Ajouter le corrigé',
+    newWorksheet:'Nouvelle fiche', print:'Imprimer / Enregistrer en PDF', ready:'✓ fiche prête',
+    errWhole:'Min et Max doivent être des nombres entiers.', errMinMax:'Min doit être ≤ Max.', errOps:'Choisis au moins une opération.',
+    errNarrow:'L’intervalle est trop étroit — élargis Min/Max.', errGen:'Impossible de créer une grille avec ces réglages — essaie un intervalle plus large ou plus d’opérations.',
+    rangeTitleTo:max=>`Calculs jusqu’à ${max}`, rangeTitleFrom:(min,max)=>`Calculs de ${min} à ${max}`,
+    keyTag:'— Corrigé', opAdd:'addition', opSub:'soustraction', opMul:'multiplication', opDiv:'division',
+    direction:'de gauche à droite, de haut en bas', seedLabel:'graine :', name:'Nom :',
+    instr:'Remplis les cases vides pour que chaque opération soit juste. Chaque opération se lit A op B = C — à l’horizontale ou à la verticale.',
   },
 };
 const tt = (k, ...a) => I18N.t(MC_STRINGS, k, ...a);
@@ -274,7 +287,6 @@ const OPKEY = { "+":"opAdd", "-":"opSub", "*":"opMul", "/":"opDiv" };
 function applyLanguage(){
   I18N.apply(MC_STRINGS);
   document.title = tt("title");
-  document.querySelector(".langs").setAttribute("aria-label", tt("langLabel"));
 }
 /* ============================================================================
    Math Crossword Worksheet Generator — single-file implementation of PRD.md

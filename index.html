@@ -83,7 +83,6 @@
       cipherTitle: 'Detektyw szyfrów',
       cipherText: 'Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère\'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.',
       cipherPlay: 'Zagraj', cipherPrint: 'Wydrukuj karty pracy', cipherAlt: 'Zrzut ekranu: gra Detektyw szyfrów',
-      langLabel: 'Język',
       count: n => `Mamy ${n} ${n === 1 ? 'zagadkę' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'zagadki' : 'zagadek'}:`,
     },
     en: {
@@ -95,7 +94,6 @@
       cipherTitle: 'Cipher Detective',
       cipherText: 'A spy sent a message in code. Compare it with the coded version and work out which cipher was used: Caesar, ROT13, Atbash, and on the hard level also Vigenère, Affine and Beaufort. Or you know it is Caesar and hunt for the shift. For ages 8–12.',
       cipherPlay: 'Play', cipherPrint: 'Print worksheets', cipherAlt: 'Screenshot: the Cipher Detective game',
-      langLabel: 'Language',
       count: n => `We have ${n} ${n === 1 ? 'puzzle' : 'puzzles'}:`,
     },
     uk: {
@@ -107,7 +105,6 @@
       cipherTitle: 'Детектив шифрів',
       cipherText: 'Шпигун надіслав зашифроване повідомлення. Порівняй його із зашифрованою версією та вгадай, який шифр використано: Цезаря, ROT13, Атбаш, а на складному рівні також Віженера, афінний і Бофора. Або ти знаєш, що це шифр Цезаря, і шукаєш зсув. Для дітей 8–12 років.',
       cipherPlay: 'Грати', cipherPrint: 'Роздрукувати аркуші', cipherAlt: 'Знімок екрана: гра «Детектив шифрів»',
-      langLabel: 'Мова',
       count: n => `У нас ${n} ${n % 10 === 1 && n % 100 !== 11 ? 'головоломка' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'головоломки' : 'головоломок'}:`,
     },
     vi: {
@@ -119,15 +116,24 @@
       cipherTitle: 'Thám tử mật mã',
       cipherText: 'Một điệp viên đã gửi tin nhắn bằng mật mã. So sánh tin nhắn với bản mã hóa và đoán xem mật mã nào đã được dùng: Caesar, ROT13, Atbash, và ở mức khó còn có Vigenère, Affine và Beaufort. Hoặc bạn biết đó là mật mã Caesar và đi tìm bước dịch. Dành cho trẻ 8–12 tuổi.',
       cipherPlay: 'Chơi', cipherPrint: 'In phiếu bài tập', cipherAlt: 'Ảnh chụp màn hình: trò chơi Thám tử mật mã',
-      langLabel: 'Ngôn ngữ',
       count: n => `Có ${n} câu đố:`,
+    },
+    fr: {
+      brand: '🧩 Énigmes pour enfants', title: 'Énigmes de logique et de maths pour enfants',
+      note: 'Tout est gratuit ici et il n’y a pas besoin de créer de compte. Et ça restera comme ça.',
+      mathTitle: 'Mots croisés mathématiques',
+      mathText: 'Des mots croisés de calcul à imprimer : chaque opération se lit à l’horizontale et à la verticale, et les nombres se rejoignent aux croisements. Tu choisis les nombres et les opérations, et tu obtiens une fiche d’exercices avec son corrigé.',
+      mathBtn: 'Créer une fiche', mathAlt: 'Capture d’écran : des mots croisés mathématiques',
+      cipherTitle: 'Détective des codes secrets',
+      cipherText: 'Un espion a envoyé un message codé. Compare-le avec la version codée et devine quel chiffre il a utilisé : César, ROT13, Atbash et, au niveau difficile, aussi Vigenère, affine et Beaufort. Ou alors tu sais que c’est le chiffre de César et tu cherches le décalage. Pour les 8–12 ans.',
+      cipherPlay: 'Jouer', cipherPrint: 'Imprimer des fiches', cipherAlt: 'Capture d’écran : le jeu Détective des codes secrets',
+      count: n => `Nous avons ${n} ${n <= 1 ? 'énigme' : 'énigmes'} :`,
     },
   };
   function render() {
     I18N.apply(S);
     document.title = I18N.t(S, 'title');
     document.getElementById('count').textContent = I18N.t(S, 'count', document.querySelectorAll('.card').length);
-    document.querySelector('.langs').setAttribute('aria-label', I18N.t(S, 'langLabel'));
   }
   I18N.onChange(render);
   render();

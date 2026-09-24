@@ -405,7 +405,7 @@
   }
   function saveMsgLang() { try { localStorage.setItem(MSG_STORE, msgLang); } catch (_) { } }
   function renderMsgFlags() {
-    I18N.renderFlags($('msgFlags'), msgLang, code => { if (code === msgLang) return; msgLang = code; msgLangExplicit = true; saveMsgLang(); renderMsgFlags(); regenerate(); });
+    I18N.renderPicker($('msgFlags'), msgLang, code => { if (code === msgLang) return; msgLang = code; msgLangExplicit = true; saveMsgLang(); renderMsgFlags(); regenerate(); }, t('msgLang'));
     const link = document.querySelector('a[href^="index.html"]');
     if (link) { const base = link.getAttribute('href').split('?')[0]; const q = new URLSearchParams(link.getAttribute('href').split('?')[1] || ''); if (msgLangExplicit) q.set('msg', msgLang); else q.delete('msg'); if (mode === 'shift') q.set('mode', 'shift'); else q.delete('mode'); const qs = q.toString(); link.setAttribute('href', base + (qs ? '?' + qs : '')); }
   }

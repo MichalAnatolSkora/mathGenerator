@@ -2,12 +2,12 @@
  * Shared language helper for every page of the site. Classic script; defines the global `I18N`.
  *
  * Language choice: `?lang=xx` in the URL > saved choice (localStorage "lang") > Polish.
- * Each page keeps its own dictionary: { pl:{key: string|fn}, en:{…}, uk:{…}, vi:{…} }.
+ * Each page keeps its own dictionary: { pl:{key: string|fn}, en:{…}, uk:{…}, vi:{…}, fr:{…} }.
  *   I18N.t(dict, key, ...args)   → string for the current language (falls back to en, then key)
  *   I18N.apply(dict[, root])     → fills [data-i18n="key"] text and [data-i18n-attr="attr:key,…"] attributes
- *   I18N.onChange(fn)            → called with the new code after a flag is clicked
+ *   I18N.onChange(fn)            → called with the new code after another language is picked
  *   I18N.get() / I18N.set(code)
- * Flags render into every element with class "langs"; links with data-keep-lang carry ?lang= along.
+ * A language dropdown renders into every element with class "langs"; links with data-keep-lang carry ?lang= along.
  */
 const I18N = (() => {
   const LANGS = [
@@ -15,7 +15,10 @@ const I18N = (() => {
     { code: 'en', flag: '🇬🇧', name: 'English' },
     { code: 'uk', flag: '🇺🇦', name: 'Українська' },
     { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
+    { code: 'fr', flag: '🇫🇷', name: 'Français' },
   ];
+  /** Accessible name of the page-language dropdown, in each language. */
+  const LABEL = { pl: 'Język', en: 'Language', uk: 'Мова', vi: 'Ngôn ngữ', fr: 'Langue' };
   const DEFAULT = 'pl', KEY = 'lang';
   const valid = c => LANGS.some(l => l.code === c);
   const save = c => { try { localStorage.setItem(KEY, c); } catch (_) { /* no storage: the URL still works */ } };
@@ -39,21 +42,30 @@ const I18N = (() => {
   function decorateLinks() {
     document.querySelectorAll('a[data-keep-lang]').forEach(a => a.setAttribute('href', withLang(a.getAttribute('href'))));
   }
-  /** Render flag buttons into `nav` for any language value (used for the page language and, in
-   *  Cipher Detective, for the separate message language). */
-  function renderFlags(nav, current, onSelect) {
-    nav.innerHTML = '';
-    LANGS.forEach(l => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.textContent = l.flag; b.title = l.name;
-      b.setAttribute('aria-label', l.name); b.setAttribute('lang', l.code);
-      b.setAttribute('aria-pressed', String(l.code === current));
-      b.addEventListener('click', () => onSelect(l.code));
-      nav.appendChild(b);
-    });
+  /** Render a language dropdown (flag + name) into `nav` for any language value (used for the page
+   *  language and, in Cipher Detective, for the separate message language). Called again, it only
+   *  updates the existing dropdown, so keyboard focus stays put. The accessible name is `label`,
+   *  or else the nav's aria-label. */
+  function renderPicker(nav, current, onSelect, label) {
+    let sel = nav.querySelector('select');
+    if (!sel) {
+      nav.innerHTML = '';
+      sel = document.createElement('select');
+      LANGS.forEach(l => {
+        const o = document.createElement('option');
+        o.value = l.code; o.textContent = `${l.flag} ${l.name}`; o.setAttribute('lang', l.code);
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', () => sel._onSelect(sel.value));
+      nav.appendChild(sel);
+    }
+    sel._onSelect = onSelect;
+    sel.value = current;
+    const name = label || nav.getAttribute('aria-label');
+    if (name) sel.setAttribute('aria-label', name);
   }
   function renderSwitchers() {
-    document.querySelectorAll('.langs').forEach(nav => renderFlags(nav, lang, set));
+    document.querySelectorAll('.langs').forEach(nav => { nav.setAttribute('aria-label', LABEL[lang]); renderPicker(nav, lang, set, LABEL[lang]); });
   }
   function set(code) {
     if (!valid(code) || code === lang) return;
@@ -81,7 +93,7 @@ const I18N = (() => {
       el.dataset.i18nAttr.split(',').forEach(pair => { const [attr, key] = pair.split(':'); el.setAttribute(attr.trim(), t(dict, key.trim())); });
     });
   }
-  /** Plural forms. pl/uk: (n, one, few, many). en: (n, one, other). vi: one form. */
+  /** Plural forms. pl/uk: (n, one, few, many). en: (n, one, other). fr: (n, one, other), 0 and 1 are singular. vi: one form. */
   function plural(n, one, few, many) {
     if (lang === 'pl' || lang === 'uk') {
       const m10 = n % 10, m100 = n % 100;
@@ -90,15 +102,16 @@ const I18N = (() => {
       return many;
     }
     if (lang === 'en') return n === 1 ? one : (many !== undefined ? many : few);
+    if (lang === 'fr') return n <= 1 ? one : (many !== undefined ? many : few);
     return few !== undefined ? few : one;   // vi: no plural forms; callers pass the plain form as `few`
   }
 
   const style = document.createElement('style');
-  style.textContent = '.langs,.flags{display:inline-flex;gap:2px;align-items:center}.langs button,.flags button{font:inherit;font-size:20px;line-height:1;background:transparent;border:2px solid transparent;border-radius:8px;padding:3px 5px;cursor:pointer;min-width:40px;min-height:40px}.langs button:hover,.flags button:hover{border-color:#c5cbe0}.langs button[aria-pressed=true],.flags button[aria-pressed=true]{border-color:#4f5bd5;background:#e9ebff}';
+  style.textContent = '.langs,.flags{display:inline-flex;align-items:center}.langs select,.flags select{font:inherit;font-size:15px;color:#1e2436;background:#fff;border:2px solid #c5cbe0;border-radius:10px;padding:6px 10px;min-height:40px;max-width:100%;cursor:pointer}.langs select:hover,.flags select:hover{border-color:#4f5bd5}.langs select:focus-visible,.flags select:focus-visible{outline:3px solid #4f5bd5;outline-offset:1px}';
   document.head.appendChild(style);
   document.documentElement.lang = lang;
   document.addEventListener('DOMContentLoaded', () => { renderSwitchers(); decorateLinks(); });
 
   const valid_ = valid;
-  return { LANGS, DEFAULT, get, set, onChange, t, apply, plural, withLang, renderFlags, isValid: valid_ };
+  return { LANGS, DEFAULT, get, set, onChange, t, apply, plural, withLang, renderPicker, isValid: valid_ };
 })();

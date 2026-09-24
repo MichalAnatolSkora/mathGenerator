@@ -1,5 +1,5 @@
 /**
- * Cipher Detective — all user-facing text, in four languages (pl, en, uk, vi).
+ * Cipher Detective — all user-facing text, in five languages (pl, en, uk, vi, fr).
  * Classic script loaded after engine.js; registers one dictionary per language in ENGINE.TEXT.
  *
  * Each dictionary: { levels, guide, ciphers, whyNot, params, game, sheet }.
@@ -9,7 +9,7 @@
  * ({ n, half, letters, idx(ch), at(i) }): cipher name/blurb/how/spot, hints(params, ex, A),
  * explain(params, ex, A), game.magnote(A), game.guideSteps(A), sheet.instrSteps(A),
  * sheet.checklist(A). `ex` is the first letter pair of the puzzle { p, c, pn, cn }.
- * Alphabets: en 26 letters (half 13) · pl 32 (16) · uk 33 (16) · vi 29 (14).
+ * Alphabets: en 26 letters (half 13) · pl 32 (16) · uk 33 (16) · vi 29 (14) · fr 26 (13).
  */
 (function (E) {
   const T = E.TEXT;
@@ -27,6 +27,15 @@
   const range = A => `${L(A, 0)}=0 … ${last(A)}=${A.n - 1}`;
   /** Polish/Ukrainian plural: one (1), few (2–4 except 12–14), many (rest). */
   const slav = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (n === 1) return one; if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return few; return many; };
+  /** French typography: a non-breaking space before ! ? : ; so they never start a line. Applied to a
+   *  whole dictionary: strings are fixed, functions are wrapped so their results are fixed. */
+  const frenchSpaces = v => {
+    if (typeof v === 'string') return v.replace(/ ([!?:;])/g, '\u00a0$1');
+    if (typeof v === 'function') return (...a) => frenchSpaces(v(...a));
+    if (Array.isArray(v)) return v.map(frenchSpaces);
+    if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, frenchSpaces(x)]));
+    return v;
+  };
 
   /* ======================================================================== EN */
   T.en = {
@@ -168,7 +177,7 @@
       allPuzzles: '🧩 All puzzles', playOnline: '🎮 Play online',
       seed: 'Seed', seedHint: 'Same seed + same level ⇒ identical worksheet.', randomSeed: 'Random seed',
       level: 'Level', easyN: 'Easy · 3 ciphers', hardN: 'Hard · 6 ciphers',
-      msgLang: 'Message language', msgLangHint: 'Alphabet and secret messages in this language; the texts follow the flag at the top.',
+      msgLang: 'Message language', msgLangHint: 'Alphabet and secret messages in this language; the texts follow the language chosen at the top.',
       cases: 'Cases', casesHint: 'About 6 fit on one page; more spill onto extra pages.',
       options: 'Options', optSteps: 'Step boxes for counting the shift', optHints: 'Hints, printed upside-down at the bottom',
       optGuide: "Detective's guide page", optKey: 'Answer key page',
@@ -350,7 +359,7 @@
       allPuzzles: '🧩 Wszystkie zagadki', playOnline: '🎮 Zagraj online',
       seed: 'Ziarno', seedHint: 'To samo ziarno + ten sam poziom ⇒ identyczna karta pracy.', randomSeed: 'Losowe ziarno',
       level: 'Poziom', easyN: 'Łatwy · 3 szyfry', hardN: 'Trudny · 6 szyfrów',
-      msgLang: 'Język wiadomości', msgLangHint: 'Alfabet i tajne wiadomości w tym języku; teksty w języku flagi u góry.',
+      msgLang: 'Język wiadomości', msgLangHint: 'Alfabet i tajne wiadomości w tym języku; teksty w języku wybranym u góry.',
       cases: 'Zagadki', casesHint: 'Około 6 mieści się na jednej stronie; więcej przechodzi na kolejne.',
       options: 'Opcje', optSteps: 'Kratki na liczenie przesunięcia', optHints: 'Podpowiedzi, wydrukowane do góry nogami na dole',
       optGuide: 'Strona z przewodnikiem detektywa', optKey: 'Strona z odpowiedziami',
@@ -532,7 +541,7 @@
       allPuzzles: '🧩 Усі головоломки', playOnline: '🎮 Грати онлайн',
       seed: 'Зерно', seedHint: 'Те саме зерно + той самий рівень ⇒ однаковий аркуш.', randomSeed: 'Випадкове зерно',
       level: 'Рівень', easyN: 'Легкий · 3 шифри', hardN: 'Складний · 6 шифрів',
-      msgLang: 'Мова повідомлення', msgLangHint: 'Абетка й таємні повідомлення цією мовою; тексти — мовою прапорця вгорі.',
+      msgLang: 'Мова повідомлення', msgLangHint: 'Абетка й таємні повідомлення цією мовою; тексти — мовою, вибраною вгорі.',
       cases: 'Справи', casesHint: 'Приблизно 6 вміщується на одній сторінці; решта переходить на наступні.',
       options: 'Параметри', optSteps: 'Клітинки для підрахунку зсуву', optHints: 'Підказки, надруковані догори дриґом унизу',
       optGuide: 'Сторінка з довідником детектива', optKey: 'Сторінка з відповідями',
@@ -714,7 +723,7 @@
       allPuzzles: '🧩 Tất cả câu đố', playOnline: '🎮 Chơi trực tuyến',
       seed: 'Hạt giống', seedHint: 'Cùng hạt giống + cùng mức ⇒ phiếu giống hệt nhau.', randomSeed: 'Hạt giống ngẫu nhiên',
       level: 'Mức độ', easyN: 'Dễ · 3 mật mã', hardN: 'Khó · 6 mật mã',
-      msgLang: 'Ngôn ngữ tin nhắn', msgLangHint: 'Bảng chữ cái và tin nhắn bí mật bằng ngôn ngữ này; phần chữ theo lá cờ ở trên.',
+      msgLang: 'Ngôn ngữ tin nhắn', msgLangHint: 'Bảng chữ cái và tin nhắn bí mật bằng ngôn ngữ này; phần chữ theo ngôn ngữ đã chọn ở trên.',
       cases: 'Số vụ án', casesHint: 'Khoảng 6 vụ vừa một trang; nhiều hơn sẽ sang trang tiếp.',
       options: 'Tùy chọn', optSteps: 'Ô trống để đếm bước dịch', optHints: 'Gợi ý, in ngược ở cuối trang',
       optGuide: 'Trang hướng dẫn thám tử', optKey: 'Trang đáp án',
@@ -755,6 +764,190 @@
       keySubShift: (level, n) => `${level} · ${n} vụ án · bước dịch và tin nhắn`,
     },
   };
+
+  /* ======================================================================== FR */
+  /** French plural: 0 and 1 are singular. */
+  const frN = (n, one, many) => `${n} ${n <= 1 ? one : many}`;
+  T.fr = frenchSpaces({
+    levels: { easy: 'Facile', hard: 'Difficile' },
+    guide: { sample: 'BONJOUR ESPION', key: 'CHAT' },
+    ciphers: {
+      caesar: {
+        name: 'César', full: 'le chiffre de César',
+        blurb: 'Chaque lettre avance du même nombre de pas.',
+        how: A => `Choisis un nombre (le décalage). Fais avancer chaque lettre de ce nombre de pas dans l’alphabet. Après ${last(A)}, on repart de ${L(A, 0)}.`,
+        spot: A => `Tous les nombres de pas sont les mêmes — mais pas ${A.half} (${A.half}, c’est ${rot(A)}).`,
+        hints: ({ shift }, ex) => [
+          'Regarde la première lettre. Compte de combien de pas elle a avancé dans l’alphabet. Puis vérifie la lettre suivante : est-ce le même nombre ?',
+          `Chaque lettre a avancé d’exactement ${shift} pas. ${ex.p} est devenu ${ex.c}.`],
+        explain: ({ shift }, ex) => `C’était le chiffre de César avec un décalage de ${shift}, donc ${ex.p} est devenu ${ex.c}. Toutes les lettres ont avancé de ${shift} pas.`,
+      },
+      rot13: {
+        name: A => rot(A), full: A => rot(A),
+        blurb: A => `Chaque lettre avance de ${A.half} pas — ${even(A) ? '' : 'presque '}la moitié de l’alphabet.`,
+        how: A => `Un chiffre de César avec un décalage d’exactement ${A.half}. ${even(A) ? `Comme ${A.half} est la moitié de ${A.n}, si on le fait deux fois, chaque lettre revient à sa place.` : `C’est à peu près la moitié des ${A.n} lettres.`}`,
+        spot: A => `Chaque nombre de pas vaut ${A.half}. ${rotPair(A)}.`,
+        hints: (_, ex, A) => [
+          'Chaque lettre a avancé du même nombre de pas. Est-ce un grand saut — à peu près la moitié de l’alphabet ?',
+          `Chaque lettre a avancé de ${A.half} pas, ${even(A) ? 'exactement' : 'presque'} la moitié de l’alphabet. ${ex.p} est devenu ${ex.c}.${even(A) ? ` Avance encore de ${A.half} et tu reviens au départ !` : ''}`],
+        explain: (_, ex, A) => `C’était ${rot(A)} : chaque lettre a avancé de ${A.half} pas, ${even(A) ? '' : 'presque '}la moitié de l’alphabet, donc ${ex.p} est devenu ${ex.c}.${even(A) ? ' Si on le fait deux fois, la lettre revient.' : ''}`,
+      },
+      atbash: {
+        name: 'Atbash', full: 'le chiffre Atbash',
+        blurb: A => `L’alphabet est retourné : ${mir(A, 0)}, ${mir(A, 1)}.`,
+        how: A => `Écris l’alphabet à l’endroit, et en dessous à l’envers. Chaque lettre devient celle qui est juste en dessous : ${mir3(A)}.`,
+        spot: A => `Les nombres de pas sont différents, mais la lettre et sa lettre codée sont comme dans un miroir : la 1re lettre (${L(A, 0)}) devient la dernière (${last(A)}), la 2e (${L(A, 1)}) devient l’avant-dernière (${last(A, 1)}).`,
+        hints: (_, ex, A) => [
+          `Essaie de lire l’alphabet à l’envers. Que deviendrait ${L(A, 0)} ?`,
+          `L’alphabet est renversé comme dans un miroir : ${mir3(A)}. Ici, ${ex.p} est devenu ${ex.c}.`],
+        explain: (_, ex, A) => `C’était le chiffre Atbash : l’alphabet est retourné, donc ${mir(A, 0)} et ${mir(A, 1)}. Ici, ${ex.p} est devenu ${ex.c}.`,
+      },
+      vigenere: {
+        name: 'Vigenère', full: 'le chiffre de Vigenère',
+        blurb: 'Un mot-clé donne à chaque lettre son propre décalage, qui se répète.',
+        how: A => `Choisis un mot-clé. Ses lettres sont des décalages (${numbering(A)}). La 1re lettre du message avance de la 1re lettre de la clé, la 2e de la 2e, et la clé se répète.`,
+        spot: 'Les nombres de pas se répètent en un petit cycle de 3 ou 4.',
+        hints: ({ key }, ex, A) => [
+          'Les pas changent d’une lettre à l’autre. Mais regarde bien : est-ce qu’ils reviennent et se répètent ?',
+          `Les pas se répètent toutes les ${[...key].length} lettres : ${nums(key, A)}. C’est le mot-clé ${key} ajouté au message.`],
+        explain: ({ key }, ex, A) => `C’était le chiffre de Vigenère avec le mot-clé ${key}. Chaque lettre avance de sa lettre de clé : ${ex.p} + ${k0(key)} (${A.idx(k0(key))} pas) → ${ex.c}. La clé se répète toutes les ${[...key].length} lettres.`,
+      },
+      affine: {
+        name: 'Affine', full: 'le chiffre affine',
+        blurb: 'Le numéro de chaque lettre est multiplié, puis décalé.',
+        how: A => `Transforme la lettre en nombre (${range(A)}). Multiplie par a, ajoute b, et fais le tour après ${A.n}. Retransforme le nombre en lettre.`,
+        spot: 'La même lettre devient toujours la même lettre codée, mais les nombres de pas sautent dans tous les sens, sans cycle et sans miroir.',
+        hints: ({ a, b }, ex, A) => [
+          'La même lettre devient toujours la même lettre codée — mais les pas sautent dans tous les sens, sans cycle.',
+          `Le numéro de chaque lettre (${range(A)}) a été multiplié par ${a}, puis on a ajouté ${b}.`],
+        explain: ({ a, b }, ex, A) => `C’était le chiffre affine : le numéro de chaque lettre a été multiplié par ${a}, puis on a ajouté ${b}. ${ex.p} vaut ${ex.pn} : ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, on fait le tour après ${A.n} → ${mod(a * ex.pn + b, A.n)}, c’est-à-dire ${ex.c}.`,
+      },
+      beaufort: {
+        name: 'Beaufort', full: 'le chiffre de Beaufort',
+        blurb: 'Un mot-clé, mais on compte à reculons depuis la lettre de la clé.',
+        how: A => `Choisis un mot-clé. Pour chaque lettre du message, pars de la lettre de la clé et recule du numéro de la lettre du message (${L(A, 0)}=0, ${L(A, 1)}=1 …). La clé se répète.`,
+        spot: 'La même lettre peut devenir des lettres codées différentes, et les nombres de pas ne se répètent pas en cycle.',
+        hints: ({ key }) => [
+          'Il y a un mot-clé ici — mais on compte à reculons depuis la clé, pas en avançant.',
+          `Le mot-clé est ${key}. Chaque lettre codée = lettre de la clé − lettre du message (compte à reculons, en faisant le tour).`],
+        explain: ({ key }, ex, A) => `C’était le chiffre de Beaufort avec le mot-clé ${key}. On compte à reculons depuis la lettre de la clé : ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, c’est-à-dire ${ex.c}.`,
+      },
+    },
+    whyNot: {
+      closeRot13: half => `Presque ! ROT${half} est un chiffre de César spécial qui avance d’exactement ${half} pas — dans ce jeu, il compte comme un chiffre à part.`,
+      closeCaesar: (s, half) => `Presque ! Chaque lettre a bien avancé du même nombre de pas — mais c’était ${s}, pas ${half}.`,
+      stepsDiffer: (g, a, b) => `Ce n’était pas ${g} : les pas ne sont pas tous pareils. ${a.p}→${a.c}, c’est ${a.s} pas, mais ${b.p}→${b.c}, c’est ${b.s}.`,
+      notMirror: (p, m, c) => `Ce n’était pas le chiffre Atbash : avec Atbash, ${p} deviendrait ${m}, mais ici il est devenu ${c}.`,
+      sameLetterDiff: (g, p, c1, c2) => `Ce n’était pas ${g} : la même lettre ${p} est devenue ${c1} une fois et ${c2} une autre fois. Ça n’arrive qu’avec un mot-clé.`,
+      sameShift: (g, s, affine) => `Ce n’était pas ${g} : toutes les lettres ont avancé de ${s} pas. ${affine ? 'Avec le chiffre affine, les pas sautent dans tous les sens.' : 'Un mot-clé ferait changer les pas.'}`,
+      mirrored: g => `Ce n’était pas ${g} : chaque lettre et sa lettre codée sont comme dans un miroir (1re ↔ dernière lettre de l’alphabet). C’est le motif d’Atbash.`,
+      monoClue: 'Indice : ici, chaque lettre est toujours devenue la même lettre codée — le signe qu’il n’y avait pas de mot-clé qui change.',
+      cycle: (n, ns) => `Ce n’était pas le chiffre de Beaufort : les pas se répètent en un cycle de ${n} (${ns}). C’est un mot-clé ajouté en avançant — Vigenère.`,
+      noCycle: 'Ce n’était pas le chiffre de Vigenère : les pas ne se répètent pas en cycle. Avec un mot-clé ajouté en avançant, ils se répéteraient.',
+      keyFallback: (g, key) => `Ce n’était pas ${g} : ce code utilisait le mot-clé ${key}, donc les pas suivent la clé.`,
+    },
+    params: { shift: s => `décalage ${s}`, key: k => `clé ${k}`, affine: (a, b) => `a = ${a}, b = ${b}` },
+    crack: {   // mode « Quel décalage ? » : le chiffre est César, on ne voit que le code
+      hints: (s, ex, w) => [
+        `Regarde le mot codé le plus court : ${w}. Quel petit mot pourrait se cacher dessous ? Essaie différents décalages jusqu’à ce qu’il devienne un vrai mot.`,
+        `Le message commence par ${ex.p}, et en code c’est ${ex.c}. Compte les pas de ${ex.p} à ${ex.c} dans l’alphabet.`],
+      explain: (s, ex) => `Le décalage était de ${s} : chaque lettre a avancé de ${s} pas, donc ${ex.p} est devenu ${ex.c}. Pour lire le message, fais reculer chaque lettre codée de ${s} pas.`,
+    },
+    game: {
+      allPuzzles: '🧩 Toutes les énigmes', printWorksheet: '🖨️ Fiches à imprimer',
+      starsTitle: 'Étoiles au total', streakTitle: 'Série en cours',
+      msgLang: 'Langue du message :',
+      caseTitle: n => `Affaire n° ${n}`,
+      lead: 'Un espion a envoyé ce message en code. Compare le message avec le code et trouve quel chiffre a été utilisé.',
+      legendMessage: 'Message', legendCode: 'En code', legendMag: '🔍 Pas de chaque lettre',
+      magnote: A => `Les nombres montrent de combien de pas chaque lettre a avancé (${L(A, 0)}→${L(A, 1)}, c’est 1 ; après ${last(A)}, on repart de ${L(A, 0)}).`,
+      hintBtn: n => `💡 Indice (encore ${n})`, noHints: '💡 Plus d’indices', magnifier: '🔍 Loupe', guide: '📖 Guide des chiffres',
+      alphabet: '🔤 Alphabet', alphaNote: 'Touche une lettre du message pour voir son saut sur l’alphabet.',
+      alphaJump: (p, c, s) => `${p} → ${c} : ${s} pas en avant`,
+      hintLabel: i => `💡 Indice ${i} :`,
+      whichCipher: 'Quel chiffre a été utilisé ?',
+      correct: (full, cheer) => `🎉 Bravo ! C’était ${full}. ${cheer}`,
+      cheers: ['Super travail de détective !', 'Code cassé !', 'Génial !', 'Affaire classée !', 'Quel œil de lynx !', 'Agent secret d’élite !'],
+      notThisTime: full => `Pas cette fois — c’était ${full}.`,
+      keepGoing: 'Continue — la prochaine affaire est un nouveau départ !',
+      jsonSummary: 'JSON de l’énigme (pour les grands et les développeurs)',
+      next: 'Affaire suivante ➜',
+      stats: (solved, played, stars, best) => `🗂️ Affaires résolues : ${solved} sur ${played} · ⭐ Étoiles : ${stars} · 🔥 Meilleure série : ${best}`,
+      reset: 'Remettre à zéro', resetConfirm: 'Effacer toutes les étoiles et les séries ?',
+      guideTitle: '📖 Guide des chiffres', guideClose: 'Fermer le guide',
+      guideSteps: A => [
+        'Allume la <b>🔍 Loupe</b> pour voir de combien de pas chaque lettre a avancé.',
+        `<b>Tous les pas sont-ils pareils ?</b> Oui → <b>César</b> (ou <b>${rot(A)}</b> s’ils valent tous ${A.half}).`,
+        `<b>Les lettres sont-elles en miroir ?</b> ${mir3(A)} → <b>Atbash</b>.`,
+        '<b>Les pas se répètent-ils en cycle</b> de 3 ou 4 ? → <b>Vigenère</b>.',
+        '<b>La même lettre devient-elle toujours la même lettre codée</b>, mais les pas sautent dans tous les sens ? → <b>Affine</b>.',
+        '<b>Même lettre, lettres codées différentes et pas de cycle ?</b> → <b>Beaufort</b>.'],
+      letterNumbers: 'Numéros des lettres :', howToSpot: 'Comment le reconnaître : ',
+      modeLabel: 'Mode de jeu', modeWhich: '🔎 Quel chiffre ?', modeShift: '🔓 Quel décalage ?',
+      leadShift: level => `L’espion a utilisé le chiffre de César, mais tu ne connais pas le décalage — de combien de pas chaque lettre a avancé. Trouve-le et lis le message ! ${level === 'hard' ? 'Niveau difficile : le message n’apparaît que quand tu as trouvé. Sers-toi de la roue : cherche la lettre codée sur la ligne du haut et lis la lettre en dessous.' : 'Tourne la roue jusqu’à voir apparaître de vrais mots.'}`,
+      legendGuess: 'Ton essai',
+      whatShift: 'Quel était le décalage ?',
+      shiftLabel: 'Décalage', shiftDown: 'Décalage plus petit', shiftUp: 'Décalage plus grand',
+      wheelNote: 'En haut : la lettre codée. En bas : la lettre du message avec ce décalage.',
+      check: '🔓 Vérifier',
+      triesLeft: n => `Essais restants : ${n}`,
+      wrongTry: (s, word) => `Pas encore — avec un décalage de ${s}, le premier mot donne ${word}. Essaie un autre décalage !`,
+      shiftCorrect: (s, cheer) => `🎉 Bravo ! Le décalage était de ${s}. ${cheer}`,
+      shiftLost: s => `Pas cette fois — le décalage était de ${s}.`,
+      crackSteps: A => [
+        `Le chiffre de César fait avancer chaque lettre du même nombre de pas. Il n’y a que ${A.n - 1} décalages possibles — tu peux tous les essayer !`,
+        'Tourne la roue (− / +) et lis le code avec chaque décalage. Ligne du haut : lettre codée, ligne du bas : lettre du message.',
+        'Commence par un mot court — d’une, deux ou trois lettres. Il existe peu de vrais mots aussi courts.',
+        'Quand les mots commencent à avoir du sens, appuie sur <b>🔓 Vérifier</b>.',
+        `Tu bloques ? Si tu devines une lettre du message, compte les pas jusqu’à sa lettre codée (après ${last(A)}, on repart de ${L(A, 0)}).`],
+    },
+    sheet: {
+      appTitle: '🕵️ Détective des codes secrets — fiches à imprimer',
+      appSub: 'Des fiches A4 créées à partir d’une graine : un message et son code secret, coche le chiffre utilisé — ou trouve le décalage d’un chiffre de César. Pages de guide et de corrigé en option.',
+      allPuzzles: '🧩 Toutes les énigmes', playOnline: '🎮 Jouer en ligne',
+      seed: 'Graine', seedHint: 'Même graine + même niveau ⇒ fiche identique.', randomSeed: 'Graine au hasard',
+      level: 'Niveau', easyN: 'Facile · 3 chiffres', hardN: 'Difficile · 6 chiffres',
+      msgLang: 'Langue du message', msgLangHint: 'L’alphabet et les messages secrets dans cette langue ; les textes suivent la langue choisie en haut.',
+      cases: 'Affaires', casesHint: 'Environ 6 tiennent sur une page ; les autres passent sur les pages suivantes.',
+      options: 'Options', optSteps: 'Cases pour compter le décalage', optHints: 'Indices imprimés à l’envers en bas de page',
+      optGuide: 'Page du guide du détective', optKey: 'Page du corrigé',
+      optAlpha: 'Bande alphabet pour compter (aide pour les plus jeunes)',
+      newWorksheet: 'Nouvelle fiche', print: 'Imprimer / Enregistrer en PDF',
+      casesCount: n => frN(n, 'affaire', 'affaires'), pagesCount: n => frN(n, 'page', 'pages'),
+      partSheet: 'fiche', partGuide: 'guide', partKey: 'corrigé',
+      genError: 'Impossible de créer la fiche : ',
+      sheetTitle: '🕵️ Détective des codes secrets',
+      sheetSub: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · quel chiffre l’espion a-t-il utilisé ?`,
+      seedLabel: 'graine :', name: 'Nom :', date: 'Date :',
+      instr: 'Chaque message a été envoyé en code secret. Compare le message (en blanc) avec son code (en gris), trouve quel chiffre l’espion a utilisé et coche-le.',
+      instrSteps: A => ` Compte de combien de pas chaque lettre a avancé (${L(A, 0)}→${L(A, 1)}, c’est 1 ; après ${last(A)}, on repart de ${L(A, 0)}) et écris-le dans les petites cases.`,
+      caseN: i => `Affaire ${i}`, hintsFlip: 'Indices (retourne la feuille)',
+      guideTitle: '📖 Guide du détective', guideSub: level => `${level} · comment reconnaître les chiffres`,
+      checklist: A => [
+        `Compte de combien de pas chaque lettre a avancé dans l’alphabet (${L(A, 0)}→${L(A, 1)}, c’est 1 ; après ${last(A)}, on repart de ${L(A, 0)}) et écris-le sous la lettre codée.`,
+        `<b>Tous les pas sont-ils pareils ?</b> Oui → <b>César</b>. S’ils valent tous ${A.half} → <b>${rot(A)}</b>.`,
+        `<b>Les lettres sont-elles en miroir ?</b> ${mir3(A)} (numéro de la lettre + numéro codé = ${A.n - 1}) → <b>Atbash</b>.`,
+        '<b>Les pas se répètent-ils en cycle</b> de 3 ou 4 ? → <b>Vigenère</b>.',
+        '<b>La même lettre devient-elle toujours la même lettre codée</b>, mais les pas sautent sans cycle ? → <b>Affine</b>.',
+        '<b>Même lettre, lettres codées différentes et pas de cycle ?</b> → <b>Beaufort</b>.'],
+      keyTitle: '🔑 Corrigé', keySub: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · les nombres montrent de combien de pas chaque lettre a avancé`,
+      howToSpot: 'Comment le reconnaître :',
+      // fiches « Quel décalage ? »
+      taskType: 'Type d’exercice', modeWhich: '🔎 Quel chiffre ?', modeShift: '🔓 Quel décalage ?',
+      easyShift: 'Facile · première lettre donnée', hardShift: 'Difficile · aucune lettre donnée',
+      sheetSubShift: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · chiffre de César : de combien l’espion a-t-il décalé les lettres ?`,
+      instrShift: level => `Chaque message est écrit avec le chiffre de César, mais le décalage est secret. Trouve le décalage, écris-le dans le cadre, puis écris le message dans les cases blanches sous le code.${level === 'easy' ? ' La première lettre de chaque message est déjà écrite.' : ''}`,
+      shiftBox: 'Décalage :',
+      checklistShift: A => [
+        `Le chiffre de César fait avancer chaque lettre du même nombre de pas (après ${last(A)}, on repart de ${L(A, 0)}). Il n’y a que ${A.n - 1} décalages possibles.`,
+        'Tu connais une lettre du message ? Compte les pas jusqu’à sa lettre codée : c’est le décalage.',
+        'Aucune lettre donnée ? Commence par le mot codé le plus court et essaie des décalages jusqu’à obtenir un vrai mot.',
+        'Pour décoder, fais reculer chaque lettre codée du même nombre de pas.',
+        'Vérifie : tout le message doit avoir du sens.'],
+      guideSubShift: level => `${level} · comment trouver le décalage du chiffre de César`,
+      keySubShift: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · le décalage et le message`,
+    },
+  });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = T;
 })(typeof ENGINE !== 'undefined' ? ENGINE : require('./engine.js'));

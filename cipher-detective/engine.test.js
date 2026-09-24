@@ -1,6 +1,6 @@
 // Run with: node engine.test.js
 const E = require('./engine.js');
-require('./strings.js');   // registers the texts in E.TEXT (en, pl, uk, vi)
+require('./strings.js');   // registers the texts in E.TEXT (en, pl, uk, vi, fr)
 const LANGS = Object.keys(E.TEXT).sort();
 let fails = 0;
 const eq = (name, got, want) => { if (got !== want) { fails++; console.log('FAIL', name, '\n  got :', got, '\n  want:', want); } else console.log('ok  ', name); };
@@ -20,11 +20,12 @@ eq('beaufort reciprocal', E.decrypt('beaufort', 'CKMPVCPVWPIWUJOGIUAPVWRIWUUK', 
 eq('default language is English', E.encrypt('caesar', 'ABC', { shift: 1 }), 'BCD');
 
 // Other alphabets: shape and simple vectors
-eq('alphabet sizes', LANGS.map(l => l + '=' + E.alphabet(l).n).join(' '), 'en=26 pl=32 uk=33 vi=29');
-eq('half turns', LANGS.map(l => E.alphabet(l).half).join(','), '13,16,16,14');
+eq('alphabet sizes', LANGS.map(l => l + '=' + E.alphabet(l).n).join(' '), 'en=26 fr=26 pl=32 uk=33 vi=29');
+eq('half turns', LANGS.map(l => E.alphabet(l).half).join(','), '13,13,16,16,14');
 eq('polish caesar 1', E.encrypt('caesar', 'ŻABA', { shift: 1 }, 'pl'), 'AĄCĄ');
 eq('polish atbash', E.encrypt('atbash', 'AĄB', {}, 'pl'), 'ŻŹZ');
 eq('ukrainian atbash', E.encrypt('atbash', 'АБВ', {}, 'uk'), 'ЯЮЬ');
+eq('french caesar 3 (A–Z)', E.encrypt('caesar', 'BONJOUR ESPION', { shift: 3 }, 'fr'), 'ERQMRXU HVSLRQ');
 eq('vietnamese rot14', E.encrypt('rot14' in E.CIPHERS ? 'rot14' : 'rot13', 'AĂ', {}, 'vi'), 'MN');
 eq('non-letters pass through', E.encrypt('caesar', 'A-B C!', { shift: 1 }, 'pl'), 'Ą-C Ć!');
 for (const l of LANGS) for (const a of E.alphabet(l).affineA) eq(`${l}: affine a=${a} invertible`, (a * E.modInverse(a, E.alphabet(l).n)) % E.alphabet(l).n, 1);

@@ -13,14 +13,14 @@ Comes in two forms:
   detective's guide and answer-key pages. Print or Save as PDF from the browser.
 
 Both pages share **`engine.js`** (the puzzle engine, logic only) and **`strings.js`** (every
-user-facing text in Polish, English, Ukrainian and Vietnamese: cipher descriptions, hints,
+user-facing text in Polish, English, Ukrainian, Vietnamese and French: cipher descriptions, hints,
 explanations, "why not" notes, and the UI of both pages). The language helper is `../i18n.js`.
 
-There are **two language choices**: the flags in the header set the language of the game
-texts (hints, explanations, guide), and a second row of flags ("Message language") sets the
+There are **two language choices**: the dropdown in the header sets the language of the game
+texts (hints, explanations, guide), and a second dropdown ("Message language") sets the
 language of the secret messages and their alphabet. The message language follows the text
 language until you pick one explicitly; the choice is remembered (localStorage
-`cipherDetective.msgLang`) and can be forced with `?msg=pl|en|uk|vi`. Texts that name letters
+`cipherDetective.msgLang`) and can be forced with `?msg=pl|en|uk|vi|fr`. Texts that name letters
 or counts (ROT13 vs ROT16, A ↔ Z vs A ↔ Ż) are computed from the message alphabet, so any
 combination works, e.g. Ukrainian explanations for a Polish message.
 
@@ -32,6 +32,7 @@ Each language has its **own alphabet, message bank and key words**:
 | Polish | A Ą B C Ć … Z Ź Ż | 32 | ROT16 | 3, 5, 7, 11 |
 | Ukrainian | А Б В Г Ґ … Ю Я | 33 | ROT16 | 5, 7, 2, 4 |
 | Vietnamese | A Ă Â B … X Y (base letters, no tone marks) | 29 | ROT14 | 3, 5, 7, 11 |
+| French | A–Z (messages without accents or apostrophes: É → E) | 26 | ROT13 | 3, 5, 7, 11 |
 
 Letters are numbered 0 … n−1 in alphabet order; Caesar shifts are 1 … n−1 except the half-turn;
 Atbash mirrors the alphabet (first ↔ last); Affine uses `a` coprime with n. An **alphabet strip**
@@ -112,10 +113,18 @@ The same puzzle JSON (with `hint2`) is shown under "Puzzle JSON" after each answ
 
 Tests (reference vectors incl. the spec's Caesar example and textbook Vigenère/Beaufort/Affine
 results, round trips of every cipher × parameter × message, generator fuzzing through
-`validatePuzzle`, worksheet determinism, and text completeness in all four languages):
+`validatePuzzle`, worksheet determinism, and text completeness in all five languages):
 
 ```bash
 node engine.test.js
+```
+
+Caesar shift tests ("What shift?"): hand-counted vectors on every alphabet, every message × shift
+against an independent implementation, one readable shift per puzzle, hints and explanations
+matching the shift, shift worksheets, and robustness (a shift given as text, lower-case input):
+
+```bash
+node shift.test.js
 ```
 
 ---
