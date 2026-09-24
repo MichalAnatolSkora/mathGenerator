@@ -48,7 +48,7 @@ for (const lang of LANGS) {
     const p = E.generateShiftPuzzle({ rng: prng.rnd, lang });
     const s = p.params.shift;
     seen.add(s);
-    if (!Number.isInteger(s) || s < 1 || s > A.n - 1 || s === A.half) bad++;
+    if (!Number.isInteger(s) || s < 1 || s > A.n - 1) bad++;
     if (enc(p.plaintext, s, lang) !== p.ciphertext || dec(p.ciphertext, s, lang) !== p.plaintext) bad++;
     // exactly one shift turns the code into real words
     const good = [];
@@ -66,8 +66,8 @@ for (const lang of LANGS) {
       if (!tx.explanation.includes(String(s)) || !tx.explanation.includes(ex.p) || !tx.explanation.includes(ex.c)) text++;
     }
   }
-  eq(`${lang}: shifts are whole numbers 1…n−1, never the ROT half`, bad, 0);
-  eq(`${lang}: every allowed shift appears`, seen.size, A.n - 2);
+  eq(`${lang}: shifts are whole numbers 1…n−1`, bad, 0);
+  eq(`${lang}: every shift 1…n−1 appears, the half too`, seen.size, A.n - 1);
   eq(`${lang}: only one shift gives real words`, ambiguous, 0);
   eq(`${lang}: hints and explanation match the shift`, text, 0);
 }
@@ -96,6 +96,11 @@ for (const lang of LANGS) {
   const A = E.alphabet(lang);
   eq(`${lang}: validate accepts shift 3`, E.validatePuzzle(P(3, lang), 'easy').ok, true);
   for (const s of [0, A.n, -3, A.half, 2.5]) eq(`${lang}: validate rejects shift ${s}`, E.validatePuzzle({ ...P(s, lang), ciphertext: P(3, lang).ciphertext }, 'easy').ok, false);
+  const half = { ...P(A.half, lang), ciphertext: enc(P(3, lang).plaintext, A.half, lang) };
+  eq(`${lang}: "Which cipher?" rejects the half shift (that is ROT)`, E.validatePuzzle(half, 'easy').ok, false);
+  eq(`${lang}: "What shift?" accepts the half shift`, E.validatePuzzle({ ...half, mode: 'shift' }, 'easy').ok, true);
+  let halves = 0; for (let i = 0; i < 1000; i++) if (E.generatePuzzle('hard', { lang, cipher: 'caesar' }).params.shift === A.half) halves++;
+  eq(`${lang}: "Which cipher?" Caesar never uses the half`, halves, 0);
 }
 
 // Robustness: inputs the engine may get from outside (URL, JSON, typed text)
@@ -108,9 +113,9 @@ eq('letterPairs with lower-case message', E.letterPairs('abc', 'BCD', 'en').map(
 
 // Texts: the number of possible shifts told to the child
 for (const ui of LANGS) for (const ml of LANGS) {
-  const A = E.alphabet(ml), possible = A.n - 2;   // 1 … n−1 without the ROT half
-  const said = E.TEXT[ui].game.crackSteps(A)[0].match(/\d+/)[0];
-  eq(`${ui} text / ${ml} alphabet: "possible shifts" = ${possible}`, +said, possible);
+  const A = E.alphabet(ml), possible = A.n - 1;   // 1 … n−1
+  const said = [E.TEXT[ui].game.crackSteps(A)[0], E.TEXT[ui].sheet.checklistShift(A)[0]].map(x => +x.match(/\d+/)[0]).join(',');
+  eq(`${ui} text / ${ml} alphabet: "possible shifts" = ${possible}`, said, possible + ',' + possible);
 }
 
 console.log('\n' + (fails ? `FAILURES: ${fails}` : 'ALL PASSED'));

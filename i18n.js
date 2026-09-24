@@ -17,6 +17,30 @@ const I18N = (() => {
     { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
     { code: 'fr', flag: '🇫🇷', name: 'Français' },
   ];
+  /** Flags as small SVG pictures, for systems without flag emoji (Windows shows "PL", "GB"… instead). */
+  const svg = s => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20">${s}</svg>`);
+  const FLAG_SVG = {
+    pl: svg('<path fill="#fff" d="M0 0h30v10H0z"/><path fill="#dc143c" d="M0 10h30v10H0z"/>'),
+    en: svg('<path fill="#012169" d="M0 0h30v20H0z"/><path stroke="#fff" stroke-width="4" d="M0 0l30 20M30 0L0 20"/><path stroke="#c8102e" stroke-width="1.5" d="M0 0l30 20M30 0L0 20"/><path stroke="#fff" stroke-width="6" d="M15 0v20M0 10h30"/><path stroke="#c8102e" stroke-width="3.6" d="M15 0v20M0 10h30"/>'),
+    uk: svg('<path fill="#0057b7" d="M0 0h30v10H0z"/><path fill="#ffd700" d="M0 10h30v10H0z"/>'),
+    vi: svg('<path fill="#da251d" d="M0 0h30v20H0z"/><path fill="#ff0" d="M15 4l1.43 4.03 4.28.12-3.4 2.6 1.22 4.1L15 12.43l-3.53 2.42 1.22-4.1-3.4-2.6 4.28-.12z"/>'),
+    fr: svg('<path fill="#002395" d="M0 0h10v20H0z"/><path fill="#fff" d="M10 0h10v20H10z"/><path fill="#ed2939" d="M20 0h10v20H20z"/>'),
+  };
+  /** Does this system draw 🇵🇱 as a coloured flag? (Windows draws two grey letters.) */
+  function hasFlagEmoji() {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 32;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      x.font = '24px sans-serif'; x.textBaseline = 'top'; x.fillStyle = '#000'; x.fillText('🇵🇱', 0, 0);
+      const d = x.getImageData(0, 0, 32, 32).data;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] && d[i] - d[i + 2] > 60) return true;   // any red pixel
+      return false;
+    } catch (_) { return true; }
+  }
+  /** No flag emoji → where the browser can put pictures in a dropdown (Chromium's customizable select),
+   *  use the SVG flags; otherwise show names only rather than letter pairs. */
+  const flagMode = hasFlagEmoji() ? 'emoji'
+    : (window.CSS && CSS.supports('appearance', 'base-select') ? 'svg' : 'none');
   /** Accessible name of the page-language dropdown, in each language. */
   const LABEL = { pl: 'Język', en: 'Language', uk: 'Мова', vi: 'Ngôn ngữ', fr: 'Langue' };
   const DEFAULT = 'pl', KEY = 'lang';
@@ -51,9 +75,22 @@ const I18N = (() => {
     if (!sel) {
       nav.innerHTML = '';
       sel = document.createElement('select');
+      if (flagMode === 'svg') {   // the closed dropdown shows a copy of the chosen option, flag included
+        sel.className = 'pics';
+        const b = document.createElement('button');
+        b.appendChild(document.createElement('selectedcontent'));
+        sel.appendChild(b);
+      }
       LANGS.forEach(l => {
         const o = document.createElement('option');
-        o.value = l.code; o.textContent = `${l.flag} ${l.name}`; o.setAttribute('lang', l.code);
+        o.value = l.code; o.setAttribute('lang', l.code);
+        if (flagMode === 'svg') {
+          const img = document.createElement('img');
+          img.src = FLAG_SVG[l.code]; img.alt = ''; img.className = 'flag';
+          o.append(img, l.name);
+        } else {
+          o.textContent = flagMode === 'emoji' ? `${l.flag} ${l.name}` : l.name;
+        }
         sel.appendChild(o);
       });
       sel.addEventListener('change', () => sel._onSelect(sel.value));
@@ -107,7 +144,13 @@ const I18N = (() => {
   }
 
   const style = document.createElement('style');
-  style.textContent = '.langs,.flags{display:inline-flex;align-items:center}.langs select,.flags select{font:inherit;font-size:15px;color:#1e2436;background:#fff;border:2px solid #c5cbe0;border-radius:10px;padding:6px 10px;min-height:40px;max-width:100%;cursor:pointer}.langs select:hover,.flags select:hover{border-color:#4f5bd5}.langs select:focus-visible,.flags select:focus-visible{outline:3px solid #4f5bd5;outline-offset:1px}';
+  style.textContent = '.langs,.flags{display:inline-flex;align-items:center}.langs select,.flags select{font:inherit;font-size:15px;color:#1e2436;background:#fff;border:2px solid #c5cbe0;border-radius:10px;padding:6px 10px;min-height:40px;max-width:100%;cursor:pointer}.langs select:hover,.flags select:hover{border-color:#4f5bd5}.langs select:focus-visible,.flags select:focus-visible{outline:3px solid #4f5bd5;outline-offset:1px}'
+    + 'select.pics,select.pics::picker(select){appearance:base-select}select.pics{display:inline-flex;align-items:center}'
+    + 'select.pics::picker(select){border:2px solid #c5cbe0;border-radius:10px;padding:4px;background:#fff;box-shadow:0 6px 18px rgba(30,36,54,.18)}'
+    + 'select.pics option{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:15px;color:#1e2436}'
+    + 'select.pics option:hover,select.pics option:focus-visible{background:#eef0fb}select.pics option:checked{font-weight:600}'
+    + 'select.pics option::checkmark{display:none}select.pics selectedcontent{display:inline-flex;align-items:center;gap:8px}'
+    + 'select.pics .flag{width:21px;height:14px;flex:none;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15)}';
   document.head.appendChild(style);
   document.documentElement.lang = lang;
   document.addEventListener('DOMContentLoaded', () => { renderSwitchers(); decorateLinks(); });

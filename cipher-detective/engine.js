@@ -174,7 +174,8 @@ const ENGINE = (() => {
   const CIPHERS = {
     caesar: {
       level: 'easy', icon: '🏛️',
-      params(rng, A) { let s; do { s = 1 + Math.floor(rng() * (A.n - 1)); } while (s === A.half); return { shift: s }; },
+      // the half turn is ROT13's, so "Which cipher?" never uses it; "What shift?" (anyHalf) may
+      params(rng, A, B, anyHalf) { let s; do { s = 1 + Math.floor(rng() * (A.n - 1)); } while (!anyHalf && s === A.half); return { shift: s }; },
       enc: (p, { shift }, A) => mapLetters(p, x => x + Number(shift), A),   // Number(): a shift from JSON/URL may be "3"
       dec: (c, { shift }, A) => mapLetters(c, x => x - Number(shift), A),
     },
@@ -277,7 +278,10 @@ const ENGINE = (() => {
       const back = c.dec(puzzle.ciphertext, puzzle.params, A);
       if (back !== puzzle.plaintext) errors.push(`decrypting the ciphertext gives "${back}", not the plaintext`);
       if (puzzle.ciphertext === puzzle.plaintext) errors.push('ciphertext equals plaintext');
-      if (puzzle.cipher_id === 'caesar' && (puzzle.params.shift < 1 || puzzle.params.shift > A.n - 1 || puzzle.params.shift === A.half)) errors.push('bad Caesar shift');
+      if (puzzle.cipher_id === 'caesar') {
+        const s = puzzle.params.shift;
+        if (!Number.isInteger(s) || s < 1 || s > A.n - 1 || (s === A.half && puzzle.mode !== 'shift')) errors.push('bad Caesar shift');
+      }
       if (puzzle.cipher_id === 'affine' && gcd(puzzle.params.a, A.n) !== 1) errors.push('bad Affine a');
       if (puzzle.params && puzzle.params.key !== undefined) {
         const k = [...puzzle.params.key];
@@ -311,12 +315,12 @@ const ENGINE = (() => {
       if (!ids.length) ids = allowed;
       const cipher_id = pick(ids, rng);
       const cipher = CIPHERS[cipher_id];
-      const params = cipher.params(rng, A, B);
+      const params = cipher.params(rng, A, B, opts.mode === 'shift');
       let msgs = B.messages.filter(m => !excluded.has(m));
       if (!msgs.length) msgs = B.messages;
       const plaintext = pick(msgs, rng);
       const ciphertext = cipher.enc(plaintext, params, A);
-      const puzzle = { cipher_id, params, plaintext, ciphertext, lang };
+      const puzzle = { cipher_id, params, plaintext, ciphertext, lang, ...(opts.mode === 'shift' ? { mode: 'shift' } : {}) };
       const v = validatePuzzle(puzzle, level);
       if (v.ok) {
         const text = puzzleText(puzzle, lang);
@@ -336,7 +340,7 @@ const ENGINE = (() => {
   }
   /** A Caesar puzzle where the child has to find the shift (opts as in generatePuzzle, `cipher` is ignored). */
   function generateShiftPuzzle(opts = {}) {
-    const p = generatePuzzle('easy', { ...opts, cipher: 'caesar', avoidCipher: null });
+    const p = generatePuzzle('easy', { ...opts, cipher: 'caesar', avoidCipher: null, mode: 'shift' });
     const text = shiftText(p, p.lang);
     return { ...p, mode: 'shift', hint: text.hints[0], hints: text.hints, explanation: text.explanation };
   }
