@@ -174,8 +174,13 @@ const ENGINE = (() => {
   const CIPHERS = {
     caesar: {
       level: 'easy', icon: '🏛️',
-      // the half turn is ROT13's, so "Which cipher?" never uses it; "What shift?" (anyHalf) may
-      params(rng, A, B, anyHalf) { let s; do { s = 1 + Math.floor(rng() * (A.n - 1)); } while (!anyHalf && s === A.half); return { shift: s }; },
+      // o.shifts: pick from this list (easy "What shift?"); otherwise 1 … n−1. The half turn is ROT13's,
+      // so "Which cipher?" never uses it; "What shift?" (o.mode 'shift') may. o.avoidShift: not this one.
+      params(rng, A, B, o = {}) {
+        const ok = s => s !== o.avoidShift && (o.mode === 'shift' || s !== A.half);
+        if (o.shifts) { const list = o.shifts.filter(ok); return { shift: pick(list.length ? list : o.shifts, rng) }; }
+        let s; do { s = 1 + Math.floor(rng() * (A.n - 1)); } while (!ok(s)); return { shift: s };
+      },
       enc: (p, { shift }, A) => mapLetters(p, x => x + Number(shift), A),   // Number(): a shift from JSON/URL may be "3"
       dec: (c, { shift }, A) => mapLetters(c, x => x - Number(shift), A),
     },
@@ -315,7 +320,7 @@ const ENGINE = (() => {
       if (!ids.length) ids = allowed;
       const cipher_id = pick(ids, rng);
       const cipher = CIPHERS[cipher_id];
-      const params = cipher.params(rng, A, B, opts.mode === 'shift');
+      const params = cipher.params(rng, A, B, opts);
       let msgs = B.messages.filter(m => !excluded.has(m));
       if (!msgs.length) msgs = B.messages;
       const plaintext = pick(msgs, rng);
@@ -338,9 +343,13 @@ const ENGINE = (() => {
     const shortest = puzzle.ciphertext.split(' ').filter(Boolean).reduce((a, w) => [...w].length < [...a].length ? w : a);
     return { hints: t.hints(puzzle.params.shift, ex, shortest, A), explanation: t.explain(puzzle.params.shift, ex, A) };
   }
-  /** A Caesar puzzle where the child has to find the shift (opts as in generatePuzzle, `cipher` is ignored). */
+  /** Shifts on the easy "What shift?" level: small enough to count on fingers, and more than the 3 tries. */
+  const EASY_SHIFTS = [3, 4, 5, 6, 7, 8, 9];
+  /** A Caesar puzzle where the child has to find the shift (opts as in generatePuzzle, `cipher` is ignored).
+   *  opts.level 'easy' → shift from EASY_SHIFTS, otherwise any 1 … n−1; opts.avoidShift — not this shift. */
   function generateShiftPuzzle(opts = {}) {
-    const p = generatePuzzle('easy', { ...opts, cipher: 'caesar', avoidCipher: null, mode: 'shift' });
+    const shifts = opts.level === 'easy' ? EASY_SHIFTS : null;
+    const p = generatePuzzle('easy', { ...opts, cipher: 'caesar', avoidCipher: null, mode: 'shift', shifts });
     const text = shiftText(p, p.lang);
     return { ...p, mode: 'shift', hint: text.hints[0], hints: text.hints, explanation: text.explanation };
   }
@@ -407,7 +416,8 @@ const ENGINE = (() => {
    * A printable worksheet: `count` distinct cases for `level` in `lang`, reproducible from `seed`.
    * The same seed + level + language gives the same sequence of cases, so a longer worksheet
    * starts with the same cases as a shorter one. Ciphers are dealt evenly (shuffled rounds),
-   * and no message repeats. mode 'shift' ("What shift?") deals Caesar cases only, for finding the shift.
+   * and no message repeats. mode 'shift' ("What shift?") deals Caesar cases only, for finding the shift
+   * (easy: shifts from EASY_SHIFTS).
    */
   function generateWorksheet(seed, level, count, lang, mode) {
     const allowed = LEVELS[level];
@@ -421,7 +431,7 @@ const ENGINE = (() => {
     for (let i = 0; i < count; i++) {
       if (shift) {   // "What shift?": Caesar only, never the same shift twice in a row
         let p;
-        do p = generateShiftPuzzle({ rng: prng.rnd, excludeMessages: used, lang }); while (last !== null && p.params.shift === last);
+        do p = generateShiftPuzzle({ rng: prng.rnd, excludeMessages: used, lang, level }); while (last !== null && p.params.shift === last);
         used.add(p.plaintext); last = p.params.shift;
         cases.push(p);
         continue;
@@ -439,7 +449,7 @@ const ENGINE = (() => {
   }
 
   return { CIPHERS, LEVELS, ALPHABETS, BANK, TEXT, alphabet, bank, textFor, encrypt, decrypt, letterPairs, example,
-           puzzleText, shiftText, generateShiftPuzzle, cipherInfo, cipherName, cipherFull, resolve, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
+           puzzleText, shiftText, generateShiftPuzzle, EASY_SHIFTS, cipherInfo, cipherName, cipherFull, resolve, generatePuzzle, validatePuzzle, checkMessage, whyNot, makePRNG, generateWorksheet, mod, modInverse };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = ENGINE;

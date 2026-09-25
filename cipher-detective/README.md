@@ -34,7 +34,7 @@ Each language has its **own alphabet, message bank and key words**:
 | Vietnamese | A Ă Â B … X Y (base letters, no tone marks) | 29 | ROT14 | 3, 5, 7, 11 |
 | French | A–Z (messages without accents or apostrophes: É → E) | 26 | ROT13 | 3, 5, 7, 11 |
 
-Letters are numbered 0 … n−1 in alphabet order; Caesar shifts are 1 … n−1 except the half-turn (that one is ROT13's) — in "What shift?" the half-turn is allowed too;
+Letters are numbered 0 … n−1 in alphabet order; Caesar shifts are 1 … n−1 except the half-turn (that one is ROT13's) — in "What shift?" the half-turn is allowed too, and the easy level uses shifts 3–9 (`EASY_SHIFTS`);
 Atbash mirrors the alphabet (first ↔ last); Affine uses `a` coprime with n. An **alphabet strip**
 (🔤) with the letter numbers is available in the game and on the worksheets as help for younger
 kids. No build, no dependencies, no network. Works from `file://`, from any static server, and on

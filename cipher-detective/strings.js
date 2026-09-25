@@ -25,6 +25,7 @@
   const rotPair = A => { const ar = even(A) ? '↔' : '→'; return `${L(A, 0)} ${ar} ${A.at(A.half)}, ${L(A, 1)} ${ar} ${A.at(A.half + 1)}`; };
   const numbering = A => `${L(A, 0)}=0, ${L(A, 1)}=1 … ${last(A)}=${A.n - 1}`;
   const range = A => `${L(A, 0)}=0 … ${last(A)}=${A.n - 1}`;
+  const easyLo = E.EASY_SHIFTS[0], easyHi = E.EASY_SHIFTS[E.EASY_SHIFTS.length - 1];   // easy "What shift?" range
   /** Polish/Ukrainian plural: one (1), few (2–4 except 12–14), many (rest). */
   const slav = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; if (n === 1) return one; if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return few; return many; };
   /** French typography: a non-breaking space before ! ? : ; so they never start a line. Applied to a
@@ -154,7 +155,7 @@
         '<b>Same letter, different code letters, and no cycle?</b> → <b>Beaufort</b>.'],
       letterNumbers: 'Letter numbers:', howToSpot: 'How to spot it: ',
       modeLabel: 'Game mode', modeWhich: '🔎 Which cipher?', modeShift: '🔓 What shift?',
-      leadShift: level => `The spy used the Caesar cipher, but you don't know the shift — how many steps every letter moved. Find it and read the message! ${level === 'hard' ? 'Hard level: the message appears only when you get it right. Use the wheel: find the code letter in the top row and read the letter under it.' : 'Turn the wheel until real words appear.'}`,
+      leadShift: level => `The spy used the Caesar cipher, but you don't know the shift — how many steps every letter moved. Find it and read the message! ${level === 'hard' ? 'Hard level: the message appears only when you get it right. Use the wheel: find the code letter in the top row and read the letter under it.' : `On the easy level the shift is between ${easyLo} and ${easyHi}. Turn the wheel until real words appear.`}`,
       legendGuess: 'Your try',
       whatShift: 'What was the shift?',
       shiftLabel: 'Shift', shiftDown: 'Smaller shift', shiftUp: 'Bigger shift',
@@ -206,7 +207,7 @@
       taskType: 'Task', modeWhich: '🔎 Which cipher?', modeShift: '🔓 What shift?',
       easyShift: 'Easy · first letter given', hardShift: 'Hard · no letters given',
       sheetSubShift: (level, n) => `${level} · ${n} case${n === 1 ? '' : 's'} · Caesar cipher: how far did the spy shift the letters?`,
-      instrShift: level => `Every message is in the Caesar cipher, but the shift is a secret. Find the shift, write it in the box, and write the message in the white boxes under the code.${level === 'easy' ? ' The first letter of each message is already there.' : ''}`,
+      instrShift: level => `Every message is in the Caesar cipher, but the shift is a secret. Find the shift, write it in the box, and write the message in the white boxes under the code.${level === 'easy' ? ` The first letter of each message is already there. On the easy level the shift is between ${easyLo} and ${easyHi}.` : ''}`,
       shiftBox: 'Shift:',
       checklistShift: A => [
         `The Caesar cipher moves every letter the same number of steps forward (after ${last(A)} comes ${L(A, 0)} again). There are only ${A.n - 1} possible shifts.`,
@@ -336,7 +337,7 @@
         '<b>Ta sama litera, różne litery szyfru i brak cyklu?</b> → <b>Beaufort</b>.'],
       letterNumbers: 'Numery liter:', howToSpot: 'Jak go rozpoznać: ',
       modeLabel: 'Tryb gry', modeWhich: '🔎 Jaki szyfr?', modeShift: '🔓 Jakie przesunięcie?',
-      leadShift: level => `Szpieg użył szyfru Cezara, ale nie wiesz, o ile miejsc przesunął litery. Znajdź przesunięcie i odczytaj wiadomość! ${level === 'hard' ? 'Poziom trudny: wiadomość pojawi się dopiero, gdy trafisz. Użyj koła: znajdź literę szyfru w górnym rzędzie i odczytaj literę pod nią.' : 'Kręć kołem, aż pojawią się prawdziwe słowa.'}`,
+      leadShift: level => `Szpieg użył szyfru Cezara, ale nie wiesz, o ile miejsc przesunął litery. Znajdź przesunięcie i odczytaj wiadomość! ${level === 'hard' ? 'Poziom trudny: wiadomość pojawi się dopiero, gdy trafisz. Użyj koła: znajdź literę szyfru w górnym rzędzie i odczytaj literę pod nią.' : `Na poziomie łatwym przesunięcie jest między ${easyLo} a ${easyHi}. Kręć kołem, aż pojawią się prawdziwe słowa.`}`,
       legendGuess: 'Twoja próba',
       whatShift: 'Jakie było przesunięcie?',
       shiftLabel: 'Przesunięcie', shiftDown: 'Mniejsze przesunięcie', shiftUp: 'Większe przesunięcie',
@@ -388,7 +389,7 @@
       taskType: 'Rodzaj zadań', modeWhich: '🔎 Jaki szyfr?', modeShift: '🔓 Jakie przesunięcie?',
       easyShift: 'Łatwy · pierwsza litera podana', hardShift: 'Trudny · bez podanych liter',
       sheetSubShift: (level, n) => `${level} · ${slav(n, '1 zagadka', `${n} zagadki`, `${n} zagadek`)} · szyfr Cezara: o ile szpieg przesunął litery?`,
-      instrShift: level => `Każda wiadomość jest zapisana szyfrem Cezara, ale przesunięcie jest tajne. Znajdź przesunięcie, wpisz je w ramkę, a wiadomość wpisz w białe kratki pod szyfrem.${level === 'easy' ? ' Pierwsza litera każdej wiadomości jest już wpisana.' : ''}`,
+      instrShift: level => `Każda wiadomość jest zapisana szyfrem Cezara, ale przesunięcie jest tajne. Znajdź przesunięcie, wpisz je w ramkę, a wiadomość wpisz w białe kratki pod szyfrem.${level === 'easy' ? ` Pierwsza litera każdej wiadomości jest już wpisana. Na poziomie łatwym przesunięcie jest między ${easyLo} a ${easyHi}.` : ''}`,
       shiftBox: 'Przesunięcie:',
       checklistShift: A => [
         `Szyfr Cezara przesuwa każdą literę o tyle samo miejsc do przodu (po ${last(A)} znowu jest ${L(A, 0)}). Możliwych przesunięć jest tylko ${A.n - 1}.`,
@@ -518,7 +519,7 @@
         '<b>Та сама літера, різні літери шифру і без циклу?</b> → <b>Бофор</b>.'],
       letterNumbers: 'Номери літер:', howToSpot: 'Як його впізнати: ',
       modeLabel: 'Режим гри', modeWhich: '🔎 Який шифр?', modeShift: '🔓 Який зсув?',
-      leadShift: level => `Шпигун використав шифр Цезаря, але ти не знаєш, на скільки кроків він зсунув літери. Знайди зсув і прочитай повідомлення! ${level === 'hard' ? 'Складний рівень: повідомлення з’явиться, лише коли вгадаєш. Користуйся колесом: знайди літеру шифру у верхньому ряду й прочитай літеру під нею.' : 'Крути колесо, доки не з’являться справжні слова.'}`,
+      leadShift: level => `Шпигун використав шифр Цезаря, але ти не знаєш, на скільки кроків він зсунув літери. Знайди зсув і прочитай повідомлення! ${level === 'hard' ? 'Складний рівень: повідомлення з’явиться, лише коли вгадаєш. Користуйся колесом: знайди літеру шифру у верхньому ряду й прочитай літеру під нею.' : `На легкому рівні зсув — від ${easyLo} до ${easyHi}. Крути колесо, доки не з’являться справжні слова.`}`,
       legendGuess: 'Твоя спроба',
       whatShift: 'Який був зсув?',
       shiftLabel: 'Зсув', shiftDown: 'Менший зсув', shiftUp: 'Більший зсув',
@@ -570,7 +571,7 @@
       taskType: 'Тип завдань', modeWhich: '🔎 Який шифр?', modeShift: '🔓 Який зсув?',
       easyShift: 'Легкий · перша літера дана', hardShift: 'Складний · без підказаних літер',
       sheetSubShift: (level, n) => `${level} · ${slav(n, '1 справа', `${n} справи`, `${n} справ`)} · шифр Цезаря: на скільки шпигун зсунув літери?`,
-      instrShift: level => `Кожне повідомлення записане шифром Цезаря, але зсув таємний. Знайди зсув, впиши його в рамку, а повідомлення впиши в білі клітинки під шифром.${level === 'easy' ? ' Перша літера кожного повідомлення вже вписана.' : ''}`,
+      instrShift: level => `Кожне повідомлення записане шифром Цезаря, але зсув таємний. Знайди зсув, впиши його в рамку, а повідомлення впиши в білі клітинки під шифром.${level === 'easy' ? ` Перша літера кожного повідомлення вже вписана. На легкому рівні зсув — від ${easyLo} до ${easyHi}.` : ''}`,
       shiftBox: 'Зсув:',
       checklistShift: A => [
         `Шифр Цезаря зсуває кожну літеру на однакову кількість кроків уперед (після ${last(A)} знову йде ${L(A, 0)}). Можливих зсувів лише ${A.n - 1}.`,
@@ -700,7 +701,7 @@
         '<b>Cùng chữ cái, khác chữ mã hóa, và không có chu kỳ?</b> → <b>Beaufort</b>.'],
       letterNumbers: 'Số của chữ cái:', howToSpot: 'Cách nhận ra: ',
       modeLabel: 'Chế độ chơi', modeWhich: '🔎 Mật mã nào?', modeShift: '🔓 Dịch bao nhiêu?',
-      leadShift: level => `Điệp viên đã dùng mật mã Caesar, nhưng bạn không biết mỗi chữ cái dịch đi bao nhiêu bước. Hãy tìm bước dịch và đọc tin nhắn! ${level === 'hard' ? 'Mức khó: tin nhắn chỉ hiện ra khi bạn đoán đúng. Dùng bánh xe: tìm chữ mã hóa ở hàng trên và đọc chữ ở bên dưới.' : 'Xoay bánh xe cho đến khi hiện ra những từ thật.'}`,
+      leadShift: level => `Điệp viên đã dùng mật mã Caesar, nhưng bạn không biết mỗi chữ cái dịch đi bao nhiêu bước. Hãy tìm bước dịch và đọc tin nhắn! ${level === 'hard' ? 'Mức khó: tin nhắn chỉ hiện ra khi bạn đoán đúng. Dùng bánh xe: tìm chữ mã hóa ở hàng trên và đọc chữ ở bên dưới.' : `Ở mức dễ, bước dịch nằm trong khoảng từ ${easyLo} đến ${easyHi}. Xoay bánh xe cho đến khi hiện ra những từ thật.`}`,
       legendGuess: 'Lần thử của bạn',
       whatShift: 'Bước dịch là bao nhiêu?',
       shiftLabel: 'Bước dịch', shiftDown: 'Bước dịch nhỏ hơn', shiftUp: 'Bước dịch lớn hơn',
@@ -752,7 +753,7 @@
       taskType: 'Loại bài', modeWhich: '🔎 Mật mã nào?', modeShift: '🔓 Dịch bao nhiêu?',
       easyShift: 'Dễ · cho sẵn chữ đầu', hardShift: 'Khó · không cho chữ nào',
       sheetSubShift: (level, n) => `${level} · ${n} vụ án · mật mã Caesar: điệp viên dịch các chữ cái bao nhiêu bước?`,
-      instrShift: level => `Mỗi tin nhắn được viết bằng mật mã Caesar, nhưng bước dịch là bí mật. Hãy tìm bước dịch, viết vào ô, rồi viết tin nhắn vào các ô trắng dưới bản mã.${level === 'easy' ? ' Chữ cái đầu tiên của mỗi tin nhắn đã được viết sẵn.' : ''}`,
+      instrShift: level => `Mỗi tin nhắn được viết bằng mật mã Caesar, nhưng bước dịch là bí mật. Hãy tìm bước dịch, viết vào ô, rồi viết tin nhắn vào các ô trắng dưới bản mã.${level === 'easy' ? ` Chữ cái đầu tiên của mỗi tin nhắn đã được viết sẵn. Ở mức dễ, bước dịch nằm trong khoảng từ ${easyLo} đến ${easyHi}.` : ''}`,
       shiftBox: 'Bước dịch:',
       checklistShift: A => [
         `Mật mã Caesar dịch mỗi chữ cái tiến cùng một số bước (sau ${last(A)} lại là ${L(A, 0)}). Chỉ có ${A.n - 1} bước dịch có thể.`,
@@ -884,7 +885,7 @@
         '<b>Même lettre, lettres codées différentes et pas de cycle ?</b> → <b>Beaufort</b>.'],
       letterNumbers: 'Numéros des lettres :', howToSpot: 'Comment le reconnaître : ',
       modeLabel: 'Mode de jeu', modeWhich: '🔎 Quel chiffre ?', modeShift: '🔓 Quel décalage ?',
-      leadShift: level => `L’espion a utilisé le chiffre de César, mais tu ne connais pas le décalage — de combien de pas chaque lettre a avancé. Trouve-le et lis le message ! ${level === 'hard' ? 'Niveau difficile : le message n’apparaît que quand tu as trouvé. Sers-toi de la roue : cherche la lettre codée sur la ligne du haut et lis la lettre en dessous.' : 'Tourne la roue jusqu’à voir apparaître de vrais mots.'}`,
+      leadShift: level => `L’espion a utilisé le chiffre de César, mais tu ne connais pas le décalage — de combien de pas chaque lettre a avancé. Trouve-le et lis le message ! ${level === 'hard' ? 'Niveau difficile : le message n’apparaît que quand tu as trouvé. Sers-toi de la roue : cherche la lettre codée sur la ligne du haut et lis la lettre en dessous.' : `Au niveau facile, le décalage est entre ${easyLo} et ${easyHi}. Tourne la roue jusqu’à voir apparaître de vrais mots.`}`,
       legendGuess: 'Ton essai',
       whatShift: 'Quel était le décalage ?',
       shiftLabel: 'Décalage', shiftDown: 'Décalage plus petit', shiftUp: 'Décalage plus grand',
@@ -936,7 +937,7 @@
       taskType: 'Type d’exercice', modeWhich: '🔎 Quel chiffre ?', modeShift: '🔓 Quel décalage ?',
       easyShift: 'Facile · première lettre donnée', hardShift: 'Difficile · aucune lettre donnée',
       sheetSubShift: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · chiffre de César : de combien l’espion a-t-il décalé les lettres ?`,
-      instrShift: level => `Chaque message est écrit avec le chiffre de César, mais le décalage est secret. Trouve le décalage, écris-le dans le cadre, puis écris le message dans les cases blanches sous le code.${level === 'easy' ? ' La première lettre de chaque message est déjà écrite.' : ''}`,
+      instrShift: level => `Chaque message est écrit avec le chiffre de César, mais le décalage est secret. Trouve le décalage, écris-le dans le cadre, puis écris le message dans les cases blanches sous le code.${level === 'easy' ? ` La première lettre de chaque message est déjà écrite. Au niveau facile, le décalage est entre ${easyLo} et ${easyHi}.` : ''}`,
       shiftBox: 'Décalage :',
       checklistShift: A => [
         `Le chiffre de César fait avancer chaque lettre du même nombre de pas (après ${last(A)}, on repart de ${L(A, 0)}). Il n’y a que ${A.n - 1} décalages possibles.`,

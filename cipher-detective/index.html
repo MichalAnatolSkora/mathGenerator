@@ -313,7 +313,7 @@
     mode: 'which',                          // 'which' = which cipher?  'shift' = Caesar is known, find the shift
     trial: 1, wrong: 0, tryFb: '',          // "What shift?": shift on the wheel, wrong checks, feedback for the last one
     msgLang: null, msgLangExplicit: false,   // language of the secret message + alphabet; null = same as the page language
-    last: { cipher: null, msg: null },
+    last: { cipher: null, msg: null, shift: null },
     stats: { stars: 0, solved: 0, played: 0, streak: 0, best: 0 },
   };
 
@@ -552,9 +552,9 @@
   // ---------- game flow ----------
   function newCase() {
     state.puzzle = state.mode === 'shift'
-      ? ENGINE.generateShiftPuzzle({ avoidMessage: state.last.msg, lang: state.msgLang })
+      ? ENGINE.generateShiftPuzzle({ avoidMessage: state.last.msg, avoidShift: state.last.shift, level: state.level, lang: state.msgLang })
       : ENGINE.generatePuzzle(state.level, { avoidCipher: state.last.cipher, avoidMessage: state.last.msg, lang: state.msgLang });
-    state.last = { cipher: state.puzzle.cipher_id, msg: state.puzzle.plaintext };
+    state.last = { cipher: state.puzzle.cipher_id, msg: state.puzzle.plaintext, shift: state.puzzle.params.shift };
     state.caseNo++;
     state.hintsUsed = 0;
     state.answered = false;

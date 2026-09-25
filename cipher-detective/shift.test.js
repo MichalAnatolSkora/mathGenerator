@@ -72,6 +72,35 @@ for (const lang of LANGS) {
   eq(`${lang}: hints and explanation match the shift`, text, 0);
 }
 
+// Easy level: small shifts only (3–9), never the same one twice in a row in the game
+eq('easy shifts are 3–9', E.EASY_SHIFTS.join(','), '3,4,5,6,7,8,9');
+eq('easy has more shifts than the 3 tries', E.EASY_SHIFTS.length > 3, true);
+for (const lang of LANGS) {
+  const prng = E.makePRNG('easy-' + lang), seen = new Set();
+  let bad = 0, repeats = 0, last = null, big = 0;
+  for (let i = 0; i < 1000; i++) {
+    const p = E.generateShiftPuzzle({ rng: prng.rnd, lang, level: 'easy', avoidShift: last });
+    const s = p.params.shift;
+    seen.add(s);
+    if (!E.EASY_SHIFTS.includes(s) || !E.validatePuzzle(p, 'easy').ok || dec(p.ciphertext, s, lang) !== p.plaintext) bad++;
+    if (s === last) repeats++;
+    last = s;
+    if (E.generateShiftPuzzle({ rng: prng.rnd, lang, level: 'hard' }).params.shift > 9) big++;
+  }
+  eq(`${lang}: easy shifts only from 3–9`, bad, 0);
+  eq(`${lang}: easy uses all of 3–9`, [...seen].sort((a, b) => a - b).join(','), '3,4,5,6,7,8,9');
+  eq(`${lang}: avoidShift — no shift twice in a row`, repeats, 0);
+  eq(`${lang}: hard still uses big shifts`, big > 500, true);
+  let sheet = 0;
+  for (let i = 0; i < 50; i++) for (const c of E.generateWorksheet('E' + i, 'easy', 10, lang, 'shift').cases) if (!E.EASY_SHIFTS.includes(c.params.shift)) sheet++;
+  eq(`${lang}: easy shift worksheets use 3–9`, sheet, 0);
+}
+// Easy texts tell the child the range; hard texts do not
+for (const ui of LANGS) {
+  const G = E.TEXT[ui].game, S = E.TEXT[ui].sheet, has = x => x.includes('3') && x.includes('9');
+  eq(`${ui}: easy game and worksheet say 3–9, hard do not`, [has(G.leadShift('easy')), has(S.instrShift('easy')), has(G.leadShift('hard')), has(S.instrShift('hard'))].join(','), 'true,true,false,false');
+}
+
 // Worksheets in "What shift?" mode
 for (const lang of LANGS) {
   let bad = 0;
