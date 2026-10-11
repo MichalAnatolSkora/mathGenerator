@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nauka zegara — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: odczytaj godzinę z zegara ze wskazówkami albo narysuj wskazówki. Z rozwiązaniami.">
+<style>
+  :root{
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#4f5bd5; --accent-d:#3d48b8;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  button{font:inherit;}
+  .appbar{padding:12px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+  .appbar .grow{flex:1 1 auto;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid #ccd2dd;border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .row{display:flex;gap:8px;align-items:center;}
+  input[type=text]{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  #randSeed{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;}
+  .presets button{font-size:12.5px;min-height:38px;padding:6px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:6px 0;min-height:32px;}
+  .check input{width:18px;height:18px;flex:0 0 auto;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;}
+  button.primary:hover{background:var(--accent-d);}
+  button.ghost{padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;}
+  button.ghost:hover{border-color:var(--accent);}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---- sheets (A4: 210 × 297 mm, 12 mm margins ⇒ 186 × 273 mm to draw on) ---- */
+  .stage{flex:1;min-width:0;}
+  .sheetscroll{overflow-x:auto;}
+  .sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:12mm;margin:0 auto 18px;width:210mm;max-width:100%;color:#111;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:10px;}
+  .title{font-size:20px;font-weight:800;}
+  .subtitle{font-size:12.5px;color:var(--muted);}
+  .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:3px;}
+  .namebox{flex:0 0 230px;border:1px solid #bbb;border-radius:6px;padding:6px 12px;font-size:12.5px;color:#555;line-height:2.1;}
+  .instr{font-size:12.5px;color:#333;margin:0 0 4mm;}
+  .grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap,5mm) 4mm;}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:1.5mm;break-inside:avoid;page-break-inside:avoid;position:relative;}
+  .cell .no{position:absolute;left:0;top:0;font-weight:800;font-size:12px;color:#444;}
+  .cell svg{display:block;width:var(--clock);height:var(--clock);}
+  .per{font-size:11.5px;font-weight:700;color:#333;line-height:1.2;}
+  .boxes{--box:min(8mm,calc(var(--clock) * .2));display:flex;align-items:center;gap:calc(var(--box) * .12);font:800 calc(var(--box) * .75)/1 ui-monospace,Menlo,Consolas,monospace;}
+  .boxes span{display:inline-block;width:var(--box);height:calc(var(--box) * 1.08);border:0.4mm solid #222;border-radius:1mm;}
+  .given{text-align:center;line-height:1.15;}
+  .given b{display:block;font:800 5.5mm/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  .given small{display:block;font-size:11px;color:#333;font-weight:600;}
+  .legend{display:flex;justify-content:center;gap:4px 16px;flex-wrap:wrap;font-size:11px;color:#444;margin:0 0 4mm;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{display:inline-block;background:#1b1b1f;border-radius:2px;}
+  .legend i.h{width:4mm;height:1.6mm;}
+  .legend i.m{width:7mm;height:1mm;}
+
+  /* key page */
+  .key .cell{gap:0.5mm;}
+  .key .ans{font:800 13px/1.15 ui-monospace,Menlo,Consolas,monospace;text-align:center;}
+  .key .ans small{display:block;font:600 10px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#444;}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+    input[type=text]{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+    .sheet{padding:14px 10px;}
+    .sheet-head{flex-wrap:wrap;gap:10px;}
+    .namebox{flex:1 1 100%;}
+    .grid{--clock:min(var(--clockmax),calc((100vw - 64px) / var(--cols) - 3mm)) !important;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{background:#fff;}
+    .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .stage{width:100%;}
+    .sheetscroll{overflow:visible;}
+    .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;width:auto;max-width:none;}
+    .sheet + .sheet{page-break-before:always;break-before:page;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🕐 Nauka zegara — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <a class="navlink" href="index.html" data-keep-lang data-i18n="playOnline">🎮 Graj online</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2 data-i18n="seed">Kod karty</h2>
+      <div class="row">
+        <input type="text" id="seed" autocomplete="off" spellcheck="false" data-i18n-attr="aria-label:seed">
+        <button type="button" id="randSeed" data-i18n-attr="title:randomSeed,aria-label:randomSeed">🎲</button>
+      </div>
+      <div class="hint" data-i18n="seedHint"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="task">Zadanie</h2>
+      <div class="presets" id="tasks"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="level">Poziom</h2>
+      <div class="presets" id="levels"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="count">Liczba zegarów</h2>
+      <div class="presets" id="counts"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="options">Opcje</h2>
+      <label class="check"><input type="checkbox" id="optMinutes" checked> <span data-i18n="optMinutes"></span></label>
+      <label class="check"><input type="checkbox" id="opt24"> <span data-i18n="opt24"></span></label>
+      <label class="check"><input type="checkbox" id="optWords" checked> <span data-i18n="optWords"></span></label>
+      <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="newBtn" data-i18n="newWorksheet"></button>
+      <button type="button" class="ghost" id="printBtn" data-i18n="print"></button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="stage">
+    <div class="sheetscroll" id="out"></div>
+  </div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STORE = 'clock.sheet';
+  const UI = {};
+  for (const l of Object.keys(CLOCK_TEXT)) UI[l] = { ...CLOCK_TEXT[l].common, ...CLOCK_TEXT[l].sheet };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const TASKS = ['read', 'draw', 'mix'];
+  const COUNTS = [6, 9, 12, 16, 20];
+  /** Layout per number of clocks: columns, clock size and row gap, so one A4 page holds them all. */
+  const LAYOUT = { 6: { cols: 2, clock: 56, gap: 7 }, 9: { cols: 3, clock: 48, gap: 5 }, 12: { cols: 3, clock: 41, gap: 3 }, 16: { cols: 4, clock: 36, gap: 3 }, 20: { cols: 4, clock: 29, gap: 2 } };
+  let task = 'read', level = 'half', count = 12;
+
+  function randomSeed() {
+    const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 5; i++) s += A[Math.floor(Math.random() * A.length)];
+    return s + '-' + (100 + Math.floor(Math.random() * 900));
+  }
+  function readSettings() {
+    return {
+      seed: $('seed').value.trim() || 'SEED', task, level, count,
+      minutes: $('optMinutes').checked, h24: $('opt24').checked, words: $('optWords').checked, key: $('optKey').checked,
+    };
+  }
+  function persist(s) { try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (_) { } }
+  function restore() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!s) return false;
+      $('seed').value = s.seed || randomSeed();
+      if (TASKS.includes(s.task)) task = s.task;
+      if (CLOCK.LEVELS[s.level]) level = s.level;
+      if (COUNTS.includes(s.count)) count = s.count;
+      $('optMinutes').checked = s.minutes !== false;
+      $('opt24').checked = !!s.h24;
+      $('optWords').checked = s.words !== false;
+      $('optKey').checked = s.key !== false;
+      return true;
+    } catch (_) { return false; }
+  }
+
+  /** The clocks of a sheet: times and, for "mixed", which ones get hands (alternating, shuffled by the seed). */
+  function generate(s) {
+    const rnd = CLOCK.rng(`${s.seed}|${s.level}|${s.h24 ? 24 : 12}|${s.count}|${s.task}`);
+    const times = CLOCK.randomTimes(rnd, s.level, s.h24, s.count);
+    const kinds = times.map((_, i) => s.task === 'mix' ? (i % 2 ? 'draw' : 'read') : s.task);
+    if (s.task === 'mix') for (let i = kinds.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [kinds[i], kinds[j]] = [kinds[j], kinds[i]]; }
+    return times.map((time, i) => ({ t: time, kind: kinds[i] }));
+  }
+
+  const perLabel = time => C().periods[CLOCK.period(time)];
+  function headHTML(title, subtitle, seed, namebox) {
+    return `<div class="sheet-head"><div><div class="title">${esc(title)}</div><div class="subtitle">${esc(subtitle)}</div><div class="seedlabel">${esc(t('seedLabel'))} ${esc(seed)}</div></div>${namebox ? `<div class="namebox">${esc(t('name'))}<br>${esc(t('date'))}</div>` : ''}</div>`;
+  }
+  const gridStyle = L => `--cols:${L.cols};--clock:${L.clock}mm;--clockmax:${L.clock}mm;--gap:${L.gap}mm`;
+
+  function renderSheet(items, s) {
+    const L = LAYOUT[s.count], lang = I18N.get();
+    const cells = items.map((it, i) => {
+      const per = s.h24 && it.kind === 'read' ? `<div class="per">${esc(perLabel(it.t))}</div>` : '';
+      if (it.kind === 'read') {
+        return `<div class="cell"><span class="no">${i + 1}</span>${CLOCK.svg({ t: it.t, minutes: s.minutes, colors: false })}${per}
+          <div class="boxes"><span></span><span></span>:<span></span><span></span></div></div>`;
+      }
+      const w = s.words ? CLOCK.words(it.t, lang) : null;
+      return `<div class="cell"><span class="no">${i + 1}</span>${CLOCK.svg({ t: null, minutes: s.minutes })}
+        <div class="given"><b>${esc(CLOCK.digital(it.t, s.h24))}</b>${w ? `<small>${esc(w)}</small>` : ''}</div></div>`;
+    }).join('');
+    const legend = s.task !== 'read'
+      ? `<div class="legend"><span><i class="h"></i> ${esc(t('hourHand'))}</span><span><i class="m"></i> ${esc(t('minuteHand'))}</span></div>` : '';
+    return `<div class="sheet">
+      ${headHTML(t('sheetTitle'), t('sheetSub', C().levels[s.level], items.length), s.seed, true)}
+      <p class="instr">${esc(C().instr[s.task])}${s.h24 && s.task !== 'draw' ? esc(t('instr24')) : ''}</p>
+      ${legend}
+      <div class="grid" style="${gridStyle(L)}">${cells}</div>
+    </div>`;
+  }
+
+  function renderKey(items, s) {
+    const lang = I18N.get();
+    const L = { cols: 5, clock: 27, gap: 3 };
+    const cells = items.map((it, i) => {
+      const w = CLOCK.words(it.t, lang);
+      return `<div class="cell"><span class="no">${i + 1}</span>${CLOCK.svg({ t: it.t, minutes: false })}
+        <div class="ans">${esc(CLOCK.digital(it.t, s.h24))}${w ? `<small>${esc(w)}</small>` : ''}${s.h24 ? `<small>${esc(perLabel(it.t))}</small>` : ''}</div></div>`;
+    }).join('');
+    return `<div class="sheet key">
+      ${headHTML(t('keyTitle'), t('keySub', C().levels[s.level], items.length), s.seed, false)}
+      <div class="grid" style="${gridStyle(L)}">${cells}</div>
+    </div>`;
+  }
+
+  function regenerate() {
+    const s = readSettings();
+    persist(s);
+    const msg = $('msg'); msg.className = 'msg';
+    try {
+      const items = generate(s);
+      let html = renderSheet(items, s);
+      if (s.key) html += renderKey(items, s);
+      $('out').innerHTML = html;
+      document.title = `${t('title')} · ${s.seed}`;
+      msg.textContent = t('summary', items.length, s.key ? 2 : 1);
+    } catch (e) {
+      msg.className = 'msg error'; msg.textContent = t('genError') + e.message;
+    }
+  }
+  function newWorksheet() { $('seed').value = randomSeed(); regenerate(); }
+
+  function presets(boxId, values, current, label, onPick) {
+    const box = $(boxId); box.innerHTML = '';
+    for (const v of values) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label(v); b.className = v === current ? 'active' : '';
+      b.setAttribute('aria-pressed', String(v === current));
+      b.addEventListener('click', () => { onPick(v); renderControls(); regenerate(); });
+      box.appendChild(b);
+    }
+  }
+  function renderControls() {
+    presets('tasks', TASKS, task, v => C().tasks[v], v => { task = v; });
+    presets('levels', CLOCK.LEVEL_IDS, level, v => C().levels[v], v => { level = v; });
+    presets('counts', COUNTS, count, v => String(v), v => { count = v; });
+    $('optWords').closest('label').hidden = task === 'read';
+  }
+
+  function wire() {
+    $('seed').addEventListener('change', regenerate);
+    $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); regenerate(); } });
+    ['optMinutes', 'opt24', 'optWords', 'optKey'].forEach(id => $(id).addEventListener('change', regenerate));
+    $('randSeed').addEventListener('click', newWorksheet);
+    $('newBtn').addEventListener('click', newWorksheet);
+    $('printBtn').addEventListener('click', () => window.print());
+    I18N.onChange(() => { I18N.apply(UI); renderControls(); regenerate(); });
+  }
+
+  function init() {
+    const q = new URLSearchParams(location.search);
+    if (!restore()) $('seed').value = randomSeed();
+    if (q.get('seed')) $('seed').value = q.get('seed');
+    if (TASKS.includes(q.get('task'))) task = q.get('task');
+    if (CLOCK.LEVELS[q.get('level')]) level = q.get('level');
+    if (COUNTS.includes(+q.get('n'))) count = +q.get('n');
+    for (const [k, id] of [['minutes', 'optMinutes'], ['h24', 'opt24'], ['words', 'optWords'], ['key', 'optKey']]) {
+      if (q.has(k)) $(id).checked = q.get(k) === '1' || q.get(k) === 'true';
+    }
+    wire();
+    I18N.apply(UI);
+    renderControls();
+    regenerate();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

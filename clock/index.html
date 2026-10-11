@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nauka zegara — gra</title>
+<meta name="description" content="Gra dla dzieci: naucz się odczytywać godzinę z zegara ze wskazówkami i ustawiać wskazówki.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --hint-line:#f1d98a; --hint-soft:#fff6d6;
+    --hour:#d6455a; --minute:#3d48b8; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+  button{font:inherit;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
+  .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:720px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .seg{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:16px;padding:3px;background:var(--panel);}
+  .seg button{flex:1 1 auto;font-weight:600;font-size:15px;border:0;background:transparent;padding:6px 12px;border-radius:13px;cursor:pointer;color:var(--muted);min-height:44px;}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
+  .seg button:not([aria-pressed=true]):hover{color:var(--accent-d);background:var(--accent-soft);}
+  .levels{background:#f5f7fb;}
+  .levels button{font-size:14px;min-height:40px;}
+  .settings h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .opts{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:10px;}
+  .check{display:flex;align-items:center;gap:8px;font-size:14.5px;cursor:pointer;min-height:36px;}
+  .check input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--accent);}
+
+  /* ---- task ---- */
+  .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .task-head h2{margin:0;font-size:18px;}
+  .badge{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:var(--accent-soft);color:var(--accent-d);}
+  .q{margin:6px 0 0;font-size:17px;font-weight:700;text-align:center;}
+  .period{display:block;width:max-content;max-width:100%;margin:10px auto 0;font-size:17px;font-weight:700;background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:999px;padding:4px 14px;}
+  .target{text-align:center;margin:6px 0 0;}
+  .target b{display:block;font:800 40px/1.1 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);}
+  .target span{display:block;font-size:17px;color:var(--muted);font-weight:600;}
+  .clockbox{width:min(300px,100%);margin:10px auto 0;}
+  .clockbox svg{display:block;width:100%;height:auto;}
+  .clockbox.drag svg{touch-action:none;cursor:grab;}
+  .clockbox.drag.dragging svg{cursor:grabbing;}
+  .clockbox .hand{transform-box:view-box;transform-origin:100px 100px;}
+  .clockbox.anim .hand{transition:transform 1.2s ease-in-out;}
+  .clockbox.drag .hand line:last-child{transition:stroke-width .1s;}
+  .clockbox.drag .hand.active line:last-child{stroke-width:9;}
+  .legend{display:flex;justify-content:center;gap:6px 16px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin:8px 0 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{display:inline-block;border-radius:3px;height:6px;}
+  .legend i.h{width:16px;background:var(--hour);}
+  .legend i.m{width:26px;height:4px;background:var(--minute);}
+  .help{margin:8px 0 0;font-size:13.5px;color:var(--muted);text-align:center;}
+
+  /* ---- choices ---- */
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 8px;cursor:pointer;min-height:72px;color:var(--ink);}
+  .choice:hover{border-color:var(--accent);}
+  .choice b{font:800 26px/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  .choice small{font-size:13px;color:var(--muted);line-height:1.25;text-align:center;}
+  .choice.correct{border-color:var(--good);background:var(--good-soft);}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .choice:disabled{cursor:default;}
+  .choice:disabled:not(.correct):not(.wrong){opacity:.55;}
+
+  /* ---- set the clock ---- */
+  .stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+  .stepper button{font-weight:700;font-size:15px;min-height:46px;border:1px solid var(--line);background:#f5f7fb;border-radius:12px;cursor:pointer;color:var(--ink);padding:4px;}
+  .stepper button:hover{border-color:var(--accent);}
+  .stepper button.h{color:var(--hour);}
+  .stepper button.m{color:var(--minute);}
+  .stepper button:disabled{opacity:.5;cursor:default;}
+  .setactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .setactions .primary{flex:1 1 auto;margin:0;}
+  .fb{margin:10px 0 0;font-size:15px;color:#5a4a00;background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:10px;padding:8px 12px;}
+  .fb:empty{display:none;}
+
+  /* ---- result ---- */
+  .result{border-width:2px;animation:pop .3s ease-out;}
+  .result.ok{border-color:var(--good);}
+  .result.no{border-color:var(--bad);}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion:reduce){.result{animation:none;}.clockbox.anim .hand{transition:none;}}
+  .verdict{font-size:22px;font-weight:800;margin:0 0 4px;}
+  .stars{font-size:22px;letter-spacing:2px;margin:0 0 8px;min-height:28px;}
+  .explain{margin:0;font-size:15.5px;}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
+  .primary:hover{background:var(--accent-d);}
+  .secondary{font-weight:600;padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;cursor:pointer;min-height:46px;font-size:15px;color:var(--ink);}
+  .secondary:hover{border-color:var(--accent);}
+
+  /* ---- footer stats ---- */
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .ghost{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .ghost:hover{border-color:var(--bad);color:var(--bad);}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .top{padding:8px 12px;position:static;gap:6px 8px;}
+    .brand{font-size:18px;}
+    .score span{min-height:40px;display:inline-flex;align-items:center;padding:3px 8px;font-size:13px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:14px;}
+    .seg button{font-size:14px;padding:6px 8px;}
+    .levels button{flex:1 1 40%;}
+    .clockbox{width:min(260px,100%);}
+    .stepper{grid-template-columns:1fr 1fr;}
+    .choice b{font-size:23px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">🕐 Nauka zegara</h1>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karta pracy</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <div class="score" aria-live="polite">
+    <span id="scoreStars" data-i18n-attr="title:starsTitle">⭐ 0</span>
+    <span id="scoreStreak" data-i18n-attr="title:streakTitle">🔥 0</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="seg modes" role="group" data-i18n-attr="aria-label:modeLabel">
+    <button type="button" data-mode="read" aria-pressed="true" data-i18n="modeRead">🔎 Która godzina?</button>
+    <button type="button" data-mode="set" aria-pressed="false" data-i18n="modeSet">✋ Ustaw zegar</button>
+  </div>
+
+  <section class="card settings">
+    <h2 data-i18n="level">Poziom</h2>
+    <div class="seg levels" id="levels" role="group" data-i18n-attr="aria-label:level"></div>
+    <div class="opts">
+      <label class="check"><input type="checkbox" id="optMinutes"> <span data-i18n="optMinutes"></span></label>
+      <label class="check"><input type="checkbox" id="opt24"> <span data-i18n="opt24"></span></label>
+    </div>
+  </section>
+
+  <section class="card" id="taskCard">
+    <div class="task-head">
+      <h2 id="taskTitle"></h2>
+      <span class="badge" id="levelBadge"></span>
+    </div>
+    <div id="readQ"><p class="q" data-i18n="readQ"></p></div>
+    <div id="setQ" hidden>
+      <p class="q" data-i18n="setQ"></p>
+      <div class="target"><b id="targetDig"></b><span id="targetWords"></span></div>
+    </div>
+    <span class="period" id="period" hidden></span>
+    <div class="clockbox" id="clock"></div>
+    <div class="legend">
+      <span><i class="h"></i> <span data-i18n="hourHand"></span></span>
+      <span><i class="m"></i> <span data-i18n="minuteHand"></span></span>
+    </div>
+
+    <div id="readPane">
+      <div class="choices" id="choices"></div>
+    </div>
+
+    <div id="setPane" hidden>
+      <p class="help" data-i18n="setHelp"></p>
+      <div class="stepper">
+        <button type="button" class="h" id="hMinus" data-i18n="hourMinus"></button>
+        <button type="button" class="h" id="hPlus" data-i18n="hourPlus"></button>
+        <button type="button" class="m" id="mMinus"></button>
+        <button type="button" class="m" id="mPlus"></button>
+      </div>
+      <p class="fb" id="fb" aria-live="polite"></p>
+      <div class="setactions">
+        <button type="button" class="primary" id="checkBtn" data-i18n="check"></button>
+        <button type="button" class="secondary" id="showBtn" data-i18n="show" hidden></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card result" id="result" hidden aria-live="polite">
+    <p class="verdict" id="verdict"></p>
+    <p class="stars" id="stars"></p>
+    <p class="explain" id="explain"></p>
+    <button type="button" class="primary" id="nextBtn" data-i18n="next"></button>
+  </section>
+
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset"></button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STORE = 'clock.v1';
+  const UI = {};
+  for (const l of Object.keys(CLOCK_TEXT)) UI[l] = { ...CLOCK_TEXT[l].common, ...CLOCK_TEXT[l].game };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const rnd = Math.random;
+
+  const state = {
+    mode: 'read', level: 'half', minutes: true, h24: false,
+    task: null, taskNo: 0, answered: false,
+    cur: 0, wrong: 0, fb: null,   // "Set the clock": minutes 0..719 the hands show, wrong checks, last feedback
+    stats: { stars: 0, ok: 0, played: 0, streak: 0, best: 0 },
+  };
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (!j) return;
+      if (j.mode === 'set') state.mode = 'set';
+      if (CLOCK.LEVELS[j.level]) state.level = j.level;
+      if (typeof j.minutes === 'boolean') state.minutes = j.minutes;
+      state.h24 = !!j.h24;
+      if (j.stats) Object.assign(state.stats, j.stats);
+    } catch (_) { /* no storage: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ mode: state.mode, level: state.level, minutes: state.minutes, h24: state.h24, stats: state.stats })); } catch (_) { }
+  }
+
+  const snapStep = () => state.level === 'minute' ? 1 : 5;   // how far the long hand jumps while setting
+  const perText = time => C().periods[CLOCK.period(time)];
+  /** Everything the explanations need about a time. */
+  function info(time) {
+    const h = CLOCK.h12(time.h), m = time.m, dig = CLOCK.digital(time, false), dig24 = CLOCK.digital(time, true);
+    return {
+      h, nx: CLOCK.h12(h + 1), m, num: m % 5 === 0 && m ? m / 5 : 0,
+      dig, dig24, h24: state.h24 && dig !== dig24,   // the 24-hour sentence only when the number changes (15:30, 0:30)
+      words: CLOCK.words(time, I18N.get()), per: perText(time).replace(/^\S+\s/, ''),
+    };
+  }
+
+  /* ---------- new task ---------- */
+  function newTask() {
+    let time;
+    do { time = CLOCK.randomTime(rnd, state.level, state.h24); }
+    while (state.task && CLOCK.same(time, state.task.t));
+    const task = { t: time };
+    if (state.mode === 'read') {
+      task.choices = [time, ...CLOCK.distractors(time, state.level, state.h24, rnd)].sort(() => rnd() - 0.5);
+    }
+    state.task = task; state.taskNo++; state.answered = false;
+    state.cur = 0; state.wrong = 0; state.fb = null;
+    render();
+  }
+
+  /* ---------- drawing ---------- */
+  function drawClock() {
+    const box = $('clock'), set = state.mode === 'set';
+    box.className = 'clockbox' + (set && !state.answered ? ' drag' : '');
+    if (set) {
+      box.innerHTML = CLOCK.svg({ t: { h: 12, m: 0 }, minutes: state.minutes, handles: true });   // hands drawn up, turned with transforms
+      box.querySelector('svg').setAttribute('aria-label', t('clockSetLabel'));
+      placeHands();
+    } else {
+      box.innerHTML = CLOCK.svg({ t: state.task.t, minutes: state.minutes });
+      box.querySelector('svg').setAttribute('aria-label', t('clockLabel', CLOCK.digital(state.task.t, false)));
+    }
+  }
+  function placeHands() {
+    const svg = $('clock').querySelector('svg'); if (!svg) return;
+    svg.querySelector('.hand.hour').style.transform = `rotate(${state.cur * 0.5}deg)`;
+    svg.querySelector('.hand.minute').style.transform = `rotate(${state.cur * 6}deg)`;
+  }
+
+  function render() {
+    const set = state.mode === 'set', task = state.task;
+    document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+    $('levels').innerHTML = '';
+    for (const id of CLOCK.LEVEL_IDS) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = C().levels[id]; b.setAttribute('aria-pressed', String(id === state.level));
+      b.addEventListener('click', () => { if (state.level === id) return; state.level = id; save(); newTask(); });
+      $('levels').appendChild(b);
+    }
+    $('optMinutes').checked = state.minutes;
+    $('opt24').checked = state.h24;
+
+    $('taskTitle').textContent = t('taskN', state.taskNo);
+    $('levelBadge').textContent = C().levels[state.level];
+    $('readQ').hidden = set; $('readPane').hidden = set;
+    $('setQ').hidden = !set; $('setPane').hidden = !set;
+    $('period').hidden = !state.h24;
+    if (state.h24) $('period').textContent = perText(task.t);
+    if (set) {
+      $('targetDig').textContent = CLOCK.digital(task.t, state.h24);
+      $('targetWords').textContent = CLOCK.words(task.t, I18N.get()) || '';
+    }
+    drawClock();
+
+    if (!set) {
+      const box = $('choices'); box.innerHTML = '';
+      task.choices.forEach(c => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'choice';
+        const big = document.createElement('b'); big.textContent = CLOCK.digital(c, state.h24); b.appendChild(big);
+        const w = CLOCK.words(c, I18N.get());
+        if (w) { const s = document.createElement('small'); s.textContent = w; b.appendChild(s); }
+        if (state.answered) {
+          b.disabled = true;
+          if (CLOCK.same(c, task.t)) b.classList.add('correct');
+          else if (task.picked && CLOCK.same(c, task.picked)) b.classList.add('wrong');
+        }
+        b.addEventListener('click', () => answerRead(c));
+        box.appendChild(b);
+      });
+    } else {
+      const s = snapStep();
+      $('mMinus').textContent = t('minMinus', s); $('mPlus').textContent = t('minPlus', s);
+      ['hMinus', 'hPlus', 'mMinus', 'mPlus', 'checkBtn'].forEach(id => { $(id).disabled = state.answered; });
+      $('checkBtn').hidden = state.answered;
+      $('showBtn').hidden = state.answered || state.wrong === 0;
+      $('fb').textContent = state.answered || !state.fb ? '' : feedbackText(state.fb);
+    }
+    renderResult();
+    renderScore();
+  }
+
+  function renderScore() {
+    const s = state.stats;
+    $('scoreStars').textContent = `⭐ ${s.stars}`;
+    $('scoreStreak').textContent = `🔥 ${s.streak}`;
+    $('statsText').textContent = t('stats', s.ok, s.played, s.best);
+  }
+  function renderResult() {
+    const r = state.task.result, box = $('result');
+    box.hidden = !r;
+    if (!r) return;
+    box.className = 'card result ' + (r.ok ? 'ok' : 'no');
+    $('verdict').textContent = r.shown ? t('shown') : r.ok ? (C().good[r.cheer % C().good.length]) : t('bad');
+    $('stars').textContent = r.stars ? '⭐'.repeat(r.stars) : '';
+    $('explain').textContent = t('explain', info(state.task.t));
+  }
+
+  function finish(ok, stars, shown) {
+    const s = state.stats;
+    s.played++;
+    if (ok) { s.ok++; s.streak++; s.best = Math.max(s.best, s.streak); s.stars += stars; } else s.streak = 0;
+    state.answered = true;
+    state.task.result = { ok, stars, shown, cheer: Math.floor(rnd() * 100) };
+    save();
+    render();
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    $('nextBtn').focus({ preventScroll: true });
+  }
+
+  /* ---------- "What time is it?" ---------- */
+  function answerRead(c) {
+    if (state.answered) return;
+    state.task.picked = c;
+    const ok = CLOCK.same(c, state.task.t);
+    finish(ok, ok ? 3 : 0, false);
+  }
+
+  /* ---------- "Set the clock" ---------- */
+  function feedbackText(f) {
+    const o = info(state.task.t);
+    const msg = f.minuteWrong ? t('fixMinute', o) : t('fixHour', o);
+    return `${t('yourClock', CLOCK.digital(CLOCK.fromMinutes(f.cur, false), false))} ${msg} ${t('tryAgain')}`;
+  }
+  function check() {
+    if (state.answered) return;
+    const want = CLOCK.minutesOf(state.task.t);
+    if (state.cur === want) { finish(true, Math.max(1, 3 - state.wrong), false); return; }
+    state.wrong++;
+    state.fb = { cur: state.cur, minuteWrong: state.cur % 60 !== state.task.t.m };
+    render();
+  }
+  function showAnswer() {
+    if (state.answered) return;
+    const box = $('clock');
+    box.classList.add('anim');
+    state.cur = CLOCK.minutesOf(state.task.t);
+    placeHands();
+    setTimeout(() => { finish(false, 0, true); }, 1250);
+  }
+  function move(delta) {
+    if (state.answered) return;
+    state.cur = (((state.cur + delta) % 720) + 720) % 720;
+    placeHands();
+  }
+
+  /* Dragging: the long hand turns the short one too, like a real clock (the short hand moves 1/12 as far).
+     Grabbing the short hand sets the whole time from its angle. */
+  function wireDrag() {
+    const box = $('clock');
+    let dragging = null;
+    const angleOf = e => {
+      const r = box.querySelector('svg').getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      return { deg: (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360, dist: Math.hypot(dx, dy) / (r.width / 2) };
+    };
+    const apply = e => {
+      const { deg } = angleOf(e), s = snapStep();
+      if (dragging === 'minute') {
+        const m = (Math.round(deg / 6 / s) * s) % 60;
+        let d = m - state.cur % 60;
+        if (d > 30) d -= 60; else if (d < -30) d += 60;
+        state.cur = (((state.cur + d) % 720) + 720) % 720;
+      } else {
+        state.cur = (Math.round(deg * 2 / s) * s) % 720;
+      }
+      placeHands();
+    };
+    box.addEventListener('pointerdown', e => {
+      if (state.mode !== 'set' || state.answered || !box.querySelector('svg')) return;
+      const handEl = e.target.closest('[data-hand]');
+      const a = angleOf(e);
+      if (a.dist > 1.05) return;
+      dragging = handEl ? handEl.dataset.hand : 'minute';
+      box.querySelector(`.hand.${dragging}`).classList.add('active');
+      box.classList.add('dragging');
+      box.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      apply(e);
+    });
+    box.addEventListener('pointermove', e => { if (dragging) apply(e); });
+    const end = () => {
+      if (!dragging) return;
+      const h = box.querySelector(`.hand.${dragging}`); if (h) h.classList.remove('active');
+      dragging = null; box.classList.remove('dragging');
+    };
+    box.addEventListener('pointerup', end);
+    box.addEventListener('pointercancel', end);
+  }
+
+  function wire() {
+    document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => {
+      if (state.mode === b.dataset.mode) return;
+      state.mode = b.dataset.mode; save(); newTask();
+    }));
+    $('optMinutes').addEventListener('change', e => { state.minutes = e.target.checked; save(); drawClock(); });
+    $('opt24').addEventListener('change', e => { state.h24 = e.target.checked; save(); newTask(); });
+    $('hMinus').addEventListener('click', () => move(-60));
+    $('hPlus').addEventListener('click', () => move(60));
+    $('mMinus').addEventListener('click', () => move(-snapStep()));
+    $('mPlus').addEventListener('click', () => move(snapStep()));
+    $('checkBtn').addEventListener('click', check);
+    $('showBtn').addEventListener('click', showAnswer);
+    $('nextBtn').addEventListener('click', () => { newTask(); $('taskCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+    $('resetBtn').addEventListener('click', () => {
+      if (!confirm(t('resetConfirm'))) return;
+      state.stats = { stars: 0, ok: 0, played: 0, streak: 0, best: 0 };
+      save(); renderScore();
+    });
+    wireDrag();
+    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); render(); });
+  }
+
+  load();
+  const q = new URLSearchParams(location.search);
+  if (q.get('mode') === 'set' || q.get('mode') === 'read') state.mode = q.get('mode');
+  if (CLOCK.LEVELS[q.get('level')]) state.level = q.get('level');
+  wire();
+  I18N.apply(UI);
+  document.title = t('title');
+  newTask();
+})();
+</script>
+</body>
+</html>

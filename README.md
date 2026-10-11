@@ -18,9 +18,11 @@ alphabet, French without accents) can be in a different language than the game t
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
+| [`clock/index.html`](clock/index.html) | **Tell the Time**, online game: read an analog clock (4 answers) or drag the hands to set it |
+| [`clock/worksheet.html`](clock/worksheet.html) | Tell the Time **printable worksheets**: read the time / draw the hands (+ answer key) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`clock/README.md`](clock/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
 
 ## Run locally
 
