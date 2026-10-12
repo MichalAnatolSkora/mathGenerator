@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dyktando graficzne — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: dyktando graficzne, czyli rysowanie po kratkach według strzałek. Z rozwiązaniem.">
+<style>
+  :root{
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#4f5bd5; --accent-d:#3d48b8;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  button{font:inherit;}
+  .appbar{padding:12px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+  .appbar .grow{flex:1 1 auto;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid #ccd2dd;border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .row{display:flex;gap:8px;align-items:center;}
+  input[type=text]{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  #randSeed{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;}
+  .presets button{font-size:12.5px;min-height:38px;padding:6px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:6px 0;min-height:32px;}
+  .check input{width:18px;height:18px;flex:0 0 auto;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;min-height:44px;}
+  button.primary:hover{background:var(--accent-d);}
+  button.ghost{padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;min-height:44px;}
+  button.ghost:hover{border-color:var(--accent);}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---- sheets (A4: 210 × 297 mm, 12 mm margins ⇒ 186 × 273 mm to draw on) ---- */
+  .stage{flex:1;min-width:0;}
+  .sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:12mm;margin:0 auto 18px;width:210mm;max-width:100%;color:#111;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:10px;}
+  .title{font-size:20px;font-weight:800;}
+  .subtitle{font-size:12.5px;color:var(--muted);}
+  .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:3px;}
+  .namebox{flex:0 0 230px;border:1px solid #bbb;border-radius:6px;padding:6px 12px;font-size:12.5px;color:#555;line-height:2.1;}
+  .instr{font-size:12.5px;color:#333;margin:0 0 2mm;}
+  .ex{display:flex;flex-wrap:wrap;align-items:center;gap:2mm 6mm;font-size:12px;color:#333;margin:0 0 3mm;}
+  .ex span{display:inline-flex;align-items:center;gap:2mm;}
+  .arrow{width:1em;height:1em;display:inline-block;vertical-align:-0.12em;flex:none;}
+  .steps{display:flex;flex-wrap:wrap;gap:2mm;margin:0 0 3mm;padding:0;list-style:none;}
+  .chip{display:inline-flex;align-items:center;gap:0.6mm;font:700 4mm/1 ui-monospace,Menlo,Consolas,monospace;border:0.3mm solid #555;border-radius:1.5mm;padding:1.2mm 1.6mm;background:#fff;color:#111;white-space:nowrap;}
+  .chip .arrow{width:3.6mm;height:3.6mm;}
+  .gridbox svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+  .ending{font-size:13px;margin:3mm 0 0;display:flex;align-items:baseline;gap:3mm;flex-wrap:wrap;}
+  .ending b{flex:1 1 40mm;border-bottom:0.3mm solid #333;height:6mm;}
+  .key .reveal{font-size:22px;font-weight:800;text-align:center;margin:0 0 3mm;}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+    input[type=text]{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+    .sheet{padding:14px 10px;}
+    .sheet-head{flex-wrap:wrap;gap:10px;}
+    .namebox{flex:1 1 100%;}
+    .chip{font-size:14px;padding:4px 5px;}
+    .chip .arrow{width:13px;height:13px;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{background:#fff;}
+    .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .stage{width:100%;}
+    .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;width:auto;max-width:none;}
+    .sheet + .sheet{page-break-before:always;break-before:page;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">✏️ Dyktando graficzne — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <a class="navlink" href="index.html" data-keep-lang data-i18n="playOnline">🎮 Graj online</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2 data-i18n="seed">Kod karty</h2>
+      <div class="row">
+        <input type="text" id="seed" autocomplete="off" spellcheck="false" data-i18n-attr="aria-label:seed">
+        <button type="button" id="randSeed" data-i18n-attr="title:randomSeed,aria-label:randomSeed">🎲</button>
+      </div>
+      <div class="hint" data-i18n="seedHint"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="level">Poziom</h2>
+      <div class="presets" id="levels"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="nums">Liczby</h2>
+      <div class="presets" id="nums"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="theme">Motywy</h2>
+      <div class="presets" id="themes"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="picture">Obrazek</h2>
+      <div class="presets" id="pics"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="options">Opcje</h2>
+      <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="newBtn" data-i18n="newWorksheet"></button>
+      <button type="button" class="ghost" id="printBtn" data-i18n="print"></button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="stage">
+    <div id="out"></div>
+  </div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STORE = 'dictation.sheet';
+  const UI = {};
+  for (const l of Object.keys(DICT_TEXT)) UI[l] = { ...DICT_TEXT[l].common, ...DICT_TEXT[l].sheet };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const NUMS = ['plain', 'add', 'mul'];
+  let level = 'easy', nums = 'plain', theme = 'basic', pic = 'random';
+
+  /* Page budget in mm (A4 minus 12 mm margins = 186 × 273). The grid gets what the texts leave free. */
+  const PAGE_W = 186, PAGE_H = 273, MAX_CELL = 10;
+  const FIXED_H = 24 + 14 + 9 + 12 + 10;   // head, instructions, examples, the "What is it?" line, gaps and a safety margin
+  /** Height of the step chips in mm: chips are laid out greedily in rows (4 mm monospace ≈ 2.4 mm a character). */
+  function stepsHeight(texts) {
+    let rows = 1, x = 0;
+    for (const s of texts) {
+      const w = 8.4 + 2.45 * s.length;
+      if (x && x + w > PAGE_W) { rows++; x = 0; }
+      x += w + 2;
+    }
+    return rows * 9 + 3;
+  }
+
+  function randomSeed() {
+    const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 5; i++) s += A[Math.floor(Math.random() * A.length)];
+    return s + '-' + (100 + Math.floor(Math.random() * 900));
+  }
+  const pool = () => DICT.pool(level, theme);
+  function readSettings() {
+    return { seed: $('seed').value.trim() || 'SEED', level, nums, theme, pic, key: $('optKey').checked };
+  }
+  function persist(s) { try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (_) { } }
+  function restore() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!s) return false;
+      $('seed').value = s.seed || randomSeed();
+      if (DICT.LEVEL_IDS.includes(s.level)) level = s.level;
+      if (NUMS.includes(s.nums)) nums = s.nums;
+      if (DICT.THEME_IDS.includes(s.theme)) theme = s.theme;
+      if (s.pic && pool().some(p => p.id === s.pic)) pic = s.pic;
+      $('optKey').checked = s.key !== false;
+      return true;
+    } catch (_) { return false; }
+  }
+
+  /** The dictation of a sheet: which picture, turned which way, and the numbers (plain or as sums/products). */
+  function generate(s) {
+    const rnd = DICT.rng(`${s.seed}|${s.level}|${s.nums}|${s.pic === 'random' ? s.theme : s.pic}`);
+    const base = s.pic === 'random' ? DICT.pick(rnd, pool()) : DICT.PICS.find(p => p.id === s.pic);
+    const v = DICT.variant(base, rnd);
+    const steps = DICT.steps(v.pts).map(st => ({ ...st, e: DICT.expr(st.n, s.nums, rnd) }));
+    return { ...v, steps };
+  }
+
+  const numText = s => s.e ? `${s.e.a}${C().ops[s.e.op]}${s.e.b}` : String(s.n);
+  const chip = (txt, dir) => `<span class="chip"><b>${esc(txt)}</b>${DICT.arrow(dir)}</span>`;
+  function headHTML(title, subtitle, seed, namebox) {
+    return `<div class="sheet-head"><div><div class="title">${esc(title)}</div><div class="subtitle">${esc(subtitle)}</div><div class="seedlabel">${esc(t('seedLabel'))} ${esc(seed)}</div></div>${namebox ? `<div class="namebox">${esc(t('name'))}<br>${esc(t('date'))}</div>` : ''}</div>`;
+  }
+  /** Squared paper as large as the page allows (squares up to 1 cm), the picture in the middle. */
+  function layout(d, extraH) {
+    const sz = DICT.size(d.pts), freeH = PAGE_H - FIXED_H - extraH;
+    const cell = Math.min(MAX_CELL, PAGE_W / (sz.w + 4), freeH / (sz.h + 4));
+    const cols = Math.floor(PAGE_W / cell), rows = Math.floor(freeH / cell);
+    return { cell, cols, rows, ox: Math.floor((cols - sz.w) / 2), oy: Math.floor((rows - sz.h) / 2) };
+  }
+  function gridHTML(L, opts) {
+    const svg = DICT.grid({ cols: L.cols, rows: L.rows, ox: L.ox, oy: L.oy, cell: 10, lineColor: '#9fb3d1', inkWidth: 0.16, ...opts });
+    return `<div class="gridbox">${svg.replace('<svg ', `<svg style="width:${(L.cols * L.cell).toFixed(1)}mm" `)}</div>`;
+  }
+
+  function renderSheet(d, s) {
+    const texts = d.steps.map(numText);
+    const L = layout(d, stepsHeight(texts));
+    const diag = d.steps.some(st => DICT.diagonal(st.dir));
+    return { L, html: `<div class="sheet">
+      ${headHTML(t('sheetTitle'), t('sheetSub', C().levels[s.level], d.steps.length), s.seed, true)}
+      <p class="instr">${esc(t('instr'))}${s.nums !== 'plain' ? esc(t('instrMath')) : ''}</p>
+      <p class="ex"><span>${chip('3', 'R')} = ${esc(t('ex'))}</span>${diag ? `<span>${chip('2', 'UR')} = ${esc(t('exDiag'))}</span>` : ''}</p>
+      <ol class="steps">${d.steps.map((st, i) => `<li>${chip(texts[i], st.dir)}</li>`).join('')}</ol>
+      ${gridHTML(L, { start: d.pts[0] })}
+      <p class="ending">${esc(t('ending'))} <b></b></p>
+    </div>` };
+  }
+  function renderKey(d, s, L) {
+    const name = C().pics[d.id];
+    return `<div class="sheet key">
+      ${headHTML(t('keyTitle'), t('keySub', name, C().levels[s.level]), s.seed, false)}
+      <p class="reveal">${esc(`${d.emoji} ${name}`.trim())}</p>
+      ${gridHTML(L, { start: d.pts[0], path: [...d.pts, d.pts[0]], shape: d.pts, fill: '#ffe08a' })}
+    </div>`;
+  }
+
+  function regenerate() {
+    const s = readSettings();
+    persist(s);
+    const msg = $('msg'); msg.className = 'msg';
+    try {
+      const d = generate(s);
+      const sheet = renderSheet(d, s);
+      $('out').innerHTML = sheet.html + (s.key ? renderKey(d, s, sheet.L) : '');
+      document.title = `${t('title')} · ${s.seed}`;
+      msg.textContent = t('summary', d.steps.length, s.key ? 2 : 1);
+    } catch (e) {
+      msg.className = 'msg error'; msg.textContent = t('genError') + e.message;
+    }
+  }
+  function newWorksheet() { $('seed').value = randomSeed(); regenerate(); }
+
+  function presets(boxId, values, current, label, onPick) {
+    const box = $(boxId); box.innerHTML = '';
+    for (const v of values) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label(v); b.className = v === current ? 'active' : '';
+      b.setAttribute('aria-pressed', String(v === current));
+      b.addEventListener('click', () => { onPick(v); renderControls(); regenerate(); });
+      box.appendChild(b);
+    }
+  }
+  function renderControls() {
+    presets('levels', DICT.LEVEL_IDS, level, v => C().levels[v], v => { level = v; pic = 'random'; });
+    presets('nums', NUMS, nums, v => C().numKinds[v], v => { nums = v; });
+    presets('themes', DICT.THEME_IDS, theme, v => C().themes[v], v => { theme = v; if (!pool().some(p => p.id === pic)) pic = 'random'; });
+    presets('pics', ['random', ...pool().map(p => p.id)], pic, v => v === 'random' ? t('randomPic') : C().pics[v], v => { pic = v; });
+  }
+
+  function wire() {
+    $('seed').addEventListener('change', regenerate);
+    $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); regenerate(); } });
+    $('optKey').addEventListener('change', regenerate);
+    $('randSeed').addEventListener('click', newWorksheet);
+    $('newBtn').addEventListener('click', newWorksheet);
+    $('printBtn').addEventListener('click', () => window.print());
+    I18N.onChange(() => { I18N.apply(UI); renderControls(); regenerate(); });
+  }
+
+  function init() {
+    const q = new URLSearchParams(location.search);
+    if (!restore()) $('seed').value = randomSeed();
+    if (q.get('seed')) $('seed').value = q.get('seed');
+    if (DICT.LEVEL_IDS.includes(q.get('level'))) { level = q.get('level'); pic = 'random'; }
+    if (NUMS.includes(q.get('nums'))) nums = q.get('nums');
+    if (DICT.THEME_IDS.includes(q.get('theme'))) { theme = q.get('theme'); pic = 'random'; }
+    const qp = DICT.PICS.find(p => p.id === q.get('pic'));
+    if (qp) { level = qp.level; pic = qp.id; if (!pool().includes(qp)) theme = qp.themes[0]; }
+    if (q.has('key')) $('optKey').checked = q.get('key') === '1' || q.get('key') === 'true';
+    wire();
+    I18N.apply(UI);
+    renderControls();
+    regenerate();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

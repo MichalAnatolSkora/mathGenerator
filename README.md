@@ -22,9 +22,11 @@ alphabet, French without accents) can be in a different language than the game t
 | [`enigma/index.html`](enigma/index.html) | **Young Codebreakers Academy** printable worksheets: six missions from the Caesar cipher to a paper Enigma with a turning wheel and a mirror, a final report (+ cut-outs, answer key, and a full-alphabet Enigma for the keen) |
 | [`clock/index.html`](clock/index.html) | **Tell the Time**, online game: read an analog clock (4 answers) or drag the hands to set it |
 | [`clock/worksheet.html`](clock/worksheet.html) | Tell the Time **printable worksheets**: read the time / draw the hands (+ answer key) |
+| [`graphic-dictation/index.html`](graphic-dictation/index.html) | **Graphic Dictation**, online game: draw on squared paper by arrows (3→ 2↑ 1↗…) and a picture appears; numbers can be sums or products |
+| [`graphic-dictation/worksheet.html`](graphic-dictation/worksheet.html) | Graphic Dictation **printable worksheets** (+ answer key) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
 
 ## Run locally
 
@@ -38,4 +40,5 @@ then open <http://localhost:8123/>. Opening `index.html` directly from the file 
 
 Put it in its own folder with an `index.html`, load `../i18n.js` and give it a `<nav class="langs">`
 plus a dictionary for the five languages, add a home link back to `../index.html` (with
-`data-keep-lang`), and add a card with a screenshot (`assets/`) to the root `index.html`.
+`data-keep-lang`), and add a card with a screenshot (`assets/`) to the root `index.html`. On the home page the worksheet button is the
+main one (blue, first) and the screenshot links to the worksheet; "Play" comes second.

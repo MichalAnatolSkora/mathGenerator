@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dyktando graficzne — gra</title>
+<meta name="description" content="Gra dla dzieci: rysuj po kratkach według strzałek i odkryj, jaki wyjdzie obrazek.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --hint-line:#f1d98a; --hint-soft:#fff6d6; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+  button{font:inherit;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
+  .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:940px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .seg{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:16px;padding:3px;background:#f5f7fb;}
+  .seg button{flex:1 1 auto;font-weight:600;font-size:14px;border:0;background:transparent;padding:6px 12px;border-radius:13px;cursor:pointer;color:var(--muted);min-height:40px;}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
+  .seg button:not([aria-pressed=true]):hover{color:var(--accent-d);background:var(--accent-soft);}
+  .settings h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .settings h2 + .seg{margin-bottom:12px;}
+  .settings .seg:last-child{margin-bottom:0;}
+
+  /* ---- task ---- */
+  .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .task-head h2{margin:0;font-size:18px;flex:1 1 auto;}
+  .badge{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:var(--accent-soft);color:var(--accent-d);}
+  .q{margin:4px 0 0;font-size:16px;font-weight:700;}
+  .help{margin:2px 0 0;font-size:13.5px;color:var(--muted);}
+  .arrow{width:1em;height:1em;display:inline-block;vertical-align:-0.12em;flex:none;}
+  .steps{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 0;padding:0;list-style:none;}
+  .chip{display:inline-flex;align-items:center;gap:3px;font:700 16px/1 ui-monospace,Menlo,Consolas,monospace;border:1.5px solid var(--line);border-radius:8px;padding:5px 7px;background:#fff;color:var(--ink);}
+  .chip.done{opacity:.4;text-decoration:line-through;}
+  .chip.now{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-d);box-shadow:0 0 0 2px var(--accent-soft);}
+  .play{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;margin-top:12px;}
+  .board svg{display:block;width:100%;height:auto;max-height:70vh;background:#fff;border-radius:8px;}
+  @media (max-width:760px){
+    .play{grid-template-columns:1fr;gap:4px;}
+    .board svg{max-height:42vh;margin:0 auto;}
+  }
+  .board .fillshape{animation:fillin .8s ease-out both;}
+  @keyframes fillin{from{opacity:0}to{opacity:1}}
+  .board .target{animation:pulse 1s ease-in-out infinite alternate;}
+  @keyframes pulse{from{opacity:.35}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.board .fillshape,.board .target,.result{animation:none;}}
+  .fb{margin:10px 0 0;font-size:15px;color:#5a4a00;background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:10px;padding:8px 12px;}
+  .fb:empty{display:none;}
+
+  /* ---- arrow pad ---- */
+  .pad{display:grid;grid-template-columns:repeat(3,minmax(64px,92px));grid-template-rows:repeat(3,72px);gap:8px;justify-content:center;margin:0 auto;}
+  .pad button{border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;color:var(--accent-d);font-size:34px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .pad button:hover{border-color:var(--accent);}
+  .pad button:active{background:var(--accent-soft);}
+  .pad button.ok{background:var(--good-soft);border-color:var(--good);}
+  .pad button.no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);}
+  .pad button.off{visibility:hidden;}
+  .pad .now{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:14px;background:var(--accent-soft);color:var(--accent-d);font:800 22px/1 ui-monospace,Menlo,Consolas,monospace;}
+  .pad .now span{display:inline-flex;align-items:center;gap:3px;}
+  .dots{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:80px;}
+  .dots i{width:7px;height:7px;border-radius:50%;background:#c5cbe0;}
+  .dots i.on{background:var(--accent);}
+  .keys{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+  @media (hover:none){.keys{display:none;}}
+
+  /* ---- result ---- */
+  .result{border-width:2px;border-color:var(--good);animation:pop .3s ease-out;text-align:center;}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  .verdict{font-size:20px;font-weight:800;margin:0;color:var(--good);}
+  .reveal{font-size:30px;font-weight:800;margin:4px 0;}
+  .stars{font-size:22px;letter-spacing:2px;margin:0 0 6px;min-height:28px;}
+  .explain{margin:0;font-size:15.5px;color:var(--muted);}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
+  .primary:hover{background:var(--accent-d);}
+
+  /* ---- footer stats ---- */
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .ghost{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .ghost:hover{border-color:var(--bad);color:var(--bad);}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .top{padding:8px 12px;position:static;gap:6px 8px;}
+    .brand{font-size:18px;}
+    .score span{min-height:40px;display:inline-flex;align-items:center;padding:3px 8px;font-size:13px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:14px;}
+    .seg button{font-size:13.5px;padding:6px 8px;}
+    .chip{font-size:14px;padding:4px 6px;}
+    .steps{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px;margin-top:8px;}
+    .steps::-webkit-scrollbar{display:none;}
+    .steps li{flex:none;}
+    .pad{grid-template-columns:repeat(3,minmax(60px,1fr));grid-template-rows:repeat(3,58px);max-width:300px;margin-top:8px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">✏️ Dyktando graficzne</h1>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karta pracy</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <div class="score" aria-live="polite">
+    <span id="scoreStars" data-i18n-attr="title:starsTitle">⭐ 0</span>
+    <span id="scoreStreak" data-i18n-attr="title:streakTitle">🔥 0</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card settings">
+    <h2 data-i18n="level">Poziom</h2>
+    <div class="seg" id="levels" role="group" data-i18n-attr="aria-label:level"></div>
+    <h2 data-i18n="nums">Liczby</h2>
+    <div class="seg" id="nums" role="group" data-i18n-attr="aria-label:nums"></div>
+    <h2 data-i18n="theme">Motywy</h2>
+    <div class="seg" id="themes" role="group" data-i18n-attr="aria-label:theme"></div>
+  </section>
+
+  <section class="card" id="taskCard">
+    <div class="task-head">
+      <h2 id="lineNo"></h2>
+      <span class="badge" id="levelBadge"></span>
+    </div>
+    <p class="q" data-i18n="q"></p>
+    <p class="help" id="help"></p>
+    <ol class="steps" id="steps"></ol>
+    <div class="play">
+      <div class="board" id="board" role="img" data-i18n-attr="aria-label:gridLabel"></div>
+      <div class="side">
+        <div class="pad" id="pad" role="group" data-i18n-attr="aria-label:padLabel"></div>
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <p class="keys" id="keys"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card result" id="result" hidden aria-live="polite">
+    <p class="verdict" id="verdict"></p>
+    <p class="reveal" id="reveal"></p>
+    <p class="stars" id="stars"></p>
+    <p class="explain" id="explain"></p>
+    <button type="button" class="primary" id="nextBtn" data-i18n="next"></button>
+  </section>
+
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset"></button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STORE = 'dictation.v1';
+  const UI = {};
+  for (const l of Object.keys(DICT_TEXT)) UI[l] = { ...DICT_TEXT[l].common, ...DICT_TEXT[l].game };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const rnd = Math.random;
+  const NUMS = ['plain', 'add', 'mul'];
+  /** The arrow pad, row by row; '' is the middle field that shows the current step. */
+  const PAD = ['UL', 'U', 'UR', 'L', '', 'R', 'DL', 'D', 'DR'];
+  const KEYS = { ArrowRight: 'R', ArrowLeft: 'L', ArrowUp: 'U', ArrowDown: 'D', e: 'UR', q: 'UL', z: 'DL', c: 'DR', PageUp: 'UR', Home: 'UL', End: 'DL', PageDown: 'DR' };
+
+  const state = {
+    level: 'easy', nums: 'plain', theme: 'basic',
+    task: null, i: 0, k: 0, mistakes: 0, stepMistakes: 0, fb: '', done: false,
+    stats: { stars: 0, done: 0, clean: 0, streak: 0, best: 0 },
+  };
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (!j) return;
+      if (DICT.LEVEL_IDS.includes(j.level)) state.level = j.level;
+      if (NUMS.includes(j.nums)) state.nums = j.nums;
+      if (DICT.THEME_IDS.includes(j.theme)) state.theme = j.theme;
+      if (j.stats) Object.assign(state.stats, j.stats);
+    } catch (_) { /* no storage: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ level: state.level, nums: state.nums, theme: state.theme, stats: state.stats })); } catch (_) { }
+  }
+
+  /* ---------- new picture ---------- */
+  function newTask() {
+    const pool = DICT.pool(state.level, state.theme);
+    let pic;
+    do { pic = DICT.pick(rnd, pool); } while (state.task && pool.length > 1 && pic.id === state.task.id);
+    const v = DICT.variant(pic, rnd);
+    const steps = DICT.steps(v.pts).map(s => ({ ...s, e: DICT.expr(s.n, state.nums, rnd) }));
+    state.task = { ...v, steps };
+    state.i = 0; state.k = 0; state.mistakes = 0; state.stepMistakes = 0; state.fb = ''; state.done = false;
+    render();
+  }
+
+  /** Where the pencil is now (outline coordinates). */
+  function penAt() {
+    const { pts, steps } = state.task;
+    if (state.i >= steps.length) return pts[0];
+    const p = pts[state.i], [dx, dy] = DICT.DIRS[steps[state.i].dir];
+    return [p[0] + dx * state.k, p[1] + dy * state.k];
+  }
+  const numText = s => s.e ? `${s.e.a}${C().ops[s.e.op]}${s.e.b}` : String(s.n);
+  const chip = (s, cls = '') => `<span class="chip ${cls}"><b>${esc(numText(s))}</b>${DICT.arrow(s.dir)}</span>`;
+
+  /* ---------- drawing ---------- */
+  function drawBoard() {
+    const { pts, steps } = state.task, sz = DICT.size(pts), m = 1;
+    const path = pts.slice(0, Math.min(state.i, steps.length) + 1);
+    if (state.done) path.push(pts[0]); else path.push(penAt());
+    const target = !state.done && state.stepMistakes >= 2 ? pts[(state.i + 1) % pts.length] : null;
+    $('board').innerHTML = DICT.grid({
+      cols: sz.w + 2 * m, rows: sz.h + 2 * m, ox: m, oy: m, cell: 10,
+      start: pts[0], path, pen: state.done ? null : penAt(), target,
+      shape: state.done ? pts : null, fill: '#ffd36b',
+    });
+  }
+  function drawSteps() {
+    const { steps } = state.task;
+    const box = $('steps');
+    box.innerHTML = steps.map((s, j) => `<li>${chip(s, j < state.i ? 'done' : j === state.i && !state.done ? 'now' : '')}</li>`).join('');
+    // on a phone the steps are one scrolling row: keep the current one in view
+    const now = box.querySelector('.now');
+    if (now && box.scrollWidth > box.clientWidth) box.scrollLeft = now.parentNode.offsetLeft - box.offsetLeft - box.clientWidth / 2 + now.offsetWidth / 2;
+  }
+  function drawPad() {
+    const hard = state.level === 'hard', s = state.task.steps[state.i];
+    $('pad').innerHTML = PAD.map(d => {
+      if (!d) {
+        if (!s || state.done) return '<div class="now"></div>';
+        const dots = state.nums === 'plain' && s.n > 1 ? `<span class="dots">${Array.from({ length: s.n }, (_, j) => `<i class="${j < state.k ? 'on' : ''}"></i>`).join('')}</span>` : '';
+        return `<div class="now" aria-hidden="true"><span>${esc(numText(s))}${DICT.arrow(s.dir)}</span>${dots}</div>`;
+      }
+      const off = DICT.diagonal(d) && !hard;
+      return `<button type="button" data-dir="${d}" class="${off ? 'off' : ''}" ${off ? 'tabindex="-1" aria-hidden="true"' : ''} aria-label="${esc(C().dirs[d])}" ${state.done ? 'disabled' : ''}>${DICT.arrow(d)}</button>`;
+    }).join('');
+  }
+
+  function render() {
+    const seg = (box, ids, cur, label, onPick) => {
+      box.innerHTML = '';
+      for (const id of ids) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = label(id); b.setAttribute('aria-pressed', String(id === cur));
+        b.addEventListener('click', () => { if (id === cur) return; onPick(id); save(); newTask(); });
+        box.appendChild(b);
+      }
+    };
+    seg($('levels'), DICT.LEVEL_IDS, state.level, id => C().levels[id], id => { state.level = id; });
+    seg($('nums'), NUMS, state.nums, id => C().numKinds[id], id => { state.nums = id; });
+    seg($('themes'), DICT.THEME_IDS, state.theme, id => C().themes[id], id => { state.theme = id; });
+    const n = state.task.steps.length;
+    $('lineNo').textContent = t('line', Math.min(state.i + 1, n), n);
+    $('levelBadge').textContent = C().levels[state.level];
+    $('help').textContent = t(state.nums === 'plain' ? 'help' : 'helpMath');
+    $('keys').textContent = state.level === 'hard' ? t('keys') : '';
+    $('fb').textContent = state.done ? '' : state.fb;
+    drawSteps(); drawBoard(); drawPad();
+    renderResult(); renderScore();
+  }
+  function renderScore() {
+    const s = state.stats;
+    $('scoreStars').textContent = `⭐ ${s.stars}`;
+    $('scoreStreak').textContent = `🔥 ${s.streak}`;
+    $('statsText').textContent = t('stats', s.done, s.clean);
+  }
+  function renderResult() {
+    const r = state.task.result, box = $('result');
+    box.hidden = !r;
+    if (!r) return;
+    $('verdict').textContent = C().good[r.cheer % C().good.length];
+    $('reveal').textContent = `${state.task.emoji} ${C().pics[state.task.id]}`.trim();
+    $('stars').textContent = '⭐'.repeat(r.stars);
+    $('explain').textContent = t('result', state.task.steps.length, state.mistakes);
+  }
+
+  /* ---------- playing ---------- */
+  function flash(dir, cls) {
+    const b = $('pad').querySelector(`[data-dir="${dir}"]`); if (!b) return;
+    b.classList.add(cls); setTimeout(() => b.classList.remove(cls), 260);
+  }
+  function press(dir) {
+    if (state.done || !state.task) return;
+    const steps = state.task.steps, s = steps[state.i];
+    if (dir === s.dir) {
+      state.k++; state.fb = '';
+      if (state.k === s.n) { state.i++; state.k = 0; state.stepMistakes = 0; }
+      if (state.i === steps.length) { finish(); return; }
+      render(); flash(dir, 'ok');
+      return;
+    }
+    state.mistakes++; state.stepMistakes++;
+    const prev = steps[state.i - 1];
+    state.fb = state.k === 0 && prev && dir === prev.dir
+      ? t('tooLong', C().squares(prev.n), C().dirs[s.dir])
+      : t('wrongDir', C().dirs[s.dir]);
+    if (state.stepMistakes === 2) state.fb += ' ' + t('hint');
+    render(); flash(dir, 'no');
+  }
+  function finish() {
+    const st = state.stats, clean = state.mistakes === 0;
+    const stars = clean ? 3 : state.mistakes <= 3 ? 2 : 1;
+    st.done++; st.stars += stars;
+    if (clean) { st.clean++; st.streak++; st.best = Math.max(st.best, st.streak); } else st.streak = 0;
+    state.done = true;
+    state.task.result = { stars, cheer: Math.floor(rnd() * 100) };
+    save(); render();
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    $('nextBtn').focus({ preventScroll: true });
+  }
+
+  function wire() {
+    $('pad').addEventListener('click', e => { const b = e.target.closest('button[data-dir]'); if (b) press(b.dataset.dir); });
+    document.addEventListener('keydown', e => {
+      if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+      const d = KEYS[e.key] || KEYS[e.key.toLowerCase()];
+      if (!d || state.done) return;
+      if (DICT.diagonal(d) && state.level !== 'hard') return;
+      e.preventDefault();
+      press(d);
+    });
+    $('nextBtn').addEventListener('click', () => { newTask(); $('taskCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    $('resetBtn').addEventListener('click', () => {
+      if (!confirm(t('resetConfirm'))) return;
+      state.stats = { stars: 0, done: 0, clean: 0, streak: 0, best: 0 };
+      save(); renderScore();
+    });
+    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); render(); });
+  }
+
+  load();
+  const q = new URLSearchParams(location.search);
+  if (DICT.LEVEL_IDS.includes(q.get('level'))) state.level = q.get('level');
+  if (NUMS.includes(q.get('nums'))) state.nums = q.get('nums');
+  if (DICT.THEME_IDS.includes(q.get('theme'))) state.theme = q.get('theme');
+  wire();
+  I18N.apply(UI);
+  document.title = t('title');
+  newTask();
+})();
+</script>
+</body>
+</html>
