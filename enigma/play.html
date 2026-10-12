@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akademia Młodych Szyfrantów: gra</title>
+<meta name="description" content="An online game for kids aged 8–10: from the Caesar cipher to a working Enigma with a turning wheel and a mirror.">
+<style>
+  :root{
+    --ink:#1B1B1F; --red:#B3261E; --navy:#1E3A5F; --muted:#5b6070; --line:#dfe3ec;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f5f7fb; --accent:#4f5bd5; --accent-d:#3d48b8;
+    --good:#1f7a45; --good-soft:#e3f4ea; --bad:#B3261E; --bad-soft:#fdebe9; --hl:#ffe08a; --res:#bfe3cc;
+    --mono:"Courier New",ui-monospace,Menlo,Consolas,monospace; --head:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;overflow-x:hidden;}
+  button,input{font:inherit;}
+  button{cursor:pointer;color:var(--ink);}
+  button:focus-visible,input:focus-visible,svg:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .l{font-family:var(--mono);font-weight:700;letter-spacing:.04em;white-space:nowrap;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .brand{font:800 20px/1.2 var(--head);flex:1 1 auto;margin:0;letter-spacing:-.01em;}
+  .navlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{font-weight:700;font-size:15px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:6px 12px;min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:1060px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 2px 10px rgba(30,40,80,.05);min-width:0;}
+  .story{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:0 16px;}
+  .story summary{cursor:pointer;font:700 16px/1.3 var(--head);color:var(--navy);padding:12px 0;min-height:44px;}
+  .story p{margin:0 0 10px;font-size:15px;}
+  .muted{color:var(--muted);}
+  .small{font-size:14px;}
+  p{margin:0;}
+
+  /* ---- mission tabs ---- */
+  .tabs{display:grid;grid-template-columns:repeat(var(--tabs,8),minmax(0,1fr));gap:6px;}
+  .tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:56px;padding:6px 4px;border:2px solid var(--line);border-radius:12px;background:var(--panel);}
+  .tab b{font:800 20px/1 var(--head);}
+  .tab small{font-size:12px;color:var(--muted);line-height:1.15;text-align:center;overflow-wrap:anywhere;}
+  .tab:hover{border-color:var(--navy);}
+  .tab[aria-current="page"]{border-color:var(--navy);background:var(--navy);color:#fff;}
+  .tab[aria-current="page"] small{color:#dfe7f3;}
+  .tab .tick{position:absolute;top:-7px;right:-5px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);box-shadow:0 0 0 2px #fff;}
+
+  /* ---- mission ---- */
+  .mhead{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--ink);margin-bottom:14px;}
+  .mhead h2{margin:0;font:800 26px/1.15 var(--head);}
+  .mhead .sub{color:var(--muted);margin-top:3px;}
+  .stamp{flex:none;width:72px;height:72px;border:3px solid var(--red);border-radius:50%;transform:rotate(-8deg);color:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--head);line-height:1;background:#fff;}
+  .stamp span{font-size:10px;font-weight:800;letter-spacing:.06em;max-width:56px;text-align:center;line-height:1.05;}
+  .stamp b{font-size:28px;font-weight:800;}
+  .stamp.done{background:var(--red);color:#fff;}
+  .stamp.pop{animation:stamp .5s ease-out;}
+  @keyframes stamp{0%{transform:rotate(-30deg) scale(1.6);opacity:0}70%{transform:rotate(-6deg) scale(.95);opacity:1}100%{transform:rotate(-8deg) scale(1)}}
+  .mgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start;}
+  @media (min-width:900px){ .mgrid.has-stage{grid-template-columns:minmax(0,400px) minmax(0,1fr);} }
+  .stage{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .taskcol{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .stage h3,.task h3,.rules h3,.disc h3{margin:0;font:800 18px/1.25 var(--head);color:var(--navy);}
+
+  /* task stepper */
+  .steps{display:flex;gap:8px;flex-wrap:wrap;}
+  .step{min-width:52px;min-height:46px;padding:4px 12px;border:2px solid var(--line);border-radius:999px;background:var(--panel);font:800 17px/1 var(--head);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;gap:5px;}
+  .step.free{border-style:dashed;}
+  .step[aria-current="step"]{border-color:var(--navy);background:var(--navy);color:#fff;}
+  .step.ok::after{content:"✓";color:var(--good);font-weight:900;}
+  .step[aria-current="step"].ok::after{color:#a8e6bf;}
+
+  .task{display:flex;flex-direction:column;gap:12px;}
+  .thead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .dot{flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font:800 18px/1 var(--head);}
+  .tag{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:#eef1f8;color:var(--navy);}
+  .warn{background:#fff6d6;border:1px solid #f1d98a;border-radius:10px;padding:8px 12px;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+  .good{color:var(--good);font-weight:600;}
+  .bad{color:var(--bad);font-weight:600;}
+  .fb{border:2px solid var(--good);background:var(--good-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:pop .3s ease-out;}
+  .fb .cheer{font:800 20px/1.2 var(--head);color:var(--good);}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  .disc{border:2px dashed var(--navy);border-radius:var(--radius);padding:14px 16px;background:#fff;display:flex;flex-direction:column;gap:8px;}
+  .disc h3::before{content:"★ ";}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:48px;font-size:16px;align-self:flex-start;}
+  .primary:hover{background:#15304f;}
+  .primary:disabled{opacity:.5;cursor:default;}
+  .ghostbtn{font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:8px 16px;min-height:44px;}
+  .ghostbtn:hover{border-color:var(--navy);}
+  .ghostbtn:disabled{opacity:.5;cursor:default;}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+
+  /* ---- letters over boxes ---- */
+  .decoder{display:flex;flex-direction:column;gap:10px;container-type:inline-size;}
+  .crow{display:flex;flex-wrap:wrap;gap:10px 16px;}
+  .word{display:flex;gap:3px;}
+  .cell{--cw:34px;display:flex;flex-direction:column;align-items:center;gap:3px;}
+  @supports (width:1cqi){ .cell{--cw:clamp(20px, calc((100cqi - 4px) / var(--L) - 3px), 42px);} }
+  .ct{font:700 calc(var(--cw) * .62)/1 var(--mono);height:calc(var(--cw) * .72);display:flex;align-items:center;}
+  .ct.red{color:var(--red);}
+  .cb{width:var(--cw);height:calc(var(--cw) * 1.18);padding:0;border:2px solid var(--ink);border-radius:6px;background:#fff;font:700 calc(var(--cw) * .62)/1 var(--mono);display:flex;align-items:center;justify-content:center;}
+  .cb.red{border-color:var(--red);color:var(--red);}
+  .cb.cur{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent);background:#eef0ff;}
+  .cb.ok{background:var(--good-soft);border-color:var(--good);cursor:default;}
+  .cb.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);animation:shake .35s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .dmsg{min-height:1.4em;color:var(--bad);font-weight:600;font-size:15px;}
+  .pad{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:5px;}
+  .key{min-height:46px;border:1.5px solid #c5cbe0;border-radius:9px;background:#fff;font:700 20px/1 var(--mono);padding:0;}
+  .key:hover{border-color:var(--navy);background:#f1f4fa;}
+  .key.wide{grid-column:span 2;font:600 15px/1 system-ui,sans-serif;}
+
+  /* ---- wheel ---- */
+  .wheelbox{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  svg.wheel{width:100%;max-width:340px;height:auto;display:block;user-select:none;-webkit-user-select:none;}
+  svg.wheel.drag{touch-action:none;cursor:grab;}
+  .w-outer{fill:#fff;stroke:var(--ink);stroke-width:2;}
+  .w-inner{fill:#fff8f7;stroke:var(--ink);stroke-width:1.5;}
+  .w-sep{stroke:#9aa0ad;stroke-width:1;}
+  .w-hub{fill:#fff;stroke:#c9c4b8;stroke-width:1;}
+  .w-star{fill:var(--red);}
+  .w-window{fill:rgba(30,58,95,.08);stroke:var(--navy);stroke-width:2.5;}
+  .wt{font-family:var(--mono);font-weight:700;fill:var(--ink);}
+  .wt.red{fill:var(--red);}
+  .wl .hit{fill:transparent;}
+  .wl.hl .hit{fill:var(--hl);}
+  .wl.res .hit{fill:var(--res);}
+  .dial{display:flex;align-items:center;gap:12px;justify-content:center;}
+  .dialbtn{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--soft);font-size:26px;font-weight:700;line-height:1;}
+  .dialbtn:hover{border-color:var(--navy);}
+  .dialbox{display:flex;flex-direction:column;align-items:center;min-width:72px;}
+  .dialbox small{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .dialnum{font:800 30px/1 var(--mono);color:var(--navy);}
+  .wstate{text-align:center;font-size:15px;min-height:1.4em;}
+
+  /* ---- mission 2 table ---- */
+  .subt{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px;}
+  .col{display:flex;flex-direction:column;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;padding:0;background:#fff;font:700 18px/1 var(--mono);min-height:58px;}
+  .col b{padding:6px 0;color:var(--ink);border-bottom:1px solid var(--line);}
+  .col span{padding:6px 0;color:var(--red);}
+  .col:hover{border-color:var(--navy);}
+  .col.sel{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy);}
+  .col.sel b,.col.sel span{background:var(--hl);}
+
+  /* ---- mission 3 cards ---- */
+  .slots,.cards{display:flex;gap:10px;flex-wrap:wrap;}
+  .slot,.pcard{width:60px;height:76px;border-radius:10px;font:800 32px/1 var(--mono);display:flex;align-items:center;justify-content:center;padding:0;}
+  .slot{border:2px dashed #9aa0ad;background:var(--soft);}
+  .slot.full{border:2px solid var(--navy);background:#fff;}
+  .pcard{border:2px solid var(--ink);background:#fff;box-shadow:0 3px 0 #c9c4b8;}
+  .pcard:disabled{opacity:.3;cursor:default;box-shadow:none;}
+  .found{display:flex;flex-wrap:wrap;gap:6px;}
+  .found span{font:700 18px/1 var(--mono);letter-spacing:.12em;border:1.5px solid var(--good);background:var(--good-soft);border-radius:8px;padding:8px 10px;}
+  .eq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:700 22px/1 var(--mono);}
+  .num{width:110px;min-height:46px;border:2px solid var(--navy);border-radius:8px;font:700 20px/1 var(--mono);text-align:center;padding:4px;}
+  .num.ok{border-color:var(--good);background:var(--good-soft);}
+  .num.no{border-color:var(--bad);background:var(--bad-soft);}
+  .ftable{border-collapse:collapse;width:100%;}
+  .ftable th,.ftable td{border:1px solid var(--line);padding:6px 4px;text-align:center;font:700 16px/1.2 var(--mono);}
+  .ftable th{font:700 13px/1.2 system-ui,sans-serif;text-align:left;color:var(--muted);}
+  .ftable .num{width:100%;min-width:0;font-size:16px;padding:2px;}
+  .tscroll{max-width:100%;}
+  .bigfact{font:800 20px/1.3 var(--mono);color:var(--red);overflow-wrap:anywhere;}
+
+  /* ---- mirror ---- */
+  .mirror{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+  .mirror.big{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;}
+  .pair{display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--line);border-radius:10px;padding:5px;}
+  .pair.hl{background:var(--hl);border-color:var(--navy);}
+  .pair i{font-style:normal;color:var(--navy);font-weight:800;}
+  .sq{min-width:44px;height:46px;border:2px solid var(--ink);border-radius:8px;background:#fff;font:700 20px/1 var(--mono);display:inline-flex;align-items:center;justify-content:center;padding:0 4px;}
+  .mirror.big .sq{min-width:34px;height:38px;font-size:17px;}
+  button.sq:hover{border-color:var(--navy);background:#f1f4fa;}
+  .sq.red{border-color:var(--red);color:var(--red);}
+  .sq.res{border-color:var(--navy);border-width:3px;}
+
+  /* ---- path of a letter ---- */
+  .path{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--soft);}
+  .chain{display:flex;align-items:flex-start;gap:2px;}
+  .cn{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1 1 0;min-width:0;max-width:84px;}
+  .cn small{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.15;}
+  .cn .sq{background:#fff;}
+  .ca{flex:none;color:var(--navy);font-weight:800;padding-top:12px;}
+  .rules ol,.stage ol{margin:6px 0 0;padding-left:22px;font-size:15px;}
+  .rules li,.stage li{margin:3px 0;}
+
+  /* ---- free machine ---- */
+  .free{display:flex;flex-direction:column;gap:10px;}
+  .flabel{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .free-in{width:100%;min-height:48px;border:2px solid var(--ink);border-radius:10px;padding:6px 10px;font:700 20px/1.2 var(--mono);text-transform:uppercase;}
+  .free-out{min-height:48px;border:2px solid var(--red);border-radius:10px;padding:6px 10px;font:700 20px/1.4 var(--mono);color:var(--red);letter-spacing:.1em;white-space:pre-wrap;overflow-wrap:anywhere;}
+
+  /* ---- choices / quiz ---- */
+  .choice{display:flex;flex-direction:column;gap:8px;}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opts.yn{flex-direction:row;}
+  .opt{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;min-height:48px;font-size:16px;}
+  .opts.yn .opt{min-width:96px;text-align:center;font-weight:800;}
+  .opt:hover{border-color:var(--navy);}
+  .opt[aria-pressed="true"]{border-color:var(--navy);background:#eef1f8;}
+  .opt.right{border-color:var(--good);background:var(--good-soft);}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .opt:disabled{cursor:default;}
+  .opt:disabled:not(.right):not(.wrong){opacity:.6;}
+  .qfb:empty{display:none;}
+  .quiz{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:18px;}
+  .quiz > li > p{font-weight:600;margin-bottom:8px;}
+  .cert{border:6px double var(--navy);border-radius:var(--radius);padding:18px;background:#fff;display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .cert > div:first-child{flex:1 1 240px;display:flex;flex-direction:column;gap:6px;}
+  .cert h3{margin:0;font:800 24px/1.2 var(--head);color:var(--navy);}
+  .bigstamp{flex:none;width:150px;height:150px;border:5px solid var(--red);border-radius:50%;color:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transform:rotate(-10deg);font:800 17px/1 var(--head);letter-spacing:.06em;text-align:center;padding:10px;animation:stamp .6s ease-out;}
+  .bigstamp svg{width:42px;height:42px;}
+  .bigstamp small{font-size:10px;letter-spacing:.02em;font-weight:700;}
+
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:14px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .ghost{font-size:13px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;color:var(--muted);}
+  .ghost:hover{border-color:var(--bad);color:var(--bad);}
+
+  @media (prefers-reduced-motion:reduce){ .fb,.stamp.pop,.bigstamp,.cb.bad{animation:none;} }
+
+  /* ---- phone ---- */
+  @media (max-width:700px){
+    .tabs{--tabs:4 !important;}
+    .tab small{display:none;}
+    .tab{min-height:50px;}
+  }
+  @media (max-width:600px){
+    .top{padding:8px 12px;gap:6px 8px;}
+    .brand{font-size:18px;flex-basis:100%;order:-1;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:12px;}
+    .mhead{gap:10px;}
+    .mhead h2{font-size:22px;}
+    .stamp{width:58px;height:58px;}
+    .stamp b{font-size:22px;}
+    .stamp span{font-size:8px;max-width:44px;}
+    svg.wheel{max-width:360px;}
+    .subt{grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:3px;}
+    .mirror{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .mirror.big{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));}
+    .bigstamp{width:124px;height:124px;font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">🔐 Akademia Młodych Szyfrantów</h1>
+  <a class="navlink" href="index.html" data-keep-lang data-i18n="printSheets">🖨️ Karty do druku</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <span class="score" id="score" aria-live="polite" data-i18n-attr="title:starsTitle" title="Zdobyte gwiazdki">⭐ 0</span>
+</header>
+
+<main class="wrap">
+  <details class="story" id="story"><summary id="storyTitle"></summary><p id="story1"></p><p id="story2"></p></details>
+  <nav class="tabs" id="tabs" data-i18n-attr="aria-label:tabsLabel" aria-label="Misje"></nav>
+  <div id="view"></div>
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset">Wyczyść postępy</button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script src="play-strings.js"></script>
+<script>
+(() => {
+  'use strict';
+  const E = ENIGMA;
+  const $ = q => document.querySelector(q);
+
+  // ================= texts =================
+  const DICT = {};
+  I18N.LANGS.forEach(({ code }) => { DICT[code] = (E.TEXT[code] && E.TEXT[code].play) || {}; });
+  const lang = () => I18N.get();
+  /** French: no line break before : ; ? ! (also inside lists and quiz objects). */
+  function fr(x) {
+    if (lang() !== 'fr') return x;
+    if (typeof x === 'string') return x.replace(/ ([:;?!»])/g, ' $1');
+    if (Array.isArray(x)) return x.map(fr);
+    if (x && typeof x === 'object') { const o = {}; for (const k of Object.keys(x)) o[k] = fr(x[k]); return o; }
+    return x;
+  }
+  /** A text of the game (play-strings.js). */
+  const T = (k, ...a) => fr(I18N.t(DICT, k, ...a));
+  const pack = () => E.pack(lang());
+  /** A text of the worksheets (strings.js): strings as they are, functions get the values of the pack. */
+  function W(k, ...a) {
+    const D = E.textFor(lang()), PL = E.TEXT.pl || {};
+    let x = D[k] !== undefined ? D[k] : PL[k];
+    if (x === undefined) return '';
+    if (typeof x === 'function') { try { x = x(E.values(pack()), ...a); } catch (_) { return ''; } }
+    return fr(x);
+  }
+  const hasBig = (() => { try { return typeof E.bigPack === 'function' && E.bigPack('pl').out.length > 8; } catch (_) { return false; } })();
+  const mod = (a, m) => ((a % m) + m) % m;
+  const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // ================= DOM helpers (text only, never HTML) =================
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function mk(ns, tag, attrs, kids) {
+    const e = ns ? document.createElementNS(ns, tag) : document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    const add = k => {
+      if (k == null || k === false) return;
+      if (Array.isArray(k)) k.forEach(add);
+      else e.appendChild(typeof k === 'object' ? k : document.createTextNode(String(k)));
+    };
+    add(kids);
+    return e;
+  }
+  const h = (tag, attrs, ...kids) => mk(null, tag, attrs, kids);
+  const s = (tag, attrs, ...kids) => mk(SVGNS, tag, attrs, kids);
+  /** **bold** and {{letters}} → DOM nodes. */
+  function rich(str) {
+    return String(str == null ? '' : str).split(/(\*\*[^*]+\*\*|\{\{[^}]+\}\})/).filter(Boolean).map(x => {
+      if (x.startsWith('**')) return h('b', null, rich(x.slice(2, -2)));
+      if (x.startsWith('{{')) return h('span', { class: 'l' }, x.slice(2, -2));
+      return document.createTextNode(x);
+    });
+  }
+  const plain = str => String(str).replace(/\*\*|\{\{|\}\}/g, '');
+  const para = (str, cls) => h('p', cls ? { class: cls } : null, rich(str));
+  function starPath(cx, cy, R, r) {
+    let d = '';
+    for (let i = 0; i < 10; i++) {
+      const a = Math.PI / 5 * i - Math.PI / 2, rr = i % 2 ? r : R;
+      d += (i ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(2) + ' ' + (cy + rr * Math.sin(a)).toFixed(2);
+    }
+    return d + 'Z';
+  }
+
+  // ================= progress =================
+  const STORE = 'enigma.play';
+  const MISSIONS = hasBig ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6];
+  const REPORT = 8;
+  const TASKS = { 1: ['1a', '1b', '1c'], 2: ['2a', '2b'], 3: ['3a', '3b', '3c'], 4: ['4a', '4b', '4c'], 5: ['5a', '5b', '5c', '5d'], 6: ['6a', '6b', '6c'], 7: ['7a', '7b'], 8: ['q'] };
+  const FREE = new Set(['6c', '7b']);   // "just for fun": no star, not needed for the stamp
+  const ALL = Object.values(TASKS).flat();
+  const prog = { done: new Set(), last: 1 };
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (!j || typeof j !== 'object') return;
+      if (Array.isArray(j.done)) j.done.forEach(id => { if (typeof id === 'string' && ALL.includes(id) && !FREE.has(id)) prog.done.add(id); });
+      if (MISSIONS.includes(j.last) || j.last === REPORT) prog.last = j.last;
+    } catch (_) { /* no storage: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, done: [...prog.done], last: prog.last })); } catch (_) { /* ignore */ }
+  }
+  const required = m => TASKS[m].filter(id => !FREE.has(id));
+  const missionDone = m => required(m).every(id => prog.done.has(id));
+  const starCount = () => [...prog.done].filter(id => MISSIONS.some(m => TASKS[m].includes(id)) || id === 'q').length;
+
+  load();
+  const S = { m: prog.last, task: null, keyFound: false };
+  const qm = parseInt(new URLSearchParams(location.search).get('mission'), 10);
+  if (MISSIONS.includes(qm) || qm === REPORT) S.m = qm;
+  /** What the letter keys and the wheel taps type into right now. */
+  const active = { decoder: null };
+  let tok = 0;   // bumped on every re-render: stops pending animations of the old screen
+
+  // ================= components =================
+  const taskLetter = i => (W('taskLetters') || 'ABCD')[i] || String(i + 1);
+
+  /** A row of letters, each over a box. The child fills the boxes; a wrong letter shakes and is not kept.
+   *  o: top, answer, topCls, boxCls, alpha (letters that can be typed), solved, onSolved, onPos(cell | null, end),
+   *     pad (false = no letter keys under the row), padLetters. */
+  function decoder(o) {
+    const top = [...o.top.normalize('NFC')], ans = [...o.answer.normalize('NFC')];
+    const cells = [], words = [];
+    let w = null;
+    top.forEach((ch, i) => {
+      if (ch === ' ') { w = null; return; }
+      if (!w) { w = h('div', { class: 'word' }); words.push(w); }
+      const a = ans[i];
+      if (o.alpha.includes(a)) {
+        const c = { k: cells.length, ch, ans: a, done: !!o.solved };
+        c.box = h('button', { type: 'button', class: `cb ${o.boxCls}` });
+        c.box.addEventListener('click', () => { if (!c.done) select(c.k, true); });
+        w.appendChild(h('div', { class: 'cell' }, h('span', { class: `ct ${o.topCls}`, 'aria-hidden': 'true' }, ch), c.box));
+        cells.push(c);
+      } else {   // not on this wheel: shown as it is
+        w.appendChild(h('div', { class: 'cell' }, h('span', { class: `ct ${o.topCls}` }, ch), h('span', { class: `cb ${o.boxCls} ok` }, a)));
+      }
+    });
+    const maxLen = Math.max(1, ...words.map(x => x.children.length));
+    const msg = h('p', { class: 'dmsg', 'aria-live': 'polite' });
+    const root = h('div', { class: 'decoder' }, h('div', { class: 'crow', style: `--L:${maxLen}` }, words), msg);
+    let cur = -1;
+    function paint() {
+      cells.forEach(c => {
+        c.box.classList.toggle('cur', c.k === cur);
+        c.box.classList.toggle('ok', c.done);
+        if (c.done) c.box.textContent = c.ans;
+        c.box.setAttribute('aria-label', T('cellLabel', c.k + 1, cells.length, c.done ? c.ans : '') + (c.done ? '' : ` (${c.ch})`));
+      });
+    }
+    function select(k, focus) {
+      cur = k; paint();
+      if (focus) cells[k].box.focus();
+      if (o.onPos) o.onPos(cells[k], cells.length);
+    }
+    const firstOpen = from => {
+      for (let j = 0; j < cells.length; j++) { const c = cells[mod(from + j, cells.length)]; if (!c.done) return c.k; }
+      return -1;
+    };
+    function enter(ch) {
+      if (cur < 0) return;
+      const c = cells[cur];
+      if (ch === c.ans) {
+        c.done = true; msg.textContent = '';
+        const wasBox = document.activeElement && document.activeElement.classList.contains('cb');
+        const nx = firstOpen(cur + 1);
+        if (nx < 0) { cur = -1; paint(); if (o.onPos) o.onPos(null, cells.length); if (o.onSolved) o.onSolved(); }
+        else select(nx, wasBox);
+      } else {
+        c.box.textContent = ch;
+        c.box.classList.remove('bad'); void c.box.offsetWidth; c.box.classList.add('bad');
+        msg.textContent = T('tryAgain');
+        const box = c.box;
+        setTimeout(() => { if (!c.done) { box.textContent = ''; box.classList.remove('bad'); } }, 700);
+      }
+    }
+    function key(e) {
+      if (cur < 0) return false;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        const d = e.key === 'ArrowRight' ? 1 : -1;
+        for (let j = 1; j <= cells.length; j++) { const c = cells[mod(cur + d * j, cells.length)]; if (!c.done) { select(c.k, true); break; } }
+        return true;
+      }
+      if ([...e.key].length !== 1) return false;
+      const up = e.key.toUpperCase().normalize('NFC');
+      if (o.alpha.includes(up)) { enter(up); return true; }
+      return false;
+    }
+    if (o.pad !== false) {
+      root.appendChild(pad(o.padLetters || o.alpha, enter));
+      root.appendChild(para(T('tapHint'), 'muted small'));
+    }
+    if (o.solved) { paint(); if (o.onPos) o.onPos(null, cells.length); }
+    else select(firstOpen(0), false);
+    return { el: root, enter, key, cells };
+  }
+
+  function pad(letters, fn, extra) {
+    return h('div', { class: 'pad', role: 'group', 'aria-label': T('padLabel') },
+      letters.map(ch => h('button', { type: 'button', class: 'key', onclick: () => fn(ch) }, ch)), extra || null);
+  }
+
+  /** Answer buttons. o: opts (texts), ok (indices), multi, yn, solved, right, wrong, onRight. */
+  function choice(o) {
+    const okSet = new Set(o.ok);
+    const btns = o.opts.map(txt => h('button', { type: 'button', class: 'opt', 'aria-pressed': 'false' }, rich(txt)));
+    const fb = h('p', { class: 'qfb', 'aria-live': 'polite' });
+    const root = h('div', { class: 'choice' }, h('div', { class: 'opts' + (o.yn ? ' yn' : '') }, btns), fb);
+    const showRight = () => {
+      btns.forEach((b, i) => { b.disabled = true; b.classList.remove('wrong'); b.classList.toggle('right', okSet.has(i)); b.setAttribute('aria-pressed', String(okSet.has(i))); });
+      fb.className = 'qfb good'; fb.replaceChildren(...rich(o.right));
+    };
+    const showWrong = () => { fb.className = 'qfb bad'; fb.replaceChildren(...rich(o.wrong)); };
+    if (o.solved) { showRight(); return root; }
+    if (!o.multi) {
+      btns.forEach((b, i) => b.addEventListener('click', () => {
+        if (okSet.has(i)) { showRight(); o.onRight(); } else { b.classList.add('wrong'); showWrong(); }
+      }));
+    } else {
+      btns.forEach(b => b.addEventListener('click', () => {
+        b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+        fb.textContent = '';
+      }));
+      const chk = h('button', { type: 'button', class: 'primary' }, T('check'));
+      chk.addEventListener('click', () => {
+        const sel = btns.map((b, i) => (b.getAttribute('aria-pressed') === 'true' ? i : -1)).filter(i => i >= 0);
+        if (sel.length === okSet.size && sel.every(i => okSet.has(i))) { chk.remove(); showRight(); o.onRight(); } else showWrong();
+      });
+      root.insertBefore(chk, fb);
+    }
+    return root;
+  }
+
+  /** A two-ring wheel: black letters `outer` fixed, red letters `inner` on a disc that turns.
+   *  kind 'caesar': k = key, the red letter under the black outer[0] is inner[k] (the disc turns anticlockwise).
+   *  kind 'enigma': k = notches turned clockwise; the star under inner[0] points at outer[k].
+   *  Letters stay upright while the disc turns. o: outer, inner, kind, drag, label, onTurn(k), onTap(ring, ch). */
+  function wheel(o) {
+    const n = o.outer.length, step = 360 / n, small = n <= 10;
+    const R = 168, rO1 = small ? 112 : 128, rOL = small ? 140 : 148, rI = rO1 - 2;
+    const rIL = small ? 84 : 108, rI0 = small ? 56 : 88, starR = small ? 34 : 70;
+    const fo = Math.min(small ? 34 : 24, 0.7 * 2 * Math.PI * rOL / n), fi = Math.min(small ? 30 : 20, 0.74 * 2 * Math.PI * rIL / n);
+    const pos = (r, i) => { const a = i * step * Math.PI / 180; return [r * Math.sin(a), -r * Math.cos(a)]; };
+    const groups = { out: new Map(), in: new Map() }, innerTexts = [];
+    const letter = (ring, ch, i, r, f, cls) => {
+      const [x, y] = pos(r, i);
+      const t = s('text', { x: x.toFixed(2), y: y.toFixed(2), class: `wt ${cls}`, 'font-size': f.toFixed(1), 'text-anchor': 'middle', 'dominant-baseline': 'central' }, ch);
+      const g = s('g', { class: 'wl', 'data-ring': ring, 'data-ch': ch },
+        s('circle', { class: 'hit', cx: x.toFixed(2), cy: y.toFixed(2), r: Math.min(small ? 28 : 19, 0.5 * 2 * Math.PI * r / n).toFixed(1) }), t);
+      groups[ring].set(ch, g);
+      if (ring === 'in') innerTexts.push({ t, x, y });
+      return g;
+    };
+    const sep = (r1, r2, i) => { const [x1, y1] = pos(r1, i + 0.5), [x2, y2] = pos(r2, i + 0.5); return s('line', { x1, y1, x2, y2, class: 'w-sep' }); };
+    const gOut = s('g', null, s('circle', { r: R, class: 'w-outer' }),
+      o.outer.map((_, i) => sep(rO1, R, i)), o.outer.map((ch, i) => letter('out', ch, i, rOL, fo, 'ink')));
+    const gIn = s('g', null, s('circle', { r: rI, class: 'w-inner' }), s('circle', { r: rI0, class: 'w-hub' }),
+      o.inner.map((_, i) => sep(rI0, rI, i)), o.inner.map((ch, i) => letter('in', ch, i, rIL, fi, 'red')),
+      o.kind === 'enigma' ? s('path', { d: starPath(0, -starR, small ? 15 : 13, small ? 6 : 5.2), class: 'w-star' }) : null,
+      s('path', { d: 'M-6 0H6M0 -6V6', stroke: '#9aa0ad', 'stroke-width': 1.5 }));
+    const overlay = s('g', { 'pointer-events': 'none' });
+    if (o.kind === 'caesar') {   // the window that shows "black A over red …"
+      const r1 = rI0 + 4, r2 = R - 3;
+      const [ax, ay] = pos(r1, -0.5), [bx, by] = pos(r1, 0.5), [cx, cy] = pos(r2, 0.5), [dx, dy] = pos(r2, -0.5);
+      overlay.appendChild(s('path', { class: 'w-window', d: `M${ax} ${ay}A${r1} ${r1} 0 0 1 ${bx} ${by}L${cx} ${cy}A${r2} ${r2} 0 0 0 ${dx} ${dy}Z` }));
+    }
+    const svg = s('svg', { viewBox: '-171 -171 342 342', class: 'wheel' + (o.drag ? ' drag' : ''), role: o.drag ? 'slider' : 'img', tabindex: o.drag ? 0 : null, 'aria-label': o.label },
+      gOut, gIn, overlay);
+    if (o.drag) { svg.setAttribute('aria-valuemin', 0); svg.setAttribute('aria-valuemax', n - 1); }
+
+    let rot = 0, k = 0, raf = 0;
+    const angFor = kk => (o.kind === 'caesar' ? -kk : kk) * step;
+    function apply(d) {
+      rot = d;
+      gIn.setAttribute('transform', `rotate(${d.toFixed(3)})`);
+      innerTexts.forEach(({ t, x, y }) => t.setAttribute('transform', `rotate(${(-d).toFixed(3)} ${x.toFixed(2)} ${y.toFixed(2)})`));
+    }
+    function setK(kk, anim) {
+      k = kk;
+      if (o.drag) svg.setAttribute('aria-valuenow', mod(k, n));
+      const to = angFor(kk);
+      cancelAnimationFrame(raf);
+      if (!anim || reduced() || Math.abs(to - rot) < 0.01) { apply(to); return; }
+      const from = rot, t0 = performance.now(), dur = Math.min(900, 300 + 90 * Math.abs(to - from) / step);
+      const frame = now => {
+        const p = Math.min(1, (now - t0) / dur), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        apply(from + (to - from) * e);
+        if (p < 1) raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+    }
+    const turn = kk => { setK(kk, true); if (o.onTurn) o.onTurn(k); };
+
+    // pointer: drag the red disc (if allowed), tap a letter
+    let dn = null;
+    const local = e => { const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : { x: 0, y: 0 }; };
+    const angOf = pt => Math.atan2(pt.x, -pt.y) * 180 / Math.PI;
+    svg.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      const pt = local(e);
+      if (Math.hypot(pt.x, pt.y) > R) return;
+      const a = angOf(pt);
+      dn = { id: e.pointerId, x: e.clientX, y: e.clientY, last: a, acc: 0, rot0: rot, tg: e.target.closest ? e.target.closest('[data-ch]') : null, moved: false };
+      if (o.drag) { try { svg.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } }
+    });
+    svg.addEventListener('pointermove', e => {
+      if (!dn || e.pointerId !== dn.id) return;
+      if (!dn.moved && Math.hypot(e.clientX - dn.x, e.clientY - dn.y) > 8) { dn.moved = true; if (o.drag) cancelAnimationFrame(raf); }
+      if (!o.drag || !dn.moved) return;
+      const a = angOf(local(e));
+      let d = a - dn.last; if (d > 180) d -= 360; if (d < -180) d += 360;
+      dn.last = a; dn.acc += d;
+      apply(dn.rot0 + dn.acc);
+    });
+    const end = (e, cancel) => {
+      if (!dn || e.pointerId !== dn.id) return;
+      const d = dn; dn = null;
+      if (!d.moved) { if (!cancel && d.tg && o.onTap) o.onTap(d.tg.getAttribute('data-ring'), d.tg.getAttribute('data-ch')); return; }
+      if (o.drag) turn(Math.round((o.kind === 'caesar' ? -rot : rot) / step));
+    };
+    svg.addEventListener('pointerup', e => end(e, false));
+    svg.addEventListener('pointercancel', e => end(e, true));
+    if (o.drag) svg.addEventListener('keydown', e => {
+      const d = (e.key === 'ArrowRight' || e.key === 'ArrowUp') ? 1 : (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 0;
+      if (!d) return;
+      e.preventDefault(); turn(k + d);
+    });
+
+    return {
+      el: svg, n, setK, turn,
+      get k() { return k; },
+      hl(ring, ch, cls) { const g = groups[ring].get(ch); if (g) g.classList.add(cls || 'hl'); },
+      clear() { svg.querySelectorAll('.wl.hl,.wl.res').forEach(g => g.classList.remove('hl', 'res')); },
+      setText(t) { if (o.drag) svg.setAttribute('aria-valuetext', t); else svg.setAttribute('aria-label', `${o.label}. ${t}`); },
+    };
+  }
+
+  /** Wheel + mirror + "path of one letter" for Missions 6 and 7. M: a pack or a bigPack. */
+  function enigmaKit(M) {
+    const wh = wheel({ outer: M.out, inner: M.inn, kind: 'enigma', label: T('wheelLabel'),
+      onTap: (ring, ch) => { if (ring === 'out' && active.decoder) active.decoder.enter(ch); } });
+    const st = h('p', { class: 'wstate', 'aria-live': 'polite' });
+    const N = M.out.length;
+    const updSt = () => { const t = T('starState', M.out[mod(wh.k, N)], wh.k); st.replaceChildren(...rich(t)); wh.setText(plain(t)); };
+    const pairEl = new Map();
+    const mirror = h('div', { class: 'mirror' + (N > 8 ? ' big' : '') }, M.pairs.map(([a, b]) => {
+      const el = h('div', { class: 'pair' }, h('span', { class: 'sq' }, a), h('i', { 'aria-hidden': 'true' }, '↔'), h('span', { class: 'sq' }, b));
+      pairEl.set(a, el); pairEl.set(b, el);
+      return el;
+    }));
+    const labels = W('exLabels');
+    const lab = i => (Array.isArray(labels) && labels[i]) || '';
+    const nodes = [0, 1, 2, 3].map(i => h('span', { class: 'sq' + ['', ' red', ' red', ' res'][i] }));
+    const arrow = () => h('span', { class: 'ca', 'aria-hidden': 'true' }, '→');
+    const turnNote = h('p', { class: 'muted small', 'aria-live': 'polite' });
+    const showBtn = h('button', { type: 'button', class: 'ghostbtn' }, T('showPath'));
+    const pathEl = h('div', { class: 'path' },
+      h('div', { class: 'chain' }, nodes.map((nd, i) => [i ? arrow() : null, h('div', { class: 'cn' }, nd, h('small', null, lab(i)))])),
+      h('div', { class: 'row' }, showBtn), turnNote);
+    let cell = null, ptok = 0;
+    const clearHl = () => { wh.clear(); pairEl.forEach(el => el.classList.remove('hl')); };
+    /** The decoder moved to another box (or finished: c = null, end = number of letters). */
+    function setCell(c, end) {
+      ptok++; cell = c; clearHl();
+      nodes.forEach((nd, i) => { nd.textContent = i === 0 && c ? c.ch : ''; });
+      turnNote.textContent = '';
+      showBtn.disabled = !c;
+      wh.setK(c ? c.k : (end || 0), true);
+      if (c) wh.hl('out', c.ch);
+      updSt();
+    }
+    function play() {
+      if (!cell) return;
+      const my = ++ptok, t0 = tok, c = cell, k = c.k;
+      const u = E.under(M, c.ch, k), m = M.mir.get(u), r = E.over(M, m, k);
+      const steps = [
+        () => { clearHl(); nodes.forEach(nd => { nd.textContent = ''; }); nodes[0].textContent = c.ch; wh.hl('out', c.ch); turnNote.textContent = ''; },
+        () => { nodes[1].textContent = u; wh.hl('in', u); },
+        () => { nodes[2].textContent = m; const p = pairEl.get(u); if (p) p.classList.add('hl'); },
+        () => { nodes[3].textContent = r; wh.hl('in', m); wh.hl('out', r, 'res'); turnNote.textContent = T('pathTurn'); },
+      ];
+      let i = 0;
+      const go = () => {
+        if (my !== ptok || t0 !== tok) return;
+        steps[i++]();
+        if (i < steps.length) setTimeout(go, reduced() ? 0 : 850);
+      };
+      go();
+    }
+    showBtn.addEventListener('click', play);
+    updSt();
+    return { wh, st, updSt, mirror, pathEl, setCell, reset() { ptok++; clearHl(); wh.setK(0, true); updSt(); } };
+  }
+
+  /** Free play: type a message, see the code at once, put the code back in. */
+  function freeMachine(M, K) {
+    const letters = M.out;
+    const inp = h('input', { type: 'text', class: 'free-in', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', maxlength: 40, 'aria-label': T('inputLabel') });
+    const out = h('div', { class: 'free-out', 'aria-live': 'polite' });
+    const note = h('p', { class: 'good', hidden: true }, rich(T('swapNote')));
+    const clean = str => [...str.toUpperCase().normalize('NFC')].filter(ch => ch === ' ' || letters.includes(ch)).join('').replace(/ {2,}/g, ' ').slice(0, 40);
+    function upd(swapped) {
+      const v = clean(inp.value);
+      if (inp.value !== v) inp.value = v;
+      out.textContent = E.enigma(M, v);
+      K.wh.setK([...v].filter(ch => letters.includes(ch)).length, true);
+      K.updSt();
+      note.hidden = !swapped;
+    }
+    inp.addEventListener('input', () => upd(false));
+    const typeIn = ch => { inp.value += ch; upd(false); };
+    const keys = pad(letters, typeIn, [
+      h('button', { type: 'button', class: 'key wide', onclick: () => typeIn(' ') }, T('space')),
+      h('button', { type: 'button', class: 'key wide', 'aria-label': T('eraseLabel'), title: T('eraseLabel'), onclick: () => { inp.value = [...inp.value].slice(0, -1).join(''); upd(false); } }, '⌫'),
+    ]);
+    const swap = h('button', { type: 'button', class: 'primary', onclick: () => { inp.value = E.enigma(M, clean(inp.value)); upd(true); } }, T('swapBtn'));
+    const clr = h('button', { type: 'button', class: 'ghostbtn', onclick: () => { inp.value = ''; upd(false); } }, T('clear'));
+    upd(false);
+    return h('div', { class: 'free' },
+      h('label', { class: 'flabel' }, W('msgLabel') || T('inputLabel')), inp,
+      h('div', { class: 'flabel' }, W('codeLabel')), out,
+      h('div', { class: 'row' }, swap, clr), note, keys);
+  }
+
+  // ================= missions =================
+  /** Each builder returns { title, sub, stage (node or null), tasks: { id: { title, free, build(panel, ctx) } }, disc: [texts] }.
+   *  ctx: done (already solved), solve(msgs) when the child solves it now, finish(msgs) to show a solved task again. */
+  const BUILD = {};
+
+  BUILD[1] = () => {
+    const p = pack(), n = p.n, A = p.alpha[0], v = E.values(p);
+    let onTurn = null;
+    const wh = wheel({ outer: p.alpha, inner: p.alpha, kind: 'caesar', drag: true, label: T('wheelLabel'),
+      onTurn: () => { upd(); if (onTurn) onTurn(); },
+      onTap: (ring, ch) => { if (ring === 'out' && active.decoder) active.decoder.enter(ch); } });
+    const key = () => mod(wh.k, n);
+    const num = h('output', { class: 'dialnum' });
+    const st = h('p', { class: 'wstate', 'aria-live': 'polite' });
+    function upd() {
+      num.textContent = String(key());
+      const t = T('caesarState', key(), A, p.alpha[key()]);
+      st.replaceChildren(...rich(t)); wh.setText(plain(t));
+    }
+    const minus = h('button', { type: 'button', class: 'dialbtn', 'aria-label': T('keyMinus'), title: T('keyMinus'), onclick: () => wh.turn(wh.k - 1) }, '−');
+    const plus = h('button', { type: 'button', class: 'dialbtn', 'aria-label': T('keyPlus'), title: T('keyPlus'), onclick: () => wh.turn(wh.k + 1) }, '+');
+    const goKey = need => { let d = mod(need - wh.k, n); if (d > n / 2) d -= n; if (d) wh.turn(wh.k + d); };
+    upd();
+    const stage = h('section', { class: 'card wheelbox' }, wh.el,
+      h('div', { class: 'dial' }, minus, h('div', { class: 'dialbox' }, h('small', null, T('keyLabel')), num), plus), st,
+      para(T('dragHint'), 'muted small'));
+    /** "The wheel is on key 5, this message needs key 3 [Set key 3]". */
+    function keyWarn(need) {
+      const el = h('div', { class: 'warn', hidden: true });
+      const f = () => {
+        el.hidden = key() === need;
+        if (!el.hidden) el.replaceChildren(h('span', null, T('keyWarn', key(), need)), h('button', { type: 'button', class: 'ghostbtn', onclick: () => goKey(need) }, T('setKey', need)));
+      };
+      f();
+      return { el, f };
+    }
+    const decode = (code, msg, ctx) => {
+      const d = decoder({ top: code, answer: msg, topCls: 'red', boxCls: 'ink', alpha: p.alpha, solved: ctx.done,
+        onPos: c => { wh.clear(); if (c) wh.hl('in', c.ch); }, onSolved: () => ctx.solve() });
+      active.decoder = d;
+      return d.el;
+    };
+    return {
+      title: W('m1Title'), sub: W('m1Sub'), stage,
+      tasks: {
+        '1a': { title: T('m1aTitle'), build(panel, ctx) {
+          onTurn = null;
+          panel.append(para(T('m1aText', A, E.caesar(p, A, 3))));
+          if (ctx.done) { ctx.finish(T('m1aDone')); return; }
+          onTurn = () => { if (key() === 3) { onTurn = null; ctx.solve(T('m1aDone')); } };
+        } },
+        '1b': { title: W('m1bTitle'), build(panel, ctx) {
+          panel.append(para(W('m1bText')));
+          const kw = keyWarn(3);
+          onTurn = ctx.done ? null : kw.f;
+          panel.append(ctx.done ? '' : kw.el, decode(E.caesar(p, p.m1b, 3), p.m1b, ctx));
+          if (ctx.done) ctx.finish(); else goKey(3);
+        } },
+        '1c': { title: W('m1cTitle'), build(panel, ctx) {
+          panel.append(para(W('m1cText')));
+          const area = h('div', { class: 'task' });
+          panel.append(area);
+          const showDecoder = () => {
+            const kw = keyWarn(7);
+            onTurn = ctx.done ? null : kw.f;
+            area.replaceChildren(para(T('m1cKeyOk', 7), 'good'), ctx.done ? '' : kw.el, decode(E.caesar(p, p.m1c, 7), p.m1c, ctx));
+          };
+          if (ctx.done || S.keyFound) { showDecoder(); if (ctx.done) ctx.finish(); return; }
+          onTurn = null;
+          const fb = h('p', { class: 'bad', 'aria-live': 'polite' });
+          const btn = h('button', { type: 'button', class: 'primary', onclick: () => {
+            if (key() === 7) { S.keyFound = true; showDecoder(); }
+            else fb.replaceChildren(...rich(T('m1cKeyNo', v.cribFirst, v.cribFirstCode, E.caesar(p, v.cribFirst, key()))));
+          } }, T('m1cBtn'));
+          area.append(btn, fb);
+        } },
+      },
+      disc: [W('m1Disc'), W('m1DiscSmall')],
+    };
+  };
+
+  BUILD[2] = () => {
+    const p = pack();
+    const cols = p.alpha.map((c, i) => {
+      const b = h('button', { type: 'button', class: 'col', 'aria-label': `${c}: ${p.subKey[i]}` }, h('b', null, c), h('span', null, p.subKey[i]));
+      b.addEventListener('click', () => { cols.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); if (active.decoder) active.decoder.enter(c); });
+      return b;
+    });
+    const stage = h('section', { class: 'card stage' }, h('h3', null, W('tableTitle')), h('div', { class: 'subt' }, cols), para(W('tableCaption'), 'muted small'));
+    return {
+      title: W('m2Title'), sub: W('m2Sub'), stage,
+      tasks: {
+        '2a': { title: W('m2aTitle'), build(panel, ctx) {
+          panel.append(para(W('m2aText')), para(T('m2TapHint'), 'muted small'));
+          const d = decoder({ top: E.sub(p, p.m2a), answer: p.m2a, topCls: 'red', boxCls: 'ink', alpha: p.alpha, pad: false, solved: ctx.done, onSolved: () => ctx.solve() });
+          active.decoder = d;
+          panel.append(d.el);
+          if (ctx.done) ctx.finish();
+        } },
+        '2b': { title: W('m2cTitle'), build(panel, ctx) {
+          panel.append(para(W('m2cText')),
+            choice({ opts: [W('yes'), W('no')], ok: [1], yn: true, solved: ctx.done, right: T('m2bRight'), wrong: T('m2bWrong'), onRight: () => ctx.solve() }));
+          if (ctx.done) ctx.finish();
+        } },
+      },
+      disc: [W('m2Disc')],
+    };
+  };
+
+  BUILD[3] = () => {
+    const p = pack(), cards = [...p.cards];
+    const digits = x => String(x).replace(/\D/g, '');
+    return {
+      title: W('m3Title'), sub: T('m3Sub'), stage: null,
+      tasks: {
+        '3a': { title: W('m3bTitle'), build(panel, ctx) {
+          const three = cards.slice(0, 3);
+          const all = [];
+          three.forEach(a => three.forEach(b => three.forEach(c => { if (a !== b && b !== c && a !== c) all.push(a + b + c); })));
+          const found = new Set(ctx.done ? all : []);
+          const slots = [null, null, null];
+          const slotEls = slots.map((_, i) => h('button', { type: 'button', class: 'slot', 'aria-label': T('m3SlotLabel', i + 1) }));
+          const cardEls = three.map(c => h('button', { type: 'button', class: 'pcard', 'aria-label': T('m3CardLabel', c) }, c));
+          const msg = h('p', { 'aria-live': 'polite' });
+          const count = h('p', { class: 'muted' });
+          const list = h('div', { class: 'found' });
+          let busy = false;
+          function paint() {
+            slotEls.forEach((el, i) => { el.textContent = slots[i] || ''; el.classList.toggle('full', !!slots[i]); el.setAttribute('aria-label', T('m3SlotLabel', i + 1) + (slots[i] ? `: ${slots[i]}` : '')); });
+            cardEls.forEach((el, i) => { el.disabled = ctx.done || busy || slots.includes(three[i]); });
+            count.textContent = T('m3Found', found.size);
+            list.replaceChildren(...[...found].map(x => h('span', null, x)));
+          }
+          slotEls.forEach((el, i) => el.addEventListener('click', () => { if (!busy && slots[i]) { slots[i] = null; msg.textContent = ''; paint(); } }));
+          cardEls.forEach((el, i) => el.addEventListener('click', () => {
+            const j = slots.indexOf(null);
+            if (busy || j < 0 || slots.includes(three[i])) return;
+            slots[j] = three[i]; msg.textContent = '';
+            if (!slots.includes(null)) {
+              const w = slots.join('');
+              if (found.has(w)) { msg.className = 'bad'; msg.textContent = T('m3Repeat'); }
+              else { found.add(w); msg.className = 'good'; msg.textContent = T('m3New'); }
+              busy = true;
+              setTimeout(() => { busy = false; slots.fill(null); paint(); if (found.size === all.length && !prog.done.has('3a')) ctx.solve(T('m3aDone')); }, 700);
+            }
+            paint();
+          }));
+          const undo = h('button', { type: 'button', class: 'ghostbtn', onclick: () => { if (!busy) { slots.fill(null); msg.textContent = ''; paint(); } } }, T('m3Undo'));
+          panel.append(para(T('m3aText')), h('div', { class: 'slots' }, slotEls), h('div', { class: 'cards' }, cardEls), h('div', { class: 'row' }, undo), msg, count, list);
+          paint();
+          if (ctx.done) ctx.finish(T('m3aDone'));
+        } },
+        '3b': { title: W('m3cTitle'), build(panel, ctx) {
+          const inp = h('input', { type: 'text', inputmode: 'numeric', class: 'num', autocomplete: 'off', 'aria-label': T('answerLabel') });
+          const fb = h('p', { 'aria-live': 'polite' });
+          const check = () => {
+            if (digits(inp.value) === '24') { inp.classList.add('ok'); inp.disabled = true; btn.remove(); fb.textContent = ''; ctx.solve(T('m3bRight')); }
+            else { inp.classList.add('no'); fb.className = 'bad'; fb.textContent = T('m3bWrong'); }
+          };
+          const btn = h('button', { type: 'button', class: 'primary', onclick: check }, T('check'));
+          inp.addEventListener('input', () => inp.classList.remove('no'));
+          inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+          panel.append(para(W('m3cText')), h('div', { class: 'eq' }, h('span', null, '4 × 3 × 2 × 1 ='), inp), btn, fb);
+          if (ctx.done) { inp.value = '24'; inp.classList.add('ok'); inp.disabled = true; btn.remove(); ctx.finish(T('m3bRight')); }
+        } },
+        '3c': { title: W('m3dTitle'), build(panel, ctx) {
+          const counts = [1, 2, 3, 4, 5, 6, 8], given = { 1: '1', 2: '2', 3: '6' };
+          const inputs = [];
+          const tdWays = counts.map(c => {
+            if (given[c]) return h('td', null, given[c]);
+            const want = digits(E.factorial(c));
+            const inp = h('input', { type: 'text', inputmode: 'numeric', class: 'num', autocomplete: 'off', 'aria-label': `${W('m3dWays')}: ${c}` });
+            if (ctx.done) { inp.value = E.factorial(c); inp.classList.add('ok'); inp.disabled = true; }
+            inp.addEventListener('input', () => {
+              const got = digits(inp.value);
+              inp.classList.toggle('ok', got === want);
+              inp.classList.toggle('no', got.length >= want.length && got !== want);
+              if (got === want) {
+                inp.disabled = true;
+                const nx = inputs.find(x => !x.disabled); if (nx) nx.focus();
+                if (inputs.every(x => x.disabled) && !prog.done.has('3c')) ctx.solve(T('m3cDone'));
+              }
+            });
+            inputs.push(inp);
+            return h('td', null, inp);
+          });
+          const table = h('table', { class: 'ftable' },
+            h('tr', null, h('th', { scope: 'row' }, W('m3dCards')), counts.map(c => h('td', c === 8 ? { class: 'bad' } : null, String(c)))),
+            h('tr', null, h('th', { scope: 'row' }, W('m3dWays')), tdWays));
+          panel.append(h('div', { class: 'tscroll' }, table), para(W('m3dCaption'), 'muted small'));
+          if (ctx.done) ctx.finish(T('m3cDone'));
+        } },
+      },
+      disc: [W('m3Disc')],
+    };
+  };
+
+  BUILD[4] = () => {
+    const p = pack(), v = E.values(p);
+    let tapRing = 'in';
+    const wh = wheel({ outer: p.out, inner: p.inn, kind: 'enigma', label: T('wheelLabel'),
+      onTap: (ring, ch) => { if (ring === tapRing && active.decoder) active.decoder.enter(ch); } });
+    const st = h('p', { class: 'wstate', 'aria-live': 'polite' });
+    const updSt = () => { const t = T('starState', p.out[mod(wh.k, 8)], wh.k); st.replaceChildren(...rich(t)); wh.setText(plain(t)); };
+    const goTo = k => { wh.setK(k, true); updSt(); };
+    updSt();
+    const rules = W('m4Rules');
+    const stage = h('div', { class: 'stage' },
+      h('section', { class: 'card wheelbox' }, wh.el, st),
+      h('section', { class: 'card rules' }, h('h3', null, W('rulesTitle')), h('ol', null, (Array.isArray(rules) ? rules : []).map(x => h('li', null, rich(x))))));
+    /** What the child should notice in a disk-encrypted word. */
+    function notes(word) {
+      const pl = [...word], cd = [...E.diskEnc(p, word)], out = [];
+      outer: for (let i = 0; i < pl.length; i++) for (let j = i + 1; j < pl.length; j++) {
+        if (pl[i] === pl[j] && p.out.includes(pl[i]) && cd[i] !== cd[j]) { out.push(T('m4Repeat', pl[i], cd[i], cd[j])); break outer; }
+      }
+      const col = E.collisions(p, word);
+      col.same.forEach(([ls, c]) => out.push(T('m4Same', ls, c)));
+      if (col.self.length) out.push(T('m4Self', col.self));
+      return out;
+    }
+    /** Encode `word` on the turning wheel; then(ctx, panel) runs once it is all filled in. */
+    function encode(word, panel, ctx, then) {
+      tapRing = 'in'; goTo(0);
+      const d = decoder({ top: word, answer: E.diskEnc(p, word), topCls: 'ink', boxCls: 'red', alpha: p.out, solved: ctx.done,
+        onPos: (c, end) => { wh.clear(); if (c) { goTo(c.k); wh.hl('out', c.ch); } else goTo(end); },
+        onSolved: () => then(true) });
+      active.decoder = d;
+      panel.append(d.el);
+      if (ctx.done) then(false);
+    }
+    return {
+      title: W('m4Title'), sub: T('m4Sub'), stage,
+      tasks: {
+        '4a': { title: W('m4aTitle'), build(panel, ctx) {
+          panel.append(para(T('m4aText')));
+          encode(v.aaa, panel, ctx, () => {
+            const code = E.diskEnc(p, v.aaa);
+            panel.append(para(W('m4aQ')), choice({ opts: [W('yes'), W('no')], ok: [new Set(code).size === 1 ? 0 : 1], yn: true, solved: ctx.done,
+              right: T('m4aRight'), wrong: T('m4aWrong'), onRight: () => ctx.solve() }));
+            if (ctx.done) ctx.finish();
+          });
+        } },
+        '4b': { title: W('m4bTitle'), build(panel, ctx) {
+          panel.append(para(T('m4aText')));
+          encode(p.m4b, panel, ctx, fresh => (fresh ? ctx.solve(notes(p.m4b)) : ctx.finish(notes(p.m4b))));
+        } },
+        '4c': { title: W('m4cTitle'), build(panel, ctx) {
+          panel.append(para(W('m4cText')));
+          tapRing = 'out'; goTo(0);
+          const d = decoder({ top: E.diskEnc(p, p.m4c), answer: p.m4c, topCls: 'red', boxCls: 'ink', alpha: p.out, solved: ctx.done,
+            onPos: (c, end) => { wh.clear(); if (c) { goTo(c.k); wh.hl('in', c.ch); } else goTo(end); },
+            onSolved: () => ctx.solve() });
+          active.decoder = d;
+          panel.append(d.el);
+          if (ctx.done) ctx.finish();
+        } },
+      },
+      disc: [W('m4Disc')],
+    };
+  };
+
+  BUILD[5] = () => {
+    const p = pack();
+    const pairEl = new Map();
+    const mbtn = ch => h('button', { type: 'button', class: 'sq', onclick: () => {
+      pairEl.forEach(el => el.classList.remove('hl'));
+      pairEl.get(ch).classList.add('hl');
+      if (active.decoder) active.decoder.enter(ch);
+    } }, ch);
+    const pairs = p.pairs.map(([a, b]) => { const el = h('div', { class: 'pair' }, mbtn(a), h('i', { 'aria-hidden': 'true' }, '↔'), mbtn(b)); pairEl.set(a, el); pairEl.set(b, el); return el; });
+    const stage = h('section', { class: 'card stage' }, h('h3', null, W('mirrorCard')), h('div', { class: 'mirror' }, pairs), para(W('mirrorCaption'), 'muted small'));
+    const run = (top, answer, topCls, boxCls, panel, ctx, msg) => {
+      const d = decoder({ top, answer, topCls, boxCls, alpha: p.out, pad: false, solved: ctx.done, onSolved: () => ctx.solve(msg) });
+      active.decoder = d;
+      panel.append(d.el, para(T('tapHint'), 'muted small'));
+      if (ctx.done) ctx.finish(msg);
+    };
+    return {
+      title: W('m5Title'), sub: W('m5Sub'), stage,
+      tasks: {
+        '5a': { title: W('m5aTitle'), build(panel, ctx) { panel.append(para(T('m5aText'))); run(p.m5a, E.mirror(p, p.m5a), 'ink', 'red', panel, ctx); } },
+        '5b': { title: W('m5bTitle'), build(panel, ctx) { panel.append(para(T('m5bText'))); run(E.mirror(p, p.m5a), p.m5a, 'red', 'ink', panel, ctx, T('m5bDone', p.m5a)); } },
+        '5c': { title: W('m5cTitle'), build(panel, ctx) { run(E.mirror(p, p.m5c), p.m5c, 'red', 'ink', panel, ctx); } },
+        '5d': { title: W('m5Disc'), build(panel, ctx) {
+          panel.append(choice({ opts: [W('yes'), W('no')], ok: [1], yn: true, solved: ctx.done, right: T('m5dRight'), wrong: T('m5dWrong'), onRight: () => ctx.solve() }));
+          if (ctx.done) ctx.finish();
+        } },
+      },
+      disc: [W('m5DiscSmall')],
+    };
+  };
+
+  /** Missions 6 and 7 share the machine. */
+  function machineMission(M, cfg) {
+    const K = enigmaKit(M);
+    const steps = W('pathSteps');
+    const stage = h('div', { class: 'stage' },
+      h('section', { class: 'card wheelbox' }, K.wh.el, K.st, cfg.note || null),
+      h('section', { class: 'card stage' }, h('h3', null, W('mirrorShort') || W('mirrorCard')), K.mirror,
+        cfg.big ? null : h('div', null, h('h3', null, W('pathTitle')), h('ol', null, (Array.isArray(steps) ? steps : []).map(x => h('li', null, rich(x)))))));
+    const run = (top, answer, topCls, boxCls, panel, ctx) => {
+      K.reset();
+      panel.append(K.pathEl);
+      const d = decoder({ top, answer, topCls, boxCls, alpha: M.out, solved: ctx.done,
+        onPos: (c, end) => K.setCell(c, end), onSolved: () => ctx.solve() });
+      active.decoder = d;
+      panel.append(d.el);
+      if (ctx.done) ctx.finish();
+    };
+    const free = (panel, text) => { K.reset(); panel.append(para(text), freeMachine(M, K)); };
+    return { K, stage, run, free };
+  }
+
+  BUILD[6] = () => {
+    const p = pack();
+    const X = machineMission(p, {});
+    return {
+      title: W('m6Title'), sub: W('m6Sub'), stage: X.stage,
+      tasks: {
+        '6a': { title: W('m6aTitle'), build(panel, ctx) { panel.append(para(T('m6aText'))); X.run(p.m6a, E.enigma(p, p.m6a), 'ink', 'red', panel, ctx); } },
+        '6b': { title: W('m6bTitle'), build(panel, ctx) { panel.append(para(W('m6bText'))); X.run(E.enigma(p, p.m6b), p.m6b, 'red', 'ink', panel, ctx); } },
+        '6c': { title: T('m6cTitle'), free: true, build(panel) { X.free(panel, T('m6cText', p.out.join(''))); } },
+      },
+      disc: [W('m6Disc')],
+    };
+  };
+
+  BUILD[7] = () => {
+    const B = E.bigPack(lang());
+    const note = h('div', null, para(T('m7Note', B.n, B.n / 2), 'muted small'), B.drop ? para(T('m7Drop', B.drop), 'muted small') : null);
+    const X = machineMission(B, { big: true, note });
+    return {
+      title: T('m7Title'), sub: T('m7Sub'), stage: X.stage,
+      tasks: {
+        '7a': { title: T('m7aTitle'), build(panel, ctx) { panel.append(para(T('m7aText'))); X.run(E.enigma(B, B.msg), B.msg, 'red', 'ink', panel, ctx); } },
+        '7b': { title: T('m6cTitle'), free: true, build(panel) { X.free(panel, T('m7bText')); } },
+      },
+      disc: [T('m7Disc')],
+    };
+  };
+
+  // ================= screens =================
+  function missionView(m) {
+    const def = BUILD[m]();
+    const ids = TASKS[m];
+    if (!S.task || !ids.includes(S.task)) S.task = ids.find(id => !FREE.has(id) && !prog.done.has(id)) || ids[0];
+    const stamp = h('div', { class: 'stamp' + (missionDone(m) ? ' done' : ''), 'aria-hidden': 'true' }, h('span', null, W('mission') || 'MISJA'), h('b', null, String(m)));
+    const head = h('header', { class: 'mhead' }, stamp, h('div', null, h('h2', null, rich(def.title)), h('p', { class: 'sub' }, rich(def.sub))));
+    const stepBtns = ids.map((id, i) => h('button', { type: 'button', class: 'step' + (FREE.has(id) ? ' free' : ''), onclick: () => open(id) }, taskLetter(i)));
+    const steps = h('div', { class: 'steps', role: 'group', 'aria-label': T('tasksLabel') }, stepBtns);
+    const panel = h('section', { class: 'card task' });
+    const disc = h('section', { class: 'disc' });
+    const nextM = m === MISSIONS[MISSIONS.length - 1] ? REPORT : MISSIONS[MISSIONS.indexOf(m) + 1];
+    const nextBtn = h('button', { type: 'button', class: 'primary', onclick: () => go(nextM, true) }, T(nextM === REPORT ? 'toReport' : 'nextMission'));
+    disc.append(h('h3', null, W('discovery') || 'Odkrycie'), def.disc.filter(Boolean).map(x => para(x)), nextBtn);
+
+    function refresh() {
+      stamp.classList.toggle('done', missionDone(m));
+      stepBtns.forEach((b, i) => {
+        const id = ids[i];
+        b.classList.toggle('ok', prog.done.has(id));
+        if (id === S.task) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        b.setAttribute('aria-label', `${taskLetter(i)}: ${plain(def.tasks[id].title)}${prog.done.has(id) ? ` (${T('tabDone')})` : ''}`);
+      });
+      disc.hidden = !missionDone(m);
+      renderTop();
+    }
+    /** The feedback box under a solved task, with a button to the next task still to do. */
+    function feedback(id, msgs, fresh, wasDone) {
+      const list = (Array.isArray(msgs) ? msgs : [msgs]).filter(Boolean);
+      const cheers = T('cheers');
+      const box = h('div', { class: 'fb', role: 'status' },
+        fresh ? h('div', { class: 'cheer' }, Array.isArray(cheers) ? cheers[Math.floor(Math.random() * cheers.length)] : '') : null,
+        list.map(x => para(x)),
+        fresh && !wasDone && missionDone(m) ? para(T('missionDone'), 'good') : null);
+      const i = ids.indexOf(id);
+      const nx = ids.slice(i + 1).find(x => !prog.done.has(x)) || ids.slice(0, i).find(x => !FREE.has(x) && !prog.done.has(x));
+      if (nx) box.appendChild(h('button', { type: 'button', class: 'primary', onclick: () => open(nx, true) }, T('next')));
+      panel.appendChild(box);
+      return box;
+    }
+    function open(id, focus) {
+      S.task = id; tok++;
+      active.decoder = null;
+      const task = def.tasks[id], i = ids.indexOf(id);
+      panel.replaceChildren(h('div', { class: 'thead' }, h('span', { class: 'dot', 'aria-hidden': 'true' }, taskLetter(i)), h('h3', null, rich(task.title)),
+        task.free ? h('span', { class: 'tag' }, T('freeTag')) : null));
+      let solvedNow = false;
+      const ctx = {
+        done: prog.done.has(id),
+        solve(msgs) {
+          if (solvedNow) return;
+          solvedNow = true;
+          const wasDone = missionDone(m);
+          if (!FREE.has(id)) prog.done.add(id);
+          save();
+          refresh();
+          if (!wasDone && missionDone(m)) { stamp.classList.remove('pop'); void stamp.offsetWidth; stamp.classList.add('pop'); }
+          const box = feedback(id, msgs, true, wasDone);
+          const b = box.querySelector('button');
+          if (b) b.focus({ preventScroll: true });
+          box.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' });
+        },
+        finish(msgs) { feedback(id, msgs, false, true); },
+      };
+      task.build(panel, ctx);
+      refresh();
+      if (focus) { const f = panel.querySelector('.cb.cur, .opt:not(:disabled), .pcard:not(:disabled), input, .primary'); if (f) f.focus({ preventScroll: true }); panel.scrollIntoView({ block: 'nearest' }); }
+    }
+
+    const grid = h('div', { class: 'mgrid' + (def.stage ? ' has-stage' : '') }, def.stage, h('div', { class: 'taskcol' }, steps, panel, disc));
+    const root = h('article', { class: 'card' }, head, grid);
+    open(S.task);
+    return root;
+  }
+
+  function reportView() {
+    const p = pack(), v = E.values(p);
+    const done = prog.done.has('q');
+    const qs = T('quiz', v.out0, v.crib);
+    const right = new Set(done ? qs.map((_, i) => i) : []);
+    const count = h('p', { class: 'muted', 'aria-live': 'polite' });
+    const cert = h('section', { class: 'cert', hidden: !done });
+    function paintCert() {
+      const missing = MISSIONS.filter(m => !missionDone(m));
+      cert.replaceChildren(
+        h('div', null, h('h3', null, W('certTitle')), para(T('certText')), para(T('starsSum', starCount()), 'good'),
+          para(missing.length ? T('missing', missing.join(', ')) : T('allMissions'), missing.length ? 'muted' : 'good')),
+        h('div', { class: 'bigstamp' }, s('svg', { viewBox: '-5 -5 10 10', 'aria-hidden': 'true' }, s('path', { d: starPath(0, 0, 4.8, 1.9), fill: 'currentColor' })),
+          h('span', null, T('certStamp')), h('small', null, W('puzzle'))));
+    }
+    const upd = () => { count.textContent = T('quizLeft', right.size); };
+    const list = h('ol', { class: 'quiz' }, qs.map((q, i) => h('li', null, para(q.q),
+      choice({ opts: q.opts, ok: q.ok, multi: q.multi, yn: q.opts.length === 2 && q.opts[0].length < 6, solved: done,
+        right: `${T('quizRight')} ${q.why}`, wrong: T('quizWrong'),
+        onRight: () => {
+          right.add(i); upd();
+          if (right.size === qs.length && !prog.done.has('q')) {
+            prog.done.add('q'); save(); renderTop();
+            paintCert(); cert.hidden = false;
+            cert.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
+          }
+        } }))));
+    upd(); paintCert();
+    return h('article', { class: 'card' },
+      h('header', { class: 'mhead' }, h('div', { class: 'stamp' + (done ? ' done' : ''), 'aria-hidden': 'true' }, h('b', null, '★')),
+        h('div', null, h('h2', null, W('reportTitle')), h('p', { class: 'sub' }, rich(W('reportSub'))))),
+      h('div', { class: 'taskcol' },
+        h('section', { class: 'disc' }, h('h3', null, W('machineTitle')), para(W('machineText')), para(W('machineSmall'), 'muted small')),
+        h('section', { class: 'task' }, h('h3', null, W('quizTitle')), para(T('quizIntro'), 'muted'), list, count),
+        cert));
+  }
+
+  // ================= page =================
+  function renderTop() {
+    $('#score').textContent = `⭐ ${starCount()}`;
+    $('#statsText').textContent = T('statsLine', starCount(), MISSIONS.filter(missionDone).length, MISSIONS.length);
+    const tabs = $('#tabs'), names = T('tabs');
+    tabs.style.setProperty('--tabs', MISSIONS.length + 1);
+    tabs.replaceChildren(...[...MISSIONS, REPORT].map(m => {
+      const done = m === REPORT ? prog.done.has('q') : missionDone(m);
+      const name = (Array.isArray(names) && names[m - 1]) || '';
+      return h('button', { type: 'button', class: 'tab', 'aria-current': m === S.m ? 'page' : null,
+        'aria-label': `${m === REPORT ? '' : m + '. '}${name}${done ? ` (${T('tabDone')})` : ''}`, onclick: () => go(m) },
+        h('b', { 'aria-hidden': 'true' }, m === REPORT ? '🏁' : String(m)), h('small', { 'aria-hidden': 'true' }, name),
+        done ? h('span', { class: 'tick', 'aria-hidden': 'true' }, '✓') : null);
+    }));
+  }
+  function render() {
+    tok++;
+    active.decoder = null;
+    document.title = T('docTitle');
+    I18N.apply(DICT);
+    $('#storyTitle').textContent = W('historyTitle');
+    $('#story1').replaceChildren(...rich(W('history1')));
+    $('#story2').replaceChildren(...rich(W('history2')));
+    renderTop();
+    $('#view').replaceChildren(S.m === REPORT ? reportView() : missionView(S.m));
+  }
+  function go(m, scroll) {
+    S.m = m; S.task = null; prog.last = m; save();
+    try {   // keep ?mission= in step with the screen, so a reload stays here
+      const u = new URL(location.href);
+      if (u.searchParams.has('mission')) { u.searchParams.set('mission', m); history.replaceState(null, '', u); }
+    } catch (_) { /* file:// in some browsers: ignore */ }
+    render();
+    if (scroll) $('#tabs').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || !active.decoder) return;
+    const t = e.target;
+    if (t && t.closest && t.closest('input,textarea,select,[role=slider],summary')) return;
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !(t && t.classList && t.classList.contains('cb'))) return;
+    if (active.decoder.key(e)) e.preventDefault();
+  });
+  $('#resetBtn').addEventListener('click', () => {
+    if (!window.confirm(T('resetConfirm'))) return;
+    prog.done.clear(); S.keyFound = false; S.task = null; save(); render();
+  });
+  I18N.onChange(() => render());
+  render();
+})();
+</script>
+</body>
+</html>

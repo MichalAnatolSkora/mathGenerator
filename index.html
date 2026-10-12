@@ -19,7 +19,14 @@
   .shot{flex:0 0 260px;display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
   .shot img{display:block;width:100%;height:auto;}
   .body{flex:1;min-width:0;}
-  .card h2{margin:0 0 4px;font-size:21px;}
+  .card h3{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:8px;}
+  .card h3 .ico{font-size:24px;line-height:1;}
+  .group{margin:0 0 28px;}
+  .group-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 12px;font-size:20px;}
+  .gico{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-size:22px;background:#fff;border:1px solid var(--line);}
+  .young .gico{background:#fff4e0;border-color:#f6d9a8;}
+  .older .gico{background:#e8ecff;border-color:#c9d1fa;}
+  .age{font-size:14px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;}
   .card p{margin:0 0 10px;}
   .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
   .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 16px;border-radius:10px;font-weight:700;text-decoration:none;border:2px solid var(--line);color:var(--ink);background:#fff;}
@@ -44,40 +51,60 @@
 
   <h1 class="count" id="count"></h1>
 
-  <article class="card">
-    <a class="shot" href="math-crossword/index.html" data-keep-lang><img src="assets/math-crossword.png" width="800" height="860" data-i18n-attr="alt:mathAlt" alt="Zrzut ekranu: krzyżówka matematyczna"></a>
-    <div class="body">
-      <h2 data-i18n="mathTitle">Krzyżówki matematyczne</h2>
-      <p data-i18n="mathText">Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.</p>
-      <div class="actions">
-        <a class="btn primary" href="math-crossword/index.html" data-keep-lang data-i18n="mathBtn">Zrób kartę pracy</a>
-      </div>
-    </div>
-  </article>
+  <section class="group young">
+    <h2 class="group-h"><span class="gico" aria-hidden="true">🧸</span><span data-i18n="youngTitle">Dla maluszków</span><span class="age" data-i18n="youngAge">5–8 lat</span></h2>
 
-  <article class="card">
-    <a class="shot" href="cipher-detective/index.html" data-keep-lang><img src="assets/cipher-detective.png" width="800" height="469" data-i18n-attr="alt:cipherAlt" alt="Zrzut ekranu: gra Detektyw szyfrów"></a>
-    <div class="body">
-      <h2 data-i18n="cipherTitle">Detektyw szyfrów</h2>
-      <p data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
-      <div class="actions">
-        <a class="btn primary" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
-        <a class="btn" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
+    <article class="card">
+      <a class="shot" href="clock/index.html" data-keep-lang><img src="assets/clock.png" width="800" height="571" data-i18n-attr="alt:clockAlt" alt="Zrzut ekranu: gra Nauka zegara"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🕐</span><span data-i18n="clockTitle">Nauka zegara</span></h3>
+        <p data-i18n="clockText">Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.</p>
+        <div class="actions">
+          <a class="btn primary" href="clock/index.html" data-keep-lang data-i18n="clockPlay">Zagraj</a>
+          <a class="btn" href="clock/worksheet.html" data-keep-lang data-i18n="clockPrint">Wydrukuj karty pracy</a>
+        </div>
       </div>
-    </div>
-  </article>
+    </article>
 
-  <article class="card">
-    <a class="shot" href="clock/index.html" data-keep-lang><img src="assets/clock.png" width="800" height="571" data-i18n-attr="alt:clockAlt" alt="Zrzut ekranu: gra Nauka zegara"></a>
-    <div class="body">
-      <h2 data-i18n="clockTitle">Nauka zegara</h2>
-      <p data-i18n="clockText">Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.</p>
-      <div class="actions">
-        <a class="btn primary" href="clock/index.html" data-keep-lang data-i18n="clockPlay">Zagraj</a>
-        <a class="btn" href="clock/worksheet.html" data-keep-lang data-i18n="clockPrint">Wydrukuj karty pracy</a>
+    <article class="card">
+      <a class="shot" href="math-crossword/index.html" data-keep-lang><img src="assets/math-crossword.png" width="800" height="860" data-i18n-attr="alt:mathAlt" alt="Zrzut ekranu: krzyżówka matematyczna"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">➕</span><span data-i18n="mathTitle">Krzyżówki matematyczne</span></h3>
+        <p data-i18n="mathText">Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.</p>
+        <div class="actions">
+          <a class="btn primary" href="math-crossword/index.html" data-keep-lang data-i18n="mathBtn">Zrób kartę pracy</a>
+        </div>
       </div>
-    </div>
-  </article>
+    </article>
+  </section>
+
+  <section class="group older">
+    <h2 class="group-h"><span class="gico" aria-hidden="true">🚀</span><span data-i18n="olderTitle">Dla większych dzieci</span><span class="age" data-i18n="olderAge">8–12 lat</span></h2>
+
+    <article class="card">
+      <a class="shot" href="cipher-detective/index.html" data-keep-lang><img src="assets/cipher-detective.png" width="800" height="469" data-i18n-attr="alt:cipherAlt" alt="Zrzut ekranu: gra Detektyw szyfrów"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🕵️</span><span data-i18n="cipherTitle">Detektyw szyfrów</span></h3>
+        <p data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
+        <div class="actions">
+          <a class="btn primary" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
+          <a class="btn" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <a class="shot" href="enigma/play.html" data-keep-lang><img src="assets/enigma.png" width="800" height="592" data-i18n-attr="alt:enigmaAlt" alt="Zrzut ekranu: karty pracy Akademia Młodych Szyfrantów"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="enigmaTitle">Akademia Młodych Szyfrantów</span></h3>
+        <p data-i18n="enigmaText">Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.</p>
+        <div class="actions">
+          <a class="btn primary" href="enigma/play.html" data-keep-lang data-i18n="enigmaPlay">Zagraj</a>
+          <a class="btn" href="enigma/index.html" data-keep-lang data-i18n="enigmaPrint">Wydrukuj karty pracy</a>
+        </div>
+      </div>
+    </article>
+  </section>
 
   <p class="note" data-i18n="note">Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.</p>
 </div>
@@ -89,12 +116,16 @@
     pl: {
       brand: '🧩 Zagadki dla dzieci', title: 'Zagadki logiczne i matematyczne dla dzieci',
       note: 'Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.',
+      youngTitle: 'Dla maluszków', youngAge: '5–8 lat', olderTitle: 'Dla większych dzieci', olderAge: '8–12 lat',
       mathTitle: 'Krzyżówki matematyczne',
       mathText: 'Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.',
       mathBtn: 'Zrób kartę pracy', mathAlt: 'Zrzut ekranu: krzyżówka matematyczna',
       cipherTitle: 'Detektyw szyfrów',
       cipherText: 'Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère\'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.',
       cipherPlay: 'Zagraj', cipherPrint: 'Wydrukuj karty pracy', cipherAlt: 'Zrzut ekranu: gra Detektyw szyfrów',
+      enigmaTitle: 'Akademia Młodych Szyfrantów',
+      enigmaText: 'Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.',
+      enigmaPlay: 'Zagraj', enigmaPrint: 'Wydrukuj karty pracy', enigmaAlt: 'Zrzut ekranu: karty pracy Akademia Młodych Szyfrantów',
       clockTitle: 'Nauka zegara',
       clockText: 'Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.',
       clockPlay: 'Zagraj', clockPrint: 'Wydrukuj karty pracy', clockAlt: 'Zrzut ekranu: gra Nauka zegara',
@@ -103,12 +134,16 @@
     en: {
       brand: '🧩 Puzzles for kids', title: 'Logic and math puzzles for kids',
       note: 'Everything here is free and you don\'t need an account. It will stay that way.',
+      youngTitle: 'For little ones', youngAge: 'ages 5–8', olderTitle: 'For bigger kids', olderAge: 'ages 8–12',
       mathTitle: 'Math Crossword',
       mathText: 'Printable arithmetic crosswords: every equation reads across and down, and the numbers meet where they cross. Pick the number range and operators, and get a worksheet with its answer key.',
       mathBtn: 'Make a worksheet', mathAlt: 'Screenshot: a math crossword',
       cipherTitle: 'Cipher Detective',
       cipherText: 'A spy sent a message in code. Compare it with the coded version and work out which cipher was used: Caesar, ROT13, Atbash, and on the hard level also Vigenère, Affine and Beaufort. Or you know it is Caesar and hunt for the shift. For ages 8–12.',
       cipherPlay: 'Play', cipherPrint: 'Print worksheets', cipherAlt: 'Screenshot: the Cipher Detective game',
+      enigmaTitle: 'Young Codebreakers Academy',
+      enigmaText: 'Six missions to play online or print: the Caesar cipher, a mixed-up alphabet, counting arrangements, and finally your own paper Enigma with a turning wheel and a mirror. Just like Marian Rejewski, who broke the Enigma in 1932. For ages 8–10.',
+      enigmaPlay: 'Play', enigmaPrint: 'Print worksheets', enigmaAlt: 'Screenshot: Young Codebreakers Academy worksheets',
       clockTitle: 'Tell the Time',
       clockText: 'A clock with hands: read what time it is, or drag the hands to set the clock. From o’clock and half past through quarters to every minute, also on a 24-hour clock. Printable worksheets with answer keys.',
       clockPlay: 'Play', clockPrint: 'Print worksheets', clockAlt: 'Screenshot: the Tell the Time game',
@@ -117,12 +152,16 @@
     uk: {
       brand: '🧩 Головоломки для дітей', title: 'Логічні та математичні головоломки для дітей',
       note: 'Усе тут безкоштовне, і не треба створювати акаунт. Так і залишиться.',
+      youngTitle: 'Для малят', youngAge: '5–8 років', olderTitle: 'Для старших дітей', olderAge: '8–12 років',
       mathTitle: 'Математичні кросворди',
       mathText: 'Кросворди з прикладами для друку: кожна рівність читається по горизонталі й по вертикалі, а числа з\'єднуються на перетинах. Обираєш діапазон чисел і дії — отримуєш робочий аркуш разом із відповідями.',
       mathBtn: 'Створити аркуш', mathAlt: 'Знімок екрана: математичний кросворд',
       cipherTitle: 'Детектив шифрів',
       cipherText: 'Шпигун надіслав зашифроване повідомлення. Порівняй його із зашифрованою версією та вгадай, який шифр використано: Цезаря, ROT13, Атбаш, а на складному рівні також Віженера, афінний і Бофора. Або ти знаєш, що це шифр Цезаря, і шукаєш зсув. Для дітей 8–12 років.',
       cipherPlay: 'Грати', cipherPrint: 'Роздрукувати аркуші', cipherAlt: 'Знімок екрана: гра «Детектив шифрів»',
+      enigmaTitle: 'Академія юних шифрувальників',
+      enigmaText: 'Шість місій онлайн і для друку: шифр Цезаря, перемішаний алфавіт, лічба розкладів, а наприкінці власна паперова Енігма з колом, що крутиться, і дзеркалом. Як Маріан Реєвський, який зламав Енігму в 1932 році. Для дітей 8–10 років.',
+      enigmaPlay: 'Грати', enigmaPrint: 'Роздрукувати аркуші', enigmaAlt: 'Знімок екрана: аркуші «Академія юних шифрувальників»',
       clockTitle: 'Котра година?',
       clockText: 'Годинник зі стрілками: визнач, котра година, або перетягни стрілки й постав годинник. Від «рівно» і «пів на» через чверті до кожної хвилини, також у 24-годинному форматі. Робочі аркуші для друку з відповідями.',
       clockPlay: 'Грати', clockPrint: 'Роздрукувати аркуші', clockAlt: 'Знімок екрана: гра «Котра година?»',
@@ -131,12 +170,16 @@
     vi: {
       brand: '🧩 Câu đố cho trẻ em', title: 'Câu đố logic và toán học cho trẻ em',
       note: 'Mọi thứ ở đây đều miễn phí và không cần tạo tài khoản. Sẽ luôn như vậy.',
+      youngTitle: 'Cho bé nhỏ', youngAge: '5–8 tuổi', olderTitle: 'Cho các bạn lớn hơn', olderAge: '8–12 tuổi',
       mathTitle: 'Ô chữ toán học',
       mathText: 'Ô chữ phép tính để in: mỗi phép tính đọc theo hàng ngang và hàng dọc, các con số gặp nhau ở chỗ giao. Bạn chọn phạm vi số và phép tính, nhận được phiếu bài tập kèm đáp án.',
       mathBtn: 'Tạo phiếu bài tập', mathAlt: 'Ảnh chụp màn hình: ô chữ toán học',
       cipherTitle: 'Thám tử mật mã',
       cipherText: 'Một điệp viên đã gửi tin nhắn bằng mật mã. So sánh tin nhắn với bản mã hóa và đoán xem mật mã nào đã được dùng: Caesar, ROT13, Atbash, và ở mức khó còn có Vigenère, Affine và Beaufort. Hoặc bạn biết đó là mật mã Caesar và đi tìm bước dịch. Dành cho trẻ 8–12 tuổi.',
       cipherPlay: 'Chơi', cipherPrint: 'In phiếu bài tập', cipherAlt: 'Ảnh chụp màn hình: trò chơi Thám tử mật mã',
+      enigmaTitle: 'Học viện Mật mã nhí',
+      enigmaText: 'Sáu nhiệm vụ để chơi trực tuyến hoặc in: mật mã Caesar, bảng chữ cái xáo trộn, đếm cách xếp, và cuối cùng là chiếc Enigma bằng giấy của riêng bạn, có bánh xe biết quay và tấm gương. Giống như Marian Rejewski, người đã phá mã Enigma năm 1932. Dành cho trẻ 8–10 tuổi.',
+      enigmaPlay: 'Chơi', enigmaPrint: 'In phiếu bài tập', enigmaAlt: 'Ảnh chụp màn hình: phiếu bài tập Học viện Mật mã nhí',
       clockTitle: 'Xem đồng hồ',
       clockText: 'Đồng hồ kim: đọc xem mấy giờ, hoặc kéo kim để chỉnh đồng hồ. Từ giờ đúng và giờ rưỡi đến mười lăm phút và từng phút, cả cách viết 24 giờ. Phiếu bài tập để in kèm đáp án.',
       clockPlay: 'Chơi', clockPrint: 'In phiếu bài tập', clockAlt: 'Ảnh chụp màn hình: trò chơi Xem đồng hồ',
@@ -145,12 +188,16 @@
     fr: {
       brand: '🧩 Énigmes pour enfants', title: 'Énigmes de logique et de maths pour enfants',
       note: 'Tout est gratuit ici et il n’y a pas besoin de créer de compte. Et ça restera comme ça.',
+      youngTitle: 'Pour les petits', youngAge: '5–8 ans', olderTitle: 'Pour les plus grands', olderAge: '8–12 ans',
       mathTitle: 'Mots croisés mathématiques',
       mathText: 'Des mots croisés de calcul à imprimer : chaque opération se lit à l’horizontale et à la verticale, et les nombres se rejoignent aux croisements. Tu choisis les nombres et les opérations, et tu obtiens une fiche d’exercices avec son corrigé.',
       mathBtn: 'Créer une fiche', mathAlt: 'Capture d’écran : des mots croisés mathématiques',
       cipherTitle: 'Détective des codes secrets',
       cipherText: 'Un espion a envoyé un message codé. Compare-le avec la version codée et devine quel chiffre il a utilisé : César, ROT13, Atbash et, au niveau difficile, aussi Vigenère, affine et Beaufort. Ou alors tu sais que c’est le chiffre de César et tu cherches le décalage. Pour les 8–12 ans.',
       cipherPlay: 'Jouer', cipherPrint: 'Imprimer des fiches', cipherAlt: 'Capture d’écran : le jeu Détective des codes secrets',
+      enigmaTitle: 'L’Académie des jeunes décodeurs',
+      enigmaText: 'Six missions à jouer en ligne ou à imprimer : le code de César, un alphabet mélangé, compter les ordres possibles et, pour finir, ta propre Enigma en papier, avec une roue qui tourne et un miroir. Comme Marian Rejewski, qui a cassé l’Enigma en 1932. Pour les 8–10 ans.',
+      enigmaPlay: 'Jouer', enigmaPrint: 'Imprimer des fiches', enigmaAlt: 'Capture d’écran : les fiches de L’Académie des jeunes décodeurs',
       clockTitle: 'Lire l’heure',
       clockText: 'Une horloge à aiguilles : lis l’heure qu’il est, ou fais glisser les aiguilles pour régler l’horloge. Des heures pile et demies aux quarts d’heure et à la minute près, aussi sur 24 heures. Fiches à imprimer avec le corrigé.',
       clockPlay: 'Jouer', clockPrint: 'Imprimer des fiches', clockAlt: 'Capture d’écran : le jeu Lire l’heure',

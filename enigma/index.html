@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akademia Młodych Szyfrantów: karty pracy</title>
+<meta name="description" content="Printable A4 worksheets for kids aged 8–10: Caesar cipher, a mixed-up alphabet, counting arrangements, and a paper Enigma with a turning wheel and a mirror.">
+<style>
+  :root{
+    --ink:#1b1b1f; --muted:#666; --accent:#4f5bd5; --accent-d:#3d48b8;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  button{font:inherit;}
+  .appbar{padding:12px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+  .appbar .grow{flex:1 1 auto;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid #ccd2dd;border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1100px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .presets button{font-size:12.5px;min-height:38px;padding:6px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:2px 0;min-height:32px;}
+  .check input{width:18px;height:18px;flex:0 0 auto;}
+  .check b{display:inline-block;min-width:1.6em;color:var(--muted);font-weight:700;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font-weight:600;padding:10px;min-height:44px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;}
+  button.primary:hover{background:var(--accent-d);}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:8px;}
+
+  /* ---- preview: each A4 page in a frame scaled to the column ---- */
+  .stage{flex:1;min-width:0;}
+  .ams-frame{margin:0 auto 18px;}
+  .ams-frame .ams-page{transform-origin:0 0;box-shadow:0 2px 10px rgba(20,30,60,.10);border:1px solid #e2e6ee;}
+
+  /* ================= the A4 cards (all classes .ams-) ================= */
+  .ams-page{
+    width:186mm; height:272mm; box-sizing:border-box; padding:3mm;
+    position:relative; overflow:hidden; background:#fff; color:#1B1B1F;
+    break-after:page; page-break-after:always;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .ams-page:last-child{break-after:auto; page-break-after:auto;}
+  .ams-body{position:relative;height:257mm;overflow:hidden;font-size:12pt;line-height:1.32;display:flex;flex-direction:column;gap:3.2mm;}
+  .ams-body p{margin:0;}
+  .ams-body h1,.ams-body h2,.ams-body h3{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;margin:0;line-height:1.15;}
+  .ams-h1{font-size:2.1667em;font-weight:800;letter-spacing:-.01em;}
+  .ams-body h2{font-size:1.3333em;font-weight:700;}
+  .ams-body h3,.ams-h3{font-size:1.1em;font-weight:800;color:#1E3A5F;}
+  .ams-sub{color:#4A4A55;margin-top:1mm !important;}
+  .ams-small{font-size:max(9pt,.82em);color:#4A4A55;}
+  .ams-l{font-family:"Courier New",Courier,monospace;font-weight:700;letter-spacing:.04em;white-space:nowrap;}
+  .ams-red{color:#B3261E;}
+  .ams-ink{color:#1B1B1F;}
+  .ams-ico{display:inline-block;vertical-align:middle;flex:none;}
+  .ams-sec{display:flex;flex-direction:column;gap:1.8mm;}
+  .ams-inline{display:flex;align-items:center;flex-wrap:wrap;gap:3mm 6mm;}
+  .ams-foot{position:absolute;left:3mm;right:3mm;bottom:3mm;display:flex;justify-content:space-between;font-size:9pt;color:#4A4A55;border-top:0.3mm solid #C9C4B8;padding-top:1.2mm;}
+
+  /* mission header with the stamp */
+  .ams-mhead{display:flex;align-items:center;gap:6mm;padding-bottom:2mm;border-bottom:0.5mm solid #1B1B1F;}
+  .ams-stamp{flex:none;width:22mm;height:22mm;border:0.8mm solid #B3261E;border-radius:50%;transform:rotate(-8deg);color:#B3261E;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1;}
+  .ams-stamp span{font-size:8.5pt;font-weight:800;letter-spacing:.08em;}
+  .ams-stamp b{font-size:24pt;font-weight:800;}
+  .ams-phead{border-bottom:0.5mm solid #1B1B1F;padding-bottom:2mm;}
+  .ams-over{font-size:max(9pt,.8em);font-weight:800;letter-spacing:.1em;color:#B3261E;}
+
+  /* task title */
+  .ams-task{display:flex;align-items:center;gap:3mm;flex-wrap:wrap;}
+  .ams-dot{flex:none;width:8mm;height:8mm;border-radius:50%;background:#1E3A5F;color:#fff;display:flex;align-items:center;justify-content:center;font:800 13pt/1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;}
+  .ams-note{font-size:max(9pt,.82em);color:#4A4A55;font-style:italic;}
+
+  /* letter over box */
+  .ams-crow{display:flex;flex-wrap:wrap;gap:2.5mm 5mm;}
+  .ams-word{display:flex;gap:1mm;}
+  .ams-cell{display:flex;flex-direction:column;align-items:center;gap:.8mm;}
+  .ams-cl{font:700 15pt/1 "Courier New",Courier,monospace;height:5.5mm;display:flex;align-items:center;}
+  .ams-box{flex:none;width:8.5mm;height:10mm;border:0.4mm solid #1B1B1F;border-radius:1mm;display:inline-flex;align-items:center;justify-content:center;font:700 15pt/1 "Courier New",Courier,monospace;background:#fff;}
+  .ams-b-red{border-color:#B3261E;color:#B3261E;}
+  .ams-b-navy{border-color:#1E3A5F;border-width:0.6mm;color:#1E3A5F;}
+  .ams-erow{display:flex;align-items:center;gap:1mm;}
+  .ams-elabel{flex:none;width:30mm;font-size:max(9pt,.78em);font-weight:800;letter-spacing:.05em;}
+  .ams-keyline{display:flex;align-items:center;gap:3mm;flex-wrap:wrap;}
+  .ams-hint{font-size:max(9pt,.82em);color:#4A4A55;}
+  .ams-checks{display:flex;gap:7mm;}
+  .ams-check{display:inline-flex;align-items:center;gap:2mm;font-weight:700;}
+  .ams-sq{width:6mm;height:6mm;border:0.4mm solid #1B1B1F;border-radius:.8mm;flex:none;}
+  .ams-wline{height:9mm;border-bottom:0.3mm solid #1B1B1F;}
+
+  /* boxes */
+  .ams-disc{margin-top:auto;border:0.5mm dashed #1E3A5F;border-radius:2.5mm;padding:2.5mm 4mm 3mm;display:flex;flex-direction:column;gap:1.6mm;}
+  .ams-disc-t{display:flex;align-items:center;gap:2mm;font:800 1.1em/1.1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#1E3A5F;}
+  .ams-frame-box{border:0.4mm solid #1E3A5F;border-radius:2.5mm;padding:2.5mm 4mm 3mm;display:flex;flex-direction:column;gap:1.4mm;}
+  .ams-body ol,.ams-body ul{margin:0;padding-left:6mm;}
+  .ams-body li{margin:.6mm 0;}
+
+  /* page 1: cover */
+  .ams-cover-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2mm;}
+  .ams-file{font:700 11pt/1 "Courier New",Courier,monospace;letter-spacing:.08em;}
+  .ams-secret{display:inline-block;border:0.8mm solid #B3261E;color:#B3261E;padding:1.5mm 4mm;font:800 13pt/1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;letter-spacing:.12em;transform:rotate(-4deg);}
+  .ams-cover-title{border-bottom:0.5mm solid #1B1B1F;padding-bottom:3mm;}
+  .ams-big{font-size:2.6em;}
+  .ams-idcard{border:1.6mm double #1E3A5F;border-radius:3mm;padding:3mm 5mm 4mm;display:flex;flex-direction:column;gap:3mm;}
+  .ams-id-head{display:flex;justify-content:space-between;align-items:baseline;}
+  .ams-id-head span{font-size:max(9pt,.8em);font-weight:800;letter-spacing:.1em;color:#1E3A5F;text-transform:uppercase;}
+  .ams-id-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm 8mm;}
+  .ams-field span{display:block;font-size:max(9pt,.75em);font-weight:800;letter-spacing:.06em;color:#4A4A55;}
+  .ams-field i{display:block;height:8mm;border-bottom:0.3mm solid #1B1B1F;}
+  .ams-id-stamps{font-size:max(9pt,.8em);font-weight:700;color:#4A4A55;}
+  .ams-stamps{display:flex;justify-content:space-between;}
+  .ams-stamps span{width:16mm;height:16mm;border:0.5mm dashed #B3261E;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#B3261E;font:800 11pt/1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;}
+  .ams-cols{display:grid;grid-template-columns:1fr 1fr;gap:8mm;}
+  .ams-cols section{display:flex;flex-direction:column;gap:1.5mm;}
+  .ams-p1{gap:7mm;}
+  .ams-p1 .ams-field i{height:10mm;}
+
+  /* wheel pages */
+  .ams-wheels{position:relative;flex:1;}
+  .ams-wheels > *{position:absolute;}
+  .ams-wheel{display:block;}
+  .ams-wl{font-family:"Courier New",Courier,monospace;font-weight:700;}
+  .ams-wt{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;font-weight:800;letter-spacing:.05em;}
+  .ams-wt2{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .ams-howto{display:flex;flex-direction:column;gap:1.5mm;}
+
+  /* page 4: code table */
+  .ams-subtable{display:grid;border:0.3mm solid #1B1B1F;}
+  .ams-subtable span{display:flex;align-items:center;justify-content:center;height:9mm;font:700 var(--fs)/1 "Courier New",Courier,monospace;border-right:0.2mm solid #C9C4B8;}
+  .ams-subtable span.ams-top{border-bottom:0.3mm solid #1B1B1F;}
+
+  /* page 5: counting */
+  .ams-triple{display:inline-flex;gap:1mm;}
+  .ams-triples{display:grid;grid-template-columns:repeat(4,max-content);justify-content:space-between;gap:3mm 0;}
+  .ams-filled{font-weight:700;}
+  .ams-eq{display:flex;align-items:center;gap:3mm;font:700 20pt/1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;}
+  .ams-eq .ams-box{width:22mm;height:12mm;}
+  .ams-ftable{border-collapse:collapse;width:100%;}
+  .ams-ftable th,.ams-ftable td{border:0.3mm solid #1B1B1F;height:10mm;text-align:center;font-weight:700;}
+  .ams-ftable th{text-align:left;padding:0 2mm;font-size:.9em;width:34mm;font-weight:800;}
+  .ams-ftable td{font-size:1.15em;width:12%;}
+  .ams-ftable td.ams-red{color:#B3261E;font-size:1.4em;}
+  .ams-ftable td.ams-given{color:#4A4A55;}
+  .ams-cutstrip{border-top:0.4mm dashed #1B1B1F;padding-top:2mm;display:flex;flex-direction:column;gap:2mm;}
+  .ams-cut-label{display:flex;align-items:center;gap:2mm;font-size:max(9pt,.8em);font-weight:800;letter-spacing:.06em;}
+  .ams-cards{display:flex;justify-content:space-around;}
+  .ams-cards span{width:21mm;height:21mm;border:0.4mm dashed #1B1B1F;display:flex;align-items:center;justify-content:center;font:700 14mm/1 "Courier New",Courier,monospace;}
+
+  /* pages 8–9: mirror cards and the example chain */
+  .ams-pairs{display:flex;justify-content:space-around;flex-wrap:wrap;gap:2mm 4mm;}
+  .ams-pair{display:flex;align-items:center;gap:1.5mm;}
+  .ams-sqr{width:12mm;height:13mm;border:0.5mm solid #1E3A5F;border-radius:1mm;display:inline-flex;align-items:center;justify-content:center;font:700 17pt/1 "Courier New",Courier,monospace;}
+  .ams-sqr.ams-red{border-color:#B3261E;}
+  .ams-sqr.ams-res{border-width:0.9mm;}
+  .ams-vert{flex-direction:column;align-items:center;}
+  .ams-vert .ams-sqr{width:10mm;height:11mm;font-size:14pt;}
+  .ams-two{display:flex;gap:4mm;align-items:stretch;}
+  .ams-two > :first-child{flex:1;}
+  .ams-narrow{flex:none;width:45mm;}
+  .ams-chain{display:flex;align-items:flex-start;flex-wrap:wrap;gap:2mm;}
+  .ams-chain-n{display:flex;flex-direction:column;align-items:center;gap:1mm;width:24mm;text-align:center;}
+  .ams-chain-n span:last-child{font-size:max(9pt,.78em);color:#4A4A55;line-height:1.15;}
+  .ams-chain-a{padding-top:4mm;}
+  .ams-chain-turn{flex:1;min-width:40mm;align-self:center;padding-left:2mm;}
+
+  /* page 10: final report */
+  .ams-p10{gap:2.6mm;}
+  .ams-machine{display:block;margin:0 auto;}
+  .ams-quiz{display:flex;flex-direction:column;gap:1.5mm;}
+  .ams-quiz li{margin:0;}
+  .ams-quiz .ams-wline{height:6.5mm;}
+  .ams-opts{display:flex;flex-wrap:wrap;gap:1mm 6mm;margin-top:1mm;}
+  .ams-opts .ams-check{font-weight:400;}
+  .ams-quiz .ams-checks{margin-top:1mm;}
+  .ams-cert{margin-top:auto;border:1.6mm double #1E3A5F;border-radius:3mm;padding:3mm 5mm;display:flex;gap:6mm;align-items:center;}
+  .ams-cert > div{flex:1;display:flex;flex-direction:column;gap:1.5mm;}
+  .ams-cert .ams-field i{height:6mm;}
+  .ams-cert .ams-id-grid{gap:2mm 8mm;}
+  .ams-cert-stamp{flex:none;width:22mm;height:22mm;border:0.6mm dashed #B3261E;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;color:#B3261E;font:800 8pt/1.1 "Trebuchet MS","Segoe UI",system-ui,sans-serif;letter-spacing:.06em;}
+  .ams-stamps .ams-stamp-final{border-style:solid;}
+
+  /* pages 12–13: the big Enigma */
+  .ams-bigpairs{display:grid;justify-content:space-between;gap:1.6mm 1mm;}
+  .ams-bigpairs .ams-sqr{width:7mm;height:8.5mm;font-size:11pt;}
+  .ams-bigpairs .ams-pair{gap:.6mm;}
+  .ams-p13{gap:2.6mm;}
+  .ams-wide{width:34mm !important;height:10mm;}
+  .ams-flip{transform:rotate(180deg);font-size:9pt;color:#4A4A55;border-top:0.3mm dashed #C9C4B8;padding-top:1.5mm;}
+
+  /* page 11: key */
+  .ams-keyhead{display:flex;align-items:center;justify-content:space-between;border-bottom:0.5mm solid #1B1B1F;padding-bottom:2mm;}
+  .ams-p11{font-size:11pt;gap:3mm;}
+  .ams-answers,.ams-real{border-collapse:collapse;width:100%;}
+  .ams-answers th,.ams-answers td,.ams-real th,.ams-real td{border:0.25mm solid #C9C4B8;padding:1.2mm 2mm;vertical-align:top;text-align:left;}
+  .ams-answers th{width:22mm;color:#1E3A5F;white-space:nowrap;}
+  .ams-answers td div{margin:.4mm 0;}
+  .ams-real th{background:#fff;color:#1E3A5F;border-bottom:0.5mm solid #1E3A5F;}
+  .ams-real td:first-child{width:38mm;font-weight:700;}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    .appbar,.controls,.no-print{display:none !important;}
+    body{background:#fff;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .ams-frame{width:auto !important;height:auto !important;margin:0;break-after:page;page-break-after:always;}
+    .ams-frame:last-child{break-after:auto;page-break-after:auto;}
+    .ams-frame .ams-page{transform:none !important;box-shadow:none;border:0;break-after:auto;page-break-after:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🔐 Akademia Młodych Szyfrantów</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <a class="navlink" href="play.html" data-keep-lang data-i18n="playOnline">🎮 Zagraj online</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2 data-i18n="pagesH">Które strony</h2>
+      <div class="presets" id="presets">
+        <button type="button" data-preset="kid" data-i18n="presetKid">Dla dziecka</button>
+        <button type="button" data-preset="cut" data-i18n="presetCut">Wycinanki</button>
+        <button type="button" data-preset="key" data-i18n="presetKey">Klucz dla rodzica</button>
+        <button type="button" data-preset="amb" data-i18n="presetAmb">Dla ambitnych</button>
+        <button type="button" data-preset="all" data-i18n="presetAll">Wszystko</button>
+      </div>
+      <div id="pageChecks"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="printBtn" data-i18n="print">🖨️ Drukuj</button>
+    </div>
+    <div class="hint" data-i18n="printHint"></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </form>
+
+  <div class="stage">
+    <div id="out"></div>
+  </div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STORE = 'enigma.pages';
+  const PRESETS = { kid: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], cut: [2, 6, 12], key: [11], amb: [12, 13], all: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] };
+  const UI = {};
+  for (const l of Object.keys(ENIGMA.TEXT)) UI[l] = ENIGMA.TEXT[l].ui;
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  let pages = ENIGMA.DEFAULT_PAGES.slice();
+
+  function save() { try { localStorage.setItem(STORE, ENIGMA.formatPages(pages)); } catch (_) { } }
+  function load() {
+    const q = new URLSearchParams(location.search).get('pages');
+    if (q !== null) return ENIGMA.parsePages(q);
+    try { const s = localStorage.getItem(STORE); if (s) return ENIGMA.parsePages(s); } catch (_) { }
+    return ENIGMA.DEFAULT_PAGES.slice();
+  }
+  /** Keep ?pages= in the address in step with the choice (only once it was there or changed). */
+  function syncUrl() {
+    const u = new URL(location.href);
+    u.searchParams.set('pages', ENIGMA.formatPages(pages));
+    history.replaceState(null, '', u);
+  }
+
+  function renderChecks() {
+    const box = $('pageChecks');
+    box.textContent = '';
+    t('pageTitles').forEach((title, i) => {
+      const n = i + 1, lab = document.createElement('label'), cb = document.createElement('input'), b = document.createElement('b'), s = document.createElement('span');
+      lab.className = 'check';
+      cb.type = 'checkbox'; cb.value = n; cb.checked = pages.includes(n);
+      cb.addEventListener('change', () => {
+        pages = [...box.querySelectorAll('input:checked')].map(x => +x.value);
+        markPreset(); save(); syncUrl(); render();
+      });
+      b.textContent = n; s.textContent = title;
+      lab.append(cb, b, s);
+      box.appendChild(lab);
+    });
+  }
+  function markPreset() {
+    const key = ENIGMA.formatPages(pages);
+    document.querySelectorAll('#presets button').forEach(b => b.classList.toggle('active', ENIGMA.formatPages(PRESETS[b.dataset.preset]) === key));
+  }
+
+  /** Scale every A4 page to the width of the column (the print layout is not scaled). */
+  const frames = [];
+  function fitFrames() {
+    const w = $('out').clientWidth;
+    for (const f of frames) {
+      const pg = f.firstChild, pw = pg.offsetWidth, ph = pg.offsetHeight, s = Math.min(1, w / pw);
+      pg.style.transform = s < 1 ? `scale(${s})` : '';
+      f.style.width = pw * s + 'px'; f.style.height = ph * s + 'px';
+    }
+  }
+
+  function render() {
+    const lang = I18N.get(), out = $('out'), msg = $('msg');
+    out.textContent = ''; frames.length = 0;
+    msg.className = 'msg';
+    if (!pages.length) { msg.className = 'msg error'; msg.textContent = t('nonePicked'); return; }
+    for (const n of pages) {
+      const f = document.createElement('div');
+      f.className = 'ams-frame';
+      f.appendChild(ENIGMA.renderPage(n, lang));
+      out.appendChild(f);
+      frames.push(f);
+    }
+    frames.forEach(f => ENIGMA.fitPage(f.firstChild));
+    fitFrames();
+    msg.textContent = t('selected', pages.length, ENIGMA.TOTAL);
+    document.title = t('docTitle');
+  }
+
+  function wire() {
+    document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+      pages = PRESETS[b.dataset.preset].slice();
+      renderChecks(); markPreset(); save(); syncUrl(); render();
+    }));
+    $('printBtn').addEventListener('click', () => window.print());
+    I18N.onChange(() => { I18N.apply(UI); renderChecks(); render(); });
+    if (window.ResizeObserver) new ResizeObserver(fitFrames).observe($('out'));
+    else window.addEventListener('resize', fitFrames);
+  }
+
+  pages = load();
+  I18N.apply(UI);
+  renderChecks();
+  markPreset();
+  wire();
+  render();
+  // fonts can change text widths after the first layout: fit again once they are ready
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { frames.forEach(f => ENIGMA.fitPage(f.firstChild)); fitFrames(); });
+})();
+</script>
+</body>
+</html>

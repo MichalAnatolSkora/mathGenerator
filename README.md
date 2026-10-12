@@ -14,15 +14,17 @@ alphabet, French without accents) can be in a different language than the game t
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | **Home page** — pick a puzzle (five languages) |
+| [`index.html`](index.html) | **Home page** — pick a puzzle, grouped by age: for little ones (5–8) on top, for bigger kids (8–12) below (five languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
+| [`enigma/play.html`](enigma/play.html) | **Young Codebreakers Academy**, online game: turn the paper wheels on screen, from the Caesar cipher to the Enigma with a mirror, and a final quiz |
+| [`enigma/index.html`](enigma/index.html) | **Young Codebreakers Academy** printable worksheets: six missions from the Caesar cipher to a paper Enigma with a turning wheel and a mirror, a final report (+ cut-outs, answer key, and a full-alphabet Enigma for the keen) |
 | [`clock/index.html`](clock/index.html) | **Tell the Time**, online game: read an analog clock (4 answers) or drag the hands to set it |
 | [`clock/worksheet.html`](clock/worksheet.html) | Tell the Time **printable worksheets**: read the time / draw the hands (+ answer key) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`clock/README.md`](clock/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
 
 ## Run locally
 
