@@ -35,6 +35,10 @@
   .story{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:0 16px;}
   .story summary{cursor:pointer;font:700 16px/1.3 var(--head);color:var(--navy);padding:12px 0;min-height:44px;}
   .story p{margin:0 0 10px;font-size:15px;}
+  .story-body{display:flex;gap:16px;align-items:flex-start;padding-bottom:6px;}
+  .story-body #storyPic{flex:none;}
+  .story-body .ams-picture{display:block;}
+  @media (max-width:560px){ .story-body{flex-direction:column;align-items:center;} }
   .muted{color:var(--muted);}
   .small{font-size:14px;}
   p{margin:0;}
@@ -257,7 +261,7 @@
 </header>
 
 <main class="wrap">
-  <details class="story" id="story"><summary id="storyTitle"></summary><p id="story1"></p><p id="story2"></p></details>
+  <details class="story" id="story"><summary id="storyTitle"></summary><div class="story-body"><div id="storyPic"></div><div><p id="story1"></p><p id="story2"></p></div></div></details>
   <nav class="tabs" id="tabs" data-i18n-attr="aria-label:tabsLabel" aria-label="Misje"></nav>
   <div id="view"></div>
   <div class="stats">
@@ -1157,6 +1161,7 @@
     document.title = T('docTitle');
     I18N.apply(DICT);
     $('#storyTitle').textContent = W('historyTitle');
+    $('#storyPic').replaceChildren(ENIGMA.picture('150px', 'Enigma'));
     $('#story1').replaceChildren(...rich(W('history1')));
     $('#story2').replaceChildren(...rich(W('history2')));
     renderTop();

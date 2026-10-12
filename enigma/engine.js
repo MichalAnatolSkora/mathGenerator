@@ -292,6 +292,41 @@ const ENIGMA = (() => {
     return s('svg', { class: 'ams-machine', width: `${W * 0.8}mm`, height: `${H * 0.8}mm`, viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': parts.join(', ') }, g);
   }
 
+  /** A drawing of an Enigma machine (front view): three rotors with letter windows, the lampboard
+   *  with one letter lit, the keyboard (German QWERTZ layout) and the plugboard with two cables.
+   *  `width` is any CSS length; the picture keeps its 6:5 shape. */
+  function picture(width, label) {
+    const g = [], rows = ['QWERTZUIO', 'ASDFGHJK', 'PYXCVBNML'];
+    const txt = (x, y, ch, size, fill) => s('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': size, fill, 'font-family': '"Courier New", Courier, monospace', 'font-weight': 700 }, ch);
+    g.push(s('rect', { x: 4, y: 4, width: 232, height: 192, rx: 12, fill: '#8A5A35', stroke: '#5A3A20', 'stroke-width': 2 }));
+    g.push(s('rect', { x: 14, y: 14, width: 212, height: 172, rx: 7, fill: '#232326' }));
+    // rotors: a metal plate, three letter windows and their thumb wheels
+    g.push(s('rect', { x: 70, y: 22, width: 100, height: 32, rx: 4, fill: '#3C3C42', stroke: '#55555C' }));
+    ['A', 'D', 'U'].forEach((ch, i) => {
+      const x = 84 + i * 28;
+      g.push(s('rect', { x, y: 30, width: 13, height: 16, rx: 1.5, fill: '#F4F1E8' }));
+      g.push(txt(x + 6.5, 38.5, ch, 10, '#1B1B1F'));
+      g.push(s('rect', { x: x + 15, y: 25, width: 6, height: 26, rx: 2, fill: '#9A9AA2' }));
+      for (let y = 28; y < 50; y += 3) g.push(s('path', { d: `M${x + 15.5} ${y}H${x + 20.5}`, stroke: '#5A5A62', 'stroke-width': 0.8 }));
+    });
+    // lampboard (one lamp lit) and keyboard
+    rows.forEach((row, r) => [...row].forEach((ch, i) => {
+      const x = 120 + (i - (row.length - 1) / 2) * 20;
+      const lit = ch === 'L';
+      g.push(s('circle', { cx: x, cy: 67 + r * 13, r: 5.6, fill: lit ? '#FFD34D' : '#46464C', stroke: lit ? '#FFB300' : '#5C5C64' }));
+      g.push(txt(x, 67.3 + r * 13, ch, 6, lit ? '#1B1B1F' : '#B9B9C0'));
+      g.push(s('circle', { cx: x, cy: 111 + r * 15, r: 6.6, fill: '#F4F1E8', stroke: '#111', 'stroke-width': 1.2 }));
+      g.push(txt(x, 111.3 + r * 15, ch, 6.5, '#1B1B1F'));
+    }));
+    // plugboard with two cables
+    g.push(s('rect', { x: 26, y: 156, width: 188, height: 24, rx: 3, fill: '#2E2E33', stroke: '#4A4A50' }));
+    for (let i = 0; i < 13; i++) for (let j = 0; j < 2; j++) g.push(s('circle', { cx: 36 + i * 14, cy: 163 + j * 10, r: 1.8, fill: '#111', stroke: '#77777F', 'stroke-width': 0.6 }));
+    g.push(s('path', { d: 'M64 163C70 190 102 190 106 173', fill: 'none', stroke: '#B3261E', 'stroke-width': 2.4, 'stroke-linecap': 'round' }));
+    g.push(s('path', { d: 'M148 163C152 192 186 190 190 173', fill: 'none', stroke: '#C9C4B8', 'stroke-width': 2.4, 'stroke-linecap': 'round' }));
+    const [, num, unit] = String(width).match(/^([\d.]+)(\D*)$/) || [, 150, 'px'];
+    return s('svg', { class: 'ams-picture', viewBox: '0 0 240 200', width, height: `${(num * 5 / 6).toFixed(2)}${unit}`, role: 'img', 'aria-label': label || 'Enigma' }, g);
+  }
+
   // ---------- card components ----------
   function makeKit(lang) {
     const T = textFor(lang), p = pack(lang), v = values(p);
@@ -388,7 +423,8 @@ const ENIGMA = (() => {
       return [
         h('div', { class: 'ams-cover-top' }, h('span', { class: 'ams-file' }, t('fileNo')), h('span', { class: 'ams-secret' }, t('topSecret'))),
         h('div', { class: 'ams-cover-title' }, h('h1', { class: 'ams-h1 ams-big' }, t('puzzle')), h('p', { class: 'ams-sub' }, r('coverSub'))),
-        h('section', { class: 'ams-frame-box' }, h('h3', null, t('historyTitle')), h('p', null, r('history1')), h('p', null, r('history2'))),
+        h('section', { class: 'ams-frame-box ams-history' }, h('div', null, h('h3', null, t('historyTitle')), h('p', null, r('history1')), h('p', null, r('history2'))),
+          picture('46mm', 'Enigma')),
         h('section', { class: 'ams-idcard' },
           h('div', { class: 'ams-id-head' }, h('h3', null, t('idTitle')), h('span', null, t('idBureau'))),
           h('div', { class: 'ams-id-grid' }, fields),
@@ -630,7 +666,7 @@ const ENIGMA = (() => {
   return {
     INN_IDX, MIR_IDX, TOTAL, DEFAULT_PAGES, PACKS, MESSAGES, DISK_WORDS, TEXT, textFor, pack, bigPack, values,
     caesar, sub, under, over, diskEnc, diskDec, mirror, enigma, collisions, factorial, parsePages, formatPages,
-    renderPage, fitPage,
+    renderPage, fitPage, picture,
   };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = ENIGMA;
