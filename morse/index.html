@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latarnik — gra z alfabetem Morse’a</title>
+<meta name="description" content="Gra dla dzieci: odbieraj i nadawaj alfabet Morse’a jako latarnik. Dźwięk, światło latarni i drzewko Morse’a.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --hint-line:#f1d98a; --hint-soft:#fff6d6; --night:#1d2742; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+  button,input{font:inherit;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
+  .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:940px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .seg{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:16px;padding:3px;background:#f5f7fb;}
+  .seg button{flex:1 1 auto;font-weight:600;font-size:14px;border:0;background:transparent;padding:6px 12px;border-radius:13px;cursor:pointer;color:var(--muted);min-height:40px;}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
+  .seg button:not([aria-pressed=true]):hover{color:var(--accent-d);background:var(--accent-soft);}
+  .settings h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .settings .seg{margin-bottom:12px;}
+  .checks{display:flex;flex-wrap:wrap;gap:4px 18px;}
+  .check{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;min-height:36px;}
+  .check input{width:18px;height:18px;}
+
+  /* ---- the sea and the lighthouse ---- */
+  .stage{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;align-items:start;}
+  .sea{background:linear-gradient(#1d2742,#2c3b63 70%,#35538a);border-radius:12px;padding:10px 8px 0;display:flex;flex-direction:column;align-items:center;min-height:250px;overflow:hidden;}
+  .lh{width:150px;height:auto;display:block;}
+  .lh .lh-beam{opacity:0;transition:opacity .04s;}
+  .lh .lh-lamp{fill:#9aa5b1;}
+  .lh .lh-glass{fill:#d5dce6;}
+  .lh.on .lh-beam{opacity:.65;}
+  .lh.on .lh-lamp{fill:#ffc61a;}
+  .lh.on .lh-glass{fill:#fff3b0;}
+  .ships{min-height:30px;font-size:20px;letter-spacing:2px;text-align:center;padding:4px 0 8px;color:#fff;}
+  .task h2{margin:0 0 4px;font-size:18px;}
+  .help{margin:2px 0 0;font-size:13.5px;color:var(--muted);}
+  .big{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0;}
+  .letter{font:800 64px/1 ui-monospace,Menlo,Consolas,monospace;min-width:64px;text-align:center;}
+  .code{display:flex;align-items:center;min-height:30px;color:var(--ink);}
+  .code.hidden{visibility:hidden;}
+  .choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:10px;margin:12px 0 0;}
+  .choices button{font:800 30px/1 ui-monospace,Menlo,Consolas,monospace;min-height:72px;border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;color:var(--ink);touch-action:manipulation;}
+  .choices button:hover{border-color:var(--accent);}
+  .choices button.ok{background:var(--good-soft);border-color:var(--good);color:var(--good);}
+  .choices button.no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);}
+  .choices button:disabled{cursor:default;}
+  .ghostbtn{font-weight:600;font-size:15px;min-height:44px;border:1px solid var(--line);background:#f5f7fb;border-radius:12px;padding:8px 14px;cursor:pointer;color:var(--accent-d);}
+  .ghostbtn:hover{border-color:var(--accent);}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;font-size:16px;}
+  .primary:hover{background:var(--accent-d);}
+  .fb{margin:12px 0 0;font-size:15px;border-radius:10px;padding:8px 12px;}
+  .fb:empty{display:none;}
+  .fb.good{color:#0f6b38;background:var(--good-soft);border:1px solid #b7e3c8;}
+  .fb.bad{color:#7a1f2c;background:var(--bad-soft);border:1px solid #f3c2cb;}
+  .fb.info{color:#5a4a00;background:var(--hint-soft);border:1px solid var(--hint-line);}
+
+  /* sending */
+  .sent{display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 10px;border:2px dashed var(--line);border-radius:12px;margin:8px 0 12px;min-width:160px;}
+  .keys{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;}
+  .keys button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
+  .sym{min-width:96px;min-height:72px;border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .sym:hover{border-color:var(--accent);}
+  .sym:active{background:var(--accent-soft);}
+  .tkey{flex:1 1 220px;min-height:96px;border:0;border-radius:18px;background:var(--night);color:#fff;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 6px 0 #0f1629;transition:transform .05s,box-shadow .05s;}
+  .tkey.down{transform:translateY(5px);box-shadow:0 1px 0 #0f1629;background:#2c3b63;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  .kbd{margin:10px 0 0;font-size:12.5px;color:var(--muted);}
+  @media (hover:none){.kbd{display:none;}}
+
+  /* dictation */
+  .dcode{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .dcode input{flex:1 1 180px;min-height:44px;padding:8px 10px;border:1px solid #ccd2dd;border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase;}
+  .drows{display:grid;grid-template-columns:auto auto 1fr auto;gap:8px 10px;align-items:center;margin-top:8px;}
+  .drows input{min-height:44px;padding:8px 10px;border:1px solid #ccd2dd;border-radius:10px;text-transform:uppercase;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;min-width:0;}
+  .drows .mark{font-size:14px;font-weight:700;min-width:24px;}
+  .drows .mark.ok{color:var(--good);} .drows .mark.no{color:var(--bad);}
+
+  /* tree */
+  .treebox svg{display:block;width:100%;height:auto;}
+  .treebox .tn circle,.treebox .te{transition:fill .15s,stroke .15s;}
+  .treebox .tn.on circle{fill:#ffe08a;stroke:#b07a00;}
+  .treebox .te.on{stroke:#e0a100;stroke-width:12;}
+
+  /* start */
+  .intro{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .intro p{flex:1 1 280px;margin:0;font-size:16px;}
+
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .reset{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .reset:hover{border-color:var(--bad);color:var(--bad);}
+
+  @media (max-width:640px){
+    .top{padding:8px 12px;position:static;gap:6px 8px;}
+    .brand{font-size:18px;}
+    .score span{min-height:40px;display:inline-flex;align-items:center;padding:3px 8px;font-size:13px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:14px;}
+    .seg button{font-size:13.5px;padding:6px 8px;}
+    .stage{grid-template-columns:1fr;gap:10px;}
+    .sea{flex-direction:row;justify-content:center;gap:12px;min-height:0;padding:8px;}
+    .lh{width:72px;}
+    .ships{font-size:16px;align-self:center;}
+    .letter{font-size:52px;}
+    .drows{grid-template-columns:auto 1fr auto;}
+    .choices{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;}
+    .choices button{min-height:64px;}
+    .drows .dlabel{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">⚓ Latarnik</h1>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karty pracy</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <div class="score" aria-live="polite">
+    <span id="scoreShips" data-i18n-attr="title:shipsTitle">⛵ 0</span>
+    <span id="scoreStreak" data-i18n-attr="title:streakTitle">🔥 0</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card settings">
+    <h2 data-i18n="mode">Tryb</h2>
+    <div class="seg" id="modes" role="group" data-i18n-attr="aria-label:mode"></div>
+    <div id="letterSettings">
+      <h2 data-i18n="letters">Litery</h2>
+      <div class="seg" id="groups" role="group" data-i18n-attr="aria-label:letters"></div>
+    </div>
+    <div id="keySettings">
+      <h2 data-i18n="keyMode">Jak nadawać</h2>
+      <div class="seg" id="keyModes" role="group" data-i18n-attr="aria-label:keyMode"></div>
+    </div>
+    <h2 data-i18n="speed">Tempo</h2>
+    <div class="seg" id="speeds" role="group" data-i18n-attr="aria-label:speed"></div>
+    <div class="checks">
+      <label class="check" id="extraRow"><input type="checkbox" id="optExtra"> <span id="extraLabel"></span></label>
+      <label class="check"><input type="checkbox" id="optAid" checked> <span data-i18n="aid"></span></label>
+      <label class="check"><input type="checkbox" id="optTree"> <span data-i18n="treeShow"></span></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="stage">
+      <div class="sea">
+        <div id="lighthouse" role="img" data-i18n-attr="aria-label:lampLabel"></div>
+        <div class="ships" id="ships" aria-hidden="true"></div>
+      </div>
+      <div class="task" id="task">
+        <div class="intro" id="intro">
+          <p data-i18n="intro"></p>
+          <button type="button" class="primary" id="startBtn" data-i18n="start"></button>
+        </div>
+
+        <div id="rx" hidden>
+          <h2 data-i18n="rxQ"></h2>
+          <div class="big">
+            <button type="button" class="ghostbtn" id="listenBtn" data-i18n="listen"></button>
+            <div class="code hidden" id="rxCode"></div>
+          </div>
+          <div class="choices" id="choices"></div>
+        </div>
+
+        <div id="tx" hidden>
+          <h2 data-i18n="txQ"></h2>
+          <div class="big">
+            <div class="letter" id="txLetter"></div>
+            <div class="code" id="txCode"></div>
+          </div>
+          <p class="help" id="txHelp"></p>
+          <div class="sent" id="sent" aria-live="polite"></div>
+          <div class="keys" id="keysTwo">
+            <button type="button" class="sym" id="dotBtn" data-i18n-attr="aria-label:dotBtn"></button>
+            <button type="button" class="sym" id="dashBtn" data-i18n-attr="aria-label:dashBtn"></button>
+          </div>
+          <div class="keys" id="keysOne">
+            <button type="button" class="tkey" id="tkey" data-i18n="keyLabel"></button>
+          </div>
+          <div class="row">
+            <button type="button" class="primary" id="sendBtn" data-i18n="send"></button>
+            <button type="button" class="ghostbtn" id="clearBtn" data-i18n="clear"></button>
+          </div>
+          <p class="kbd" data-i18n="keysHelp"></p>
+        </div>
+
+        <div id="dict" hidden>
+          <p class="help" data-i18n="dictIntro"></p>
+          <div class="dcode">
+            <input type="text" id="dictCode" autocomplete="off" spellcheck="false" data-i18n-attr="aria-label:dictCode,placeholder:dictCode">
+            <button type="button" class="ghostbtn" id="dictLoad" data-i18n="dictLoad"></button>
+          </div>
+          <div class="drows" id="drows"></div>
+          <div class="row" id="dictActions" hidden>
+            <button type="button" class="primary" id="dictCheck" data-i18n="dictCheck"></button>
+          </div>
+        </div>
+
+        <p class="fb" id="fb" aria-live="polite"></p>
+        <div class="row" id="nextRow" hidden><button type="button" class="primary" id="nextBtn" data-i18n="next"></button></div>
+      </div>
+    </div>
+    <div class="treebox" id="treebox" hidden></div>
+  </section>
+
+  <div class="stats">
+    <span id="stats"></span>
+    <span class="grow"></span>
+    <button type="button" class="reset" id="resetBtn" data-i18n="reset"></button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="bank.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const UI = {};
+  for (const l of Object.keys(MORSE_TEXT)) UI[l] = { ...MORSE_TEXT[l].common, ...MORSE_TEXT[l].game };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const lang = () => I18N.get();
+  const STORE = 'morse.v1';
+  const MODES = ['rx', 'tx', 'dict'], SPEEDS = ['slow', 'mid', 'fast'], KEYMODES = ['two', 'one'];
+  /** One dot in ms per speed; letters get extra room (Farnsworth spacing), so beginners hear each letter clearly. */
+  const UNIT = { slow: 150, mid: 105, fast: 75 };
+  const SPACE = { slow: 2.2, mid: 1.7, fast: 1.3 };
+
+  /* ---------- saved state ---------- */
+  let S = { mode: 'rx', upto: 1, extra: false, speed: 'slow', keyMode: 'two', aid: true, tree: false, ships: 0, streak: 0, letters: {}, recent: [] };
+  try { Object.assign(S, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (_) { }
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (_) { } };
+  const q = new URLSearchParams(location.search);
+  if (MODES.includes(q.get('mode'))) S.mode = q.get('mode');
+  if (MORSE.UPTO.includes(+q.get('upto'))) S.upto = +q.get('upto');
+
+  /* ---------- sound and light ---------- */
+  let ac = null, gain = null, osc = null, timers = [];
+  function audio() {
+    if (!ac) {
+      const A = window.AudioContext || window.webkitAudioContext;
+      if (!A) return null;
+      ac = new A();
+      osc = ac.createOscillator(); gain = ac.createGain();
+      osc.type = 'sine'; osc.frequency.value = 640; gain.gain.value = 0;
+      osc.connect(gain).connect(ac.destination); osc.start();
+    }
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+  const lamp = on => $('lighthouse').firstChild && $('lighthouse').firstChild.classList.toggle('on', on);
+  function toneAt(time, on) {   // a soft edge (5 ms) so the beeps do not click
+    if (!gain) return;
+    gain.gain.setTargetAtTime(on ? 0.28 : 0, time, 0.005);
+  }
+  function stopPlaying() {
+    timers.forEach(clearTimeout); timers = [];
+    if (gain && ac) { gain.gain.cancelScheduledValues(ac.currentTime); toneAt(ac.currentTime, false); }
+    lamp(false);
+  }
+  /** Play text (letters and spaces): sound, the lighthouse lamp and, on phones that can, vibration. Returns the length in ms. */
+  function play(text, slower = 1) {
+    stopPlaying();
+    const a = audio(), u = UNIT[S.speed] * slower, sp = SPACE[S.speed];
+    const marks = [];   // [start, length] in ms
+    let x = 0;
+    for (const ch of text) {
+      if (ch === ' ') { x += u * 4 * sp; continue; }
+      for (const s of MORSE.code(ch, lang())) { const d = s === '.' ? u : 3 * u; marks.push([x, d]); x += d + u; }
+      x += u * 2 * sp;
+    }
+    const t0 = a ? a.currentTime + 0.05 : 0;
+    for (const [st, d] of marks) {
+      if (a) { toneAt(t0 + st / 1000, true); toneAt(t0 + (st + d) / 1000, false); }
+      timers.push(setTimeout(() => lamp(true), st + 50), setTimeout(() => lamp(false), st + d + 50));
+    }
+    if (navigator.vibrate && navigator.userActivation && navigator.userActivation.hasBeenActive) {   // vibrate, pause, vibrate…
+      const pat = [];
+      marks.forEach(([st, d], i) => { if (i) pat.push(Math.round(st - marks[i - 1][0] - marks[i - 1][1])); pat.push(Math.round(d)); });
+      try { navigator.vibrate(pat); } catch (_) { }
+    }
+    return x;
+  }
+
+  /* ---------- choosing letters ---------- */
+  const letters = () => MORSE.letters(lang(), S.upto, S.extra && MORSE.extras(lang()).length > 0);
+  const newest = () => MORSE.newest(lang(), S.upto, S.extra && MORSE.extras(lang()).length > 0);
+  let current = null, last = null;
+  /** Letters missed more often, and the newest ones, come up more often; never the same letter twice in a row. */
+  function nextLetter() {
+    const ls = letters(), nw = new Set(newest());
+    const w = ls.map(l => {
+      if (l === last && ls.length > 1) return 0;
+      const [ok, bad] = S.letters[l] || [0, 0];
+      return Math.max(0.4, 1 + bad * 1.5 - ok * 0.15) * (nw.has(l) && nw.size < ls.length ? 2 : 1);
+    });
+    let r = Math.random() * w.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < ls.length; i++) { r -= w[i]; if (r <= 0) return ls[i]; }
+    return ls[ls.length - 1];
+  }
+  function record(letter, ok) {
+    const s = S.letters[letter] || [0, 0];
+    s[ok ? 0 : 1]++; S.letters[letter] = s;
+    S.recent = [...(S.recent || []), { k: `${lang()}${S.upto}${S.extra ? '+' : ''}`, ok }].slice(-30);
+    if (ok) S.streak++; else S.streak = 0;
+    save(); renderScore();
+  }
+  function recentAcc() {
+    const k = `${lang()}${S.upto}${S.extra ? '+' : ''}`, r = (S.recent || []).filter(x => x.k === k).slice(-20);
+    return r.length >= 10 ? Math.round(100 * r.filter(x => x.ok).length / r.length) : null;
+  }
+
+  /* ---------- feedback ---------- */
+  function fb(text, kind) { const el = $('fb'); el.textContent = text || ''; el.className = 'fb' + (kind ? ' ' + kind : ''); }
+  function saveShip() {
+    S.ships++; save(); renderScore();
+    const ships = $('ships'); ships.textContent = '⛵'.repeat(Math.min(8, (+ships.dataset.n || 0) + 1)); ships.dataset.n = (+ships.dataset.n || 0) + 1;
+  }
+  function praise() {
+    const g = C().good;
+    let msg = `${g[Math.floor(Math.random() * g.length)]} ${t('saved')}`;
+    const acc = recentAcc();
+    if (S.upto < 4 && acc !== null && acc >= 90 && S.streak % 10 === 0) msg += ' ' + t('ready');
+    return msg;
+  }
+  const svg = (c, u = 22) => MORSE.svg(c, { u, unit: 'px' });
+
+  /* ---------- the tree ---------- */
+  function renderTree() {
+    $('treebox').hidden = !S.tree || S.mode === 'dict';
+    if ($('treebox').hidden) return;
+    $('treebox').innerHTML = MORSE.treeSVG(lang(), { active: letters(), compact: true, width: 186, startLabel: 'START' });
+  }
+  /** Light up the way down the tree: every node on the path of `code`. */
+  function treePath(code) {
+    if ($('treebox').hidden) return;
+    $('treebox').querySelectorAll('.tn,.te').forEach(el => {
+      const c = el.dataset.code;
+      el.classList.toggle('on', !!code && code.startsWith(c));
+    });
+  }
+
+  /* ---------- receive ---------- */
+  let answered = false;
+  function newRx() {
+    current = nextLetter(); last = current; answered = false;
+    const ls = letters();
+    const n = Math.min(ls.length, S.upto >= 3 ? 6 : 4);
+    const opts = new Set([current]);
+    // wrong answers: letters with similar codes first, so the child has to listen well
+    const near = MORSE.shuffle(Math.random, ls.filter(l => l !== current && MORSE.oneOff(MORSE.code(l, lang()), MORSE.code(current, lang()))));
+    for (const l of near) { if (opts.size >= Math.ceil(n / 2) + 1) break; opts.add(l); }
+    for (const l of MORSE.shuffle(Math.random, ls)) { if (opts.size >= n) break; opts.add(l); }
+    const box = $('choices'); box.innerHTML = '';
+    for (const l of MORSE.shuffle(Math.random, [...opts]).sort((a, b) => ls.indexOf(a) - ls.indexOf(b))) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = l;
+      b.addEventListener('click', () => answerRx(l, b));
+      box.appendChild(b);
+    }
+    $('rxCode').innerHTML = svg(MORSE.code(current, lang()));
+    $('rxCode').classList.toggle('hidden', !S.aid);
+    $('nextRow').hidden = true; fb('');
+    treePath('');
+    setTimeout(() => play(current), 250);
+  }
+  function answerRx(l, btn) {
+    if (answered) return;
+    const code = MORSE.code(current, lang());
+    if (l === current) {
+      answered = true;
+      btn.classList.add('ok');
+      $('choices').querySelectorAll('button').forEach(b => { b.disabled = true; });
+      $('rxCode').classList.remove('hidden');
+      record(current, true); saveShip(); treePath(code);
+      fb(praise(), 'good');
+      $('nextRow').hidden = false; $('nextBtn').focus();
+    } else {
+      btn.classList.add('no'); btn.disabled = true;
+      record(current, false);
+      $('rxCode').classList.remove('hidden');
+      fb(t('wrongRx', `${l} = ${MORSE.code(l, lang()).replace(/\./g, '·').replace(/-/g, '–')}`), 'bad');
+      treePath(code);
+      setTimeout(() => play(current, 1.4), 400);
+    }
+  }
+
+  /* ---------- send ---------- */
+  let sent = '', idle = null, downAt = 0;
+  function newTx() {
+    current = nextLetter(); last = current; sent = '';
+    $('txLetter').textContent = current;
+    $('txCode').innerHTML = svg(MORSE.code(current, lang()), 24);
+    $('txCode').classList.toggle('hidden', !S.aid);
+    $('txHelp').textContent = t(S.keyMode === 'one' ? 'txHelpOne' : 'txHelpTwo');
+    $('keysTwo').hidden = S.keyMode !== 'two'; $('keysOne').hidden = S.keyMode !== 'one';
+    $('nextRow').hidden = true; fb('');
+    renderSent();
+  }
+  function renderSent() { $('sent').innerHTML = sent ? svg(sent, 22) : ''; treePath(sent); }
+  function addSym(s) {
+    if (!$('nextRow').hidden) return;
+    if (sent.length >= 7) return;
+    sent += s; renderSent();
+    if (S.keyMode === 'two') { stopPlaying(); play(s === '.' ? 'E' : 'T'); }   // the sound of a single dot or dash
+  }
+  function sendTx() {
+    clearTimeout(idle);
+    if (!sent || !$('nextRow').hidden) return;
+    const right = MORSE.code(current, lang());
+    if (sent === right) {
+      record(current, true); saveShip();
+      fb(praise(), 'good');
+      $('nextRow').hidden = false; $('nextBtn').focus();
+      play(current);
+    } else {
+      record(current, false);
+      $('txCode').classList.remove('hidden');
+      fb(t('wrongTx'), 'bad');
+      sent = ''; setTimeout(renderSent, 700);
+    }
+  }
+  function keyDown(e) {
+    if (e) e.preventDefault();
+    if (downAt || !$('nextRow').hidden) return;
+    clearTimeout(idle);
+    const a = audio(); downAt = performance.now();
+    if (a) { gain.gain.cancelScheduledValues(a.currentTime); toneAt(a.currentTime, true); }
+    lamp(true); $('tkey').classList.add('down');
+  }
+  function keyUp(e) {
+    if (e) e.preventDefault();
+    if (!downAt) return;
+    const d = performance.now() - downAt; downAt = 0;
+    if (ac) toneAt(ac.currentTime, false);
+    lamp(false); $('tkey').classList.remove('down');
+    // shorter than two dots = a dot; the letter is sent after a pause
+    sent = (sent + (d < UNIT[S.speed] * 2.2 ? '.' : '-')).slice(0, 7); renderSent();
+    idle = setTimeout(sendTx, UNIT[S.speed] * 7 + 300);
+  }
+
+  /* ---------- dictation from a worksheet ---------- */
+  let words = [];
+  function loadDict() {
+    const p = MORSE.parseDictationCode($('dictCode').value);
+    $('drows').innerHTML = ''; $('dictActions').hidden = true;
+    if (!p) { fb(t('dictBad'), 'bad'); return; }
+    fb('');
+    words = MORSE.dictationWords(p.seed, lang(), p.upto, p.extra);
+    words.forEach((w, i) => {
+      $('drows').insertAdjacentHTML('beforeend', `<span class="dlabel">${t('dictWord', i + 1)}</span><button type="button" class="ghostbtn" data-i="${i}">${t('dictPlay')}</button>`
+        + `<input type="text" autocomplete="off" spellcheck="false" aria-label="${t('dictWord', i + 1)}" data-i="${i}"><span class="mark" data-i="${i}"></span>`);
+    });
+    $('drows').querySelectorAll('button').forEach(b => b.addEventListener('click', () => play(words[+b.dataset.i].text)));
+    $('dictActions').hidden = false;
+  }
+  function checkDict() {
+    let ok = 0;
+    $('drows').querySelectorAll('input').forEach(inp => {
+      const w = words[+inp.dataset.i], good = MORSE.norm(inp.value, lang()) === w.text;
+      if (good) ok++;
+      const m = $('drows').querySelector(`.mark[data-i="${inp.dataset.i}"]`);
+      m.className = 'mark ' + (good ? 'ok' : 'no'); m.textContent = good ? '✓' : `✗ ${w.text}`;
+    });
+    fb(t('dictResult', ok, words.length), ok === words.length ? 'good' : 'info');
+  }
+
+  /* ---------- screens ---------- */
+  let started = false;
+  function show() {
+    $('intro').hidden = started;
+    $('rx').hidden = !started || S.mode !== 'rx';
+    $('tx').hidden = !started || S.mode !== 'tx';
+    $('dict').hidden = !started || S.mode !== 'dict';
+    $('keySettings').hidden = S.mode !== 'tx';
+    $('letterSettings').hidden = S.mode === 'dict';
+    $('nextRow').hidden = true; fb('');
+    renderTree();
+    if (!started) return;
+    if (S.mode === 'rx') newRx();
+    if (S.mode === 'tx') newTx();
+  }
+  function seg(id, values, cur, label, onPick) {
+    const box = $(id); box.innerHTML = '';
+    for (const v of values) {
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = label(v); b.setAttribute('aria-pressed', String(v === cur));
+      b.addEventListener('click', () => { onPick(v); save(); renderSettings(); show(); });
+      box.appendChild(b);
+    }
+  }
+  function groupLabel(n) {
+    if (n === 4) return t('groupAll');
+    const ls = MORSE.groupLetters(lang(), n).join(' ');
+    return n === 1 ? ls : '+ ' + ls;
+  }
+  function renderSettings() {
+    seg('modes', MODES, S.mode, v => C().modes[v], v => { S.mode = v; });
+    seg('groups', MORSE.UPTO, S.upto, groupLabel, v => { S.upto = v; });
+    seg('speeds', SPEEDS, S.speed, v => C().speeds[v], v => { S.speed = v; });
+    seg('keyModes', KEYMODES, S.keyMode, v => C().keyModes[v], v => { S.keyMode = v; });
+    const ex = MORSE.extras(lang());
+    $('extraRow').hidden = !ex.length;
+    $('extraLabel').textContent = ex.length ? t('extraLabel', ex.join(' ')) : '';
+    $('optExtra').checked = !!S.extra; $('optAid').checked = !!S.aid; $('optTree').checked = !!S.tree;
+    $('dotBtn').innerHTML = svg('.', 26); $('dashBtn').innerHTML = svg('-', 26);
+  }
+  function renderScore() {
+    $('scoreShips').textContent = `⛵ ${S.ships}`;
+    $('scoreStreak').textContent = `🔥 ${S.streak}`;
+    $('stats').textContent = t('stats', S.ships, recentAcc());
+  }
+
+  function wire() {
+    $('startBtn').addEventListener('click', () => { audio(); started = true; show(); });
+    $('listenBtn').addEventListener('click', () => current && play(current));
+    $('nextBtn').addEventListener('click', () => { if (S.mode === 'rx') newRx(); else newTx(); });
+    $('dotBtn').addEventListener('click', () => addSym('.'));
+    $('dashBtn').addEventListener('click', () => addSym('-'));
+    $('sendBtn').addEventListener('click', sendTx);
+    $('clearBtn').addEventListener('click', () => { clearTimeout(idle); sent = ''; renderSent(); });
+    const k = $('tkey');
+    k.addEventListener('pointerdown', e => { k.setPointerCapture && k.setPointerCapture(e.pointerId); keyDown(e); });
+    k.addEventListener('pointerup', keyUp);
+    k.addEventListener('pointercancel', keyUp);
+    k.addEventListener('contextmenu', e => e.preventDefault());
+    $('dictLoad').addEventListener('click', loadDict);
+    $('dictCode').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); loadDict(); } });
+    $('dictCheck').addEventListener('click', checkDict);
+    $('optExtra').addEventListener('change', e => { S.extra = e.target.checked; save(); show(); });
+    $('optAid').addEventListener('change', e => { S.aid = e.target.checked; save(); show(); });
+    $('optTree').addEventListener('change', e => { S.tree = e.target.checked; save(); renderTree(); });
+    $('resetBtn').addEventListener('click', () => {
+      if (!confirm(t('resetConfirm'))) return;
+      Object.assign(S, { ships: 0, streak: 0, letters: {}, recent: [] }); save(); renderScore();
+      $('ships').textContent = ''; $('ships').dataset.n = 0;
+    });
+    document.addEventListener('keydown', e => {
+      if (!started || e.target.tagName === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (S.mode === 'tx') {
+        if (e.key === '.' || e.key === 'ArrowLeft') { e.preventDefault(); if (S.keyMode === 'two') addSym('.'); }
+        else if (e.key === '-' || e.key === 'ArrowRight') { e.preventDefault(); if (S.keyMode === 'two') addSym('-'); }
+        else if (e.key === ' ' && S.keyMode === 'one') { if (!e.repeat) keyDown(e); else e.preventDefault(); }
+        else if (e.key === 'Enter') { e.preventDefault(); if ($('nextRow').hidden) sendTx(); else newTx(); }
+        else if (e.key === 'Backspace') { e.preventDefault(); sent = sent.slice(0, -1); renderSent(); }
+      } else if (S.mode === 'rx') {
+        const b = [...$('choices').querySelectorAll('button')].find(x => x.textContent === e.key.toUpperCase() || x.textContent === MORSE.norm(e.key, lang()));
+        if (b && !b.disabled) { e.preventDefault(); b.click(); }
+        else if (e.key === 'Enter' && !$('nextRow').hidden) { e.preventDefault(); newRx(); }
+        else if (e.key === ' ') { e.preventDefault(); play(current); }
+      }
+    });
+    document.addEventListener('keyup', e => { if (started && S.mode === 'tx' && S.keyMode === 'one' && e.key === ' ') keyUp(e); });
+    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); renderSettings(); renderScore(); show(); });
+  }
+
+  function init() {
+    $('lighthouse').innerHTML = MORSE.lighthouseSVG({ lit: false });
+    wire();
+    I18N.apply(UI);
+    document.title = t('title');
+    renderSettings(); renderScore(); show();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
