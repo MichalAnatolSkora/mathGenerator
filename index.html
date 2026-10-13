@@ -116,6 +116,17 @@
         </div>
       </div>
     </article>
+    <article class="card">
+      <a class="shot" href="robot-chef/worksheet.html" data-keep-lang><img src="assets/robot-chef.png" width="800" height="560" data-i18n-attr="alt:chefAlt" alt="Zrzut ekranu: gra Robot-kucharz"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🤖</span><span data-i18n="chefTitle">Robot-kucharz: wstęp do sztucznej inteligencji i algebry liniowej</span></h3>
+        <p data-i18n="chefText"></p>
+        <div class="actions">
+          <a class="btn primary" href="robot-chef/worksheet.html" data-keep-lang data-i18n="chefPrint">Wydrukuj karty pracy</a>
+          <a class="btn" href="robot-chef/index.html" data-keep-lang data-i18n="chefPlay">Zagraj</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <p class="note" data-i18n="note">Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.</p>
@@ -144,6 +155,9 @@
       clockTitle: 'Nauka zegara',
       clockText: 'Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.',
       clockPlay: 'Zagraj', clockPrint: 'Wydrukuj karty pracy', clockAlt: 'Zrzut ekranu: gra Nauka zegara',
+      chefTitle: "Robot-kucharz: wstęp do sztucznej inteligencji i algebry liniowej",
+      chefText: "Wstęp do uczenia maszynowego i algebry liniowej, opowiedziany przez kuchnię. Robot nie czuje smaku, więc liczy: mnoży porcje przez wagi, sumuje i porównuje wynik z progiem. Tak właśnie działa sztuczny neuron. W 7 rozdziałach dzieci poznają wektory i iloczyn skalarny, rozwiązują układy równań, trenują perceptron na przykładach i sprawdzają, jak model radzi sobie z nowymi danymi i dlaczego bywa stronniczy. Potem odkrywają, że neuron to prosta dzieląca płaszczyznę, a problem XOR wymaga sieci neuronowej. Online i do wydruku, z rozwiązaniami i zabawą dla klasy bez komputera. Dla dzieci w wieku 8–12 lat.",
+      chefPlay: "Zagraj", chefPrint: "Wydrukuj karty pracy", chefAlt: "Zrzut ekranu: gra Robot-kucharz",
       count: n => `Mamy ${n} ${n === 1 ? 'zagadkę' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'zagadki' : 'zagadek'}:`,
     },
     en: {
@@ -165,6 +179,9 @@
       clockTitle: 'Tell the Time',
       clockText: 'A clock with hands: read what time it is, or drag the hands to set the clock. From o’clock and half past through quarters to every minute, also on a 24-hour clock. Printable worksheets with answer keys.',
       clockPlay: 'Play', clockPrint: 'Print worksheets', clockAlt: 'Screenshot: the Tell the Time game',
+      chefTitle: "Robot Chef: an introduction to AI and linear algebra",
+      chefText: "An introduction to machine learning and linear algebra, told through cooking. The robot cannot taste, so it counts: it multiplies portions by weights, adds them up and compares the result with a threshold. That is exactly how an artificial neuron works. In 7 chapters kids meet vectors and the dot product, solve systems of equations, train a perceptron on examples and see how a model copes with new data and why it can be biased. Then they find out that a neuron is a straight line splitting the plane, and that the XOR problem needs a neural network. Online and printable, with answer keys and an unplugged class activity. For ages 8–12.",
+      chefPlay: "Play", chefPrint: "Print worksheets", chefAlt: "Screenshot: the Robot Chef game",
       count: n => `We have ${n} ${n === 1 ? 'puzzle' : 'puzzles'}:`,
     },
     uk: {
@@ -186,6 +203,9 @@
       clockTitle: 'Котра година?',
       clockText: 'Годинник зі стрілками: визнач, котра година, або перетягни стрілки й постав годинник. Від «рівно» і «пів на» через чверті до кожної хвилини, також у 24-годинному форматі. Робочі аркуші для друку з відповідями.',
       clockPlay: 'Грати', clockPrint: 'Роздрукувати аркуші', clockAlt: 'Знімок екрана: гра «Котра година?»',
+      chefTitle: "Робот-кухар: вступ до штучного інтелекту та лінійної алгебри",
+      chefText: "Вступ до машинного навчання та лінійної алгебри через кухню. Робот не відчуває смаку, тож рахує: множить порції на ваги, додає й порівнює результат із порогом. Саме так працює штучний нейрон. У 7 розділах діти знайомляться з векторами та скалярним добутком, розв’язують системи рівнянь, навчають перцептрон на прикладах і бачать, як модель справляється з новими даними та чому буває упередженою. Далі вони відкривають, що нейрон — це пряма, яка ділить площину, а задача XOR потребує нейронної мережі. Онлайн і для друку, з відповідями та грою для класу без комп’ютера. Для дітей 8–12 років.",
+      chefPlay: "Грати", chefPrint: "Роздрукувати аркуші", chefAlt: "Знімок екрана: гра «Робот-кухар»",
       count: n => `У нас ${n} ${n % 10 === 1 && n % 100 !== 11 ? 'головоломка' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'головоломки' : 'головоломок'}:`,
     },
     vi: {
@@ -207,6 +227,9 @@
       clockTitle: 'Xem đồng hồ',
       clockText: 'Đồng hồ kim: đọc xem mấy giờ, hoặc kéo kim để chỉnh đồng hồ. Từ giờ đúng và giờ rưỡi đến mười lăm phút và từng phút, cả cách viết 24 giờ. Phiếu bài tập để in kèm đáp án.',
       clockPlay: 'Chơi', clockPrint: 'In phiếu bài tập', clockAlt: 'Ảnh chụp màn hình: trò chơi Xem đồng hồ',
+      chefTitle: "Rô-bốt đầu bếp: nhập môn trí tuệ nhân tạo và đại số tuyến tính",
+      chefText: "Nhập môn học máy và đại số tuyến tính qua chuyện bếp núc. Rô-bốt không nếm được, nên nó tính: nhân số phần với trọng số, cộng lại và so kết quả với ngưỡng. Đó chính là cách một nơ-ron nhân tạo hoạt động. Qua 7 chương, các bạn làm quen với vectơ và tích vô hướng, giải hệ phương trình, huấn luyện perceptron bằng ví dụ, rồi xem mô hình xử lý dữ liệu mới ra sao và vì sao nó có thể thiên lệch. Sau đó các bạn khám phá rằng nơ-ron là một đường thẳng chia đôi mặt phẳng, và bài toán XOR cần đến mạng nơ-ron. Chơi trực tuyến hoặc in ra, kèm đáp án và trò chơi cho cả lớp không cần máy tính. Dành cho trẻ 8–12 tuổi.",
+      chefPlay: "Chơi", chefPrint: "In phiếu bài tập", chefAlt: "Ảnh chụp màn hình: trò chơi Rô-bốt đầu bếp",
       count: n => `Có ${n} câu đố:`,
     },
     fr: {
@@ -228,6 +251,9 @@
       clockTitle: 'Lire l’heure',
       clockText: 'Une horloge à aiguilles : lis l’heure qu’il est, ou fais glisser les aiguilles pour régler l’horloge. Des heures pile et demies aux quarts d’heure et à la minute près, aussi sur 24 heures. Fiches à imprimer avec le corrigé.',
       clockPlay: 'Jouer', clockPrint: 'Imprimer des fiches', clockAlt: 'Capture d’écran : le jeu Lire l’heure',
+      chefTitle: "Robot cuisinier : initiation à l’IA et à l’algèbre linéaire",
+      chefText: "Une initiation à l’apprentissage automatique et à l’algèbre linéaire, racontée par la cuisine. Le robot n’a pas de goût, alors il compte : il multiplie les portions par des poids, fait la somme et compare le résultat à un seuil. C’est exactement ainsi que fonctionne un neurone artificiel. En 7 chapitres, les enfants découvrent les vecteurs et le produit scalaire, résolvent des systèmes d’équations, entraînent un perceptron sur des exemples et voient comment un modèle se débrouille avec de nouvelles données et pourquoi il peut être biaisé. Puis ils comprennent qu’un neurone est une droite qui partage le plan, et que le problème du XOR demande un réseau de neurones. En ligne et à imprimer, avec corrigés et une activité de classe sans ordinateur. Pour les 8–12 ans.",
+      chefPlay: "Jouer", chefPrint: "Imprimer des fiches", chefAlt: "Capture d’écran : le jeu Robot cuisinier",
       count: n => `Nous avons ${n} ${n <= 1 ? 'énigme' : 'énigmes'} :`,
     },
   };

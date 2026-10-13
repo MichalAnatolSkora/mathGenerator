@@ -24,9 +24,11 @@ alphabet, French without accents) can be in a different language than the game t
 | [`clock/worksheet.html`](clock/worksheet.html) | Tell the Time **printable worksheets**: read the time / draw the hands (+ answer key) |
 | [`graphic-dictation/index.html`](graphic-dictation/index.html) | **Graphic Dictation**, online game: draw on squared paper by arrows (3→ 2↑ 1↗…) and a picture appears; numbers can be sums or products |
 | [`graphic-dictation/worksheet.html`](graphic-dictation/worksheet.html) | Graphic Dictation **printable worksheets** (+ answer key) |
+| [`robot-chef/index.html`](robot-chef/index.html) | **Robot Chef**, online game: a first look at AI in 7 chapters, from counting taste points (an artificial neuron) through training the robot (perceptron) to a taste map and a tiny neural network |
+| [`robot-chef/worksheet.html`](robot-chef/worksheet.html) | Robot Chef **printable worksheets**: one A4 page per chapter (+ answer keys and an unplugged class activity) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
 
 ## Run locally
 

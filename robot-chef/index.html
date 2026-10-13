@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot-kucharz — gra</title>
+<meta name="description" content="Gra dla dzieci 8–12 lat: wstęp do sztucznej inteligencji i algebry liniowej. Sztuczny neuron, iloczyn skalarny, układy równań, perceptron, prosta rozdzielająca i pierwsza sieć neuronowa.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1; --soft:#f5f7fb;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --warm:#e0b84a; --warm-soft:#fff6d6; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;overflow-x:hidden;}
+  button{font:inherit;color:var(--ink);cursor:pointer;}
+  button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  p{margin:0;}
+  .muted{color:var(--muted);}
+  .small{font-size:14px;}
+  .good{color:var(--good);font-weight:600;}
+  .bad{color:var(--bad);font-weight:600;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{font-weight:700;font-size:15px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:6px 12px;min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:1000px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 2px 10px rgba(30,40,80,.05);min-width:0;}
+  .story{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:0 16px;}
+  .story summary{cursor:pointer;font-weight:700;padding:12px 0;min-height:44px;color:var(--accent-d);}
+  .story p{margin:0 0 10px;font-size:15px;}
+
+  /* ---- chapter tabs ---- */
+  .tabs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;}
+  .tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:58px;padding:6px 3px;border:2px solid var(--line);border-radius:12px;background:var(--panel);}
+  .tab b{font-size:20px;line-height:1;}
+  .tab small{font-size:11.5px;color:var(--muted);line-height:1.15;text-align:center;overflow-wrap:anywhere;}
+  .tab:hover{border-color:var(--accent);}
+  .tab[aria-current="page"]{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .tab[aria-current="page"] small{color:#e4e7ff;}
+  .tab .tick{position:absolute;top:-7px;right:-5px;width:22px;height:22px;border-radius:50%;background:var(--good);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #fff;}
+  @media (max-width:640px){ .tabs{grid-template-columns:repeat(4,minmax(0,1fr));} }
+
+  /* ---- chapter ---- */
+  .chead{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--ink);margin-bottom:14px;}
+  .chead h2{margin:0;font-size:24px;line-height:1.15;}
+  .chead .sub{color:var(--muted);margin-top:3px;}
+  .badge{flex:none;width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);color:var(--accent-d);display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;line-height:1;}
+  .badge b{font-size:26px;}
+  .badge span{font-size:10px;font-weight:800;}
+  .badge.done{background:var(--good);border-color:var(--good);color:#fff;}
+  .badge.pop{animation:pop .5s ease-out;}
+  .age{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--accent-soft);color:var(--accent-d);margin-left:6px;vertical-align:2px;}
+  .lesson{background:var(--warm-soft);border:1px solid #f1d98a;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px;margin-bottom:14px;}
+  .lesson h3{margin:0;font-size:15px;}
+  .steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .step{min-width:52px;min-height:46px;padding:4px 14px;border:2px solid var(--line);border-radius:999px;background:var(--panel);font-weight:800;font-size:17px;color:var(--accent-d);display:inline-flex;align-items:center;gap:6px;}
+  .step[aria-current="step"]{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .step.ok::after{content:"✓";color:var(--good);font-weight:900;}
+  .step[aria-current="step"].ok::after{color:#c8f5d8;}
+  .task{display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);border-radius:var(--radius);padding:14px;background:#fbfcfe;}
+  .thead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .thead h3{margin:0;font-size:18px;}
+  .dot{flex:none;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;}
+  .disc{border:2px dashed var(--good);border-radius:var(--radius);padding:14px 16px;background:#fff;display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .disc h3{margin:0;font-size:18px;color:var(--good);}
+  .fb{border:2px solid var(--good);background:var(--good-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:pop .3s ease-out;}
+  .fb .cheer{font-size:20px;font-weight:800;color:var(--good);}
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  .primary{font-weight:700;padding:11px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;min-height:46px;font-size:16px;align-self:flex-start;}
+  .primary:hover{background:var(--accent-d);}
+  .primary:disabled{opacity:.5;cursor:default;}
+  .ghost{font-size:14px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;color:var(--muted);}
+  .ghost:hover{border-color:var(--accent);color:var(--accent-d);}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .q{font-weight:700;font-size:16.5px;}
+  .msg{min-height:1.4em;font-size:15px;}
+  .msg.err{color:#8a2232;background:var(--bad-soft);border-radius:10px;padding:8px 12px;}
+  .msg.ok{color:#14532d;background:var(--good-soft);border-radius:10px;padding:8px 12px;}
+  .msg:empty{display:none;}
+  .count{font-size:14px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pdots{display:inline-flex;gap:4px;}
+  .pdots i{width:11px;height:11px;border-radius:50%;background:#d4d9e8;}
+  .pdots i.on{background:var(--good);}
+  .pdots i.now{background:var(--accent);}
+
+  /* ---- two columns: guest card + round ---- */
+  .two{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:14px;align-items:start;}
+  .two.rev{grid-template-columns:minmax(0,1fr) minmax(0,290px);}
+  @media (max-width:700px){ .two,.two.rev{grid-template-columns:1fr;} }
+  .round{display:flex;flex-direction:column;gap:10px;min-width:0;}
+
+  /* ---- guest card ---- */
+  .guest{border:2px solid var(--line);border-radius:14px;background:#fff;padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .guest.robot{border-color:#b8c0f2;background:#f6f7ff;}
+  .ghead{display:flex;align-items:center;gap:10px;}
+  .gem{font-size:40px;line-height:1;}
+  .ghead b{display:block;font-size:17px;}
+  .ghead small{color:var(--muted);font-size:13px;}
+  .wtable{display:flex;flex-direction:column;gap:4px;}
+  .wrow{display:flex;align-items:center;gap:8px;min-height:36px;padding:2px 6px;border-radius:8px;}
+  .wrow.onplate{background:#fff3c4;}
+  .wrow .em{font-size:24px;width:30px;text-align:center;}
+  .wrow .iname{flex:1;font-size:14px;color:var(--muted);}
+  .wv{font-weight:800;font-size:17px;white-space:nowrap;color:var(--good);}
+  .wv.neg{color:var(--bad);}
+  .wv.zero{color:var(--muted);}
+  .thr{font-size:14.5px;border-top:1px solid var(--line);padding-top:8px;}
+  .wbtn{width:40px;height:40px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:20px;font-weight:800;line-height:1;padding:0;}
+  .wbtn:hover:not(:disabled){border-color:var(--accent);}
+  .wbtn:disabled{opacity:.35;cursor:default;}
+
+  /* ---- plates ---- */
+  .plate{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:86px;min-width:150px;padding:14px 22px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 7px #f1f4fa;border:3px solid #d3d9e8;position:relative;align-self:flex-start;}
+  .plate .grp{display:inline-flex;gap:1px;}
+  .plate .pi{font-size:32px;line-height:1;}
+  .plate.small{min-height:50px;min-width:90px;padding:6px 14px;gap:6px;border-width:2px;}
+  .plate.small .pi{font-size:20px;}
+  button.plate{cursor:pointer;}
+  button.plate:hover:not(:disabled){border-color:var(--accent);}
+  .plate.win{border-color:var(--good);background:var(--good-soft);}
+  .plate.lose{border-color:var(--bad);opacity:.6;}
+  .plate.cur{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .plate .tagpts{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:1px 8px;font-size:13px;font-weight:800;white-space:nowrap;}
+  .plate .face{position:absolute;top:-10px;right:-8px;font-size:24px;}
+  .plates{display:flex;flex-wrap:wrap;gap:18px 14px;align-items:center;}
+  .fx{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;white-space:nowrap;}
+
+  /* ---- answers ---- */
+  .numentry{display:flex;flex-direction:column;gap:8px;max-width:320px;}
+  .numbox{min-width:90px;min-height:52px;border:2.5px solid var(--ink);border-radius:10px;background:#fff;font:800 26px/1 ui-monospace,Menlo,Consolas,monospace;padding:0 12px;}
+  .numbox.empty{color:#b8bfd0;}
+  .numbox.cur{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .numbox.ok{border-color:var(--good);background:var(--good-soft);}
+  .numbox.bad{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .slots{display:flex;flex-direction:column;gap:6px;}
+  .slot{display:flex;align-items:center;gap:8px;}
+  .slot .em{font-size:28px;width:36px;text-align:center;}
+  .slot .eq{font-weight:800;color:var(--muted);}
+  .slot .numbox{min-width:76px;min-height:46px;font-size:22px;}
+  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+  .nk{min-height:48px;border:1.5px solid #c5cbe0;border-radius:10px;background:#fff;font-size:21px;font-weight:700;padding:0;touch-action:manipulation;}
+  .nk:hover{border-color:var(--accent);}
+  .nk.fn{font-size:18px;color:var(--muted);}
+  .nk.go{grid-column:1/-1;background:var(--accent);border-color:var(--accent);color:#fff;font-size:17px;}
+  .nk.go:hover{background:var(--accent-d);}
+  .faces{display:flex;gap:10px;flex-wrap:wrap;}
+  .face-btn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:110px;min-height:84px;border:2.5px solid var(--line);border-radius:14px;background:#fff;padding:8px 12px;}
+  .face-btn span{font-size:36px;line-height:1;}
+  .face-btn small{font-size:13px;font-weight:700;color:var(--muted);}
+  .face-btn:hover:not(:disabled){border-color:var(--accent);}
+  .face-btn.right{border-color:var(--good);background:var(--good-soft);}
+  .face-btn.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s;}
+  .face-btn:disabled{cursor:default;}
+  .choices{display:flex;flex-direction:column;gap:6px;}
+  .opt{text-align:left;min-height:46px;border:2px solid var(--line);border-radius:11px;background:#fff;padding:8px 12px;font-size:15.5px;}
+  .opt:hover:not(:disabled){border-color:var(--accent);}
+  .opt.right{border-color:var(--good);background:var(--good-soft);}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s;}
+  .ingbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .ingbtn{min-width:72px;min-height:64px;border:2.5px solid var(--line);border-radius:14px;background:#fff;font-size:34px;}
+  .ingbtn:hover:not(:disabled){border-color:var(--accent);}
+  .ingbtn.right{border-color:var(--good);background:var(--good-soft);}
+  .ingbtn.wrong{border-color:var(--bad);background:var(--bad-soft);}
+
+  /* ---- training ---- */
+  .rule{border:2px solid #b8c0f2;background:#f6f7ff;border-radius:12px;padding:10px 14px;font-size:14.5px;display:flex;flex-direction:column;gap:4px;}
+  .rule b{color:var(--accent-d);}
+  .notebook{display:flex;flex-wrap:wrap;gap:14px 10px;align-items:center;}
+  .nbitem{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;}
+  .nbitem .st{font-size:15px;min-height:20px;}
+  .says{display:flex;flex-direction:column;gap:6px;font-size:15.5px;}
+  .says > div{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
+  .says .who{font-size:24px;}
+  .bigface{font-size:26px;line-height:1;}
+
+  /* ---- maps ---- */
+  .mapwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:14px;align-items:start;}
+  @media (max-width:760px){ .mapwrap{grid-template-columns:1fr;} }
+  .mapbox svg{display:block;width:100%;height:auto;max-height:62vh;background:#fff;border-radius:10px;border:1px solid var(--line);}
+  .rulebox{display:flex;flex-direction:column;gap:10px;}
+  .formula{font:800 19px/1.3 ui-monospace,Menlo,Consolas,monospace;background:#fff;border:2px solid var(--accent);border-radius:10px;padding:8px 12px;align-self:flex-start;}
+  .stepper{display:inline-flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:3px;}
+  .stepper output{min-width:42px;text-align:center;font:800 20px/1 ui-monospace,Menlo,Consolas,monospace;}
+  .sortcount{font-weight:700;font-size:16px;}
+  .legend{font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px;}
+  .net svg{display:block;width:100%;max-width:560px;height:auto;}
+  table.grid7{border-collapse:collapse;width:100%;font-size:15px;}
+  .grid7 th,.grid7 td{border:1px solid var(--line);padding:6px 6px;text-align:center;}
+  .grid7 th{background:var(--soft);font-size:13px;}
+  .tog{min-width:70px;min-height:42px;border:2px solid var(--line);border-radius:10px;background:#fff;font-weight:800;}
+  .tog.yes{border-color:var(--good);color:var(--good);}
+  .tog.no{border-color:#9aa3b8;color:#59607a;}
+  .tog.bad{background:var(--bad-soft);border-color:var(--bad);animation:shake .35s;}
+  .tablewrap{overflow-x:auto;}
+  .grid7 tr.rgood td{background:#f1fbf4;}
+  .grid7 tr.rbad td{background:#fff3f5;}
+  .grid7 td.bigface{font-size:22px;}
+  @media (max-width:600px){ .grid7{font-size:14px;} .grid7 th,.grid7 td{padding:5px 3px;} .grid7 td.bigface{font-size:19px;} }
+
+  /* ---- final ---- */
+  .cert{border:4px double var(--warm);border-radius:16px;background:#fffdf3;padding:18px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .cert h3{margin:0;font-size:24px;}
+  .cert .big{font-size:56px;line-height:1;}
+  .know{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;}
+
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+
+  @media (max-width:600px){
+    .top{padding:8px 12px;gap:6px 8px;}
+    .brand{font-size:18px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:12px;}
+    .task{padding:10px;}
+    .chead h2{font-size:20px;}
+    .badge{width:54px;height:54px;}
+    .plate .pi{font-size:28px;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">🤖 Robot-kucharz</h1>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karty pracy</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <span class="score" id="score" data-i18n-attr="title:starsTitle">⭐ 0</span>
+</header>
+
+<main class="wrap">
+  <details class="story" id="story">
+    <summary id="storyTitle"></summary>
+    <div id="storyBody"></div>
+  </details>
+  <nav class="tabs" id="tabs" data-i18n-attr="aria-label:chapters"></nav>
+  <div id="view"></div>
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset"></button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const E = CHEF;
+  const $ = id => document.getElementById(id);
+  const UI = {};
+  for (const l of Object.keys(CHEF_TEXT)) UI[l] = { ...CHEF_TEXT[l].common, ...CHEF_TEXT[l].game };
+  const T = (k, ...a) => I18N.t(UI, k, ...a);
+  const rnd = Math.random;
+  const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const ingName = id => T('ingr')[id] || id;
+  const guestName = id => T('guests')[id] || id;
+  const em = id => E.ING[id].e;
+  const fx = (w, x, plain) => E.formula(w, x, T('mul'), plain);
+  /** "3 + 5 = 8", or just "8" when there is nothing to add. */
+  const eqs = (w, x, plain) => { const f = fx(w, x, plain), v = E.score(w, x); return f === E.num(v) || f === E.term(v) || !f ? E.num(v) : `${f} = ${E.num(v)}`; };
+
+  /* ================= DOM helpers (text only, never HTML from strings) ================= */
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    const add = k => {
+      if (k == null || k === false) return;
+      if (Array.isArray(k)) k.forEach(add);
+      else e.appendChild(typeof k === 'object' ? k : document.createTextNode(String(k)));
+    };
+    add(kids);
+    return e;
+  }
+  /** **bold** and `formula` → DOM nodes. */
+  function rich(str) {
+    return String(str == null ? '' : str).split(/(\*\*[^*]+\*\*|`[^`]+`)/).filter(Boolean).map(x => {
+      if (x.startsWith('**')) return h('b', null, rich(x.slice(2, -2)));
+      if (x.startsWith('`')) return h('span', { class: 'fx' }, x.slice(1, -1));
+      return document.createTextNode(x);
+    });
+  }
+  const plain = str => String(str).replace(/\*\*|`/g, '');
+  const para = (str, cls) => h('p', cls ? { class: cls } : null, rich(str));
+  function say(el, str, cls) { el.className = 'msg' + (cls ? ' ' + cls : ''); el.replaceChildren(...rich(str)); }
+  const msgEl = () => h('p', { class: 'msg', 'aria-live': 'polite' });
+  const pick = arr => arr[Math.floor(rnd() * arr.length)];
+
+  /* ================= progress ================= */
+  const STORE = 'robotchef.v1';
+  const TASKS = { 1: ['1a', '1b'], 2: ['2a', '2b'], 3: ['3a', '3b'], 4: ['4a', '4b'], 5: ['5a', '5b'], 6: ['6a', '6b', '6c'], 7: ['7a', '7b', '7c'] };
+  const FINAL = 8;
+  const ALL = Object.values(TASKS).flat();
+  const prog = { done: new Set(), last: 1 };
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (!j || typeof j !== 'object') return;
+      if (Array.isArray(j.done)) j.done.forEach(id => { if (ALL.includes(id)) prog.done.add(id); });
+      if (E.CHAPTERS.includes(j.last) || j.last === FINAL) prog.last = j.last;
+    } catch (_) { /* no storage: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, done: [...prog.done], last: prog.last })); } catch (_) { /* ignore */ }
+  }
+  const chDone = c => TASKS[c].every(id => prog.done.has(id));
+  load();
+  const S = { c: prog.last, task: null };
+  const qc = parseInt(new URLSearchParams(location.search).get('chapter'), 10);
+  if (E.CHAPTERS.includes(qc) || qc === FINAL) S.c = qc;
+  /** The number entry that the keyboard types into right now. */
+  const active = { num: null };
+
+  /* ================= components ================= */
+  /** The guest's (or robot's) card: the weight of every ingredient and the threshold. o: { hide, threshold, sub, robot, w, on } */
+  function guestCard(g, o = {}) {
+    const w = o.w || g.w;
+    const rows = g.ing.map((id, i) => h('div', { class: 'wrow' + (o.on && o.on[i] ? ' onplate' : '') },
+      h('span', { class: 'em', 'aria-hidden': 'true' }, em(id)), h('span', { class: 'iname' }, ingName(id)),
+      h('b', { class: 'wv' + (o.hide ? '' : w[i] < 0 ? ' neg' : w[i] === 0 ? ' zero' : '') }, o.hide ? '?' : T('ptsShort', E.signed(w[i])))));
+    return h('div', { class: 'guest' + (o.robot ? ' robot' : '') },
+      h('div', { class: 'ghead' }, h('span', { class: 'gem', 'aria-hidden': 'true' }, o.robot ? '🤖' : g.e),
+        h('div', null, h('b', null, o.robot ? T('robotName') : guestName(g.id)), h('small', null, o.sub || T('guestSub')))),
+      h('div', { class: 'wtable' }, rows),
+      o.threshold === false ? null : para(o.robot ? T('robotThr') : T('threshold', E.num(g.t)), 'thr'));
+  }
+  /** "2 × chocolate, 1 × onion" for screen readers. */
+  const describe = (g, x) => g.ing.map((id, i) => x[i] ? `${x[i]} × ${ingName(id)}` : '').filter(Boolean).join(', ');
+  /** A plate with the ingredients on it. o: { small, btn, onclick, cls, face, pts } */
+  function plate(g, x, o = {}) {
+    const groups = g.ing.map((id, i) => x[i] ? h('span', { class: 'grp' }, Array.from({ length: x[i] }, () => h('span', { class: 'pi' }, em(id)))) : null);
+    return h(o.btn ? 'button' : 'div', { class: 'plate' + (o.small ? ' small' : '') + (o.cls ? ' ' + o.cls : ''), type: o.btn ? 'button' : null,
+      onclick: o.onclick || null, role: o.btn ? null : 'img', 'aria-label': describe(g, x) + (o.face != null ? ` — ${o.face ? '😋' : '🤢'}` : '') },
+    groups, o.face != null ? h('span', { class: 'face', 'aria-hidden': 'true' }, o.face ? '😋' : '🤢') : null,
+    o.pts != null ? h('span', { class: 'tagpts' }, o.pts) : null);
+  }
+  function pdots(n, i, done) {
+    return h('span', { class: 'pdots', 'aria-hidden': 'true' }, Array.from({ length: n }, (_, k) => h('i', { class: k < done ? 'on' : k === i ? 'now' : '' })));
+  }
+  /**
+   * Number entry: one box (or several: o.slots = [label nodes]) and a keypad; the keyboard works too.
+   * o: { neg (± key), onEnter(value | values[]), label }
+   */
+  function numEntry(o) {
+    const n = o.slots ? o.slots.length : 1;
+    const vals = Array(n).fill('');
+    let cur = 0;
+    const boxes = vals.map((_, i) => h('button', { type: 'button', class: 'numbox', onclick: () => { cur = i; paint(); } }));
+    function paint() {
+      boxes.forEach((b, i) => {
+        b.textContent = vals[i] ? vals[i].replace('-', E.MINUS) : (n > 1 ? '?' : '…');
+        b.classList.toggle('cur', i === cur);
+        b.classList.toggle('empty', !vals[i]);
+        b.setAttribute('aria-label', `${o.label || T('yourAnswer')}${n > 1 ? ' ' + (i + 1) : ''}: ${vals[i] || T('empty')}`);
+      });
+    }
+    function press(k) {
+      if (k === 'ok') { o.onEnter(n > 1 ? vals.map(E.parseNum) : E.parseNum(vals[0])); return; }
+      let v = vals[cur];
+      if (k === 'back') v = v.slice(0, -1);
+      else if (k === '-') { if (!o.neg) return; v = v.startsWith('-') ? v.slice(1) : '-' + v; }
+      else if (v.replace('-', '').length < 3) v = v.replace(/^(-?)0$/, '$1') + k;
+      vals[cur] = v;
+      boxes[cur].classList.remove('ok', 'bad');
+      paint();
+    }
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', o.neg ? '-' : '', '0', 'back'];
+    const pad = h('div', { class: 'numpad' },
+      keys.map(k => k ? h('button', { type: 'button', class: 'nk' + (k === 'back' || k === '-' ? ' fn' : ''), onclick: () => press(k),
+        'aria-label': k === 'back' ? T('keyBack') : k === '-' ? T('keyMinus') : null }, k === 'back' ? '⌫' : k === '-' ? '±' : k) : h('span')),
+      h('button', { type: 'button', class: 'nk go', onclick: () => press('ok') }, T('check')));
+    const fields = n > 1
+      ? h('div', { class: 'slots' }, o.slots.map((lab, i) => h('div', { class: 'slot' }, lab, h('span', { class: 'eq' }, '='), boxes[i])))
+      : h('div', { class: 'row' }, boxes[0], o.unit ? h('span', { class: 'q' }, o.unit) : null);
+    const api = {
+      el: h('div', { class: 'numentry' }, fields, pad),
+      key(e) {
+        if (/^[0-9]$/.test(e.key)) press(e.key);
+        else if (e.key === '-' || e.key === '−' || e.key === '_') press('-');
+        else if (e.key === 'Backspace') press('back');
+        else if (e.key === 'Enter') press('ok');
+        else if (n > 1 && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { cur = (cur + (e.key === 'ArrowDown' ? 1 : n - 1)) % n; paint(); }
+        else return false;
+        return true;
+      },
+      mark(i, good) { const b = boxes[i]; b.classList.remove('ok', 'bad'); void b.offsetWidth; b.classList.add(good ? 'ok' : 'bad'); },
+      wrong() { api.mark(cur, false); const i = cur; setTimeout(() => { vals[i] = ''; boxes[i].classList.remove('bad'); paint(); }, 650); },
+      focusFirstWrong(bad) { if (bad.length) { cur = bad[0]; paint(); } },
+    };
+    paint();
+    active.num = api;
+    return api;
+  }
+  /** The two faces: 😋 likes it / 🤢 does not. */
+  function faces(onPick) {
+    const mk = yes => h('button', { type: 'button', class: 'face-btn', onclick: e => onPick(yes, e.currentTarget) },
+      h('span', { 'aria-hidden': 'true' }, yes ? '😋' : '🤢'), h('small', null, T(yes ? 'faceYes' : 'faceNo')));
+    return h('div', { class: 'faces' }, mk(true), mk(false));
+  }
+  function stepper(o) {
+    let v = o.value;
+    const out = h('output', null, E.num(v));
+    const minus = h('button', { type: 'button', class: 'wbtn', 'aria-label': `${o.label}: −1`, onclick: () => set(v - 1) }, '−');
+    const plus = h('button', { type: 'button', class: 'wbtn', 'aria-label': `${o.label}: +1`, onclick: () => set(v + 1) }, '+');
+    function set(nv) {
+      if (nv < o.min || nv > o.max) return;
+      v = nv; paint(); o.onChange(v);
+    }
+    function paint() { out.textContent = E.num(v); minus.disabled = v <= o.min || !!api.locked; plus.disabled = v >= o.max || !!api.locked; }
+    const api = { el: h('span', { class: 'stepper', role: 'group', 'aria-label': o.label }, minus, out, plus), get: () => v, lock() { api.locked = true; paint(); } };
+    paint();
+    return api;
+  }
+  const nextBtn = (label, fn) => h('button', { type: 'button', class: 'primary', onclick: fn }, label || T('next'));
+
+  /* ================= chapter 1 and 2: count the points ================= */
+  function dinner(gen, neg) {
+    return (panel, ctx) => {
+      const P = gen(rnd, 5), g = P.g, n = P.dishes.length;
+      let i = 0, phase = 'pts', miss = 0;
+      const round = h('div', { class: 'round' });
+      panel.append(h('div', { class: 'two' }, guestCard(g), round));
+      function show() {
+        const x = P.dishes[i], pts = E.score(g.w, x);
+        const msg = msgEl();
+        round.replaceChildren(h('p', { class: 'count' }, T('dishOf', i + 1, n), pdots(n, i, i)), plate(g, x));
+        if (phase === 'pts') {
+          round.append(para(T(neg ? 'qPoints2' : 'qPoints'), 'q'));
+          const ne = numEntry({ neg, label: T('points'), unit: T('ptsUnit'), onEnter: v => {
+            if (isNaN(v)) return;
+            if (v === pts) { phase = 'face'; show(); return; }
+            miss++; ne.wrong();
+            say(msg, T('wrongPts') + ' ' + T('hintSum', fx(g.w, x)), 'err');
+          } });
+          round.append(ne.el, msg);
+        } else {
+          active.num = null;
+          round.append(para(T('ptsAre', eqs(g.w, x)), 'good'), para(T('qFace', E.num(g.t)), 'q'));
+          let done = false;
+          round.append(faces((yes, btn) => {
+            if (done) return;
+            const right = yes === E.likes(g, x);
+            btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add(right ? 'right' : 'wrong');
+            if (!right) { say(msg, T('wrongFace', E.num(pts), E.num(g.t)), 'err'); return; }
+            done = true;
+            round.querySelectorAll('.face-btn').forEach(b => { b.disabled = true; });
+            if (i === n - 1) { say(msg, ''); ctx.solve(T('dinnerDone', n)); return; }
+            say(msg, T(yes ? 'rightYes' : 'rightNo', E.num(pts), E.num(g.t)), 'ok');
+            const b = nextBtn(T('nextDish'), () => { i++; phase = 'pts'; miss = 0; show(); });
+            round.append(b); b.focus({ preventScroll: true });
+          }), msg);
+        }
+      }
+      show();
+    };
+  }
+  /** Chapter 1 B: which plate does the guest like best? Three rounds. */
+  function bestPlate(panel, ctx) {
+    const N = 3;
+    let r = 0;
+    const box = h('div', { class: 'round' });
+    panel.append(box);
+    function show() {
+      const P = E.best1(rnd), g = P.g;
+      const msg = msgEl();
+      let done = false;
+      const plates = P.plates.map((x, k) => plate(g, x, { btn: true, onclick: () => choose(k) }));
+      function choose(k) {
+        if (done) return;
+        const pts = E.score(g.w, P.plates[k]);
+        if (k !== P.best) {
+          plates[k].classList.add('lose'); plates[k].disabled = true;
+          plates[k].append(h('span', { class: 'tagpts' }, T('ptsShort', E.num(pts))));
+          say(msg, T('notBest', E.num(pts)), 'err');
+          return;
+        }
+        done = true;
+        plates.forEach((p, j) => { p.disabled = true; if (!p.querySelector('.tagpts')) p.append(h('span', { class: 'tagpts' }, T('ptsShort', E.num(E.score(g.w, P.plates[j]))))); });
+        plates[k].classList.add('win');
+        if (r === N - 1) { say(msg, ''); ctx.solve(T('bestDone')); return; }
+        say(msg, T('bestOk', E.num(pts)), 'ok');
+        box.append(nextBtn(T('nextGuest'), () => { r++; show(); }));
+      }
+      box.replaceChildren(h('div', { class: 'two' }, guestCard(g, { threshold: false }),
+        h('div', { class: 'round' }, h('p', { class: 'count' }, T('roundOf', r + 1, N), pdots(N, r, r)), para(T('qBest'), 'q'),
+          h('div', { class: 'plates' }, plates), msg)));
+    }
+    show();
+  }
+  /** Chapter 2 B: cook a dish the guest will like, with a must-have ingredient. */
+  function cook(panel, ctx) {
+    const P = E.cook2(rnd), g = P.g;
+    const amt = g.ing.map((_, i) => i === P.must ? P.mustN : 0);
+    const plateBox = h('div');
+    const msg = msgEl();
+    const paintPlate = () => plateBox.replaceChildren(plate(g, amt), para(T('portions', E.sum(amt), P.cap), 'muted small'));
+    const steppers = g.ing.map((id, i) => i === P.must
+      ? h('div', { class: 'wrow' }, h('span', { class: 'em' }, em(id)), h('span', { class: 'iname' }, ingName(id)), h('b', null, `🔒 ${P.mustN}`))
+      : h('div', { class: 'wrow' }, h('span', { class: 'em' }, em(id)), h('span', { class: 'iname' }, ingName(id)),
+        stepper({ label: ingName(id), value: 0, min: 0, max: P.max, onChange: v => { amt[i] = v; paintPlate(); say(msg, ''); } }).el));
+    let tries = 0, done = false;
+    const serve = h('button', { type: 'button', class: 'primary', onclick: () => {
+      if (done) return;
+      if (E.sum(amt) > P.cap) { say(msg, T('tooMuch', P.cap), 'err'); return; }
+      const pts = E.score(g.w, amt), f = eqs(g.w, amt);
+      if (pts >= g.t) { done = true; serve.disabled = true; ctx.solve([T('cookOk', f, E.num(g.t)), tries ? '' : T('cookFirst')]); return; }
+      tries++;
+      say(msg, T('cookLow', f, E.num(g.t)), 'err');
+    } }, T('serve'));
+    paintPlate();
+    panel.append(h('div', { class: 'two' }, guestCard(g),
+      h('div', { class: 'round' }, para(T('cookTask', P.mustN, em(g.ing[P.must]), E.num(g.t)), 'q'), plateBox,
+        h('div', { class: 'wtable' }, steppers), para(T('cookNoPeek'), 'muted small'), serve, msg)));
+  }
+
+  /* ================= chapter 3: the taste detective ================= */
+  function detective(panel, ctx) {
+    const N = 2;
+    let r = 0;
+    const box = h('div', { class: 'round' });
+    panel.append(box);
+    function show() {
+      const P = E.detect3(rnd), g = P.g;
+      const msg = msgEl();
+      let fails = 0;
+      const slots = g.ing.map(id => h('span', { class: 'em', title: ingName(id), 'aria-label': ingName(id) }, em(id)));
+      const ne = numEntry({ neg: true, slots, label: T('weight'), onEnter: vals => {
+        const bad = vals.map((v, i) => v !== g.w[i] ? i : -1).filter(i => i >= 0);
+        vals.forEach((v, i) => ne.mark(i, v === g.w[i]));
+        if (!bad.length) {
+          active.num = null;
+          if (r === N - 1) { say(msg, ''); ctx.solve(T('detectDone')); return; }
+          say(msg, T('detectOk'), 'ok');
+          box.append(nextBtn(T('nextGuest'), () => { r++; show(); }));
+          return;
+        }
+        fails++;
+        ne.focusFirstWrong(bad);
+        say(msg, T('detectWrong', bad.length) + (fails >= 2 ? ' ' + T('detectHint') : ''), 'err');
+      } });
+      const dishes = P.dishes.map((x, k) => h('div', { class: 'row' }, plate(g, x, { small: true }), h('b', null, `= ${T('ptsShort', E.num(P.points[k]))}`)));
+      box.replaceChildren(h('p', { class: 'count' }, T('roundOf', r + 1, N), pdots(N, r, r)),
+        h('div', { class: 'two' },
+          h('div', { class: 'round' }, h('div', { class: 'ghead' }, h('span', { class: 'gem' }, g.e), h('b', null, guestName(g.id))),
+            para(T('detectIntro'), 'q'), h('div', { class: 'round' }, dishes)),
+          h('div', { class: 'round' }, para(T('detectQ'), 'q'), ne.el, msg)));
+    }
+    show();
+  }
+  function spoiler(panel, ctx) {
+    const N = 2;
+    let r = 0;
+    const box = h('div', { class: 'round' });
+    panel.append(box);
+    function show() {
+      const P = E.spoil3(rnd), g = P.g;
+      const msg = msgEl();
+      let done = false;
+      const plates = P.dishes.map((x, k) => plate(g, x, { small: true, face: P.likes[k] }));
+      const btns = g.ing.map((id, j) => h('button', { type: 'button', class: 'ingbtn', 'aria-label': ingName(id), title: ingName(id), onclick: e => choose(j, e.currentTarget) }, em(id)));
+      function choose(j, btn) {
+        if (done) return;
+        plates.forEach(p => p.classList.remove('cur'));
+        if (j === P.spoiler) {
+          done = true; btn.classList.add('right');
+          if (r === N - 1) { say(msg, ''); ctx.solve(T('spoilDone', em(g.ing[j]))); return; }
+          say(msg, T('spoilOk', em(g.ing[j])), 'ok');
+          box.append(nextBtn(T('nextGuest'), () => { r++; show(); }));
+          return;
+        }
+        btn.classList.add('wrong'); btn.disabled = true;
+        // a counterexample: a 😋 dish with it, or a 🤢 dish without it
+        let k = P.dishes.findIndex((x, i) => x[j] && P.likes[i]);
+        if (k >= 0) { plates[k].classList.add('cur'); say(msg, T('spoilNoLiked', em(g.ing[j])), 'err'); return; }
+        k = P.dishes.findIndex((x, i) => !x[j] && !P.likes[i]);
+        plates[k].classList.add('cur'); say(msg, T('spoilNoMissing', em(g.ing[j])), 'err');
+      }
+      box.replaceChildren(h('p', { class: 'count' }, T('roundOf', r + 1, N), pdots(N, r, r)),
+        h('div', { class: 'ghead' }, h('span', { class: 'gem' }, g.e), h('b', null, guestName(g.id))),
+        para(T('spoilIntro'), 'muted'), h('div', { class: 'plates' }, plates), para(T('spoilQ'), 'q'), h('div', { class: 'ingbtns' }, btns), msg);
+    }
+    show();
+  }
+
+  /* ================= chapter 4: training ================= */
+  function training(k) {
+    return (panel, ctx) => {
+      const P = E.train4(rnd, k), g = P.g, m = P.dishes.length;
+      let s = 0;
+      let w = Array(k).fill(0);
+      const robotBox = h('div'), stepBox = h('div', { class: 'round' }), nb = h('div', { class: 'notebook' });
+      const msg = msgEl();
+      panel.append(
+        h('div', { class: 'rule' }, para(T('ruleTitle')), para(T('ruleUp')), para(T('ruleDown')), para(T('ruleSame'))),
+        h('div', { class: 'two rev' }, stepBox, h('div', { class: 'round' }, robotBox, h('button', { type: 'button', class: 'primary', onclick: done }, T('ready')), msg)),
+        h('div', null, para(T('notebook'), 'q'), nb));
+      function paintRobot(live) {
+        const st = P.steps[Math.min(s, P.steps.length - 1)], x = live ? P.dishes[st.i] : [];
+        const rows = g.ing.map((id, j) => {
+          const sp = stepper({ label: `${ingName(id)}`, value: w[j], min: -9, max: 9, onChange: v => { w[j] = v; say(msg, ''); } });
+          if (!live) sp.lock();
+          return h('div', { class: 'wrow' + (x[j] ? ' onplate' : '') }, h('span', { class: 'em' }, em(id)), h('span', { class: 'iname' }, ingName(id)), sp.el);
+        });
+        robotBox.replaceChildren(h('div', { class: 'guest robot' },
+          h('div', { class: 'ghead' }, h('span', { class: 'gem' }, '🤖'), h('div', null, h('b', null, T('robotName')), h('small', null, T('robotSub')))),
+          h('div', { class: 'wtable' }, rows), para(T('robotThr'), 'thr'),
+          h('button', { type: 'button', class: 'ghost', onclick: () => { w = st.before.slice(); paintRobot(true); say(msg, ''); } }, T('undo'))));
+      }
+      function paintNotebook() {
+        const st = P.steps[s];
+        nb.replaceChildren(...P.dishes.map((x, i) => {
+          const past = P.steps.find(q => q.round === st.round && q.i === i && P.steps.indexOf(q) < s);
+          return h('div', { class: 'nbitem' }, plate(g, x, { small: true, face: P.labels[i], cls: i === st.i ? 'cur' : '' }),
+            h('span', { class: 'st' }, past ? (past.robot === past.guest ? '✅' : '✏️') : i === st.i ? '👈' : ''));
+        }));
+      }
+      function show() {
+        const st = P.steps[s], x = P.dishes[st.i];
+        w = st.before.slice();
+        paintRobot(true); paintNotebook(); say(msg, '');
+        const calc = eqs(st.before, x, true);
+        stepBox.replaceChildren(
+          h('p', { class: 'count' }, h('span', null, T('trainRound', st.round + 1)), h('span', null, T('dishOf', st.i + 1, m))),
+          plate(g, x),
+          h('div', { class: 'says' },
+            h('div', null, h('span', { class: 'who' }, '🤖'), h('span', null, ...rich(T('robotCalc', calc))), h('span', { class: 'bigface' }, st.robot ? '😋' : '🤢')),
+            h('div', null, h('span', { class: 'who' }, g.e), h('span', null, T('guestSays')), h('span', { class: 'bigface' }, st.guest ? '😋' : '🤢'))),
+          para(T('trainQ'), 'q'));
+      }
+      function done() {
+        const st = P.steps[s], x = P.dishes[st.i];
+        if (w.every((v, j) => v === st.after[j])) {
+          s++;
+          if (s === P.steps.length) {
+            active.num = null;
+            paintRobot(false);
+            ctx.solve([T('trainDone', P.rounds, P.fixes), T('trainReveal', g.ing.map((id, j) => `${em(id)} ${E.signed(g.w[j])}`).join('  '), g.ing.map((id, j) => `${em(id)} ${E.signed(P.w[j])}`).join('  '))]);
+            return;
+          }
+          if (P.steps[s].round > st.round) { show(); say(msg, T('newRound', st.round + 2), 'ok'); return; }
+          show();
+          return;
+        }
+        const on = g.ing.map((id, j) => x[j] ? em(id) : '').filter(Boolean).join(' ');
+        if (st.robot === st.guest) say(msg, T('fixNone'), 'err');
+        else say(msg, T(st.guest ? 'fixUp' : 'fixDown', on), 'err');
+      }
+      show();
+    };
+  }
+
+  /* ================= chapter 5: new dishes ================= */
+  function testing(panel, ctx) {
+    const N = 4, P = E.test5(rnd, N), g = P.g;
+    let i = 0, right = 0;
+    const box = h('div', { class: 'round' });
+    const robot = guestCard(g, { robot: true, w: P.w, sub: T('robotTrained') });
+    panel.append(h('div', { class: 'two' }, h('div', { class: 'round' }, robot,
+      para(T('trainedOn'), 'small muted'), h('div', { class: 'plates' }, P.train.map((x, k) => plate(g, x, { small: true, face: P.trainLabels[k] })))), box));
+    function show() {
+      const x = P.dishes[i], pts = E.score(P.w, x), msg = msgEl();
+      box.replaceChildren(h('p', { class: 'count' }, T('newDishOf', i + 1, N), pdots(N, i, i)), plate(g, x), para(T('testQ'), 'q'));
+      const ne = numEntry({ neg: true, label: T('points'), unit: T('ptsUnit'), onEnter: v => {
+        if (isNaN(v)) return;
+        if (v !== pts) { ne.wrong(); say(msg, T('wrongPts') + ' ' + T('hintSum', fx(P.w, x)), 'err'); return; }
+        active.num = null;
+        const rs = pts >= E.ROBOT_T, ok = rs === P.truth[i];
+        if (ok) right++;
+        ne.el.replaceWith(h('div', { class: 'says' },
+          h('div', null, h('span', { class: 'who' }, '🤖'), h('span', null, ...rich(T('robotCalc', eqs(P.w, x, true)))), h('span', { class: 'bigface' }, rs ? '😋' : '🤢')),
+          h('div', null, h('span', { class: 'who' }, g.e), h('span', null, T('guestSays')), h('span', { class: 'bigface' }, P.truth[i] ? '😋' : '🤢'))));
+        say(msg, T(ok ? 'robotRight' : 'robotWrong'), ok ? 'ok' : 'err');
+        if (i === N - 1) { ctx.solve([T('testDone', right, N), T('testWhy')]); return; }
+        box.append(nextBtn(T('nextDish'), () => { i++; show(); }));
+      } });
+      box.append(ne.el, msg);
+    }
+    show();
+  }
+  /** Multiple-choice questions; all right ⇒ solved. */
+  function quiz(qs, doneMsg) {
+    return (panel, ctx) => {
+      const right = new Set();
+      const count = h('p', { class: 'muted' });
+      const upd = () => { count.textContent = T('quizLeft', right.size, qs.length); };
+      panel.append(h('ol', { class: 'know' }, qs.map((q, i) => {
+        const msg = msgEl();
+        const opts = q.opts.map((o, k) => h('button', { type: 'button', class: 'opt', onclick: e => {
+          const b = e.currentTarget;
+          if (right.has(i)) return;
+          if (k !== q.ok) { b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); say(msg, T('tryAgain'), 'err'); return; }
+          b.classList.add('right'); right.add(i); say(msg, q.why, 'ok'); upd();
+          if (right.size === qs.length) ctx.solve(doneMsg);
+        } }, o));
+        return h('li', null, para(q.q, 'q'), h('div', { class: 'choices' }, opts), msg);
+      })), count);
+      upd();
+    };
+  }
+
+  /* ================= chapters 6 and 7: the taste map ================= */
+  /** Steppers for a rule a·x + b·y ≥ t, with the rule written out above them. */
+  function ruleSteppers(r, ranges, labels, onChange, fixedAB) {
+    const line = h('p', { class: 'formula' });
+    const paintLine = () => { line.textContent = `${fixedAB ? `${labels.x} + ${labels.y}` : `${labels.x}${T('mul')}${E.term(r.a)} + ${labels.y}${T('mul')}${E.term(r.b)}`} ≥ ${E.num(r.t)} → 😋`; };
+    const mk = (q, label) => stepper({ label, value: r[q], min: ranges[q][0], max: ranges[q][1], onChange: v => { r[q] = v; paintLine(); onChange(); } });
+    const rows = (fixedAB ? ['t'] : ['a', 'b', 't']).map(q => {
+      const sp = mk(q, labels[q]);
+      return { sp, el: h('div', { class: 'wrow' }, h('span', { class: 'em' }, q === 'a' ? labels.ea || labels.x : q === 'b' ? labels.eb || labels.y : '≥'), h('span', { class: 'iname' }, labels[q]), sp.el) };
+    });
+    paintLine();
+    return { el: h('div', { class: 'rulebox' }, line, h('div', { class: 'wtable' }, rows.map(x => x.el))), lock() { rows.forEach(x => x.sp.lock()); } };
+  }
+  function mapTask(mode, n) {
+    return (panel, ctx) => {
+      const P = E.map6(rnd, mode, n), r = { ...P.start };
+      const map = h('div', { class: 'mapbox' }), count = h('p', { class: 'sortcount', 'aria-live': 'polite' });
+      let done = false;
+      const rs = ruleSteppers(r, E.RANGE, { a: T('wSweet'), b: T('wSpicy'), t: T('thrLabel'), x: '🍬', y: '🌶️' }, paint, mode === 'theta');
+      function paint() {
+        map.innerHTML = E.mapSVG({ pts: P.pts, rule: r, mark: 'wrong', xLabel: T('axisSweet'), yLabel: T('axisSpicy') });
+        const k = E.sorted(r, P.pts);
+        count.textContent = T('sortedCount', k, P.pts.length);
+        if (k === P.pts.length && !done) {
+          done = true; rs.lock();
+          ctx.solve(T('mapOk', E.term(r.a), E.term(r.b), E.num(r.t)));
+        }
+      }
+      panel.append(para(T(mode === 'theta' ? 'mapIntroTheta' : 'mapIntro'), 'muted'),
+        h('div', { class: 'mapwrap' }, map, h('div', { class: 'rulebox' }, para(T('mapQ'), 'q'), rs.el, count,
+          h('div', { class: 'legend' }, para(T('legendGreen')), para(T('legendRing'))))));
+      paint();
+    };
+  }
+  function princessMap(panel, ctx) {
+    const P = E.xor7(rnd, 2), r = { a: 1, b: 0, t: 3 };
+    const map = h('div', { class: 'mapbox' }), count = h('p', { class: 'sortcount', 'aria-live': 'polite' }), msg = msgEl();
+    let changes = 0, best = 0, done = false;
+    const rs = ruleSteppers(r, E.RANGE, { a: T('wSweet'), b: T('wSpicy'), t: T('thrLabel'), x: '🍬', y: '🌶️' }, () => { changes++; paint(); }, false);
+    function paint() {
+      map.innerHTML = E.mapSVG({ pts: P.pts, rule: r, mark: 'wrong', xLabel: T('axisSweet'), yLabel: T('axisSpicy') });
+      const k = E.sorted(r, P.pts); best = Math.max(best, k);
+      count.textContent = T('sortedCount', k, P.pts.length) + ' · ' + T('bestSoFar', best);
+    }
+    const give = h('button', { type: 'button', class: 'primary', onclick: () => {
+      if (done) return;
+      if (changes < 4) { say(msg, T('tryFirst'), 'err'); return; }
+      done = true; rs.lock(); give.disabled = true;
+      ctx.solve([T('xorWhy'), T('xorNext')]);
+    } }, T('impossible'));
+    panel.append(h('div', { class: 'row' }, h('span', { class: 'gem' }, '👸'), para(T('princessIntro'))),
+      h('div', { class: 'mapwrap' }, map, h('div', { class: 'rulebox' }, para(T('mapQ'), 'q'), rs.el, count, give, msg,
+        h('div', { class: 'legend' }, para(T('legendGreen')), para(T('legendRing'))))));
+    paint();
+  }
+  const tag = i => String.fromCharCode(65 + i);
+  function netPic(bossTxt) {
+    return h('div', { class: 'net', role: 'img', 'aria-label': T('netLabel') }, (() => {
+      const d = h('div'); d.innerHTML = E.netSVG({ h1n: T('helper1'), h2n: T('helper2'), bossn: T('boss'), h1: '🍬 + 🌶️ ≥ 3', h2: '🍬 + 🌶️ ≥ 7', boss: bossTxt, out: '😋 / 🤢' });
+      return d.firstChild;
+    })());
+  }
+  function helpersTask(panel, ctx) {
+    const P = E.xor7(rnd, 1), pts = E.shuffle(rnd, P.pts);
+    const msg = msgEl();
+    const vals = pts.map(() => [null, null]);
+    const btns = pts.map((p, i) => [0, 1].map(j => {
+      const b = h('button', { type: 'button', class: 'tog', onclick: () => {
+        vals[i][j] = vals[i][j] === 1 ? 0 : 1; b.classList.remove('bad'); paintB(b, vals[i][j]); say(msg, '');
+      } }, '?');
+      return b;
+    }));
+    const paintB = (b, v) => { b.textContent = v === 1 ? T('yes1') : v === 0 ? T('no0') : '?'; b.classList.toggle('yes', v === 1); b.classList.toggle('no', v === 0); };
+    let done = false;
+    const check = h('button', { type: 'button', class: 'primary', onclick: () => {
+      if (done) return;
+      let bad = 0;
+      pts.forEach((p, i) => { const hh = E.helpers(p); [0, 1].forEach(j => { if (vals[i][j] !== hh[j]) { bad++; const b = btns[i][j]; b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad'); } }); });
+      if (!bad) { done = true; check.disabled = true; ctx.solve([T('helpersOk')]); return; }
+      say(msg, T('helpersWrong', bad), 'err');
+    } }, T('check'));
+    panel.append(para(T('helpersIntro'), 'muted'), netPic('?'),
+      h('div', { class: 'tablewrap' }, h('table', { class: 'grid7' },
+        h('thead', null, h('tr', null, h('th', null, T('dish')), h('th', null, '🍬'), h('th', null, '🌶️'), h('th', null, `🤖 ${T('helper1')}`), h('th', null, `🤖 ${T('helper2')}`))),
+        h('tbody', null, pts.map((p, i) => h('tr', null, h('td', null, h('b', null, tag(i))), h('td', null, p.x), h('td', null, p.y), h('td', null, btns[i][0]), h('td', null, btns[i][1])))))),
+      para(T('helpersHint'), 'muted small'), check, msg);
+  }
+  function bossTask(panel, ctx) {
+    const pts = E.shuffle(rnd, E.xor7(rnd, 1).pts), r = { a: 1, b: 1, t: 1 };
+    let done = false;
+    const body = h('tbody');
+    const count = h('p', { class: 'sortcount', 'aria-live': 'polite' });
+    const rs = ruleSteppers(r, E.BOSS_RANGE, { a: T('helper1'), b: T('helper2'), t: T('thrLabel'), x: '🤖1', y: '🤖2', ea: '🤖', eb: '🤖' }, paint, false);
+    function paint() {
+      let ok = 0;
+      body.replaceChildren(...pts.map((p, i) => {
+        const [h1, h2] = E.helpers(p), s = r.a * h1 + r.b * h2, says = s >= r.t, good = says === p.yes;
+        if (good) ok++;
+        return h('tr', { class: good ? 'rgood' : 'rbad' }, h('td', null, h('b', null, tag(i)), good ? ' ✅' : ' ❌'), h('td', null, p.x), h('td', null, p.y), h('td', null, h1), h('td', null, h2),
+          h('td', null, E.num(s)), h('td', { class: 'bigface' }, says ? '😋' : '🤢'), h('td', { class: 'bigface' }, p.yes ? '😋' : '🤢'));
+      }));
+      count.textContent = T('bossCount', ok, pts.length);
+      if (ok === pts.length && !done) { done = true; rs.lock(); ctx.solve([T('bossOk', E.term(r.a), E.term(r.b), E.num(r.t)), T('netWhy')]); }
+    }
+    panel.append(para(T('bossIntro'), 'muted'), netPic(T('bossFormula')), para(T('bossQ'), 'q'), rs.el,
+      h('div', { class: 'tablewrap' }, h('table', { class: 'grid7' },
+        h('thead', null, h('tr', null, h('th', null, T('dish')), h('th', null, '🍬'), h('th', null, '🌶️'), h('th', null, '🤖1'), h('th', null, '🤖2'),
+          h('th', null, T('bossPts')), h('th', null, '👨‍🍳'), h('th', null, '👸'))), body)), count);
+    paint();
+  }
+
+  const BUILD = {
+    '1a': dinner(E.count1, false), '1b': bestPlate,
+    '2a': dinner(E.count2, true), '2b': cook,
+    '3a': detective, '3b': spoiler,
+    '4a': training(3), '4b': training(4),
+    '5a': testing, '5b': (p, c) => quiz(T('quiz5'), T('quizDone'))(p, c),
+    '6a': mapTask('theta', 7), '6b': mapTask('full', 7), '6c': mapTask('full', 9),
+    '7a': princessMap, '7b': helpersTask, '7c': bossTask,
+  };
+
+  /* ================= screens ================= */
+  function chapterView(c) {
+    const ids = TASKS[c];
+    if (!S.task || !ids.includes(S.task)) S.task = ids.find(id => !prog.done.has(id)) || ids[0];
+    const badge = h('div', { class: 'badge' + (chDone(c) ? ' done' : ''), 'aria-hidden': 'true' }, h('span', null, T('chapterWord')), h('b', null, String(c)));
+    const head = h('header', { class: 'chead' }, badge, h('div', null,
+      h('h2', null, T('chTitles')[c - 1], h('span', { class: 'age' }, T('ages')[c - 1])), h('p', { class: 'sub' }, T('chSubs')[c - 1])));
+    const lesson = h('section', { class: 'lesson' }, h('h3', null, T('lessonTitle')), T('lessons')[c - 1].map(x => para(x)));
+    const stepBtns = ids.map((id, i) => h('button', { type: 'button', class: 'step', onclick: () => open(id, true) }, tag(i)));
+    const steps = h('div', { class: 'steps', role: 'group', 'aria-label': T('tasksLabel') }, stepBtns);
+    const panel = h('section', { class: 'task' });
+    const disc = h('section', { class: 'disc' });
+    const nextC = c < 7 ? c + 1 : FINAL;
+    disc.append(h('h3', null, T('discTitle')), ...T('discs')[c - 1].map(x => para(x)),
+      h('button', { type: 'button', class: 'primary', onclick: () => go(nextC, true) }, T(nextC === FINAL ? 'toFinal' : 'nextChapter')));
+
+    function refresh() {
+      badge.classList.toggle('done', chDone(c));
+      stepBtns.forEach((b, i) => {
+        const id = ids[i];
+        b.classList.toggle('ok', prog.done.has(id));
+        if (id === S.task) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        b.setAttribute('aria-label', `${tag(i)}: ${T('taskTitles')[id]}${prog.done.has(id) ? ` (${T('tabDone')})` : ''}`);
+      });
+      disc.hidden = !chDone(c);
+      renderTop();
+    }
+    function open(id, focus) {
+      S.task = id; active.num = null;
+      const i = ids.indexOf(id);
+      panel.replaceChildren(h('div', { class: 'thead' }, h('span', { class: 'dot', 'aria-hidden': 'true' }, tag(i)), h('h3', null, T('taskTitles')[id])));
+      let solved = false;
+      const ctx = {
+        solve(msgs) {
+          if (solved) return;
+          solved = true; active.num = null;
+          const wasDone = chDone(c);
+          prog.done.add(id); save(); refresh();
+          if (!wasDone && chDone(c)) { badge.classList.remove('pop'); void badge.offsetWidth; badge.classList.add('pop'); }
+          const list = (Array.isArray(msgs) ? msgs : [msgs]).filter(Boolean);
+          const box = h('div', { class: 'fb', role: 'status' }, h('div', { class: 'cheer' }, pick(T('cheers'))), list.map(x => para(x)),
+            !wasDone && chDone(c) ? para(T('chapterDone'), 'good') : null);
+          const nx = ids.slice(i + 1).find(x => !prog.done.has(x)) || ids.slice(0, i).find(x => !prog.done.has(x));
+          box.append(nx ? nextBtn(T('nextTask'), () => open(nx, true))
+            : h('button', { type: 'button', class: 'ghost', onclick: () => open(id, true) }, T('again')));
+          panel.appendChild(box);
+          const b = box.querySelector('button');
+          if (b) b.focus({ preventScroll: true });
+          box.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' });
+        },
+      };
+      BUILD[id](panel, ctx);
+      refresh();
+      if (focus) panel.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' });
+    }
+    const root = h('article', { class: 'card' }, head, lesson, steps, panel, disc);
+    open(S.task);
+    return root;
+  }
+  function finalView() {
+    const missing = E.CHAPTERS.filter(c => !chDone(c));
+    return h('article', { class: 'card' },
+      h('header', { class: 'chead' }, h('div', { class: 'badge' + (missing.length ? '' : ' done'), 'aria-hidden': 'true' }, h('b', null, '🏁')),
+        h('div', null, h('h2', null, T('finalTitle')), h('p', { class: 'sub' }, T('finalSub')))),
+      h('section', { class: 'lesson' }, h('h3', null, T('knowTitle')), h('ol', { class: 'know' }, T('know').map((x, i) => h('li', { class: chDone(i + 1) ? '' : 'muted' }, ...rich(x))))),
+      missing.length
+        ? para(T('missing', missing.join(', ')), 'muted')
+        : h('section', { class: 'cert' }, h('div', { class: 'big', 'aria-hidden': 'true' }, '🤖🎓'), h('h3', null, T('certTitle')), para(T('certText')), para(T('starsSum', prog.done.size), 'good')));
+  }
+
+  /* ================= page ================= */
+  function renderTop() {
+    $('score').textContent = `⭐ ${prog.done.size}`;
+    $('statsText').textContent = T('statsLine', prog.done.size, ALL.length, E.CHAPTERS.filter(chDone).length);
+    const names = T('tabs');
+    $('tabs').replaceChildren(...[...E.CHAPTERS, FINAL].map(c => {
+      const done = c === FINAL ? E.CHAPTERS.every(chDone) : chDone(c);
+      return h('button', { type: 'button', class: 'tab', 'aria-current': c === S.c ? 'page' : null,
+        'aria-label': `${c === FINAL ? '' : c + '. '}${names[c - 1]}${done ? ` (${T('tabDone')})` : ''}`, onclick: () => go(c) },
+      h('b', { 'aria-hidden': 'true' }, c === FINAL ? '🏁' : String(c)), h('small', { 'aria-hidden': 'true' }, names[c - 1]),
+      done ? h('span', { class: 'tick', 'aria-hidden': 'true' }, '✓') : null);
+    }));
+  }
+  function render() {
+    active.num = null;
+    document.title = T('title');
+    I18N.apply(UI);
+    $('storyTitle').textContent = T('storyTitle');
+    $('storyBody').replaceChildren(...T('story').map(x => para(x)));
+    renderTop();
+    $('view').replaceChildren(S.c === FINAL ? finalView() : chapterView(S.c));
+  }
+  function go(c, scroll) {
+    S.c = c; S.task = null; prog.last = c; save();
+    try {
+      const u = new URL(location.href);
+      if (u.searchParams.has('chapter')) { u.searchParams.set('chapter', c); history.replaceState(null, '', u); }
+    } catch (_) { /* file:// in some browsers */ }
+    render();
+    if (scroll) $('tabs').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || !active.num || !document.body.contains(active.num.el)) return;
+    const t = e.target;
+    if (t && t.closest && t.closest('input,textarea,select,summary')) return;
+    if (e.key === 'Enter' && t && t.tagName === 'BUTTON' && !t.classList.contains('numbox')) return;
+    if (active.num.key(e)) e.preventDefault();
+  });
+  $('resetBtn').addEventListener('click', () => {
+    if (!window.confirm(T('resetConfirm'))) return;
+    prog.done.clear(); S.task = null; save(); render();
+  });
+  I18N.onChange(() => render());
+  render();
+})();
+</script>
+</body>
+</html>
