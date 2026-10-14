@@ -1,0 +1,87 @@
+/* Shared look of the printable worksheets of the little ones' paper puzzles (connect the dots, picture
+   sudoku, mazes, mirror drawing, mini nonograms). A4 = 210 × 297 mm; with 12 mm margins 186 × 273 mm to draw on. */
+:root{
+  --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#4f5bd5; --accent-d:#3d48b8;
+  --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none !important}
+body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+button{font:inherit;}
+.appbar{padding:12px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+.appbar .grow{flex:1 1 auto;min-width:0;}
+.appbar h1{margin:0;font-size:18px;}
+.appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+.navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid #ccd2dd;border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+.navlink:hover{border-color:var(--accent);}
+.wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+@media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+/* ---- controls ---- */
+.controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+@media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+.controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+.grp{margin-bottom:14px;}
+.row{display:flex;gap:8px;align-items:center;}
+.controls input[type=text]{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+.randseed{flex:0 0 auto;min-height:40px;padding:7px 12px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+.presets{display:flex;flex-wrap:wrap;gap:6px;}
+.presets button{font-size:12.5px;min-height:38px;padding:6px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;color:var(--ink);}
+.presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.presets button:hover{border-color:var(--accent);}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:6px 0;min-height:32px;}
+.check input{width:18px;height:18px;flex:0 0 auto;}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+button.primary{font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;min-height:44px;}
+button.primary:hover{background:var(--accent-d);}
+button.ghost{padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;min-height:44px;color:var(--ink);}
+button.ghost:hover{border-color:var(--accent);}
+.msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+.msg.error{color:var(--err);font-weight:600;}
+.hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+/* ---- sheets ---- */
+.stage{flex:1;min-width:0;}
+.sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:12mm;margin:0 auto 18px;width:210mm;max-width:100%;color:#111;}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:10px;}
+.title{font-size:20px;font-weight:800;}
+.subtitle{font-size:12.5px;color:var(--muted);}
+.seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:3px;}
+.namebox{flex:0 0 230px;border:1px solid #bbb;border-radius:6px;padding:6px 12px;font-size:12.5px;color:#555;line-height:2.1;}
+.instr{font-size:13px;color:#333;margin:0 0 3mm;}
+/* tasks laid out in a grid of cells: .tasks.c2 = two columns, .c3 = three */
+.tasks{display:grid;gap:5mm 6mm;grid-template-columns:1fr;}
+.tasks.c2{grid-template-columns:1fr 1fr;}
+.tasks.c3{grid-template-columns:1fr 1fr 1fr;}
+.task{break-inside:avoid;page-break-inside:avoid;min-width:0;}
+.task .tnum{font-weight:800;font-size:13px;margin:0 0 1.5mm;display:flex;align-items:baseline;gap:2mm;}
+.task .tnum small{font-weight:600;color:var(--muted);font-size:11.5px;}
+.task svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+.answer-line{font-size:12.5px;margin:2mm 0 0;display:flex;align-items:baseline;gap:2mm;}
+.answer-line b{flex:1 1 20mm;border-bottom:0.3mm solid #333;height:5mm;}
+.key .tasks{gap:4mm 6mm;}
+
+/* ---- phone ---- */
+@media (max-width:600px){
+  .appbar{padding:12px 14px;}
+  .wrap{padding:10px;gap:12px;}
+  .controls input[type=text]{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+  .sheet{padding:14px 10px;}
+  .sheet-head{flex-wrap:wrap;gap:10px;}
+  .namebox{flex:1 1 100%;}
+  .tasks.c3{grid-template-columns:1fr 1fr;}
+}
+
+/* ---- print ---- */
+@media print{
+  @page{ size:A4; margin:12mm; }
+  body{background:#fff;}
+  .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+  .wrap{display:block;padding:0;margin:0;max-width:none;}
+  .stage{width:100%;}
+  .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;width:auto;max-width:none;}
+  .sheet + .sheet{page-break-before:always;break-before:page;}
+  .tasks.c3{grid-template-columns:1fr 1fr 1fr;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}

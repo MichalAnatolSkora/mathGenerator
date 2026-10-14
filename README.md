@@ -15,7 +15,7 @@ different language than the game texts (`?msg=`).
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | **Home page** — pick a puzzle, grouped by age: for little ones (5–8) on top, for bigger kids (8–12) below (seven languages) |
+| [`index.html`](index.html) | **Home page** — pick a puzzle: a grid of cards grouped by age, for little ones (5–8) on top, for bigger kids (8–12) below, with buttons to jump to a group; one card per row on phones (seven languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
@@ -30,8 +30,14 @@ different language than the game texts (`?msg=`).
 | [`morse/index.html`](morse/index.html) | **Lighthouse Keeper** (Latarnik), online game: receive and send Morse code by sound and the lighthouse lamp, with the Morse tree lighting up the way; plays the dictation of a worksheet by its code |
 | [`morse/worksheet.html`](morse/worksheet.html) | Lighthouse Keeper **printable worksheets**: a mixed page of Morse tasks (telegrams, riddles, sending, mystery picture, pairs, mistakes, password, tree, dictation) learned in letter groups (+ cheat sheet, answer key, diploma) |
 | [`math-crossword/index.html`](math-crossword/index.html) | **Math Crossword** printable worksheet generator (+ answer key) |
+| [`picture-sudoku/worksheet.html`](picture-sudoku/worksheet.html) | **Picture Sudoku** printable worksheets: 4×4 and 6×6 sudoku with shapes, fruit, animals, colours or numbers (+ answer key) |
+| [`mazes/worksheet.html`](mazes/worksheet.html) | **Mazes** printable worksheets: help the mouse to the cheese, from small to big mazes (+ answer key) |
+| [`connect-dots/worksheet.html`](connect-dots/worksheet.html) | **Connect the Dots** printable worksheets: join the numbered dots and a picture appears (+ answer key) |
+| [`nonograms/worksheet.html`](nonograms/worksheet.html) | **Picture Logic Puzzles** (mini nonograms) printable worksheets, 5×5 to 10×10 (+ answer key) |
+| [`mirror-drawing/worksheet.html`](mirror-drawing/worksheet.html) | **Mirror Drawing** printable worksheets: colour the other half of a symmetric picture (+ answer key) |
+| [`sheet-kit/`](sheet-kit/) | Shared kit of the paper-only worksheets above: controls, sheet code, A4 print layout, common texts |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md).
 
 ## Run locally
 
@@ -47,3 +53,8 @@ Put it in its own folder with an `index.html`, load `../i18n.js` and give it a `
 plus a dictionary for the seven languages, add a home link back to `../index.html` (with
 `data-keep-lang`), and add a card with a screenshot (`assets/`) to the root `index.html`. On the home page the worksheet button is the
 main one (blue, first) and the screenshot links to the worksheet; "Play" comes second.
+
+A paper-only puzzle (no online game) can use [`sheet-kit/kit.js`](sheet-kit/kit.js): the page has a
+`<form id="controls">` and a `<div id="out">`, and calls `KIT.app({ store, text, groups, checks, render })`;
+the kit draws the controls, keeps the sheet code and the settings (URL and localStorage) and adds the
+shared texts in seven languages. See [`picture-sudoku/worksheet.html`](picture-sudoku/worksheet.html).

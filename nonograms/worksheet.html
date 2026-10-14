@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obrazki logiczne — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: obrazki logiczne (nonogramy) 5×5, 8×8 i 10×10 dla dzieci — zamaluj kratki według liczb, a pojawi się obrazek. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .howto{display:flex;flex-wrap:wrap;align-items:center;gap:2mm 7mm;font-size:13px;background:#f6f7fb;border:1px solid #dfe3ec;border-radius:3mm;padding:2.5mm 4mm;margin:0 0 3mm;}
+  .howto .ex{display:flex;align-items:center;gap:2.5mm;}
+  .howto .ex b{font-weight:800;}
+  .howto .note{flex:1 1 100%;color:#333;}
+  .howto .help{flex:1 1 100%;color:#333;}
+  .howto .help mark{background:#ffe680;padding:0 1mm;border-radius:1mm;}
+  .nonos{display:flex;flex-wrap:wrap;justify-content:space-around;align-items:flex-end;gap:5mm 4mm;}
+  .nonos .task svg{max-width:none;}
+  .stars{color:#d29a00;letter-spacing:1px;}
+  .answer-line{max-width:60mm;}
+  .key .nonos{gap:4mm 5mm;}
+  .key .name{font-size:12.5px;font-weight:700;text-align:center;margin-top:1.5mm;}
+  @media (max-width:600px){ .nonos .task{max-width:100%;overflow-x:auto;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🖍️ Obrazki logiczne — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const STARS = { 5: '★', 8: '★★', 10: '★★★' };
+  /** The puzzles of a page (sizes in order) and the square size in mm of each size; all fit one A4 page. */
+  const PLAN = {
+    mix: { sizes: [5, 5, 5, 8, 10], cell: { 5: 8, 8: 8, 10: 6.5 } },
+    5: { sizes: Array(6).fill(5), cell: { 5: 8 } },
+    8: { sizes: Array(4).fill(8), cell: { 8: 8 } },
+    10: { sizes: Array(4).fill(10), cell: { 10: 6 } },
+  };
+  const KEY_CELL = { 5: 5, 8: 4, 10: 3.6 };   // the answer key is smaller
+
+  KIT.app({
+    store: 'nonograms.sheet',
+    text: NONO_TEXT,
+    groups: [{ id: 'level', values: ['mix', '5', '8', '10'], def: 'mix', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'help', def: true, label: 'optHelp' }],
+    render(s, api) {
+      const { t, C, esc } = api, plan = PLAN[s.level];
+      // pictures of each size come from their own generator; a picture is never twice on a page
+      const used = new Set(), bySize = {};
+      for (const n of [...new Set(plan.sizes)]) {
+        bySize[n] = NONO.pick(api.rnd(`${s.level}|${n}`), n, plan.sizes.filter(x => x === n).length, used);
+        bySize[n].forEach(p => used.add(p.id));
+      }
+      const puzzles = plan.sizes.map(n => bySize[n].shift());
+      const howto = `<div class="howto">
+          <span class="ex">${NONO.example([3], '###', 7)} <span><b>3</b> = ${esc(t('ex3'))}</span></span>
+          <span class="ex">${NONO.example([1, 1], '#.#', 7)} <span><b>1 1</b> = ${esc(t('ex11'))}</span></span>
+          <span class="note">${esc(t('dot'))}</span>
+          ${s.help ? `<span class="help">${esc(t('help')).replace('★', '<mark>★</mark>')}</span>` : ''}
+        </div>`;
+      const tasks = puzzles.map((p, i) => `<div class="task">
+          <div class="tnum">${i + 1}. <span class="stars">${STARS[p.n]}</span></div>
+          ${NONO.svg(p, plan.cell[p.n], { help: s.help })}
+          <div class="answer-line">${esc(t('answer'))} <b></b></div>
+        </div>`).join('');
+      const sub = `${C.levels[s.level]}`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${esc(t('instr'))}</p>
+        ${howto}
+        <div class="nonos">${tasks}</div>
+      </div>`;
+      if (s.key) {
+        const keys = puzzles.map((p, i) => `<div class="task">
+            ${NONO.svg(p, KEY_CELL[p.n], { solved: true })}
+            <div class="name">${i + 1}. ${esc(C.pics[p.id] || p.id)}</div>
+          </div>`).join('');
+        html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}<div class="nonos">${keys}</div></div>`;
+      }
+      return { html, tasks: puzzles.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>

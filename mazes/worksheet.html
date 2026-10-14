@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Labirynty — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: labirynty dla przedszkolaków — małe, średnie, duże, jeden wielki i okrągłe, z myszką, pszczółką, rakietą i innymi. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .stars{color:#d29a00;letter-spacing:1px;white-space:nowrap;}
+  .task .tnum{min-height:9mm;}   /* room for a goal line that wraps, so the mazes in a row start level */
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🐭 Labirynty — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  /** The mazes of a page (w×h cells, or rings of a round one; st = stars) and the box each one gets, in mm.
+   *  Four mazes in a 2×2 grid fill one A4 page; "big" is one maze on the whole page. */
+  const q = (w, st) => ({ w, h: w, st });
+  const PLAN = {
+    mix: { mazes: [q(5, 1), q(7, 2), q(9, 3), q(12, 4)], cols: 2, box: [90, 104] },
+    small: { mazes: Array(4).fill(q(5, 1)), cols: 2, box: [90, 104] },
+    medium: { mazes: Array(4).fill(q(8, 2)), cols: 2, box: [90, 104] },
+    large: { mazes: Array(4).fill(q(12, 4)), cols: 2, box: [90, 104] },
+    big: { mazes: [{ w: 20, h: 24, st: 5 }], cols: 1, box: [186, 226] },
+    round: { mazes: [4, 5, 6, 7].map((rings, i) => ({ rings, st: i + 1 })), cols: 2, box: [90, 104] },
+  };
+
+  KIT.app({
+    store: 'mazes.sheet',
+    text: MAZE_TEXT,
+    groups: [
+      { id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] },
+      { id: 'theme', values: ['mix', ...MAZE.THEME_IDS], def: 'mix', label: (v, C) => C.themes[v] },
+    ],
+    render(s, api) {
+      const { t, C, esc } = api, plan = PLAN[s.level];
+      const order = KIT.shuffle(api.rnd('themes'), MAZE.THEME_IDS);
+      const mazes = plan.mazes.map((p, i) => {
+        const rnd = api.rnd(`${s.level}|${i}`);
+        return { ...p, theme: s.theme === 'mix' ? order[i] : s.theme, m: p.rings ? MAZE.round(rnd, p.rings) : MAZE.rect(rnd, p.w, p.h) };
+      });
+      const tasks = solved => `<div class="tasks c${plan.cols}">${mazes.map((z, i) => {
+        const [from, to] = MAZE.THEMES[z.theme];
+        return `<div class="task">
+          <div class="tnum"><span>${mazes.length > 1 ? `${i + 1}. ` : ''}${esc(C.goals[z.theme])} <span class="stars">${'★'.repeat(z.st)}</span></span></div>
+          ${MAZE.svg(z.m, plan.box[0], plan.box[1], { from, to, solved })}
+        </div>`;
+      }).join('')}</div>`;
+      const sub = `${C.levels[s.level]} · ${C.themes[s.theme].replace(/^\S+\s/, '')}`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${esc(t('instr'))}</p>
+        ${tasks(false)}
+      </div>`;
+      if (s.key) html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}${tasks(true)}</div>`;
+      return { html, tasks: mazes.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>

@@ -8,39 +8,58 @@
 <style>
   :root{ --bg:#f4f6fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1; --accent:#4f5bd5; --accent-d:#3d48b8; }
   *{box-sizing:border-box}
+  [hidden]{display:none !important}
   body{margin:0;font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
-  .page{max-width:820px;margin:0 auto;padding:24px 20px 40px;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;}
+  .page{max-width:1140px;margin:0 auto;padding:24px 20px 40px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
   .brand{font-weight:800;font-size:18px;color:var(--ink);text-decoration:none;}
   h1{line-height:1.2;letter-spacing:-.02em;}
   .note{margin:24px 0 0;text-align:center;color:var(--muted);font-size:15px;}
   .note.contact{margin-top:8px;overflow-wrap:anywhere;}
   .note a{color:var(--accent);font-weight:600;}
   .count{margin:0 0 12px;font-size:22px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;display:flex;gap:18px;align-items:flex-start;}
-  .shot{flex:0 0 260px;display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
-  .shot img{display:block;width:100%;height:auto;}
-  .body{flex:1;min-width:0;}
-  .card h3{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:8px;}
-  .card h3 .ico{font-size:24px;line-height:1;}
-  .group{margin:0 0 28px;}
-  .group-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 12px;font-size:20px;}
+  /* jump to an age group */
+  .jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px;}
+  .jump a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px 6px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;}
+  .jump a:hover{border-color:var(--accent);}
+  .jump .n{font-size:13px;color:var(--muted);font-weight:700;background:var(--bg);border-radius:999px;padding:1px 8px;}
+  .group{margin:0 0 32px;scroll-margin-top:12px;}
+  .group-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 14px;font-size:20px;}
   .gico{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-size:22px;background:#fff;border:1px solid var(--line);}
   .young .gico{background:#fff4e0;border-color:#f6d9a8;}
   .older .gico{background:#e8ecff;border-color:#c9d1fa;}
   .age{font-size:14px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;}
-  .card p{margin:0 0 10px;}
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 16px;border-radius:10px;font-weight:700;text-decoration:none;border:2px solid var(--line);color:var(--ink);background:#fff;}
+  /* cards: a grid of tiles (screenshot on top) on wide screens, compact rows on phones */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .shot{display:block;aspect-ratio:16/10;overflow:hidden;background:#fff;border-bottom:1px solid var(--line);}
+  .shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .2s;}
+  .shot:hover img{transform:scale(1.03);}
+  .body{flex:1;display:flex;flex-direction:column;padding:14px 16px 16px;min-width:0;}
+  .card h3{margin:0 0 6px;font-size:19px;line-height:1.25;display:flex;align-items:flex-start;gap:8px;}
+  .card h3 .ico{font-size:22px;line-height:1.1;}
+  .desc{margin:0;font-size:15px;color:#3d4559;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;}
+  .card.open .desc{display:block;-webkit-line-clamp:unset;line-clamp:none;}
+  .more{align-self:flex-start;margin:2px 0 0;padding:4px 0;min-height:32px;border:0;background:none;color:var(--accent-d);font:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+  .more:hover{text-decoration:underline;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px;}
+  .btn{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:16px;text-decoration:none;border:2px solid var(--line);color:var(--ink);background:#fff;text-align:center;}
   .btn:hover{border-color:var(--accent);}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
   .btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d);}
   @media (max-width:640px){
     .page{padding:16px 16px 32px;}
-    .card{flex-direction:column;gap:12px;padding:14px;}
-    .shot{flex:none;width:100%;}
-    .shot img{max-height:150px;object-fit:cover;object-position:top;}
-    .btn{flex:1 1 auto;}
+    .jump{flex-wrap:nowrap;}
+    .jump a{flex:1 1 0;min-width:0;gap:6px;padding:6px 10px 6px 6px;font-size:14px;line-height:1.2;}
+    .jump .gico{width:30px;height:30px;font-size:17px;flex:none;}
+    .cards{grid-template-columns:1fr;gap:12px;}
+    .card{display:grid;grid-template-columns:110px minmax(0,1fr);}   /* 14px margin + 96px thumbnail */
+    .shot{width:96px;height:96px;aspect-ratio:auto;margin:14px 0 0 14px;border:1px solid var(--line);border-radius:10px;}
+    .body{padding:14px;}
+    .card h3{font-size:18px;}
+    .card h3 .ico{display:none;}
+    .desc{-webkit-line-clamp:2;line-clamp:2;}
+    .actions{grid-column:1 / -1;padding:0 14px 14px;}
   }
 </style>
 </head>
@@ -53,18 +72,85 @@
 
   <h1 class="count" id="count"></h1>
 
-  <section class="group young">
+  <nav class="jump" aria-label="Grupy wiekowe" data-i18n-attr="aria-label:jumpLabel">
+    <a href="#young"><span class="gico" aria-hidden="true">🧸</span><span data-i18n="youngTitle">Dla maluszków</span><span class="n" id="nYoung"></span></a>
+    <a href="#older"><span class="gico" aria-hidden="true">🚀</span><span data-i18n="olderTitle">Dla większych dzieci</span><span class="n" id="nOlder"></span></a>
+  </nav>
+
+  <section class="group young" id="young">
     <h2 class="group-h"><span class="gico" aria-hidden="true">🧸</span><span data-i18n="youngTitle">Dla maluszków</span><span class="age" data-i18n="youngAge">5–8 lat</span></h2>
+
+    <div class="cards">
+    <article class="card">
+      <a class="shot" href="picture-sudoku/worksheet.html" data-keep-lang><img src="assets/picture-sudoku.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:sudokuAlt" alt="Karta pracy: sudoku obrazkowe"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🍓</span><span data-i18n="sudokuTitle">Sudoku obrazkowe</span></h3>
+        <p class="desc" data-i18n="sudokuText">Małe sudoku 4×4 i 6×6 z kształtami, owocami, zwierzętami albo kolorami zamiast cyfr. W każdym rzędzie, kolumnie i kwadracie każdy obrazek jest tylko raz. Logika bez umiejętności czytania. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="picture-sudoku/worksheet.html" data-keep-lang data-i18n="sudokuPrint">Wydrukuj karty pracy</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <a class="shot" href="mazes/worksheet.html" data-keep-lang><img src="assets/mazes.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:mazeAlt" alt="Karta pracy: labirynty"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🐭</span><span data-i18n="mazeTitle">Labirynty</span></h3>
+        <p class="desc" data-i18n="mazeText">Pomóż myszce dojść do sera, a pszczółce do kwiatka. Labirynty od małych do dużych, za każdym razem inne. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="mazes/worksheet.html" data-keep-lang data-i18n="mazePrint">Wydrukuj karty pracy</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <a class="shot" href="connect-dots/worksheet.html" data-keep-lang><img src="assets/connect-dots.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:dotsAlt" alt="Karta pracy: połącz kropki"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🔢</span><span data-i18n="dotsTitle">Połącz kropki</span></h3>
+        <p class="desc" data-i18n="dotsText">Połącz kropki po kolei i odkryj, jaki wyszedł obrazek. Ćwiczy kolejność liczb: od 1, co 2 albo od większej liczby. Do wyboru także motywy religijne. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="connect-dots/worksheet.html" data-keep-lang data-i18n="dotsPrint">Wydrukuj karty pracy</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <a class="shot" href="nonograms/worksheet.html" data-keep-lang><img src="assets/nonograms.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:nonoAlt" alt="Karta pracy: obrazki logiczne"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🟦</span><span data-i18n="nonoTitle">Obrazki logiczne</span></h3>
+        <p class="desc" data-i18n="nonoText">Liczby przy rzędach i kolumnach mówią, ile kratek zamalować. Zamaluj je, a pojawi się obrazek. Małe łamigłówki 5×5 na początek i większe dla wprawionych. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="nonograms/worksheet.html" data-keep-lang data-i18n="nonoPrint">Wydrukuj karty pracy</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <a class="shot" href="mirror-drawing/worksheet.html" data-keep-lang><img src="assets/mirror-drawing.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:mirrorAlt" alt="Karta pracy: dokończ obrazek w lustrze"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🦋</span><span data-i18n="mirrorTitle">Dokończ w lustrze</span></h3>
+        <p class="desc" data-i18n="mirrorText">Połowa obrazka jest pokolorowana, a drugą połowę trzeba dorysować jak w lustrze: motyl, rakieta, sowa… albo losowy potworek. Ćwiczy symetrię i spostrzegawczość. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="mirror-drawing/worksheet.html" data-keep-lang data-i18n="mirrorPrint">Wydrukuj karty pracy</a>
+      </div>
+    </article>
 
     <article class="card">
       <a class="shot" href="clock/worksheet.html" data-keep-lang><img src="assets/clock.png" width="800" height="571" data-i18n-attr="alt:clockAlt" alt="Zrzut ekranu: gra Nauka zegara"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">🕐</span><span data-i18n="clockTitle">Nauka zegara</span></h3>
-        <p data-i18n="clockText">Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.</p>
-        <div class="actions">
-          <a class="btn primary" href="clock/worksheet.html" data-keep-lang data-i18n="clockPrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="clock/index.html" data-keep-lang data-i18n="clockPlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="clockText">Zegar ze wskazówkami: odczytaj, która godzina, albo przeciągnij wskazówki i ustaw zegar. Od pełnych godzin i „wpół do” przez kwadranse aż po każdą minutę, także w zapisie 24-godzinnym. Karty pracy do druku z rozwiązaniami.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="clock/worksheet.html" data-keep-lang data-i18n="clockPrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="clock/index.html" data-keep-lang data-i18n="clockPlay">Zagraj</a>
       </div>
     </article>
 
@@ -72,11 +158,12 @@
       <a class="shot" href="graphic-dictation/worksheet.html" data-keep-lang><img src="assets/graphic-dictation.png" width="800" height="560" data-i18n-attr="alt:dictAlt" alt="Zrzut ekranu: gra Dyktando graficzne"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">✏️</span><span data-i18n="dictTitle">Dyktando graficzne</span></h3>
-        <p data-i18n="dictText">Rysuj po kratkach według strzałek: 3 w prawo, 2 w górę… i odkryj, jaki wyjdzie obrazek. Trzy poziomy, na trudnym także linie na skos. Zamiast liczb mogą być działania (2+1, 6:2), więc to też ćwiczenie z liczenia. Do wyboru także motywy religijne: krzyż, kościół, anioł… Karty pracy do druku z rozwiązaniem.</p>
-        <div class="actions">
-          <a class="btn primary" href="graphic-dictation/worksheet.html" data-keep-lang data-i18n="dictPrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="graphic-dictation/index.html" data-keep-lang data-i18n="dictPlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="dictText">Rysuj po kratkach według strzałek: 3 w prawo, 2 w górę… i odkryj, jaki wyjdzie obrazek. Trzy poziomy, na trudnym także linie na skos. Zamiast liczb mogą być działania (2+1, 6:2), więc to też ćwiczenie z liczenia. Do wyboru także motywy religijne: krzyż, kościół, anioł… Karty pracy do druku z rozwiązaniem.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="graphic-dictation/worksheet.html" data-keep-lang data-i18n="dictPrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="graphic-dictation/index.html" data-keep-lang data-i18n="dictPlay">Zagraj</a>
       </div>
     </article>
 
@@ -84,26 +171,30 @@
       <a class="shot" href="math-crossword/index.html" data-keep-lang><img src="assets/math-crossword.png" width="800" height="860" data-i18n-attr="alt:mathAlt" alt="Zrzut ekranu: krzyżówka matematyczna"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">➕</span><span data-i18n="mathTitle">Krzyżówki matematyczne</span></h3>
-        <p data-i18n="mathText">Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.</p>
-        <div class="actions">
-          <a class="btn primary" href="math-crossword/index.html" data-keep-lang data-i18n="mathBtn">Zrób kartę pracy</a>
-        </div>
+        <p class="desc" data-i18n="mathText">Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="math-crossword/index.html" data-keep-lang data-i18n="mathBtn">Zrób kartę pracy</a>
       </div>
     </article>
+    </div>
   </section>
 
-  <section class="group older">
+  <section class="group older" id="older">
     <h2 class="group-h"><span class="gico" aria-hidden="true">🚀</span><span data-i18n="olderTitle">Dla większych dzieci</span><span class="age" data-i18n="olderAge">8–12 lat</span></h2>
 
+    <div class="cards">
     <article class="card">
       <a class="shot" href="cipher-detective/worksheet.html" data-keep-lang><img src="assets/cipher-detective.png" width="800" height="469" data-i18n-attr="alt:cipherAlt" alt="Zrzut ekranu: gra Detektyw szyfrów"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">🕵️</span><span data-i18n="cipherTitle">Detektyw szyfrów</span></h3>
-        <p data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
-        <div class="actions">
-          <a class="btn primary" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
       </div>
     </article>
 
@@ -111,11 +202,12 @@
       <a class="shot" href="morse/worksheet.html" data-keep-lang><img src="assets/morse.png" width="800" height="560" data-i18n-attr="alt:morseAlt" alt="Zrzut ekranu: karta pracy Latarnik z alfabetem Morse’a"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">⚓</span><span data-i18n="morseTitle">Latarnik: alfabet Morse’a</span></h3>
-        <p data-i18n="morseText"></p>
-        <div class="actions">
-          <a class="btn primary" href="morse/worksheet.html" data-keep-lang data-i18n="morsePrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="morse/index.html" data-keep-lang data-i18n="morsePlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="morseText"></p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="morse/worksheet.html" data-keep-lang data-i18n="morsePrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="morse/index.html" data-keep-lang data-i18n="morsePlay">Zagraj</a>
       </div>
     </article>
 
@@ -123,24 +215,27 @@
       <a class="shot" href="enigma/index.html" data-keep-lang><img src="assets/enigma.png" width="800" height="592" data-i18n-attr="alt:enigmaAlt" alt="Rysunek maszyny szyfrującej Enigma"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="enigmaTitle">Akademia Młodych Szyfrantów</span></h3>
-        <p data-i18n="enigmaText">Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.</p>
-        <div class="actions">
-          <a class="btn primary" href="enigma/index.html" data-keep-lang data-i18n="enigmaPrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="enigma/play.html" data-keep-lang data-i18n="enigmaPlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="enigmaText">Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.</p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="enigma/index.html" data-keep-lang data-i18n="enigmaPrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="enigma/play.html" data-keep-lang data-i18n="enigmaPlay">Zagraj</a>
       </div>
     </article>
     <article class="card">
       <a class="shot" href="robot-chef/worksheet.html" data-keep-lang><img src="assets/robot-chef.png" width="800" height="560" data-i18n-attr="alt:chefAlt" alt="Zrzut ekranu: gra Robot-kucharz"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">🤖</span><span data-i18n="chefTitle">Robot-kucharz: wstęp do sztucznej inteligencji i algebry liniowej</span></h3>
-        <p data-i18n="chefText"></p>
-        <div class="actions">
-          <a class="btn primary" href="robot-chef/worksheet.html" data-keep-lang data-i18n="chefPrint">Wydrukuj karty pracy</a>
-          <a class="btn" href="robot-chef/index.html" data-keep-lang data-i18n="chefPlay">Zagraj</a>
-        </div>
+        <p class="desc" data-i18n="chefText"></p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="robot-chef/worksheet.html" data-keep-lang data-i18n="chefPrint">Wydrukuj karty pracy</a>
+        <a class="btn" href="robot-chef/index.html" data-keep-lang data-i18n="chefPlay">Zagraj</a>
       </div>
     </article>
+    </div>
   </section>
 
   <p class="note" data-i18n="note">Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.</p>
@@ -176,6 +271,12 @@
       chefTitle: "Robot-kucharz: wstęp do sztucznej inteligencji i algebry liniowej",
       chefText: "Wstęp do uczenia maszynowego i algebry liniowej, opowiedziany przez kuchnię. Robot nie czuje smaku, więc liczy: mnoży porcje przez wagi, sumuje i porównuje wynik z progiem. Tak właśnie działa sztuczny neuron. W 7 rozdziałach dzieci poznają wektory i iloczyn skalarny, rozwiązują układy równań, trenują perceptron na przykładach i sprawdzają, jak model radzi sobie z nowymi danymi i dlaczego bywa stronniczy. Potem odkrywają, że neuron to prosta dzieląca płaszczyznę, a problem XOR wymaga sieci neuronowej. Online i do wydruku, z rozwiązaniami i zabawą dla klasy bez komputera. Dla dzieci w wieku 8–12 lat.",
       chefPlay: "Zagraj", chefPrint: "Wydrukuj karty pracy", chefAlt: "Zrzut ekranu: gra Robot-kucharz",
+      more: "więcej", less: "mniej", jumpLabel: "Grupy wiekowe",
+      sudokuTitle: "Sudoku obrazkowe", sudokuText: "Małe sudoku 4×4 i 6×6 z kształtami, owocami, zwierzętami albo kolorami zamiast cyfr. W każdym rzędzie, kolumnie i kwadracie każdy obrazek jest tylko raz. Logika bez umiejętności czytania. Karty pracy do druku z rozwiązaniami.", sudokuPrint: "Wydrukuj karty pracy", sudokuAlt: "Karta pracy: sudoku obrazkowe",
+      mazeTitle: "Labirynty", mazeText: "Pomóż myszce dojść do sera, a pszczółce do kwiatka. Labirynty od małych do dużych, za każdym razem inne. Karty pracy do druku z rozwiązaniami.", mazePrint: "Wydrukuj karty pracy", mazeAlt: "Karta pracy: labirynty",
+      dotsTitle: "Połącz kropki", dotsText: "Połącz kropki po kolei i odkryj, jaki wyszedł obrazek. Ćwiczy kolejność liczb: od 1, co 2 albo od większej liczby. Do wyboru także motywy religijne. Karty pracy do druku z rozwiązaniami.", dotsPrint: "Wydrukuj karty pracy", dotsAlt: "Karta pracy: połącz kropki",
+      nonoTitle: "Obrazki logiczne", nonoText: "Liczby przy rzędach i kolumnach mówią, ile kratek zamalować. Zamaluj je, a pojawi się obrazek. Małe łamigłówki 5×5 na początek i większe dla wprawionych. Karty pracy do druku z rozwiązaniami.", nonoPrint: "Wydrukuj karty pracy", nonoAlt: "Karta pracy: obrazki logiczne",
+      mirrorTitle: "Dokończ w lustrze", mirrorText: "Połowa obrazka jest pokolorowana, a drugą połowę trzeba dorysować jak w lustrze: motyl, rakieta, sowa… albo losowy potworek. Ćwiczy symetrię i spostrzegawczość. Karty pracy do druku z rozwiązaniami.", mirrorPrint: "Wydrukuj karty pracy", mirrorAlt: "Karta pracy: dokończ obrazek w lustrze",
       count: n => `Mamy ${n} ${n === 1 ? 'zagadkę' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'zagadki' : 'zagadek'}:`,
     },
     en: {
@@ -203,6 +304,12 @@
       chefTitle: "Robot Chef: an introduction to AI and linear algebra",
       chefText: "An introduction to machine learning and linear algebra, told through cooking. The robot cannot taste, so it counts: it multiplies portions by weights, adds them up and compares the result with a threshold. That is exactly how an artificial neuron works. In 7 chapters kids meet vectors and the dot product, solve systems of equations, train a perceptron on examples and see how a model copes with new data and why it can be biased. Then they find out that a neuron is a straight line splitting the plane, and that the XOR problem needs a neural network. Online and printable, with answer keys and an unplugged class activity. For ages 8–12.",
       chefPlay: "Play", chefPrint: "Print worksheets", chefAlt: "Screenshot: the Robot Chef game",
+      more: "more", less: "less", jumpLabel: "Age groups",
+      sudokuTitle: "Picture Sudoku", sudokuText: "Small 4×4 and 6×6 sudoku with shapes, fruit, animals or colours instead of numbers. Every row, column and box has each picture only once. Logic before reading. Printable worksheets with answer keys.", sudokuPrint: "Print worksheets", sudokuAlt: "Worksheet: picture sudoku",
+      mazeTitle: "Mazes", mazeText: "Help the mouse get to the cheese and the bee to the flower. Mazes from small to big, different every time. Printable worksheets with answer keys.", mazePrint: "Print worksheets", mazeAlt: "Worksheet: mazes",
+      dotsTitle: "Connect the Dots", dotsText: "Join the dots in order and find out what picture appears. Practises the order of numbers: from 1, counting by twos or from a bigger number. Religious (Catholic) pictures too. Printable worksheets with answer keys.", dotsPrint: "Print worksheets", dotsAlt: "Worksheet: connect the dots",
+      nonoTitle: "Picture Logic Puzzles", nonoText: "The numbers next to the rows and columns tell you how many squares to colour. Colour them in and a picture appears. Small 5×5 puzzles to start with and bigger ones for practised solvers. Printable worksheets with answer keys.", nonoPrint: "Print worksheets", nonoAlt: "Worksheet: picture logic puzzles (nonograms)",
+      mirrorTitle: "Mirror Drawing", mirrorText: "Half of the picture is coloured in; draw the other half as if in a mirror: a butterfly, a rocket, an owl… or a random little monster. Practises symmetry and attention. Printable worksheets with answer keys.", mirrorPrint: "Print worksheets", mirrorAlt: "Worksheet: finish the picture in the mirror",
       count: n => `We have ${n} ${n === 1 ? 'puzzle' : 'puzzles'}:`,
     },
     uk: {
@@ -230,6 +337,12 @@
       chefTitle: "Робот-кухар: вступ до штучного інтелекту та лінійної алгебри",
       chefText: "Вступ до машинного навчання та лінійної алгебри через кухню. Робот не відчуває смаку, тож рахує: множить порції на ваги, додає й порівнює результат із порогом. Саме так працює штучний нейрон. У 7 розділах діти знайомляться з векторами та скалярним добутком, розв’язують системи рівнянь, навчають перцептрон на прикладах і бачать, як модель справляється з новими даними та чому буває упередженою. Далі вони відкривають, що нейрон — це пряма, яка ділить площину, а задача XOR потребує нейронної мережі. Онлайн і для друку, з відповідями та грою для класу без комп’ютера. Для дітей 8–12 років.",
       chefPlay: "Грати", chefPrint: "Роздрукувати аркуші", chefAlt: "Знімок екрана: гра «Робот-кухар»",
+      more: "більше", less: "менше", jumpLabel: "Вікові групи",
+      sudokuTitle: "Судоку з картинками", sudokuText: "Маленькі судоку 4×4 і 6×6 з фігурами, фруктами, тваринами або кольорами замість цифр. У кожному рядку, стовпчику і квадраті кожна картинка є лише один раз. Логіка ще до того, як дитина вміє читати. Робочі аркуші для друку з відповідями.", sudokuPrint: "Роздрукувати аркуші", sudokuAlt: "Робочий аркуш: судоку з картинками",
+      mazeTitle: "Лабіринти", mazeText: "Допоможи мишці дійти до сиру, а бджілці — до квітки. Лабіринти від маленьких до великих, щоразу інші. Робочі аркуші для друку з відповідями.", mazePrint: "Роздрукувати аркуші", mazeAlt: "Робочий аркуш: лабіринти",
+      dotsTitle: "З’єднай крапки", dotsText: "З’єднай крапки по черзі й дізнайся, який вийшов малюнок. Тренує порядок чисел: від 1, через одне або від більшого числа. Є й релігійні мотиви. Робочі аркуші для друку з відповідями.", dotsPrint: "Роздрукувати аркуші", dotsAlt: "Робочий аркуш: з’єднай крапки",
+      nonoTitle: "Японські малюнки", nonoText: "Числа біля рядків і стовпчиків кажуть, скільки клітинок зафарбувати. Зафарбуй їх — і з’явиться малюнок. Маленькі головоломки 5×5 для початку і більші для досвідчених. Робочі аркуші для друку з відповідями.", nonoPrint: "Роздрукувати аркуші", nonoAlt: "Робочий аркуш: японські малюнки (нонограми)",
+      mirrorTitle: "Домалюй у дзеркалі", mirrorText: "Половина малюнка вже розфарбована, а другу половину треба домалювати, як у дзеркалі: метелик, ракета, сова… або випадкове чудовисько. Тренує симетрію та уважність. Робочі аркуші для друку з відповідями.", mirrorPrint: "Роздрукувати аркуші", mirrorAlt: "Робочий аркуш: домалюй малюнок у дзеркалі",
       count: n => `У нас ${n} ${n % 10 === 1 && n % 100 !== 11 ? 'головоломка' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'головоломки' : 'головоломок'}:`,
     },
     vi: {
@@ -257,6 +370,12 @@
       chefTitle: "Rô-bốt đầu bếp: nhập môn trí tuệ nhân tạo và đại số tuyến tính",
       chefText: "Nhập môn học máy và đại số tuyến tính qua chuyện bếp núc. Rô-bốt không nếm được, nên nó tính: nhân số phần với trọng số, cộng lại và so kết quả với ngưỡng. Đó chính là cách một nơ-ron nhân tạo hoạt động. Qua 7 chương, các bạn làm quen với vectơ và tích vô hướng, giải hệ phương trình, huấn luyện perceptron bằng ví dụ, rồi xem mô hình xử lý dữ liệu mới ra sao và vì sao nó có thể thiên lệch. Sau đó các bạn khám phá rằng nơ-ron là một đường thẳng chia đôi mặt phẳng, và bài toán XOR cần đến mạng nơ-ron. Chơi trực tuyến hoặc in ra, kèm đáp án và trò chơi cho cả lớp không cần máy tính. Dành cho trẻ 8–12 tuổi.",
       chefPlay: "Chơi", chefPrint: "In phiếu bài tập", chefAlt: "Ảnh chụp màn hình: trò chơi Rô-bốt đầu bếp",
+      more: "xem thêm", less: "thu gọn", jumpLabel: "Nhóm tuổi",
+      sudokuTitle: "Sudoku hình ảnh", sudokuText: "Sudoku nhỏ 4×4 và 6×6 với hình khối, trái cây, con vật hoặc màu sắc thay cho chữ số. Mỗi hàng, mỗi cột và mỗi ô vuông có mỗi hình đúng một lần. Tư duy logic ngay cả khi chưa biết đọc. Phiếu bài tập để in, có đáp án.", sudokuPrint: "In phiếu bài tập", sudokuAlt: "Phiếu bài tập: sudoku hình ảnh",
+      mazeTitle: "Mê cung", mazeText: "Giúp chú chuột tìm đến miếng phô mai và chú ong bay đến bông hoa. Mê cung từ nhỏ đến lớn, lần nào cũng khác. Phiếu bài tập để in, có đáp án.", mazePrint: "In phiếu bài tập", mazeAlt: "Phiếu bài tập: mê cung",
+      dotsTitle: "Nối các chấm", dotsText: "Nối các chấm theo thứ tự và khám phá bức tranh hiện ra. Luyện thứ tự các số: từ 1, đếm cách 2 hoặc bắt đầu từ số lớn hơn. Có cả chủ đề tôn giáo. Phiếu bài tập để in, có đáp án.", dotsPrint: "In phiếu bài tập", dotsAlt: "Phiếu bài tập: nối các chấm",
+      nonoTitle: "Tranh logic", nonoText: "Các số bên cạnh hàng và cột cho biết cần tô bao nhiêu ô. Tô chúng và một bức tranh sẽ hiện ra. Câu đố nhỏ 5×5 để bắt đầu và lớn hơn cho người đã quen. Phiếu bài tập để in, có đáp án.", nonoPrint: "In phiếu bài tập", nonoAlt: "Phiếu bài tập: tranh logic (nonogram)",
+      mirrorTitle: "Vẽ đối xứng", mirrorText: "Một nửa bức tranh đã được tô màu, nửa kia em hãy vẽ như soi gương: con bướm, tên lửa, con cú… hoặc một chú quái vật ngẫu nhiên. Luyện tính đối xứng và sự chú ý. Phiếu bài tập để in, có đáp án.", mirrorPrint: "In phiếu bài tập", mirrorAlt: "Phiếu bài tập: vẽ nốt nửa bức tranh đối xứng",
       count: n => `Có ${n} câu đố:`,
     },
     fr: {
@@ -284,6 +403,12 @@
       chefTitle: "Robot cuisinier : initiation à l’IA et à l’algèbre linéaire",
       chefText: "Une initiation à l’apprentissage automatique et à l’algèbre linéaire, racontée par la cuisine. Le robot n’a pas de goût, alors il compte : il multiplie les portions par des poids, fait la somme et compare le résultat à un seuil. C’est exactement ainsi que fonctionne un neurone artificiel. En 7 chapitres, les enfants découvrent les vecteurs et le produit scalaire, résolvent des systèmes d’équations, entraînent un perceptron sur des exemples et voient comment un modèle se débrouille avec de nouvelles données et pourquoi il peut être biaisé. Puis ils comprennent qu’un neurone est une droite qui partage le plan, et que le problème du XOR demande un réseau de neurones. En ligne et à imprimer, avec corrigés et une activité de classe sans ordinateur. Pour les 8–12 ans.",
       chefPlay: "Jouer", chefPrint: "Imprimer des fiches", chefAlt: "Capture d’écran : le jeu Robot cuisinier",
+      more: "plus", less: "moins", jumpLabel: "Tranches d’âge",
+      sudokuTitle: "Sudoku en images", sudokuText: "Petits sudokus 4×4 et 6×6 avec des formes, des fruits, des animaux ou des couleurs à la place des chiffres. Dans chaque ligne, colonne et carré, chaque image n’apparaît qu’une fois. De la logique avant même de savoir lire. Fiches à imprimer avec corrigés.", sudokuPrint: "Imprimer des fiches", sudokuAlt: "Fiche : sudoku en images",
+      mazeTitle: "Labyrinthes", mazeText: "Aide la souris à trouver le fromage et l’abeille à rejoindre la fleur. Des labyrinthes de petits à grands, différents à chaque fois. Fiches à imprimer avec corrigés.", mazePrint: "Imprimer des fiches", mazeAlt: "Fiche : labyrinthes",
+      dotsTitle: "Relie les points", dotsText: "Relie les points dans l’ordre et découvre le dessin qui apparaît. On s’entraîne à l’ordre des nombres : à partir de 1, de 2 en 2 ou à partir d’un plus grand nombre. Motifs religieux (catholiques) au choix. Fiches à imprimer avec corrigés.", dotsPrint: "Imprimer des fiches", dotsAlt: "Fiche : relie les points",
+      nonoTitle: "Images logiques", nonoText: "Les nombres à côté des lignes et des colonnes disent combien de cases colorier. Colorie-les et un dessin apparaît. Petites grilles 5×5 pour commencer, plus grandes pour les plus habiles. Fiches à imprimer avec corrigés.", nonoPrint: "Imprimer des fiches", nonoAlt: "Fiche : images logiques (logigrammes)",
+      mirrorTitle: "Dessin en miroir", mirrorText: "La moitié du dessin est coloriée ; dessine l’autre moitié comme dans un miroir : un papillon, une fusée, un hibou… ou un petit monstre au hasard. On travaille la symétrie et l’attention. Fiches à imprimer avec corrigés.", mirrorPrint: "Imprimer des fiches", mirrorAlt: "Fiche : termine le dessin en miroir",
       count: n => `Nous avons ${n} ${n <= 1 ? 'énigme' : 'énigmes'} :`,
     },
     it: {
@@ -311,6 +436,12 @@
       chefTitle: "Robot cuoco: introduzione all’IA e all’algebra lineare",
       chefText: "Un’introduzione all’apprendimento automatico e all’algebra lineare, raccontata attraverso la cucina. Il robot non sente i sapori, quindi conta: moltiplica le porzioni per i pesi, fa la somma e confronta il risultato con una soglia. È proprio così che funziona un neurone artificiale. In 7 capitoli i bambini scoprono i vettori e il prodotto scalare, risolvono sistemi di equazioni, addestrano un percettrone con degli esempi e vedono come se la cava un modello con dati nuovi e perché può avere dei pregiudizi. Poi scoprono che un neurone è una retta che divide il piano e che il problema dello XOR richiede una rete neurale. Online e da stampare, con soluzioni e un’attività per la classe senza computer. Dagli 8 ai 12 anni.",
       chefPlay: "Gioca", chefPrint: "Stampa le schede", chefAlt: "Screenshot: il gioco Robot cuoco",
+      more: "altro", less: "meno", jumpLabel: "Fasce d’età",
+      sudokuTitle: "Sudoku con le figure", sudokuText: "Piccoli sudoku 4×4 e 6×6 con forme, frutta, animali o colori al posto dei numeri. In ogni riga, colonna e riquadro ogni figura compare una sola volta. Logica ancora prima di saper leggere. Schede da stampare con le soluzioni.", sudokuPrint: "Stampa le schede", sudokuAlt: "Scheda: sudoku con le figure",
+      mazeTitle: "Labirinti", mazeText: "Aiuta il topolino ad arrivare al formaggio e l’ape a raggiungere il fiore. Labirinti da piccoli a grandi, ogni volta diversi. Schede da stampare con le soluzioni.", mazePrint: "Stampa le schede", mazeAlt: "Scheda: labirinti",
+      dotsTitle: "Unisci i puntini", dotsText: "Unisci i puntini in ordine e scopri quale disegno appare. Si allena l’ordine dei numeri: da 1, di 2 in 2 o partendo da un numero più grande. Ci sono anche disegni religiosi. Schede da stampare con le soluzioni.", dotsPrint: "Stampa le schede", dotsAlt: "Scheda: unisci i puntini",
+      nonoTitle: "Disegni logici", nonoText: "I numeri accanto alle righe e alle colonne dicono quante caselle colorare. Colorale e apparirà un disegno. Piccoli rompicapi 5×5 per cominciare e più grandi per i più esperti. Schede da stampare con le soluzioni.", nonoPrint: "Stampa le schede", nonoAlt: "Scheda: disegni logici (nonogrammi)",
+      mirrorTitle: "Completa allo specchio", mirrorText: "Metà del disegno è già colorata, l’altra metà va disegnata come in uno specchio: una farfalla, un razzo, un gufo… o un mostriciattolo a caso. Si allenano la simmetria e l’attenzione. Schede da stampare con le soluzioni.", mirrorPrint: "Stampa le schede", mirrorAlt: "Scheda: completa il disegno allo specchio",
       count: n => `Abbiamo ${n} ${n === 1 ? 'rompicapo' : 'rompicapi'}:`,
     },
     es: {
@@ -338,14 +469,35 @@
       chefTitle: "Robot cocinero: introducción a la IA y al álgebra lineal",
       chefText: "Una introducción al aprendizaje automático y al álgebra lineal, contada a través de la cocina. El robot no puede saborear, así que cuenta: multiplica las raciones por los pesos, las suma y compara el resultado con un umbral. Así es exactamente como funciona una neurona artificial. En 7 capítulos los niños conocen los vectores y el producto escalar, resuelven sistemas de ecuaciones, entrenan un perceptrón con ejemplos y ven cómo se las arregla un modelo con datos nuevos y por qué puede tener sesgos. Después descubren que una neurona es una recta que divide el plano y que el problema XOR necesita una red neuronal. En línea y para imprimir, con soluciones y una actividad para la clase sin ordenador. De 8 a 12 años.",
       chefPlay: "Jugar", chefPrint: "Imprimir fichas", chefAlt: "Captura de pantalla: el juego Robot cocinero",
+      more: "más", less: "menos", jumpLabel: "Grupos de edad",
+      sudokuTitle: "Sudoku de dibujos", sudokuText: "Sudokus pequeños de 4×4 y 6×6 con formas, frutas, animales o colores en lugar de números. En cada fila, columna y cuadrado cada dibujo aparece una sola vez. Lógica incluso antes de saber leer. Fichas para imprimir con soluciones.", sudokuPrint: "Imprimir fichas", sudokuAlt: "Ficha: sudoku de dibujos",
+      mazeTitle: "Laberintos", mazeText: "Ayuda al ratón a llegar al queso y a la abeja a llegar a la flor. Laberintos de pequeños a grandes, distintos cada vez. Fichas para imprimir con soluciones.", mazePrint: "Imprimir fichas", mazeAlt: "Ficha: laberintos",
+      dotsTitle: "Une los puntos", dotsText: "Une los puntos en orden y descubre qué dibujo aparece. Se practica el orden de los números: desde el 1, de 2 en 2 o empezando por un número mayor. También hay motivos religiosos. Fichas para imprimir con soluciones.", dotsPrint: "Imprimir fichas", dotsAlt: "Ficha: une los puntos",
+      nonoTitle: "Dibujos lógicos", nonoText: "Los números junto a las filas y columnas dicen cuántas casillas hay que pintar. Píntalas y aparecerá un dibujo. Pequeños acertijos de 5×5 para empezar y otros más grandes para los expertos. Fichas para imprimir con soluciones.", nonoPrint: "Imprimir fichas", nonoAlt: "Ficha: dibujos lógicos (nonogramas)",
+      mirrorTitle: "Completa en el espejo", mirrorText: "La mitad del dibujo ya está coloreada; dibuja la otra mitad como en un espejo: una mariposa, un cohete, un búho… o un monstruito al azar. Se practican la simetría y la atención. Fichas para imprimir con soluciones.", mirrorPrint: "Imprimir fichas", mirrorAlt: "Ficha: completa el dibujo en el espejo",
       count: n => `Tenemos ${n} ${n === 1 ? 'acertijo' : 'acertijos'}:`,
     },
   };
+  /** "more" under a description only when it is cut short (it depends on the language and the width). */
+  function updateMore() {
+    document.querySelectorAll('.card').forEach(card => {
+      const desc = card.querySelector('.desc'), more = card.querySelector('.more');
+      const open = card.classList.contains('open');
+      more.hidden = !open && desc.scrollHeight <= desc.clientHeight + 1;
+      more.textContent = I18N.t(S, open ? 'less' : 'more');
+      more.setAttribute('aria-expanded', String(open));
+    });
+  }
   function render() {
     I18N.apply(S);
     document.title = I18N.t(S, 'title');
     document.getElementById('count').textContent = I18N.t(S, 'count', document.querySelectorAll('.card').length);
+    document.getElementById('nYoung').textContent = document.querySelectorAll('#young .card').length;
+    document.getElementById('nOlder').textContent = document.querySelectorAll('#older .card').length;
+    updateMore();
   }
+  document.querySelectorAll('.more').forEach(b => b.addEventListener('click', () => { b.closest('.card').classList.toggle('open'); updateMore(); }));
+  addEventListener('resize', updateMore);
   I18N.onChange(render);
   render();
 })();

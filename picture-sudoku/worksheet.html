@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku obrazkowe — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: sudoku obrazkowe 4×4 i 6×6 dla przedszkolaków — kształty, owoce, zwierzęta, kolory lub cyfry. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .legend{display:flex;align-items:center;gap:3mm;font-size:13px;font-weight:600;margin:0 0 4mm;}
+  .stars{color:#d29a00;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🍓 Sudoku obrazkowe — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const STARS = { easy: '★', medium: '★★', hard: '★★★', big: '★★' };
+  /** The boards of a page: mixed = a row of easy, a row of medium, a row of hard ones. */
+  const PLAN = {
+    mix: { levels: ['easy', 'easy', 'easy', 'medium', 'medium', 'medium', 'hard', 'hard', 'hard'], cols: 3, w: 52 },
+    easy: { levels: Array(9).fill('easy'), cols: 3, w: 52 },
+    medium: { levels: Array(9).fill('medium'), cols: 3, w: 52 },
+    hard: { levels: Array(9).fill('hard'), cols: 3, w: 52 },
+    big: { levels: Array(4).fill('big'), cols: 2, w: 86 },
+  };
+
+  KIT.app({
+    store: 'pictureSudoku.sheet',
+    text: SUDOKU_TEXT,
+    groups: [
+      { id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] },
+      { id: 'set', title: 'symbols', values: SUDOKU.SET_IDS, def: 'shapes', label: (v, C) => C.sets[v] },
+    ],
+    render(s, api) {
+      const { t, C, esc } = api, plan = PLAN[s.level];
+      const boards = plan.levels.map((lv, i) => SUDOKU.puzzle(api.rnd(`${s.level}|${i}`), lv));
+      const n = boards[0].n, act = SUDOKU.SETS[s.set].act;
+      const tasks = solved => `<div class="tasks c${plan.cols}">${boards.map((b, i) => `<div class="task">
+          <div class="tnum">${i + 1}. <span class="stars">${STARS[b.level]}</span></div>
+          ${SUDOKU.svg(b, s.set, plan.w, { solved })}
+        </div>`).join('')}</div>`;
+      const sub = `${C.levels[s.level]} · ${C.sets[s.set].replace(/^\S+\s/, '')}`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${esc(C.instr[act])}</p>
+        <div class="legend">${esc(t('use'))} ${SUDOKU.legend(s.set, n, 9)}</div>
+        ${tasks(false)}
+      </div>`;
+      if (s.key) html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}${tasks(true)}</div>`;
+      return { html, tasks: boards.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>

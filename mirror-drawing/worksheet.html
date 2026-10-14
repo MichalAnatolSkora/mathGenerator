@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dokończ w lustrze — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: symetria dla przedszkolaków — obrazki z kratek odbite w lustrze, dziecko koloruje brakującą połowę. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .instr svg{margin-right:1.5mm;}
+  .trows{display:flex;flex-direction:column;gap:5mm;}
+  .trow{display:flex;gap:6mm;justify-content:space-between;align-items:flex-start;}
+  .trow .task{max-width:100%;}
+  .trow .task svg{max-width:100%;height:auto;}
+  .stars{color:#d29a00;letter-spacing:1px;}
+  .key .name{font-size:12.5px;font-weight:700;text-align:center;margin-top:1.5mm;}
+  .key .name::first-letter{text-transform:uppercase;}
+  @media (max-width:600px){ .trow{flex-direction:column;gap:5mm;} .trow .task{width:100% !important;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🦋 Dokończ w lustrze — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  // what the child colours, by the part that is given
+  const TODO = { left: 'right', right: 'left', top: 'bottom', bottom: 'top', tl: 'three', tr: 'three', bl: 'three', br: 'three' };
+
+  KIT.app({
+    store: 'mirrorDrawing.sheet',
+    text: MIRROR_TEXT,
+    groups: [
+      { id: 'level', values: Object.keys(MIRROR.PLAN), def: 'mix', label: (v, C) => C.levels[v] },
+      { id: 'kind', values: MIRROR.KINDS, def: 'pics', label: (v, C) => C.kinds[v] },
+    ],
+    checks: [{ id: 'mono', def: false, label: 'optMono' }],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const rows = MIRROR.sheet(api.rnd(`${s.level}|${s.kind}`), s.level, s.kind);
+      const all = rows.flat();
+      let n = 0;
+      const taskHtml = tk => {
+        const answer = tk.id === 'pattern' ? '' : `<div class="answer-line">${esc(tk.id === 'monster' ? C.nameIt : C.whatIsIt)} <b></b></div>`;
+        return `<div class="task" style="width:${tk.box[0]}mm">
+          <div class="tnum">${++n}. <span class="stars">${MIRROR.TYPES[tk.type].stars}</span> <small>${esc(C.todo[TODO[tk.given]])}</small></div>
+          ${MIRROR.svg(tk, tk.sq, { mono: s.mono })}
+          ${answer}
+        </div>`;
+      };
+      const sub = `${C.levels[s.level]} · ${C.kinds[s.kind].replace(/^\S+\s/, '')}`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${MIRROR.mirrorIcon(5)}${esc(C.instr)}</p>
+        <div class="trows">${rows.map(row => `<div class="trow">${row.map(taskHtml).join('')}</div>`).join('')}</div>
+      </div>`;
+      if (s.key) {
+        const keySq = tk => { const e = MIRROR.extent(tk); return Math.min(5, Math.floor(2 * Math.min(56 / e.vw, 64 / e.vh)) / 2); };
+        html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
+          <div class="tasks c3">${all.map((tk, i) => `<div class="task">
+            <div class="tnum">${i + 1}. <span class="stars">${MIRROR.TYPES[tk.type].stars}</span></div>
+            ${MIRROR.svg(tk, keySq(tk), { solved: true, mono: s.mono })}
+            <div class="name">${esc(C.names[tk.id])}</div>
+          </div>`).join('')}</div>
+        </div>`;
+      }
+      return { html, tasks: all.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>

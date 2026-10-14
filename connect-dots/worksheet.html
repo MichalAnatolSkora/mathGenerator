@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Połącz kropki — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: połącz ponumerowane kropki po kolei, a pojawi się obrazek do pokolorowania. Liczenie po kolei, co dwa, od większej liczby lub dziesiątkami. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  /* two pictures: stacked (.rows) or side by side (.cols); each box is as big as DOTS.arrange gave it */
+  .pics{display:grid;gap:6mm;}
+  .pic{display:flex;align-items:center;justify-content:center;}
+  .pic svg{display:block;max-width:100%;height:auto;}
+  .seq{font-weight:600;color:var(--muted);font-size:12px;}
+  .key .answer-line .name{font-size:15px;font-weight:800;color:#3d48b8;}
+  @media (max-width:600px){ .pic{height:auto !important;} .pics.cols{grid-template-columns:1fr !important;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🖍️ Połącz kropki — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="../graphic-dictation/engine.js"></script>
+<script src="../graphic-dictation/strings.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const f = v => Math.round(v * 10) / 10;
+  /** "1, 2, 3 … 24": how the numbers go, above each picture. */
+  const seq = nums => `${nums.slice(0, 3).join(', ')} … ${nums[nums.length - 1]}`;
+
+  KIT.app({
+    store: 'connectDots.sheet',
+    text: CONNECT_TEXT,
+    groups: [
+      { id: 'level', values: ['mix', ...DOTS.LEVEL_IDS], def: 'mix', label: (v, C) => C.levels[v] },
+      { id: 'count', values: DOTS.MODE_IDS, def: 'ones', label: (v, C) => C.counts[v] },
+      { id: 'theme', values: DOTS.THEME_IDS, def: 'basic', label: (v, C) => C.themes[v] },
+    ],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const names = (DICT_TEXT[I18N.get()] || DICT_TEXT.en).common.pics;
+      const pics = DOTS.pictures(api.rnd(`${s.level}|${s.theme}|${s.count}`), s.level, s.theme, s.count);
+      const A = DOTS.arrange(pics);
+      const grid = A.mode === 'cols' ? `grid-template-columns:${A.split}fr ${f(1 - A.split)}fr` : '';
+      const tasks = solved => `<div class="pics ${A.mode}" style="${grid}">${pics.map((p, i) => `<div class="task">
+          <div class="tnum">${i + 1}. <span class="seq">${esc(seq(p.nums))}</span></div>
+          <div class="pic" style="height:${f(A.sizes[i].h)}mm">${DOTS.svg(A.layouts[i], { solved })}</div>
+          <p class="answer-line">${esc(t('what'))} ${solved ? `<span class="name">${esc(names[p.id])}</span>` : '<b></b>'}</p>
+        </div>`).join('')}</div>`;
+      const sub = `${C.levels[s.level]} · ${C.counts[s.count]}${s.theme === 'basic' ? '' : ` · ${C.themes[s.theme]}`}`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${esc(C.hint[s.count])} ${esc(t('instr'))}</p>
+        ${tasks(false)}
+      </div>`;
+      if (s.key) html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}${tasks(true)}</div>`;
+      return { html, tasks: pics.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>
