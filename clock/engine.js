@@ -7,7 +7,7 @@
  *   CLOCK.rng(seed)                   → seeded random numbers 0..1 (same seed ⇒ same worksheet)
  *   CLOCK.randomTime(rnd, level, h24) → a time that fits the level
  *   CLOCK.digital(t, h24)             → "3:30" / "15:30"
- *   CLOCK.words(t, lang)              → how people say it ("wpół do czwartej", "half past three"…), null if m is not a multiple of 5
+ *   CLOCK.words(t, lang)              → how people say it ("wpół do czwartej", "half past three", "le tre e mezza", "las tres y media"…), null if m is not a multiple of 5
  *   CLOCK.period(t)                   → 'night' | 'morning' | 'afternoon' | 'evening' (for the 24-hour option)
  *   CLOCK.distractors(t, level, h24, rnd) → three wrong answers built from typical mistakes
  *   CLOCK.svg(opts)                   → the clock face as an SVG string
@@ -80,6 +80,10 @@ const CLOCK = (() => {
   const EN_MIN = { 5: 'five', 10: 'ten', 15: 'quarter', 20: 'twenty', 25: 'twenty-five' };
   const FR_H = ['', 'une heure', 'deux heures', 'trois heures', 'quatre heures', 'cinq heures', 'six heures', 'sept heures', 'huit heures', 'neuf heures', 'dix heures', 'onze heures', 'douze heures'];
   const FR_MIN = { 5: 'cinq', 10: 'dix', 20: 'vingt', 25: 'vingt-cinq' };
+  const IT_H = ['', 'l’una', 'le due', 'le tre', 'le quattro', 'le cinque', 'le sei', 'le sette', 'le otto', 'le nove', 'le dieci', 'le undici', 'le dodici'];
+  const IT_MIN = { 5: 'cinque', 10: 'dieci', 15: 'un quarto', 20: 'venti', 25: 'venticinque' };
+  const ES_H = ['', 'la una', 'las dos', 'las tres', 'las cuatro', 'las cinco', 'las seis', 'las siete', 'las ocho', 'las nueve', 'las diez', 'las once', 'las doce'];
+  const ES_MIN = { 5: 'cinco', 10: 'diez', 15: 'cuarto', 20: 'veinte', 25: 'veinticinco' };
 
   /** How the time is said, from the hands only (12-hour, as people speak). null when m is not a multiple of 5. */
   function words(t, lang) {
@@ -109,6 +113,16 @@ const CLOCK = (() => {
         if (m === 45) return `${FR_H[nx]} moins le quart`;
         if (m < 30) return `${FR_H[h]} ${FR_MIN[past]}`;
         return `${FR_H[nx]} moins ${FR_MIN[to]}`;
+      case 'it':   // like fr: "meno" from :35 on, no "sono"/"è"
+        if (m === 0) return IT_H[h];
+        if (m === 30) return `${IT_H[h]} e mezza`;
+        if (m < 30) return `${IT_H[h]} e ${IT_MIN[past]}`;
+        return `${IT_H[nx]} meno ${IT_MIN[to]}`;
+      case 'es':   // like fr: "menos" from :35 on, no "son"/"es"
+        if (m === 0) return ES_H[h];
+        if (m === 30) return `${ES_H[h]} y media`;
+        if (m < 30) return `${ES_H[h]} y ${ES_MIN[past]}`;
+        return `${ES_H[nx]} menos ${ES_MIN[to]}`;
       default:
         if (m === 0) return `${EN_H[h]} o’clock`;
         if (m === 30) return `half past ${EN_H[h]}`;

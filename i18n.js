@@ -2,7 +2,7 @@
  * Shared language helper for every page of the site. Classic script; defines the global `I18N`.
  *
  * Language choice: `?lang=xx` in the URL > saved choice (localStorage "lang") > Polish.
- * Each page keeps its own dictionary: { pl:{key: string|fn}, en:{…}, uk:{…}, vi:{…}, fr:{…} }.
+ * Each page keeps its own dictionary: { pl:{key: string|fn}, en:{…}, uk:{…}, vi:{…}, fr:{…}, it:{…}, es:{…} }.
  *   I18N.t(dict, key, ...args)   → string for the current language (falls back to en, then key)
  *   I18N.apply(dict[, root])     → fills [data-i18n="key"] text and [data-i18n-attr="attr:key,…"] attributes
  *   I18N.onChange(fn)            → called with the new code after another language is picked
@@ -16,6 +16,8 @@ const I18N = (() => {
     { code: 'uk', flag: '🇺🇦', name: 'Українська' },
     { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
     { code: 'fr', flag: '🇫🇷', name: 'Français' },
+    { code: 'it', flag: '🇮🇹', name: 'Italiano' },
+    { code: 'es', flag: '🇪🇸', name: 'Español' },
   ];
   /** Flags as small SVG pictures, for systems without flag emoji (Windows shows "PL", "GB"… instead). */
   const svg = s => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20">${s}</svg>`);
@@ -25,6 +27,8 @@ const I18N = (() => {
     uk: svg('<path fill="#0057b7" d="M0 0h30v10H0z"/><path fill="#ffd700" d="M0 10h30v10H0z"/>'),
     vi: svg('<path fill="#da251d" d="M0 0h30v20H0z"/><path fill="#ff0" d="M15 4l1.43 4.03 4.28.12-3.4 2.6 1.22 4.1L15 12.43l-3.53 2.42 1.22-4.1-3.4-2.6 4.28-.12z"/>'),
     fr: svg('<path fill="#002395" d="M0 0h10v20H0z"/><path fill="#fff" d="M10 0h10v20H10z"/><path fill="#ed2939" d="M20 0h10v20H20z"/>'),
+    it: svg('<path fill="#009246" d="M0 0h10v20H0z"/><path fill="#fff" d="M10 0h10v20H10z"/><path fill="#ce2b37" d="M20 0h10v20H20z"/>'),
+    es: svg('<path fill="#aa151b" d="M0 0h30v20H0z"/><path fill="#f1bf00" d="M0 5h30v10H0z"/>'),
   };
   /** Does this system draw 🇵🇱 as a coloured flag? (Windows draws two grey letters.) */
   function hasFlagEmoji() {
@@ -42,7 +46,7 @@ const I18N = (() => {
   const flagMode = hasFlagEmoji() ? 'emoji'
     : (window.CSS && CSS.supports('appearance', 'base-select') ? 'svg' : 'none');
   /** Accessible name of the page-language dropdown, in each language. */
-  const LABEL = { pl: 'Język', en: 'Language', uk: 'Мова', vi: 'Ngôn ngữ', fr: 'Langue' };
+  const LABEL = { pl: 'Język', en: 'Language', uk: 'Мова', vi: 'Ngôn ngữ', fr: 'Langue', it: 'Lingua', es: 'Idioma' };
   const DEFAULT = 'pl', KEY = 'lang';
   const valid = c => LANGS.some(l => l.code === c);
   const save = c => { try { localStorage.setItem(KEY, c); } catch (_) { /* no storage: the URL still works */ } };
@@ -130,7 +134,7 @@ const I18N = (() => {
       el.dataset.i18nAttr.split(',').forEach(pair => { const [attr, key] = pair.split(':'); el.setAttribute(attr.trim(), t(dict, key.trim())); });
     });
   }
-  /** Plural forms. pl/uk: (n, one, few, many). en: (n, one, other). fr: (n, one, other), 0 and 1 are singular. vi: one form. */
+  /** Plural forms. pl/uk: (n, one, few, many). en/it/es: (n, one, other). fr: (n, one, other), 0 and 1 are singular. vi: one form. */
   function plural(n, one, few, many) {
     if (lang === 'pl' || lang === 'uk') {
       const m10 = n % 10, m100 = n % 100;
@@ -138,7 +142,7 @@ const I18N = (() => {
       if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return few;
       return many;
     }
-    if (lang === 'en') return n === 1 ? one : (many !== undefined ? many : few);
+    if (lang === 'en' || lang === 'it' || lang === 'es') return n === 1 ? one : (many !== undefined ? many : few);
     if (lang === 'fr') return n <= 1 ? one : (many !== undefined ? many : few);
     return few !== undefined ? few : one;   // vi: no plural forms; callers pass the plain form as `few`
   }

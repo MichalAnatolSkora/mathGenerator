@@ -29,10 +29,11 @@ extra for keen kids: an Enigma wheel with the whole alphabet.
 - **`engine.js`**: the language packs, the ciphers (`caesar`, `sub`, `diskEnc`, `diskDec`, `mirror`,
   `enigma`) and the page builders (DOM only, no `innerHTML`). Every code, answer and letter named in
   a text is computed from the pack, never typed.
-- **`strings.js`**: every text in Polish (source), English, Ukrainian, Vietnamese and French.
+- **`strings.js`**: every text in Polish (source), English, Ukrainian, Vietnamese, French, Italian and Spanish.
 - **`engine.test.js`**: `node enigma/engine.test.js`.
 
-Each page language has its own pack: pl/en/fr use A–Z (messages without accents), uk the 33-letter
+Each page language has its own pack: pl/en/fr/it/es use A–Z (messages without accents; es avoids Ñ,
+which is not on the wheels), uk the 33-letter
 Ukrainian alphabet, vi the 29 base letters without tone marks. The mini-Enigma is built from the same
 indices everywhere (`out` = 8 letters, red wheel `inn[i] = out[INN_IDX[i]]`, mirror pairs `MIR_IDX`),
 e.g. pl: `AEIKLMOT`, red wheel `MTAOKIEL`, mirror A↔O E↔T I↔K L↔M. The big wheel (`bigPack`) uses the

@@ -1,6 +1,6 @@
 // Run with: node engine.test.js
 const E = require('./engine.js');
-require('./strings.js');   // registers the texts in E.TEXT (en, pl, uk, vi, fr)
+require('./strings.js');   // registers the texts in E.TEXT (en, pl, uk, vi, fr, it, es)
 const LANGS = Object.keys(E.TEXT).sort();
 let fails = 0;
 const eq = (name, got, want) => { if (got !== want) { fails++; console.log('FAIL', name, '\n  got :', got, '\n  want:', want); } else console.log('ok  ', name); };
@@ -20,13 +20,25 @@ eq('beaufort reciprocal', E.decrypt('beaufort', 'CKMPVCPVWPIWUJOGIUAPVWRIWUUK', 
 eq('default language is English', E.encrypt('caesar', 'ABC', { shift: 1 }), 'BCD');
 
 // Other alphabets: shape and simple vectors
-eq('alphabet sizes', LANGS.map(l => l + '=' + E.alphabet(l).n).join(' '), 'en=26 fr=26 pl=32 uk=33 vi=29');
-eq('half turns', LANGS.map(l => E.alphabet(l).half).join(','), '13,13,16,16,14');
+eq('alphabet sizes', LANGS.map(l => l + '=' + E.alphabet(l).n).join(' '), 'en=26 es=27 fr=26 it=21 pl=32 uk=33 vi=29');
+eq('half turns', LANGS.map(l => E.alphabet(l).half).join(','), '13,13,13,10,16,16,14');
 eq('polish caesar 1', E.encrypt('caesar', 'ŻABA', { shift: 1 }, 'pl'), 'AĄCĄ');
 eq('polish atbash', E.encrypt('atbash', 'AĄB', {}, 'pl'), 'ŻŹZ');
 eq('ukrainian atbash', E.encrypt('atbash', 'АБВ', {}, 'uk'), 'ЯЮЬ');
 eq('french caesar 3 (A–Z)', E.encrypt('caesar', 'BONJOUR ESPION', { shift: 3 }, 'fr'), 'ERQMRXU HVSLRQ');
 eq('vietnamese rot14', E.encrypt('rot14' in E.CIPHERS ? 'rot14' : 'rot13', 'AĂ', {}, 'vi'), 'MN');
+eq('italian: 21 letters, no J K W X Y', E.ALPHABETS.it, 'ABCDEFGHILMNOPQRSTUVZ');
+eq('italian caesar 3 wraps Z → C', E.encrypt('caesar', 'CIAO UVZ', { shift: 3 }, 'it'), 'FNDR ABC');
+eq('italian rot10', E.encrypt('rot13', 'ABZ', {}, 'it'), 'MNL');
+eq('italian atbash (M is the middle, mirrors to itself)', E.encrypt('atbash', 'ABCM', {}, 'it'), 'ZVUM');
+eq('italian affine a', E.alphabet('it').affineA.join(','), '5,11,2,4');
+eq('spanish: Ñ comes after N', E.ALPHABETS.es.slice(12, 16), 'MNÑO');
+eq('spanish caesar 3 counts Ñ', E.encrypt('caesar', 'LMN NIÑO', { shift: 3 }, 'es'), 'ÑOP PLQR');
+eq('spanish caesar 3 wraps X Y Z → A B C', E.encrypt('caesar', 'XYZ', { shift: 3 }, 'es'), 'ABC');
+eq('spanish rot13 (27 letters: not its own inverse)', E.encrypt('rot13', 'AN', {}, 'es'), 'NZ');
+eq('spanish atbash (N is the middle)', E.encrypt('atbash', 'AÑON', {}, 'es'), 'ZMLN');
+eq('spanish affine a', E.alphabet('es').affineA.join(','), '5,7,11,2');
+eq('spanish bank keeps Ñ in some messages', E.bank('es').messages.filter(m => m.includes('Ñ')).length >= 5, true);
 eq('non-letters pass through', E.encrypt('caesar', 'A-B C!', { shift: 1 }, 'pl'), 'Ą-C Ć!');
 for (const l of LANGS) for (const a of E.alphabet(l).affineA) eq(`${l}: affine a=${a} invertible`, (a * E.modInverse(a, E.alphabet(l).n)) % E.alphabet(l).n, 1);
 

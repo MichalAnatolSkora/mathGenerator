@@ -194,7 +194,7 @@
 <script src="../i18n.js"></script>
 <script>
 "use strict";
-/* ---- user-facing text in five languages (pl, en, uk, vi, fr); the language helper is ../i18n.js ---- */
+/* ---- user-facing text in seven languages (pl, en, uk, vi, fr, it, es); the language helper is ../i18n.js ---- */
 const MC_STRINGS = {
   en: {
     allPuzzles:'🧩 All puzzles', title:'Math Crossword Worksheet Generator',
@@ -280,6 +280,40 @@ const MC_STRINGS = {
     keyTag:'— Corrigé', opAdd:'addition', opSub:'soustraction', opMul:'multiplication', opDiv:'division',
     direction:'de gauche à droite, de haut en bas', seedLabel:'graine :', name:'Nom :',
     instr:'Remplis les cases vides pour que chaque opération soit juste. Chaque opération se lit A op B = C — à l’horizontale ou à la verticale.',
+  },
+  it: {
+    allPuzzles:'🧩 Tutti i rompicapi', title:'Generatore di cruciverba matematici',
+    subtitle:'Cruciverba con le operazioni da stampare, creati da un seme — ogni operazione si legge <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, in orizzontale e in verticale.',
+    seed:'Seme', randomSeed:'Seme casuale', seedHint:'Stesso seme + stessi numeri/operazioni ⇒ scheda identica.',
+    range:'Numeri', min:'Min', max:'Max', minHint:'Min può essere negativo (compaiono risultati negativi).',
+    operators:'Operazioni', puzzle:'Cruciverba', size:'Dimensione', sizeSmall:'Piccolo', sizeMedium:'Medio', sizeLarge:'Grande', sizeA4:'Pagina intera (A4)',
+    difficulty:'Difficoltà (quante caselle vuote)', diffEasy:'Facile', diffMedium:'Media', diffHard:'Difficile',
+    display:'Aspetto', notation:'Simboli', notationEu:'· e : (europei)', notationStd:'× e ÷',
+    operandBlanks:'Caselle vuote anche nei termini (operazioni inverse)', answerKey:'Aggiungi le soluzioni',
+    newWorksheet:'Nuova scheda', print:'Stampa / Salva PDF', ready:'✓ scheda pronta',
+    errWhole:'Min e Max devono essere numeri interi.', errMinMax:'Min deve essere ≤ Max.', errOps:'Scegli almeno un’operazione.',
+    errNarrow:'L’intervallo è troppo stretto — allarga Min/Max.', errGen:'Con queste impostazioni non si riesce a creare la scheda — prova un intervallo più ampio o più operazioni.',
+    rangeTitleTo:max=>`Operazioni fino a ${max}`, rangeTitleFrom:(min,max)=>`Operazioni da ${min} a ${max}`,
+    keyTag:'— Soluzioni', opAdd:'addizione', opSub:'sottrazione', opMul:'moltiplicazione', opDiv:'divisione',
+    direction:'da sinistra a destra, dall’alto in basso', seedLabel:'seme:', name:'Nome:',
+    instr:'Scrivi i numeri nelle caselle vuote in modo che ogni operazione sia giusta. Ogni operazione si legge A op B = C — in orizzontale o in verticale.',
+  },
+  es: {
+    allPuzzles:'🧩 Todos los acertijos', title:'Generador de crucigramas matemáticos',
+    subtitle:'Crucigramas de operaciones para imprimir, creados a partir de una semilla — cada operación se lee <em>A&nbsp;op&nbsp;B&nbsp;=&nbsp;C</em>, en horizontal y en vertical.',
+    seed:'Semilla', randomSeed:'Semilla al azar', seedHint:'Misma semilla + mismos números/operaciones ⇒ ficha idéntica.',
+    range:'Números', min:'Mín', max:'Máx', minHint:'Mín puede ser negativo (aparecen resultados negativos).',
+    operators:'Operaciones', puzzle:'Crucigrama', size:'Tamaño', sizeSmall:'Pequeño', sizeMedium:'Mediano', sizeLarge:'Grande', sizeA4:'Página completa (A4)',
+    difficulty:'Dificultad (cuántas casillas vacías)', diffEasy:'Fácil', diffMedium:'Media', diffHard:'Difícil',
+    display:'Aspecto', notation:'Signos', notationEu:'· y : (europeos)', notationStd:'× y ÷',
+    operandBlanks:'Casillas vacías también en los términos (operaciones inversas)', answerKey:'Incluir las soluciones',
+    newWorksheet:'Nueva ficha', print:'Imprimir / Guardar PDF', ready:'✓ ficha lista',
+    errWhole:'Mín y Máx deben ser números enteros.', errMinMax:'Mín debe ser ≤ Máx.', errOps:'Elige al menos una operación.',
+    errNarrow:'El intervalo es demasiado estrecho — amplía Mín/Máx.', errGen:'No se ha podido crear con estos ajustes — prueba un intervalo más amplio o más operaciones.',
+    rangeTitleTo:max=>`Operaciones hasta ${max}`, rangeTitleFrom:(min,max)=>`Operaciones de ${min} a ${max}`,
+    keyTag:'— Soluciones', opAdd:'suma', opSub:'resta', opMul:'multiplicación', opDiv:'división',
+    direction:'de izquierda a derecha, de arriba abajo', seedLabel:'semilla:', name:'Nombre:',
+    instr:'Escribe los números en las casillas vacías para que cada operación sea correcta. Cada operación se lee A op B = C — en horizontal o en vertical.',
   },
 };
 const tt = (k, ...a) => I18N.t(MC_STRINGS, k, ...a);

@@ -9,10 +9,14 @@ const ok = (name, cond, extra) => { if (!cond) { fails++; console.log('FAIL', na
 
 // the international table, checked against a hand-written copy
 const ITU = 'A.- B-... C-.-. D-.. E. F..-. G--. H.... I.. J.--- K-.- L.-.. M-- N-. O--- P.--. Q--.- R.-. S... T- U..- V...- W.-- X-..- Y-.-- Z--..';
-for (const pair of ITU.split(' ')) for (const l of ['en', 'fr', 'vi']) eq(`${l} ${pair[0]}`, M.code(pair[0], l), pair.slice(1));
+for (const pair of ITU.split(' ')) for (const l of ['en', 'fr', 'vi', 'it', 'es']) eq(`${l} ${pair[0]}`, M.code(pair[0], l), pair.slice(1));
 const PL = 'Ą.-.- Ć-.-.. Ę..-.. Ł.-..- Ń--.-- Ó---. Ś...-... Ź--..-. Ż--..-';
 for (const pair of PL.split(' ')) eq(`pl ${pair[0]}`, M.code(pair[0], 'pl'), pair.slice(1));
 eq('fr É', M.code('É', 'fr'), '..-..');
+eq('es Ñ', M.code('Ñ', 'es'), '--.--');
+eq('es extra letters', M.extras('es').join(), 'Ñ');
+eq('es alphabet', M.alphabet('es').join(''), 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ');
+eq('it is A–Z only', M.alphabet('it').join('') + M.extras('it').length, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0');
 const UKT = 'А.- Б-... В.-- Г--. Д-.. Е. Є..-.. Ж...- З--.. И-.-- І.. Ї.---. Й.--- К-.- Л.-.. М-- Н-. О--- П.--. Р.-. С... Т- У..- Ф..-. Х.... Ц-.-. Ч---. Ш---- Щ--.- Ь-..- Ю..-- Я.-.-';
 for (const pair of UKT.split(' ')) eq(`uk ${pair[0]}`, M.code(pair[0], 'uk'), pair.slice(1));
 eq('sos', M.encode('sos', 'en').flat().map(x => x.code).join(' '), '... --- ...');
@@ -44,6 +48,12 @@ for (const l of M.LANGS) {
 eq('vi drops the marks', M.norm('Thuyền đỏ', 'vi'), 'THUYEN DO');
 eq('fr keeps É only', M.norm('été à la forêt', 'fr'), 'ÉTÉ A LA FORET');
 eq('pl keeps its letters', M.norm('żółw', 'pl'), 'ŻÓŁW');
+eq('es keeps Ñ only', M.norm('mañana está aquí', 'es'), 'MAÑANA ESTA AQUI');
+eq('es drops the diaeresis', M.norm('pingüino', 'es'), 'PINGUINO');
+eq('it drops the accents', M.norm('perché è così', 'it'), 'PERCHE E COSI');
+eq('it apostrophe', M.norm('l’isola', 'it'), 'LISOLA');
+ok('es Ñ only with the extra letters', !M.letters('es', 4).includes('Ñ') && M.letters('es', 4, true).includes('Ñ') && M.groupOf('Ñ', 'es') === 5);
+ok('es Ñ is off the tree (5 signs)', !M.treeNodes('es').some(n => n.letter === 'Ñ'));
 ok('pl mnemonics fit the codes', Object.entries(B.pl.mnemonics).every(([l, w]) =>
   w.split('-').map(s => (/[oó]/.test(s) ? '-' : '.')).join('') === M.code(l, 'pl')), 'a syllable with o/ó is a dash');
 

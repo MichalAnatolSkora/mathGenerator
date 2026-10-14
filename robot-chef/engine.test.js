@@ -105,8 +105,32 @@ try {
     const have = new Set(keys(T[l]));
     const miss = pl.filter(k => !have.has(k));
     ok(`strings ${l}: all keys`, !miss.length, miss);
+    const extra = [...have].filter(k => !pl.includes(k));
+    ok(`strings ${l}: no extra keys`, !extra.length, extra);
+    // same shape as Polish: functions take the same arguments, lists have the same length, nothing says "undefined"
+    const get = (o, k) => k.split('.').reduce((a, p) => a && a[p], o);
+    for (const k of pl) {
+      const a = get(T.pl, k), b = get(T[l], k);
+      if (b === undefined) continue;
+      ok(`strings ${l}.${k}: same type`, typeof a === typeof b && Array.isArray(a) === Array.isArray(b));
+      if (typeof a === 'function') {
+        ok(`strings ${l}.${k}: same arguments`, a.length === b.length, [a.length, b.length]);
+        for (const n of [0, 1, 2, 5]) {
+          const out = typeof b === 'function' ? b(...Array(b.length).fill(n)) : '';
+          ok(`strings ${l}.${k}(${n}): text`, typeof out === 'string' && out && !/undefined|NaN/.test(out), out);
+        }
+      }
+      if (Array.isArray(a)) {
+        ok(`strings ${l}.${k}: same length`, a.length === b.length, [a.length, b.length]);
+        if (k.endsWith('quiz5')) a.forEach((q, i) => ok(`strings ${l}.quiz5[${i}]: options`, b[i] && b[i].opts.length === q.opts.length && b[i].ok === q.ok && b[i].q && b[i].why));
+        if (Array.isArray(a[0])) a.forEach((x, i) => ok(`strings ${l}.${k}[${i}]: same length`, Array.isArray(b[i]) && b[i].length === x.length));
+      }
+    }
   }
-  ok('strings: five languages', ['pl', 'en', 'uk', 'vi', 'fr'].every(l => T[l]), Object.keys(T));
+  // Spanish: "1 pt", otherwise "pts" (it: always "pt")
+  eq('es points', ['1', '+1', '−1', '0', '2', '11', '21', '3 + 2 = 1', '3 + 2 = 5'].map(v => T.es.common.ptsShort(v)),
+    ['1 pt', '+1 pt', '−1 pt', '0 pts', '2 pts', '11 pts', '21 pts', '3 + 2 = 1 pt', '3 + 2 = 5 pts']);
+  ok('strings: seven languages', ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es'].every(l => T[l]), Object.keys(T));
 } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; console.log('(no strings.js yet)'); }
 
 console.log(fails ? `${fails} FAILED` : 'all ok');

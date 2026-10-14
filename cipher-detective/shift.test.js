@@ -20,6 +20,13 @@ eq('uk: Я +1 wraps to А', enc('Я', 1, 'uk'), 'А');
 eq('uk: Е +1 = Є, І +1 = Ї', enc('ЕІ', 1, 'uk'), 'ЄЇ');
 eq('vi: A +1 = Ă, Ă +1 = Â', enc('AĂ', 1, 'vi'), 'ĂÂ');
 eq('vi: U +1 = Ư, Y +1 wraps to A', enc('UY', 1, 'vi'), 'ƯA');
+eq('it: I +1 = L (no J/K), V +1 = Z', enc('IV', 1, 'it'), 'LZ');
+eq('it: Z +3 wraps to C (21 letters)', enc('Z', 3, 'it'), 'C');
+eq('it: shift 20 = one step back', enc('BAMBINO', 20, 'it'), 'AZLAHMN');
+eq('es: N +1 = Ñ, Ñ +1 = O', enc('NÑ', 1, 'es'), 'ÑO');
+eq('es: NIÑO +3 = PLQR', enc('NIÑO', 3, 'es'), 'PLQR');
+eq('es: Z +1 wraps to A (27 letters)', enc('Z', 1, 'es'), 'A');
+eq('es: lower-case ñ is Ñ', enc('niño', 1, 'es'), 'ÑJOP');
 eq('spaces stay, only letters move', enc('A B', 1, 'en'), 'B C');
 
 // Shift arithmetic on every alphabet, against an independent implementation

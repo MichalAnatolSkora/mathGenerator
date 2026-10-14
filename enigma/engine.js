@@ -52,6 +52,24 @@ const ENIGMA = (() => {
       parentWords: ['MOTO', 'LAIT', 'TOMATE', 'MIEL', 'AMI', 'ETOILE', 'TOILE', 'ELLE AIME LE LAIT'],
       reward: 'un verre de lait', big: 'BRAVO MAITRE DES CODES',
     },
+    it: {
+      alpha: LATIN, subKey: LATIN_SUB, out: 'AEIKLMOT', cards: 'ABCD',
+      m1b: 'I CODICI SONO DIVERTENTI', m1c: 'RAPPORTO TESORO IN CUCINA', crib: 'RAPPORTO',
+      m2a: 'ECCO UN MESSAGGIO SEGRETO',
+      m4b: 'TOTEM', m4c: 'LATTE', m5a: 'MAMMA', m5c: 'MELA', m6a: 'MOTO', m6b: 'IO AMO IL LATTE',
+      examples: ['MOTO', 'MELA', 'LATTE'],
+      parentWords: ['MOTO', 'MELA', 'LATTE', 'MIELE', 'MATITA', 'KOALA', 'TOTEM', 'MAIALE', 'TETTO', 'IO AMO IL LATTE'],
+      reward: 'un bicchiere di latte', big: 'BRAVO MAESTRO DEI CODICI',
+    },
+    es: {   // no Ñ in the messages: it is not on the 26-letter wheels
+      alpha: LATIN, subKey: LATIN_SUB, out: 'AEIKLMOT', cards: 'ABCD',
+      m1b: 'CIFRAR ES MUY DIVERTIDO', m1c: 'INFORME TESORO EN LA COCINA', crib: 'INFORME',
+      m2a: 'ESTE ES UN MENSAJE SECRETO',
+      m4b: 'TOMATE', m4c: 'KOALA', m5a: 'MAMA', m5c: 'MALETA', m6a: 'MOTO', m6b: 'MI MAMA ME AMA',
+      examples: ['MOTO', 'KOALA', 'TOMATE'],
+      parentWords: ['MOTO', 'TOMATE', 'MALETA', 'KOALA', 'LATA', 'KILO', 'METAL', 'TELA', 'MAMA', 'MI MAMA ME AMA'],
+      reward: 'un abrazo muy fuerte', big: 'ENHORABUENA GRAN DESCIFRADOR',
+    },
     // uk and vi: messages, subKey and reward chosen for this set; to be checked by a native speaker.
     uk: {
       alpha: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ',
@@ -331,7 +349,7 @@ const ENIGMA = (() => {
   function makeKit(lang) {
     const T = textFor(lang), p = pack(lang), v = values(p);
     /** Text for key k: strings as they are, functions are called with the values (and args). */
-    /** French: no line break before : ; ? ! (strings, also inside lists). */
+    /** French: no line break before : ; ? ! (strings, also inside lists). Other languages have no space there. */
     const fix = x => (typeof x === 'string' ? (lang === 'fr' ? x.replace(/ ([:;?!»])/g, '\u00a0$1') : x) : Array.isArray(x) ? x.map(fix) : x);
     const t = (k, ...a) => {
       const x = T[k] !== undefined ? T[k] : TEXT.pl[k];

@@ -1,7 +1,7 @@
 // Run with: node enigma/engine.test.js
 const E = require('./engine.js');
-require('./strings.js');   // registers the texts in E.TEXT (pl, en, uk, vi, fr)
-const LANGS = ['pl', 'en', 'fr', 'uk', 'vi'];
+require('./strings.js');   // registers the texts in E.TEXT (pl, en, uk, vi, fr, it, es)
+const LANGS = ['pl', 'en', 'fr', 'it', 'es', 'uk', 'vi'];
 let fails = 0;
 const eq = (name, got, want) => { if (got !== want) { fails++; console.log('FAIL', name, '\n  got :', got, '\n  want:', want); } else console.log('ok  ', name); };
 const P = E.pack;
@@ -38,6 +38,28 @@ const V = [
   ['fr', 'mirror', 'TOMATE', null, 'EALOET'],
   ['fr', 'enigma', 'MOTO', null, 'LMOM'],
   ['fr', 'enigma', 'ELLE AIME LE LAIT', null, 'OKML EEOI MA MTMA'],
+  ['it', 'caesar', 'I CODICI SONO DIVERTENTI', 3, 'L FRGLFL VRQR GLYHUWHQWL'],
+  ['it', 'caesar', 'RAPPORTO TESORO IN CUCINA', 7, 'YHWWVYAV ALZVYV PU JBJPUH'],
+  ['it', 'sub', 'ECCO UN MESSAGGIO SEGRETO', null, 'MLLB SH EMFFNDDAB FMDVMGB'],
+  ['it', 'diskEnc', 'TOTEM', null, 'LIIET'],
+  ['it', 'diskEnc', 'LATTE', null, 'KLIKI'],
+  ['it', 'diskDec', 'KLIKI', null, 'LATTE'],
+  ['it', 'mirror', 'MAMMA', null, 'LOLLO'],
+  ['it', 'mirror', 'MELA', null, 'LTMO'],
+  ['it', 'enigma', 'MOTO', null, 'LMOM'],
+  ['it', 'enigma', 'IO AMO IL LATTE', null, 'KM KOT ET KTIOL'],
+  ['it', 'enigma', 'KM KOT ET KTIOL', null, 'IO AMO IL LATTE'],
+  ['es', 'caesar', 'CIFRAR ES MUY DIVERTIDO', 3, 'FLIUDU HV PXB GLYHUWLGR'],
+  ['es', 'caesar', 'INFORME TESORO EN LA COCINA', 7, 'PUMVYTL ALZVYV LU SH JVJPUH'],
+  ['es', 'sub', 'ESTE ES UN MENSAJE SECRETO', null, 'MFGM MF SH EMHFNIM FMLVMGB'],
+  ['es', 'diskEnc', 'TOMATE', null, 'LIOIOK'],
+  ['es', 'diskEnc', 'KOALA', null, 'OIETK'],
+  ['es', 'diskDec', 'OIETK', null, 'KOALA'],
+  ['es', 'mirror', 'MAMA', null, 'LOLO'],
+  ['es', 'mirror', 'MALETA', null, 'LOMTEO'],
+  ['es', 'enigma', 'MOTO', null, 'LMOM'],
+  ['es', 'enigma', 'MI MAMA ME AMA', null, 'LT LTIT OI TOK'],
+  ['es', 'enigma', 'LT LTIT OI TOK', null, 'MI MAMA ME AMA'],
   ['uk', 'diskEnc', 'МОЛОКО', null, 'ІІАОЛТ'],
   ['uk', 'diskEnc', 'ЛІТО', null, 'КТІО'],
   ['uk', 'mirror', 'МАМА', null, 'ЛОЛО'],
@@ -137,6 +159,11 @@ for (const lang of LANGS) {
 eq('pl: M1 A names the right letters', E.TEXT.pl.m1aText(E.values(P('pl'))).includes('czarnym {{A}} stało czerwone {{D}}'), true);
 eq('pl: M1 C crib letters', E.TEXT.pl.m1cText(E.values(P('pl'))).includes('czarnym {{R}} stało czerwone {{Y}}'), true);
 eq('pl: M4 B answer sentence', E.TEXT.pl.k4b(null, E.collisions(P('pl'), 'KOTEK')), '{{O}} i {{T}} dały to samo {{I}}. {{E}} została sobą.');
+eq('it: M4 B answer sentence', E.TEXT.it.k4b(null, E.collisions(P('it'), 'TOTEM')), '{{O}} e {{T}} sono diventate {{I}}. {{E}} è rimasta se stessa.');
+eq('es: M4 B answer sentence', E.TEXT.es.k4b(null, E.collisions(P('es'), 'TOMATE')), '{{O}} y {{A}} se convirtieron en {{I}}. {{M}} y {{T}} se convirtieron en {{O}}. Ninguna letra se quedó igual.');
+eq('es: "e" before I', E.TEXT.es.k4b(null, { same: [[['O', 'I'], 'A']], self: [] }), '{{O}} e {{I}} se convirtieron en {{A}}. Ninguna letra se quedó igual.');
+eq('it big message', E.enigma(E.bigPack('it'), 'BRAVO MAESTRO DEI CODICI'), 'UTHTQ BHGUVGT OPP TVBKOF');
+eq('es big message', E.enigma(E.bigPack('es'), 'ENHORABUENA GRAN DESCIFRADOR'), 'NLARIOPLPWC UKRL ABLETICJQQP');
 
 console.log(fails ? `\n${fails} FAILED` : '\nall ok');
 process.exit(fails ? 1 : 0);

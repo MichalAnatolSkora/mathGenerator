@@ -25,6 +25,24 @@ eq('vi 3:45', C.words({ h: 3, m: 45 }, 'vi'), '4 giờ kém 15 phút');
 eq('fr 3:45', C.words({ h: 3, m: 45 }, 'fr'), 'quatre heures moins le quart');
 eq('fr 12:35', C.words({ h: 12, m: 35 }, 'fr'), 'une heure moins vingt-cinq');
 eq('fr 1:30', C.words({ h: 1, m: 30 }, 'fr'), 'une heure et demie');
+eq('it 3:45', C.words({ h: 3, m: 45 }, 'it'), 'le quattro meno un quarto');
+eq('it 12:35', C.words({ h: 12, m: 35 }, 'it'), 'l’una meno venticinque');
+eq('it 1:30', C.words({ h: 1, m: 30 }, 'it'), 'l’una e mezza');
+eq('it 1:00', C.words({ h: 1, m: 0 }, 'it'), 'l’una');
+eq('it 3:15', C.words({ h: 3, m: 15 }, 'it'), 'le tre e un quarto');
+eq('it 7:05', C.words({ h: 7, m: 5 }, 'it'), 'le sette e cinque');
+eq('it 8:20', C.words({ h: 8, m: 20 }, 'it'), 'le otto e venti');
+eq('it 3:40', C.words({ h: 3, m: 40 }, 'it'), 'le quattro meno venti');
+eq('it 0:00', C.words({ h: 0, m: 0 }, 'it'), 'le dodici');
+eq('es 3:45', C.words({ h: 3, m: 45 }, 'es'), 'las cuatro menos cuarto');
+eq('es 12:35', C.words({ h: 12, m: 35 }, 'es'), 'la una menos veinticinco');
+eq('es 1:30', C.words({ h: 1, m: 30 }, 'es'), 'la una y media');
+eq('es 1:00', C.words({ h: 1, m: 0 }, 'es'), 'la una');
+eq('es 3:15', C.words({ h: 3, m: 15 }, 'es'), 'las tres y cuarto');
+eq('es 7:05', C.words({ h: 7, m: 5 }, 'es'), 'las siete y cinco');
+eq('es 8:20', C.words({ h: 8, m: 20 }, 'es'), 'las ocho y veinte');
+eq('es 3:40', C.words({ h: 3, m: 40 }, 'es'), 'las cuatro menos veinte');
+eq('es 0:00', C.words({ h: 0, m: 0 }, 'es'), 'las doce');
 eq('not a multiple of 5', C.words({ h: 3, m: 17 }, 'pl'), null);
 for (const l of Object.keys(T)) for (let h = 0; h < 24; h++) for (let m = 0; m < 60; m += 5) {
   const w = C.words({ h, m }, l);
@@ -65,6 +83,11 @@ const keys = o => Object.keys(o).sort().join(',');
 for (const l of Object.keys(T)) for (const part of ['common', 'game', 'sheet']) eq(`${l}.${part} keys`, keys(T[l][part]), keys(T.en[part]));
 const o = { h: 3, nx: 4, m: 30, dig: '3:30', dig24: '15:30', words: 'x', per: 'y', h24: true, num: 6 };
 for (const l of Object.keys(T)) for (const k of ['explain', 'fixMinute', 'fixHour']) ok(`${l} ${k}`, !/undefined/.test(T[l].game[k](o)));
+// it/es articles before numbers and times
+eq('it explain 1:30', T.it.game.explain({ h: 1, nx: 2, m: 30, dig: '1:30', words: 'l’una e mezza' }), 'La lancetta corta è tra l’1 e il 2: contiamo l’1, perché l’ha già superato. La lancetta lunga indica 30 minuti. L’orologio segna l’1:30 — l’una e mezza.');
+eq('it fixMinute 8', T.it.game.fixMinute({ m: 40, num: 8 }), 'La lancetta lunga deve indicare 40 minuti: deve essere sull’8.');
+eq('es yourClock 1:05', T.es.game.yourClock('1:05'), 'Tu reloj marca la 1:05.');
+eq('es explain 24h', T.es.game.explain({ h: 3, nx: 4, m: 0, dig: '3:00', dig24: '15:00', words: 'las tres', per: 'por la tarde', h24: true }), 'La aguja corta señala el 3 y la larga está en el 12: es la hora en punto. El reloj marca las 3:00 — las tres. Las 3:00 por la tarde son las 15:00 en el reloj de 24 horas.');
 
 console.log(fails ? `\n${fails} FAILED` : '\nall passed');
 process.exit(fails ? 1 : 0);

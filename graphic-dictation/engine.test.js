@@ -60,9 +60,22 @@ for (const kind of ['add', 'mul']) for (let n = 1; n <= 10; n++) for (let i = 0;
 eq('plain number', D.expr(4, 'plain', rnd), null);
 
 // texts: every language has the same keys as English, a name for every picture, a word for every direction
+const LANGS = ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es'];   // the same list as I18N.LANGS in ../i18n.js
+eq('languages', Object.keys(T).sort().join(','), [...LANGS].sort().join(','));
 const keys = o => Object.keys(o).sort().join(',');
+/** Same keys at every depth as English, functions where English has functions, with as many arguments. */
+function sameShape(path, o, en) {
+  for (const k of Object.keys(en)) {
+    const a = o[k], b = en[k], at = `${path}.${k}`;
+    if (a === undefined) { ok(`${at} exists`, false); continue; }
+    if (typeof b === 'function') ok(`${at} is a function with ${b.length} arguments`, typeof a === 'function' && a.length === b.length);
+    else if (Array.isArray(b)) ok(`${at} is a list`, Array.isArray(a) && a.length > 0 && a.every(x => typeof x === 'string' && x));
+    else if (typeof b === 'object') { eq(`${at} keys`, keys(a), keys(b)); sameShape(at, a, b); }
+    else ok(`${at} is a text`, typeof a === 'string' && a.length > 0);
+  }
+}
 for (const l of Object.keys(T)) {
-  for (const part of ['common', 'game', 'sheet']) eq(`${l}.${part} keys`, keys(T[l][part]), keys(T.en[part]));
+  for (const part of ['common', 'game', 'sheet']) { eq(`${l}.${part} keys`, keys(T[l][part]), keys(T.en[part])); sameShape(`${l}.${part}`, T[l][part], T.en[part]); }
   ok(`${l}: picture names`, D.PICS.every(p => T[l].common.pics[p.id]));
   ok(`${l}: direction words`, D.DIR_IDS.every(d => T[l].common.dirs[d]));
   ok(`${l}: levels`, D.LEVEL_IDS.every(v => T[l].common.levels[v]));

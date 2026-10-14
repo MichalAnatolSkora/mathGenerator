@@ -5,9 +5,14 @@
  *
  *   MORSE.alphabet(lang)              → the letters that can be sent, in alphabet order
  *   MORSE.code(letter, lang)          → '.-' (dot = '.', dash = '-'), or undefined
- *   MORSE.groupOf(letter, lang)       → 1–4 (the order of learning), 5 for the language's own extra letters (Ą…, É, Є Ї)
+ *   MORSE.groupOf(letter, lang)       → 1–4 (the order of learning), 5 for the language's own extra letters (Ą…, É, Ñ, Є Ї)
  *   MORSE.letters(lang, upto, extra)  → the letters of groups 1…upto (+ the extra letters)
  *   MORSE.norm(text, lang)            → the text as letters that can be sent (upper case, accents handled per language)
+ *
+ * Alphabets: international Morse A–Z for every Latin language. Polish adds Ą Ć Ę Ł Ń Ó Ś Ź Ż, French adds É (..-..),
+ * Spanish adds Ñ (--.--); all three are real letters of their alphabets with codes of their own. Italian is sent with
+ * A–Z only: its accents (À È É Ì Ò Ù) have no codes in common use, so they are dropped, as in English and Vietnamese.
+ * Spanish drops its accents too (Á → A, Ü → U) but keeps Ñ, the way French keeps É. Ukrainian has its own table.
  *   MORSE.sheet(opts)                 → the model of a mixed worksheet: { blocks: [{ type, … }], letters, newest }
  *   MORSE.dictationWords(seed, lang, upto, extra) → the words of a dictation (the game plays the same ones)
  *   MORSE.svg(code, { u, unit })      → dots and dashes as an SVG string (u = the dot's size)
@@ -17,7 +22,7 @@
 const MORSE = (() => {
   const BANK = typeof MORSE_BANK !== 'undefined' ? MORSE_BANK : require('./bank.js');
   const dict = () => (typeof DICT !== 'undefined' ? DICT : require('../graphic-dictation/engine.js'));
-  const LANGS = ['pl', 'en', 'uk', 'vi', 'fr'];
+  const LANGS = ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es'];
 
   /* ---------- alphabets ---------- */
   const LATIN = {
@@ -34,14 +39,15 @@ const MORSE = (() => {
   };
   const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const ALPHA = {
-    en: ABC, vi: ABC,
+    en: ABC, vi: ABC, it: ABC,
     pl: 'A Ą B C Ć D E Ę F G H I J K L Ł M N Ń O Ó P R S Ś T U W Y Z Ź Ż'.split(' '),
     fr: 'A B C D E É F G H I J K L M N O P Q R S T U V W X Y Z'.split(' '),
+    es: 'A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z'.split(' '),
     // Ґ is left out: Ukrainian tables give it no code of its own
     uk: 'А Б В Г Д Е Є Ж З И І Ї Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ь Ю Я'.split(' '),
   };
-  const CODES = { en: LATIN, vi: LATIN, pl: { ...LATIN, ...PL_EXTRA }, fr: { ...LATIN, 'É': '..-..' }, uk: UK };
-  const EXTRA = { en: [], vi: [], pl: Object.keys(PL_EXTRA), fr: ['É'], uk: ['Є', 'Ї'] };
+  const CODES = { en: LATIN, vi: LATIN, it: LATIN, pl: { ...LATIN, ...PL_EXTRA }, fr: { ...LATIN, 'É': '..-..' }, es: { ...LATIN, 'Ñ': '--.--' }, uk: UK };
+  const EXTRA = { en: [], vi: [], it: [], pl: Object.keys(PL_EXTRA), fr: ['É'], es: ['Ñ'], uk: ['Є', 'Ї'] };
   /** Groups 1–3 in the order they are learned (short, common codes first); every other letter is group 4. */
   const GROUPS = {
     latin: [['E', 'T', 'A', 'N', 'I', 'M'], ['S', 'O', 'K', 'R'], ['U', 'D', 'W', 'G', 'L']],
@@ -70,14 +76,15 @@ const MORSE = (() => {
     return alphabet(lang).filter(l => groupOf(l, lang) === upto);
   }
 
-  /** Upper case, accents handled per language: pl/uk keep every letter, fr keeps É, vi and en drop all marks. */
+  /** Upper case, accents handled per language: pl/uk keep every letter; the others drop all marks
+   *  but keep their own extra letters (fr É, es Ñ); vi đ → D. */
   function norm(text, lang) {
     lang = lang_(lang);
-    let u = String(text).toUpperCase();
-    const strip = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
-    if (lang === 'vi') u = strip(u.replace(/Đ/g, 'D'));
-    else if (lang === 'fr') u = strip(u.replace(/Œ/g, 'OE').replace(/Æ/g, 'AE').replace(/É/g, '\u0001')).replace(/\u0001/g, 'É');
-    else if (lang === 'en') u = strip(u);
+    let u = String(text).normalize('NFC').toUpperCase();
+    const strip = c => c.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
+    if (lang === 'vi') u = u.replace(/Đ/g, 'D');
+    if (lang === 'fr') u = u.replace(/Œ/g, 'OE').replace(/Æ/g, 'AE');
+    if (lang !== 'pl' && lang !== 'uk') u = [...u].map(c => (EXTRA[lang].includes(c) ? c : strip(c))).join('');
     return u.replace(/[’'-]/g, '').replace(/\s+/g, ' ').trim();
   }
   const sendable = (text, lang) => [...text].every(c => c === ' ' || code(c, lang) !== undefined);

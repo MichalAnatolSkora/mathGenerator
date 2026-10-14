@@ -1,13 +1,13 @@
 # Tell the Time (Nauka zegara)
 
-Learning to read an analog clock. Plain HTML + vanilla JS, no build step, five languages (pl/en/uk/vi/fr).
+Learning to read an analog clock. Plain HTML + vanilla JS, no build step, seven languages (pl/en/uk/vi/fr/it/es).
 
 | File | What it is |
 |---|---|
 | [`index.html`](index.html) | Online game |
 | [`worksheet.html`](worksheet.html) | Printable A4 worksheets + answer key |
 | [`engine.js`](engine.js) | Shared: seeded random times, clock SVG, time in words, wrong answers |
-| [`strings.js`](strings.js) | Texts in five languages (`common`, `game`, `sheet`) |
+| [`strings.js`](strings.js) | Texts in seven languages (`common`, `game`, `sheet`) |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
 
 ## Levels and options (game and worksheet)
@@ -39,4 +39,6 @@ the same sheet. URL: `?seed=&task=read|draw|mix&level=&n=&minutes=1&h24=1&words=
 
 Only for multiples of 5 minutes (otherwise just digits): pl "wpół do czwartej", "za kwadrans czwarta";
 en "half past three"; uk "пів на четверту", "чверть по третій"; vi "3 giờ rưỡi", "4 giờ kém 15 phút";
-fr "trois heures et demie", "quatre heures moins le quart".
+fr "trois heures et demie", "quatre heures moins le quart"; it "le tre e mezza", "le quattro meno un quarto";
+es "las tres y media", "las cuatro menos cuarto". fr/it/es count back from the next hour from :35 on
+("le quattro meno venti", "las cuatro menos veinte"); no "il est / sono / son", no special noon/midnight words.

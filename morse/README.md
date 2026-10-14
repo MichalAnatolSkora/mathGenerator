@@ -1,15 +1,15 @@
 # Lighthouse Keeper (Latarnik) — Morse code
 
 Learning Morse code as a lighthouse keeper: ships in the fog send signals, the child reads and sends them.
-Plain HTML + vanilla JS, no build step, five languages (pl/en/uk/vi/fr). The worksheets come first.
+Plain HTML + vanilla JS, no build step, seven languages (pl/en/uk/vi/fr/it/es). The worksheets come first.
 
 | File | What it is |
 |---|---|
 | [`worksheet.html`](worksheet.html) | Printable A4 worksheets: a mixed page of tasks + cheat sheet, answer key, diploma |
 | [`index.html`](index.html) | Online game: receive, send, dictation from a worksheet |
 | [`engine.js`](engine.js) | Shared: the Morse tables, letter groups, the worksheet generator, the Morse tree, the lighthouse, dots and dashes as SVG |
-| [`bank.js`](bank.js) | Words, riddles, messages from the sea and ship names in five languages; the Polish key words (mnemonics) |
-| [`strings.js`](strings.js) | Texts in five languages (`common`, `game`, `sheet`) |
+| [`bank.js`](bank.js) | Words, riddles, messages from the sea and ship names in seven languages; the Polish key words (mnemonics) |
+| [`strings.js`](strings.js) | Texts in seven languages (`common`, `game`, `sheet`) |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
 
 The colouring task borrows the pictures of the graphic dictation (`../graphic-dictation/engine.js`, names from
@@ -17,17 +17,19 @@ The colouring task borrows the pictures of the graphic dictation (`../graphic-di
 
 ## Alphabets
 
-International Morse for A–Z (en, vi, fr); Polish adds Ą Ć Ę Ł Ń Ó Ś Ź Ż, French adds É, Ukrainian has its own
-Cyrillic table (Ґ has no code of its own and is left out). Vietnamese is sent without marks (đ → D, ă/â → A …),
-the way Vietnamese telegrams were sent; the answer key shows the normal spelling next to it. French keeps É and
-drops the other accents.
+International Morse for A–Z (en, vi, fr, it, es); Polish adds Ą Ć Ę Ł Ń Ó Ś Ź Ż, French adds É (`··–··`), Spanish
+adds Ñ (`––·––`), Ukrainian has its own Cyrillic table (Ґ has no code of its own and is left out). Vietnamese is sent
+without marks (đ → D, ă/â → A …), the way Vietnamese telegrams were sent; the answer key shows the normal spelling
+next to it. French keeps É and Spanish keeps Ñ, both drop the other accents (á → A, ü → U). Italian is plain A–Z:
+its accented vowels (à è é ì ò ù) have no codes in common use, so they are sent without the accent (è → E).
 
 ## Letter groups
 
 Letters are learned in groups (the same in the game and on the sheets); a sheet uses only the letters learned so far:
 
 1. **E T A N I M** (Ukrainian: Е Т А Н І М) · 2. **+ S O K R** · 3. **+ U D W G L** (В for W, Г for G) · 4. the rest of the alphabet
-5. the language's own letters (Polish Ą Ć …, French É, Ukrainian Є Ї), switched on separately.
+5. the language's own letters (Polish Ą Ć …, French É, Spanish Ñ, Ukrainian Є Ї), switched on separately;
+   letters with 5 signs (É, Ñ …) are not on the tree, the tree poster lists them below it.
 
 Words with a letter of the newest group are picked two times out of three, so the letters learned last get practised most.
 

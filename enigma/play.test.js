@@ -3,7 +3,7 @@
 const E = require('./engine.js');
 require('./strings.js');
 require('./play-strings.js');
-const LANGS = ['pl', 'en', 'uk', 'vi', 'fr'];
+const LANGS = ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es'];
 let fails = 0;
 const eq = (name, got, want) => { if (got !== want) { fails++; console.log('FAIL', name, '\n  got :', got, '\n  want:', want); } else console.log('ok  ', name); };
 

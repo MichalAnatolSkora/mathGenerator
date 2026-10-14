@@ -13,14 +13,14 @@ Comes in two forms:
   detective's guide and answer-key pages. Print or Save as PDF from the browser.
 
 Both pages share **`engine.js`** (the puzzle engine, logic only) and **`strings.js`** (every
-user-facing text in Polish, English, Ukrainian, Vietnamese and French: cipher descriptions, hints,
+user-facing text in Polish, English, Ukrainian, Vietnamese, French, Italian and Spanish: cipher descriptions, hints,
 explanations, "why not" notes, and the UI of both pages). The language helper is `../i18n.js`.
 
 There are **two language choices**: the dropdown in the header sets the language of the game
 texts (hints, explanations, guide), and a second dropdown ("Message language") sets the
 language of the secret messages and their alphabet. The message language follows the text
 language until you pick one explicitly; the choice is remembered (localStorage
-`cipherDetective.msgLang`) and can be forced with `?msg=pl|en|uk|vi|fr`. Texts that name letters
+`cipherDetective.msgLang`) and can be forced with `?msg=pl|en|uk|vi|fr|it|es`. Texts that name letters
 or counts (ROT13 vs ROT16, A ↔ Z vs A ↔ Ż) are computed from the message alphabet, so any
 combination works, e.g. Ukrainian explanations for a Polish message.
 
@@ -33,6 +33,8 @@ Each language has its **own alphabet, message bank and key words**:
 | Ukrainian | А Б В Г Ґ … Ю Я | 33 | ROT16 | 5, 7, 2, 4 |
 | Vietnamese | A Ă Â B … X Y (base letters, no tone marks) | 29 | ROT14 | 3, 5, 7, 11 |
 | French | A–Z (messages without accents or apostrophes: É → E) | 26 | ROT13 | 3, 5, 7, 11 |
+| Italian | A B C D E F G H I L M N O P Q R S T U V Z (school alphabet, no J K W X Y; messages without accents or elisions: VENERDÌ → VENERDI, no È) | 21 | ROT10 | 5, 11, 2, 4 |
+| Spanish | A–N, Ñ, O–Z (Ñ is a letter after N; messages without accents, ¿ ¡ — but with Ñ: MAÑANA) | 27 | ROT13 | 5, 7, 11, 2 |
 
 Letters are numbered 0 … n−1 in alphabet order; Caesar shifts are 1 … n−1 except the half-turn (that one is ROT13's) — in "What shift?" the half-turn is allowed too, and the easy level uses shifts 3–9 (`EASY_SHIFTS`);
 Atbash mirrors the alphabet (first ↔ last); Affine uses `a` coprime with n. An **alphabet strip**
@@ -113,7 +115,7 @@ The same puzzle JSON (with `hint2`) is shown under "Puzzle JSON" after each answ
 
 Tests (reference vectors incl. the spec's Caesar example and textbook Vigenère/Beaufort/Affine
 results, round trips of every cipher × parameter × message, generator fuzzing through
-`validatePuzzle`, worksheet determinism, and text completeness in all five languages):
+`validatePuzzle`, worksheet determinism, and text completeness in all seven languages):
 
 ```bash
 node engine.test.js

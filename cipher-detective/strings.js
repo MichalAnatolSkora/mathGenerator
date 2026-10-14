@@ -1,5 +1,5 @@
 /**
- * Cipher Detective — all user-facing text, in five languages (pl, en, uk, vi, fr).
+ * Cipher Detective — all user-facing text, in seven languages (pl, en, uk, vi, fr, it, es).
  * Classic script loaded after engine.js; registers one dictionary per language in ENGINE.TEXT.
  *
  * Each dictionary: { levels, guide, ciphers, whyNot, params, game, sheet }.
@@ -9,7 +9,7 @@
  * ({ n, half, letters, idx(ch), at(i) }): cipher name/blurb/how/spot, hints(params, ex, A),
  * explain(params, ex, A), game.magnote(A), game.guideSteps(A), sheet.instrSteps(A),
  * sheet.checklist(A). `ex` is the first letter pair of the puzzle { p, c, pn, cn }.
- * Alphabets: en 26 letters (half 13) · pl 32 (16) · uk 33 (16) · vi 29 (14) · fr 26 (13).
+ * Alphabets: en 26 letters (half 13) · pl 32 (16) · uk 33 (16) · vi 29 (14) · fr 26 (13) · it 21 (10) · es 27 (13).
  */
 (function (E) {
   const T = E.TEXT;
@@ -949,6 +949,375 @@
       keySubShift: (level, n) => `${level} · ${frN(n, 'affaire', 'affaires')} · le décalage et le message`,
     },
   });
+
+  /** Italian / Spanish plural: only 1 is singular ("1 passo", "0 passi"; "1 paso", "0 pasos"). */
+  const n1 = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  /* ======================================================================== IT */
+  const passi = n => n1(n, 'passo', 'passi');
+  T.it = {
+    levels: { easy: 'Facile', hard: 'Difficile' },
+    guide: { sample: 'CIAO SPIA', key: 'SOLE' },
+    ciphers: {
+      caesar: {
+        name: 'Cesare', full: 'il cifrario di Cesare',
+        blurb: 'Ogni lettera avanza dello stesso numero di passi.',
+        how: A => `Scegli un numero (lo spostamento). Fai avanzare ogni lettera di quel numero di passi nell’alfabeto. Dopo ${last(A)} si ricomincia da ${L(A, 0)}.`,
+        spot: A => `Tutti i numeri dei passi sono uguali — ma non ${A.half} (${A.half} è il ${rot(A)}).`,
+        hints: ({ shift }, ex) => [
+          'Guarda la prima lettera. Conta di quanti passi è avanzata nell’alfabeto. Ora controlla la lettera dopo: è lo stesso numero?',
+          `Ogni lettera è avanzata esattamente di ${passi(shift)}. ${ex.p} è diventata ${ex.c}.`],
+        explain: ({ shift }, ex) => `Era il cifrario di Cesare con spostamento ${shift}, quindi ${ex.p} è diventata ${ex.c}. Tutte le lettere sono avanzate di ${passi(shift)}.`,
+      },
+      rot13: {
+        name: A => rot(A), full: A => rot(A),
+        blurb: A => `Ogni lettera avanza di ${A.half} passi — ${even(A) ? '' : 'quasi '}metà alfabeto.`,
+        how: A => `Un cifrario di Cesare con spostamento esattamente ${A.half}. ${even(A) ? `Dato che ${A.half} è la metà di ${A.n}, se lo fai due volte ogni lettera torna al suo posto.` : `È circa la metà delle ${A.n} lettere.`}`,
+        spot: A => `Ogni numero di passi è ${A.half}. ${rotPair(A)}.`,
+        hints: (_, ex, A) => [
+          'Ogni lettera è avanzata dello stesso numero di passi. È un salto grande — circa metà alfabeto?',
+          `Ogni lettera è avanzata di ${A.half} passi, ${even(A) ? 'esattamente' : 'quasi'} metà alfabeto. ${ex.p} è diventata ${ex.c}.${even(A) ? ` Avanza di altri ${A.half} e torni all’inizio!` : ''}`],
+        explain: (_, ex, A) => `Era il ${rot(A)}: ogni lettera è avanzata di ${A.half} passi, ${even(A) ? '' : 'quasi '}metà alfabeto, quindi ${ex.p} è diventata ${ex.c}.${even(A) ? ' Se lo fai due volte, la lettera torna com’era.' : ''}`,
+      },
+      atbash: {
+        name: 'Atbash', full: 'il cifrario Atbash',
+        blurb: A => `L’alfabeto è capovolto: ${mir(A, 0)}, ${mir(A, 1)}.`,
+        how: A => `Scrivi l’alfabeto in ordine e, sotto, al contrario. Ogni lettera diventa quella che sta sotto: ${mir3(A)}.`,
+        spot: A => `I numeri dei passi sono diversi, ma la lettera e la sua lettera in codice sono come allo specchio: la 1ª lettera (${L(A, 0)}) diventa l’ultima (${last(A)}), la 2ª (${L(A, 1)}) la penultima (${last(A, 1)}).`,
+        hints: (_, ex, A) => [
+          `Prova a leggere l’alfabeto al contrario. In cosa si trasformerebbe ${L(A, 0)}?`,
+          `L’alfabeto è riflesso come in uno specchio: ${mir3(A)}. Qui ${ex.p} è diventata ${ex.c}.`],
+        explain: (_, ex, A) => `Era il cifrario Atbash: l’alfabeto è capovolto, quindi ${mir(A, 0)} e ${mir(A, 1)}. Qui ${ex.p} è diventata ${ex.c}.`,
+      },
+      vigenere: {
+        name: 'Vigenère', full: 'il cifrario di Vigenère',
+        blurb: 'Una parola chiave dà a ogni lettera il suo spostamento, che si ripete.',
+        how: A => `Scegli una parola chiave. Le sue lettere sono spostamenti (${numbering(A)}). La 1ª lettera del messaggio avanza della 1ª lettera della chiave, la 2ª della 2ª, e la chiave si ripete.`,
+        spot: 'I numeri dei passi si ripetono in un ciclo breve di 3 o 4.',
+        hints: ({ key }, ex, A) => [
+          'I passi cambiano da una lettera all’altra. Ma guarda bene: dopo un po’ si ripetono uguali?',
+          `I passi si ripetono ogni ${[...key].length} lettere: ${nums(key, A)}. È la parola chiave ${key} aggiunta al messaggio.`],
+        explain: ({ key }, ex, A) => `Era il cifrario di Vigenère con la parola chiave ${key}. Ogni lettera avanza della sua lettera della chiave: ${ex.p} + ${k0(key)} (${passi(A.idx(k0(key)))}) → ${ex.c}. La chiave si ripete ogni ${[...key].length} lettere.`,
+      },
+      affine: {
+        name: 'Affine', full: 'il cifrario affine',
+        blurb: 'Il numero di ogni lettera viene moltiplicato e poi spostato.',
+        how: A => `Trasforma la lettera in un numero (${range(A)}). Moltiplica per a, aggiungi b e, se superi ${A.n - 1}, ricomincia il giro da 0. Ritrasforma il numero in una lettera.`,
+        spot: 'La stessa lettera diventa sempre la stessa lettera in codice, ma i numeri dei passi saltano qua e là, senza ciclo e senza specchio.',
+        hints: ({ a, b }, ex, A) => [
+          'La stessa lettera diventa sempre la stessa lettera in codice — ma i passi saltano qua e là, senza ciclo.',
+          `Il numero di ogni lettera (${range(A)}) è stato moltiplicato per ${a}, poi è stato aggiunto ${b}.`],
+        explain: ({ a, b }, ex, A) => `Era il cifrario affine: il numero di ogni lettera è stato moltiplicato per ${a}, poi è stato aggiunto ${b}. ${ex.p} vale ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}, facendo il giro di ${A.n} → ${mod(a * ex.pn + b, A.n)}, cioè ${ex.c}.`,
+      },
+      beaufort: {
+        name: 'Beaufort', full: 'il cifrario di Beaufort',
+        blurb: 'Una parola chiave, ma si conta all’indietro dalla lettera della chiave.',
+        how: A => `Scegli una parola chiave. Per ogni lettera del messaggio, parti dalla lettera della chiave e torna indietro del numero della lettera del messaggio (${L(A, 0)}=0, ${L(A, 1)}=1 …). La chiave si ripete.`,
+        spot: 'La stessa lettera può diventare lettere in codice diverse, e i numeri dei passi non si ripetono in un ciclo.',
+        hints: ({ key }) => [
+          'Qui c’è una parola chiave — ma si conta all’indietro dalla chiave, non in avanti.',
+          `La parola chiave è ${key}. Ogni lettera in codice = lettera della chiave − lettera del messaggio (conta all’indietro, facendo il giro).`],
+        explain: ({ key }, ex, A) => `Era il cifrario di Beaufort con la parola chiave ${key}. Si conta all’indietro dalla lettera della chiave: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, cioè ${ex.c}.`,
+      },
+    },
+    whyNot: {
+      closeRot13: half => `Quasi! ROT${half} è un cifrario di Cesare speciale che avanza esattamente di ${half} passi — in questo gioco conta come un cifrario a parte.`,
+      closeCaesar: (s, half) => `Quasi! Ogni lettera è davvero avanzata dello stesso numero di passi — ma di ${s}, non di ${half}.`,
+      stepsDiffer: (g, a, b) => `Non era ${g}: i passi non sono tutti uguali. ${a.p}→${a.c}: ${passi(a.s)}, ma ${b.p}→${b.c}: ${passi(b.s)}.`,
+      notMirror: (p, m, c) => `Non era il cifrario Atbash: con Atbash ${p} diventerebbe ${m}, ma qui è diventata ${c}.`,
+      sameLetterDiff: (g, p, c1, c2) => `Non era ${g}: la stessa lettera ${p} una volta è diventata ${c1} e un’altra volta ${c2}. Succede solo con una parola chiave.`,
+      sameShift: (g, s, affine) => `Non era ${g}: ogni lettera è avanzata allo stesso modo, di ${passi(s)}. ${affine ? 'Nel cifrario affine i passi saltano qua e là.' : 'Una parola chiave farebbe cambiare i passi.'}`,
+      mirrored: g => `Non era ${g}: ogni lettera e la sua lettera in codice sono come allo specchio (1ª ↔ ultima lettera dell’alfabeto). È lo schema di Atbash.`,
+      monoClue: 'Indizio: qui ogni lettera è sempre diventata la stessa lettera in codice — segno che non c’era una parola chiave che cambia.',
+      cycle: (n, ns) => `Non era il cifrario di Beaufort: i passi si ripetono in un ciclo di ${n} (${ns}). È una parola chiave aggiunta in avanti — Vigenère.`,
+      noCycle: 'Non era il cifrario di Vigenère: i passi non si ripetono in un ciclo. Con una parola chiave aggiunta in avanti si ripeterebbero.',
+      keyFallback: (g, key) => `Non era ${g}: questo codice usava la parola chiave ${key}, quindi i passi seguono la chiave.`,
+    },
+    params: { shift: s => `spostamento ${s}`, key: k => `chiave ${k}`, affine: (a, b) => `a = ${a}, b = ${b}` },
+    crack: {   // modalità «Quale spostamento?»: il cifrario è Cesare, si vede solo il codice
+      hints: (s, ex, w) => [
+        `Guarda la parola in codice più corta: ${w}. Quale parolina potrebbe nascondersi lì? Prova spostamenti diversi finché diventa una parola vera.`,
+        `Il messaggio comincia con ${ex.p}, e in codice è ${ex.c}. Conta i passi da ${ex.p} a ${ex.c} nell’alfabeto.`],
+      explain: (s, ex) => `Lo spostamento era ${s}: ogni lettera è avanzata di ${passi(s)}, quindi ${ex.p} è diventata ${ex.c}. Per leggere il messaggio, riporta indietro ogni lettera in codice di ${passi(s)}.`,
+    },
+    game: {
+      allPuzzles: '🧩 Tutti i rompicapi', printWorksheet: '🖨️ Schede da stampare',
+      starsTitle: 'Stelle in totale', streakTitle: 'Serie attuale',
+      msgLang: 'Lingua del messaggio:',
+      caseTitle: n => `Caso n. ${n}`,
+      lead: 'Una spia ha mandato questo messaggio in codice. Confronta il messaggio con il codice e scopri quale cifrario è stato usato.',
+      legendMessage: 'Messaggio', legendCode: 'In codice', legendMag: '🔍 Passi di ogni lettera',
+      magnote: A => `I numeri mostrano di quanti passi è avanzata ogni lettera (${L(A, 0)}→${L(A, 1)} è 1; dopo ${last(A)} si ricomincia da ${L(A, 0)}).`,
+      hintBtn: n => `💡 Indizio (ancora ${n})`, noHints: '💡 Niente più indizi', magnifier: '🔍 Lente', guide: '📖 Guida ai cifrari',
+      alphabet: '🔤 Alfabeto', alphaNote: 'Tocca una lettera del messaggio per vedere il suo salto sull’alfabeto.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${passi(s)} in avanti`,
+      hintLabel: i => `💡 Indizio ${i}:`,
+      whichCipher: 'Quale cifrario è stato usato?',
+      correct: (full, cheer) => `🎉 Esatto! Era ${full}. ${cheer}`,
+      cheers: ['Ottimo lavoro da detective!', 'Codice decifrato!', 'Fantastico!', 'Caso chiuso!', 'Che occhio!', 'Agente segreto da medaglia!'],
+      notThisTime: full => `Non questa volta — era ${full}.`,
+      keepGoing: 'Non mollare — il prossimo caso è un nuovo inizio!',
+      jsonSummary: 'JSON dell’enigma (per adulti e programmatori)',
+      next: 'Caso successivo ➜',
+      stats: (solved, played, stars, best) => `🗂️ Casi risolti: ${solved} su ${played} · ⭐ Stelle: ${stars} · 🔥 Serie migliore: ${best}`,
+      reset: 'Azzera i progressi', resetConfirm: 'Azzerare tutte le stelle e le serie?',
+      guideTitle: '📖 Guida ai cifrari', guideClose: 'Chiudi la guida',
+      guideSteps: A => [
+        'Accendi la <b>🔍 Lente</b> per vedere di quanti passi è avanzata ogni lettera.',
+        `<b>Tutti i passi sono uguali?</b> Sì → <b>Cesare</b> (o <b>${rot(A)}</b> se sono tutti ${A.half}).`,
+        `<b>Le lettere sono allo specchio?</b> ${mir3(A)} → <b>Atbash</b>.`,
+        '<b>I passi si ripetono in un ciclo</b> di 3 o 4? → <b>Vigenère</b>.',
+        '<b>La stessa lettera diventa sempre la stessa lettera in codice</b>, ma i passi saltano qua e là? → <b>Affine</b>.',
+        '<b>Stessa lettera, lettere in codice diverse e nessun ciclo?</b> → <b>Beaufort</b>.'],
+      letterNumbers: 'Numeri delle lettere:', howToSpot: 'Come riconoscerlo: ',
+      modeLabel: 'Modalità di gioco', modeWhich: '🔎 Quale cifrario?', modeShift: '🔓 Quale spostamento?',
+      leadShift: level => `La spia ha usato il cifrario di Cesare, ma non sai lo spostamento — di quanti passi è avanzata ogni lettera. Trovalo e leggi il messaggio! ${level === 'hard' ? 'Livello difficile: il messaggio compare solo quando indovini. Usa la ruota: cerca la lettera in codice nella riga in alto e leggi la lettera sotto.' : `Al livello facile lo spostamento è tra ${easyLo} e ${easyHi}. Gira la ruota finché compaiono parole vere.`}`,
+      legendGuess: 'Il tuo tentativo',
+      whatShift: 'Qual era lo spostamento?',
+      shiftLabel: 'Spostamento', shiftDown: 'Spostamento più piccolo', shiftUp: 'Spostamento più grande',
+      wheelNote: 'In alto: la lettera in codice. In basso: la lettera del messaggio con questo spostamento.',
+      check: '🔓 Controlla',
+      triesLeft: n => `Tentativi rimasti: ${n}`,
+      wrongTry: (s, word) => `Non ancora — con spostamento ${s} la prima parola diventa ${word}. Prova con un altro!`,
+      shiftCorrect: (s, cheer) => `🎉 Esatto! Lo spostamento era ${s}. ${cheer}`,
+      shiftLost: s => `Non questa volta — lo spostamento era ${s}.`,
+      crackSteps: A => [
+        `Il cifrario di Cesare fa avanzare ogni lettera dello stesso numero di passi. Ci sono solo ${A.n - 1} spostamenti possibili — puoi provarli tutti!`,
+        'Gira la ruota (− / +) e leggi il codice con ogni spostamento. Riga in alto: lettera in codice; riga in basso: lettera del messaggio.',
+        'Comincia da una parola corta — di una, due o tre lettere. Le parole vere così corte sono poche.',
+        'Quando le parole cominciano ad avere senso, premi <b>🔓 Controlla</b>.',
+        `Non sai come andare avanti? Se indovini una lettera del messaggio, conta i passi fino alla sua lettera in codice (dopo ${last(A)} si ricomincia da ${L(A, 0)}).`],
+    },
+    sheet: {
+      appTitle: '🕵️ Detective dei cifrari — schede da stampare',
+      appSub: 'Schede A4 create da un seme: un messaggio e il suo codice segreto, segna il cifrario usato — oppure trova lo spostamento di un cifrario di Cesare. Pagine di guida e soluzioni a scelta.',
+      allPuzzles: '🧩 Tutti i rompicapi', playOnline: '🎮 Gioca online',
+      seed: 'Seme', seedHint: 'Stesso seme + stesso livello ⇒ scheda identica.', randomSeed: 'Seme casuale',
+      level: 'Livello', easyN: 'Facile · 3 cifrari', hardN: 'Difficile · 6 cifrari',
+      msgLang: 'Lingua del messaggio', msgLangHint: 'L’alfabeto e i messaggi segreti in questa lingua; i testi seguono la lingua scelta in alto.',
+      cases: 'Casi', casesHint: 'Circa 6 stanno su una pagina; gli altri passano alle pagine successive.',
+      options: 'Opzioni', optSteps: 'Caselle per contare lo spostamento', optHints: 'Indizi stampati capovolti in fondo alla pagina',
+      optGuide: 'Pagina con la guida del detective', optKey: 'Pagina delle soluzioni',
+      optAlpha: 'Striscia dell’alfabeto per contare (aiuto per i più piccoli)',
+      newWorksheet: 'Nuova scheda', print: 'Stampa / Salva PDF',
+      casesCount: n => n1(n, 'caso', 'casi'), pagesCount: n => n1(n, 'pagina', 'pagine'),
+      partSheet: 'scheda', partGuide: 'guida', partKey: 'soluzioni',
+      genError: 'Impossibile creare la scheda: ',
+      sheetTitle: '🕵️ Detective dei cifrari',
+      sheetSub: (level, n) => `${level} · ${n1(n, 'caso', 'casi')} · quale cifrario ha usato la spia?`,
+      seedLabel: 'seme:', name: 'Nome:', date: 'Data:',
+      instr: 'Ogni messaggio è in codice segreto. Confronta il messaggio (in bianco) con il suo codice (in grigio), scopri quale cifrario ha usato la spia e segna la casella.',
+      instrSteps: A => ` Conta di quanti passi è avanzata ogni lettera (${L(A, 0)}→${L(A, 1)} è 1; dopo ${last(A)} si ricomincia da ${L(A, 0)}) e scrivilo nelle caselline.`,
+      caseN: i => `Caso ${i}`, hintsFlip: 'Indizi (capovolgi il foglio)',
+      guideTitle: '📖 Guida del detective', guideSub: level => `${level} · come distinguere i cifrari`,
+      checklist: A => [
+        `Conta di quanti passi è avanzata ogni lettera nell’alfabeto (${L(A, 0)}→${L(A, 1)} è 1; dopo ${last(A)} si ricomincia da ${L(A, 0)}) e scrivilo sotto la lettera in codice.`,
+        `<b>Tutti i passi sono uguali?</b> Sì → <b>Cesare</b>. Se sono tutti ${A.half} → <b>${rot(A)}</b>.`,
+        `<b>Le lettere sono allo specchio?</b> ${mir3(A)} (numero della lettera + numero in codice = ${A.n - 1}) → <b>Atbash</b>.`,
+        '<b>I passi si ripetono in un ciclo</b> di 3 o 4? → <b>Vigenère</b>.',
+        '<b>La stessa lettera diventa sempre la stessa lettera in codice</b>, ma i passi saltano senza ciclo? → <b>Affine</b>.',
+        '<b>Stessa lettera, lettere in codice diverse e nessun ciclo?</b> → <b>Beaufort</b>.'],
+      keyTitle: '🔑 Soluzioni', keySub: (level, n) => `${level} · ${n1(n, 'caso', 'casi')} · i numeri mostrano di quanti passi è avanzata ogni lettera`,
+      howToSpot: 'Come riconoscerlo:',
+      // schede «Quale spostamento?»
+      taskType: 'Tipo di esercizio', modeWhich: '🔎 Quale cifrario?', modeShift: '🔓 Quale spostamento?',
+      easyShift: 'Facile · con la prima lettera', hardShift: 'Difficile · senza lettere',
+      sheetSubShift: (level, n) => `${level} · ${n1(n, 'caso', 'casi')} · cifrario di Cesare: di quanto ha spostato le lettere la spia?`,
+      instrShift: level => `Ogni messaggio è scritto con il cifrario di Cesare, ma lo spostamento è segreto. Trova lo spostamento, scrivilo nel riquadro e scrivi il messaggio nelle caselle bianche sotto il codice.${level === 'easy' ? ` La prima lettera di ogni messaggio è già scritta. Al livello facile lo spostamento è tra ${easyLo} e ${easyHi}.` : ''}`,
+      shiftBox: 'Spostamento:',
+      checklistShift: A => [
+        `Il cifrario di Cesare fa avanzare ogni lettera dello stesso numero di passi (dopo ${last(A)} si ricomincia da ${L(A, 0)}). Ci sono solo ${A.n - 1} spostamenti possibili.`,
+        'Conosci una lettera del messaggio? Conta i passi da quella lettera alla sua lettera in codice: è lo spostamento.',
+        'Nessuna lettera data? Comincia dalla parola in codice più corta e prova gli spostamenti finché diventa una parola vera.',
+        'Per decifrare, fai tornare indietro ogni lettera in codice dello stesso numero di passi.',
+        'Controlla: tutto il messaggio deve avere senso.'],
+      guideSubShift: level => `${level} · come trovare lo spostamento del cifrario di Cesare`,
+      keySubShift: (level, n) => `${level} · ${n1(n, 'caso', 'casi')} · lo spostamento e il messaggio`,
+    },
+  };
+
+  /* ======================================================================== ES */
+  const pasos = n => n1(n, 'paso', 'pasos');
+  T.es = {
+    levels: { easy: 'Fácil', hard: 'Difícil' },
+    guide: { sample: 'HOLA ESPIA', key: 'GATO' },
+    ciphers: {
+      caesar: {
+        name: 'César', full: 'el cifrado César',
+        blurb: 'Cada letra avanza el mismo número de pasos.',
+        how: A => `Elige un número (el desplazamiento). Haz avanzar cada letra ese número de pasos en el alfabeto. Después de ${last(A)}, se vuelve a empezar por ${L(A, 0)}.`,
+        spot: A => `Todos los números de pasos son iguales, pero no ${A.half} (${A.half} es ${rot(A)}).`,
+        hints: ({ shift }, ex) => [
+          'Mira la primera letra. Cuenta cuántos pasos ha avanzado en el alfabeto. Ahora mira la siguiente: ¿es el mismo número?',
+          `Cada letra ha avanzado exactamente ${pasos(shift)}. ${ex.p} se convirtió en ${ex.c}.`],
+        explain: ({ shift }, ex) => `Era el cifrado César con un desplazamiento de ${shift}, así que ${ex.p} se convirtió en ${ex.c}. Todas las letras avanzaron ${pasos(shift)}.`,
+      },
+      rot13: {
+        name: A => rot(A), full: A => rot(A),
+        blurb: A => `Cada letra avanza ${A.half} pasos: ${even(A) ? '' : 'casi '}la mitad del alfabeto.`,
+        how: A => `Un cifrado César con un desplazamiento de exactamente ${A.half}. ${even(A) ? `Como ${A.half} es la mitad de ${A.n}, si lo haces dos veces, cada letra vuelve a su sitio.` : `Es más o menos la mitad de las ${A.n} letras.`}`,
+        spot: A => `Todos los números de pasos son ${A.half}. ${rotPair(A)}.`,
+        hints: (_, ex, A) => [
+          'Todas las letras han avanzado el mismo número de pasos. ¿Es un salto grande, de más o menos la mitad del alfabeto?',
+          `Cada letra ha avanzado ${A.half} pasos, ${even(A) ? 'exactamente' : 'casi'} la mitad del alfabeto. ${ex.p} se convirtió en ${ex.c}.${even(A) ? ` ¡Avanza otros ${A.half} y vuelves al principio!` : ''}`],
+        explain: (_, ex, A) => `Era ${rot(A)}: cada letra avanzó ${A.half} pasos, ${even(A) ? '' : 'casi '}la mitad del alfabeto, así que ${ex.p} se convirtió en ${ex.c}.${even(A) ? ' Si lo haces dos veces, la letra vuelve a su sitio.' : ''}`,
+      },
+      atbash: {
+        name: 'Atbash', full: 'el cifrado Atbash',
+        blurb: A => `El alfabeto está al revés: ${mir(A, 0)}, ${mir(A, 1)}.`,
+        how: A => `Escribe el alfabeto al derecho y, debajo, al revés. Cada letra se convierte en la que tiene debajo: ${mir3(A)}.`,
+        spot: A => `Los números de pasos son distintos, pero la letra y su letra cifrada son como en un espejo: la 1.ª letra (${L(A, 0)}) se convierte en la última (${last(A)}), la 2.ª (${L(A, 1)}) en la penúltima (${last(A, 1)}).`,
+        hints: (_, ex, A) => [
+          `Prueba a leer el alfabeto al revés. ¿En qué se convertiría la ${L(A, 0)}?`,
+          `El alfabeto está reflejado como en un espejo: ${mir3(A)}. Aquí ${ex.p} se convirtió en ${ex.c}.`],
+        explain: (_, ex, A) => `Era el cifrado Atbash: el alfabeto está al revés, así que ${mir(A, 0)} y ${mir(A, 1)}. Aquí ${ex.p} se convirtió en ${ex.c}.`,
+      },
+      vigenere: {
+        name: 'Vigenère', full: 'el cifrado de Vigenère',
+        blurb: 'Una palabra clave da a cada letra su propio desplazamiento, que se repite.',
+        how: A => `Elige una palabra clave. Sus letras son desplazamientos (${numbering(A)}). La 1.ª letra del mensaje avanza según la 1.ª letra de la clave, la 2.ª según la 2.ª, y la clave se repite.`,
+        spot: 'Los números de pasos se repiten en un ciclo corto de 3 o 4.',
+        hints: ({ key }, ex, A) => [
+          'Los pasos cambian de una letra a otra. Pero fíjate bien: ¿al cabo de un rato se repiten?',
+          `Los pasos se repiten cada ${[...key].length} letras: ${nums(key, A)}. Es la palabra clave ${key} sumada al mensaje.`],
+        explain: ({ key }, ex, A) => `Era el cifrado de Vigenère con la palabra clave ${key}. Cada letra avanza según su letra de la clave: ${ex.p} + ${k0(key)} (${pasos(A.idx(k0(key)))}) → ${ex.c}. La clave se repite cada ${[...key].length} letras.`,
+      },
+      affine: {
+        name: 'Afín', full: 'el cifrado afín',
+        blurb: 'El número de cada letra se multiplica y luego se desplaza.',
+        how: A => `Convierte la letra en un número (${range(A)}). Multiplica por a, suma b y, si pasas de ${A.n - 1}, vuelve a empezar desde 0. Convierte el número otra vez en letra.`,
+        spot: 'La misma letra se convierte siempre en la misma letra cifrada, pero los números de pasos saltan sin orden, sin ciclo y sin espejo.',
+        hints: ({ a, b }, ex, A) => [
+          'La misma letra se convierte siempre en la misma letra cifrada, pero los pasos saltan sin orden y sin ciclo.',
+          `El número de cada letra (${range(A)}) se multiplicó por ${a} y luego se le sumó ${b}.`],
+        explain: ({ a, b }, ex, A) => `Era el cifrado afín: el número de cada letra se multiplicó por ${a} y luego se le sumó ${b}. ${ex.p} es ${ex.pn}: ${a} × ${ex.pn} + ${b} = ${a * ex.pn + b}; dando la vuelta cada ${A.n} → ${mod(a * ex.pn + b, A.n)}, que es ${ex.c}.`,
+      },
+      beaufort: {
+        name: 'Beaufort', full: 'el cifrado de Beaufort',
+        blurb: 'Una palabra clave, pero se cuenta hacia atrás desde la letra de la clave.',
+        how: A => `Elige una palabra clave. Para cada letra del mensaje, empieza en la letra de la clave y cuenta hacia atrás tantos pasos como el número de la letra del mensaje (${L(A, 0)}=0, ${L(A, 1)}=1 …). La clave se repite.`,
+        spot: 'La misma letra puede convertirse en letras cifradas distintas, y los números de pasos no se repiten en un ciclo.',
+        hints: ({ key }) => [
+          'Aquí hay una palabra clave, pero se cuenta hacia atrás desde la clave, no hacia delante.',
+          `La palabra clave es ${key}. Cada letra cifrada = letra de la clave − letra del mensaje (cuenta hacia atrás, dando la vuelta).`],
+        explain: ({ key }, ex, A) => `Era el cifrado de Beaufort con la palabra clave ${key}. Se cuenta hacia atrás desde la letra de la clave: ${k0(key)} (${A.idx(k0(key))}) − ${ex.p} (${ex.pn}) = ${mod(A.idx(k0(key)) - ex.pn, A.n)}, que es ${ex.c}.`,
+      },
+    },
+    whyNot: {
+      closeRot13: half => `¡Casi! ROT${half} es un cifrado César especial que avanza exactamente ${half} pasos; en este juego cuenta como un cifrado aparte.`,
+      closeCaesar: (s, half) => `¡Casi! Todas las letras avanzaron el mismo número de pasos, pero fueron ${s}, no ${half}.`,
+      stepsDiffer: (g, a, b) => `No era ${g}: los pasos no son todos iguales. ${a.p}→${a.c}: ${pasos(a.s)}, pero ${b.p}→${b.c}: ${pasos(b.s)}.`,
+      notMirror: (p, m, c) => `No era el cifrado Atbash: con Atbash, ${p} se convertiría en ${m}, pero aquí se convirtió en ${c}.`,
+      sameLetterDiff: (g, p, c1, c2) => `No era ${g}: la misma letra ${p} se convirtió una vez en ${c1} y otra vez en ${c2}. Eso solo pasa con una palabra clave.`,
+      sameShift: (g, s, affine) => `No era ${g}: todas las letras avanzaron lo mismo: ${pasos(s)}. ${affine ? 'En el cifrado afín, los pasos saltan sin orden.' : 'Una palabra clave haría cambiar los pasos.'}`,
+      mirrored: g => `No era ${g}: cada letra y su letra cifrada son como en un espejo (1.ª ↔ última letra del alfabeto). Es el patrón del Atbash.`,
+      monoClue: 'Pista: aquí cada letra se convirtió siempre en la misma letra cifrada, señal de que no había una palabra clave que cambiara.',
+      cycle: (n, ns) => `No era el cifrado de Beaufort: los pasos se repiten en un ciclo de ${n} (${ns}). Es una palabra clave sumada hacia delante: Vigenère.`,
+      noCycle: 'No era el cifrado de Vigenère: los pasos no se repiten en un ciclo. Con una palabra clave sumada hacia delante, se repetirían.',
+      keyFallback: (g, key) => `No era ${g}: este código usaba la palabra clave ${key}, así que los pasos siguen la clave.`,
+    },
+    params: { shift: s => `desplazamiento ${s}`, key: k => `clave ${k}`, affine: (a, b) => `a = ${a}, b = ${b}` },
+    crack: {   // modo «¿Qué desplazamiento?»: el cifrado es César, solo se ve el código
+      hints: (s, ex, w) => [
+        `Mira la palabra cifrada más corta: ${w}. ¿Qué palabra corta podría esconderse ahí? Prueba distintos desplazamientos hasta que salga una palabra de verdad.`,
+        `El mensaje empieza por ${ex.p}, y en clave es ${ex.c}. Cuenta los pasos de ${ex.p} a ${ex.c} en el alfabeto.`],
+      explain: (s, ex) => `El desplazamiento era ${s}: cada letra avanzó ${pasos(s)}, así que ${ex.p} se convirtió en ${ex.c}. Para leer el mensaje, haz retroceder cada letra cifrada ${pasos(s)}.`,
+    },
+    game: {
+      allPuzzles: '🧩 Todos los acertijos', printWorksheet: '🖨️ Fichas para imprimir',
+      starsTitle: 'Estrellas en total', streakTitle: 'Racha actual',
+      msgLang: 'Idioma del mensaje:',
+      caseTitle: n => `Caso n.º ${n}`,
+      lead: 'Un espía ha enviado este mensaje en clave. Compara el mensaje con el código y descubre qué cifrado se ha usado.',
+      legendMessage: 'Mensaje', legendCode: 'En clave', legendMag: '🔍 Pasos de cada letra',
+      magnote: A => `Los números muestran cuántos pasos ha avanzado cada letra (${L(A, 0)}→${L(A, 1)} es 1; después de ${last(A)} se vuelve a ${L(A, 0)}).`,
+      hintBtn: n => `💡 Pista (quedan ${n})`, noHints: '💡 No quedan pistas', magnifier: '🔍 Lupa', guide: '📖 Guía de cifrados',
+      alphabet: '🔤 Alfabeto', alphaNote: 'Toca una letra del mensaje para ver su salto en el alfabeto.',
+      alphaJump: (p, c, s) => `${p} → ${c}: ${pasos(s)} hacia delante`,
+      hintLabel: i => `💡 Pista ${i}:`,
+      whichCipher: '¿Qué cifrado se ha usado?',
+      correct: (full, cheer) => `🎉 ¡Correcto! Era ${full}. ${cheer}`,
+      cheers: ['¡Gran trabajo de detective!', '¡Lo has descifrado!', '¡Genial!', '¡Caso cerrado!', '¡Qué vista!', '¡Agente secreto de primera!'],
+      notThisTime: full => `Esta vez no: era ${full}.`,
+      keepGoing: '¡No te rindas! El próximo caso es un nuevo comienzo.',
+      jsonSummary: 'JSON del acertijo (para adultos y programadores)',
+      next: 'Siguiente caso ➜',
+      stats: (solved, played, stars, best) => `🗂️ Casos resueltos: ${solved} de ${played} · ⭐ Estrellas: ${stars} · 🔥 Mejor racha: ${best}`,
+      reset: 'Borrar el progreso', resetConfirm: '¿Borrar todas las estrellas y rachas?',
+      guideTitle: '📖 Guía de cifrados', guideClose: 'Cerrar la guía',
+      guideSteps: A => [
+        'Enciende la <b>🔍 Lupa</b> para ver cuántos pasos ha avanzado cada letra.',
+        `<b>¿Todos los pasos son iguales?</b> Sí → <b>César</b> (o <b>${rot(A)}</b> si todos son ${A.half}).`,
+        `<b>¿Las letras están en espejo?</b> ${mir3(A)} → <b>Atbash</b>.`,
+        '<b>¿Los pasos se repiten en un ciclo</b> de 3 o 4? → <b>Vigenère</b>.',
+        '<b>¿La misma letra se convierte siempre en la misma letra cifrada</b>, pero los pasos saltan sin orden? → <b>Afín</b>.',
+        '<b>¿Misma letra, letras cifradas distintas y ningún ciclo?</b> → <b>Beaufort</b>.'],
+      letterNumbers: 'Números de las letras:', howToSpot: 'Cómo reconocerlo: ',
+      modeLabel: 'Modo de juego', modeWhich: '🔎 ¿Qué cifrado?', modeShift: '🔓 ¿Qué desplazamiento?',
+      leadShift: level => `El espía ha usado el cifrado César, pero no sabes el desplazamiento: cuántos pasos ha avanzado cada letra. ¡Encuéntralo y lee el mensaje! ${level === 'hard' ? 'Nivel difícil: el mensaje solo aparece cuando aciertas. Usa la rueda: busca la letra cifrada en la fila de arriba y lee la letra de debajo.' : `En el nivel fácil, el desplazamiento está entre ${easyLo} y ${easyHi}. Gira la rueda hasta que aparezcan palabras de verdad.`}`,
+      legendGuess: 'Tu intento',
+      whatShift: '¿Cuál era el desplazamiento?',
+      shiftLabel: 'Desplazamiento', shiftDown: 'Desplazamiento menor', shiftUp: 'Desplazamiento mayor',
+      wheelNote: 'Arriba: la letra cifrada. Abajo: la letra del mensaje con este desplazamiento.',
+      check: '🔓 Comprobar',
+      triesLeft: n => `Intentos restantes: ${n}`,
+      wrongTry: (s, word) => `Todavía no: con un desplazamiento de ${s}, la primera palabra es ${word}. ¡Prueba otro!`,
+      shiftCorrect: (s, cheer) => `🎉 ¡Correcto! El desplazamiento era ${s}. ${cheer}`,
+      shiftLost: s => `Esta vez no: el desplazamiento era ${s}.`,
+      crackSteps: A => [
+        `El cifrado César hace avanzar cada letra el mismo número de pasos. Solo hay ${A.n - 1} desplazamientos posibles: ¡puedes probarlos todos!`,
+        'Gira la rueda (− / +) y lee el código con cada desplazamiento. Fila de arriba: letra cifrada; fila de abajo: letra del mensaje.',
+        'Empieza por una palabra corta, de una, dos o tres letras. Hay pocas palabras de verdad tan cortas.',
+        'Cuando las palabras empiecen a tener sentido, pulsa <b>🔓 Comprobar</b>.',
+        `¿Te has atascado? Si adivinas una letra del mensaje, cuenta los pasos hasta su letra cifrada (después de ${last(A)} se vuelve a ${L(A, 0)}).`],
+    },
+    sheet: {
+      appTitle: '🕵️ Detective de cifrados — fichas para imprimir',
+      appSub: 'Fichas A4 creadas a partir de una semilla: un mensaje y su código secreto, marca el cifrado usado, o encuentra el desplazamiento de un cifrado César. Páginas de guía y soluciones opcionales.',
+      allPuzzles: '🧩 Todos los acertijos', playOnline: '🎮 Jugar en línea',
+      seed: 'Semilla', seedHint: 'Misma semilla + mismo nivel ⇒ ficha idéntica.', randomSeed: 'Semilla al azar',
+      level: 'Nivel', easyN: 'Fácil · 3 cifrados', hardN: 'Difícil · 6 cifrados',
+      msgLang: 'Idioma del mensaje', msgLangHint: 'El alfabeto y los mensajes secretos en este idioma; los textos siguen el idioma elegido arriba.',
+      cases: 'Casos', casesHint: 'Caben unos 6 en una página; el resto pasa a las páginas siguientes.',
+      options: 'Opciones', optSteps: 'Casillas para contar el desplazamiento', optHints: 'Pistas impresas del revés al pie de la página',
+      optGuide: 'Página con la guía del detective', optKey: 'Página de soluciones',
+      optAlpha: 'Tira del alfabeto para contar (ayuda para los más pequeños)',
+      newWorksheet: 'Nueva ficha', print: 'Imprimir / Guardar PDF',
+      casesCount: n => n1(n, 'caso', 'casos'), pagesCount: n => n1(n, 'página', 'páginas'),
+      partSheet: 'ficha', partGuide: 'guía', partKey: 'soluciones',
+      genError: 'No se ha podido crear la ficha: ',
+      sheetTitle: '🕵️ Detective de cifrados',
+      sheetSub: (level, n) => `${level} · ${n1(n, 'caso', 'casos')} · ¿qué cifrado ha usado el espía?`,
+      seedLabel: 'semilla:', name: 'Nombre:', date: 'Fecha:',
+      instr: 'Cada mensaje se ha enviado en clave secreta. Compara el mensaje (en blanco) con su código (en gris), descubre qué cifrado ha usado el espía y márcalo.',
+      instrSteps: A => ` Cuenta cuántos pasos ha avanzado cada letra (${L(A, 0)}→${L(A, 1)} es 1; después de ${last(A)} se vuelve a ${L(A, 0)}) y escríbelo en las casillas pequeñas.`,
+      caseN: i => `Caso ${i}`, hintsFlip: 'Pistas (dale la vuelta a la hoja)',
+      guideTitle: '📖 Guía del detective', guideSub: level => `${level} · cómo distinguir los cifrados`,
+      checklist: A => [
+        `Cuenta cuántos pasos ha avanzado cada letra en el alfabeto (${L(A, 0)}→${L(A, 1)} es 1; después de ${last(A)} se vuelve a ${L(A, 0)}) y escríbelo debajo de la letra cifrada.`,
+        `<b>¿Todos los pasos son iguales?</b> Sí → <b>César</b>. Si todos son ${A.half} → <b>${rot(A)}</b>.`,
+        `<b>¿Las letras están en espejo?</b> ${mir3(A)} (número de la letra + número cifrado = ${A.n - 1}) → <b>Atbash</b>.`,
+        '<b>¿Los pasos se repiten en un ciclo</b> de 3 o 4? → <b>Vigenère</b>.',
+        '<b>¿La misma letra se convierte siempre en la misma letra cifrada</b>, pero los pasos saltan sin ciclo? → <b>Afín</b>.',
+        '<b>¿Misma letra, letras cifradas distintas y ningún ciclo?</b> → <b>Beaufort</b>.'],
+      keyTitle: '🔑 Soluciones', keySub: (level, n) => `${level} · ${n1(n, 'caso', 'casos')} · los números muestran cuántos pasos ha avanzado cada letra`,
+      howToSpot: 'Cómo reconocerlo:',
+      // fichas «¿Qué desplazamiento?»
+      taskType: 'Tipo de ejercicio', modeWhich: '🔎 ¿Qué cifrado?', modeShift: '🔓 ¿Qué desplazamiento?',
+      easyShift: 'Fácil · con la primera letra', hardShift: 'Difícil · sin ninguna letra',
+      sheetSubShift: (level, n) => `${level} · ${n1(n, 'caso', 'casos')} · cifrado César: ¿cuánto ha desplazado las letras el espía?`,
+      instrShift: level => `Cada mensaje está escrito con el cifrado César, pero el desplazamiento es secreto. Encuéntralo, escríbelo en el recuadro y escribe el mensaje en las casillas blancas debajo del código.${level === 'easy' ? ` La primera letra de cada mensaje ya está escrita. En el nivel fácil, el desplazamiento está entre ${easyLo} y ${easyHi}.` : ''}`,
+      shiftBox: 'Desplazamiento:',
+      checklistShift: A => [
+        `El cifrado César hace avanzar cada letra el mismo número de pasos (después de ${last(A)} se vuelve a ${L(A, 0)}). Solo hay ${A.n - 1} desplazamientos posibles.`,
+        '¿Conoces una letra del mensaje? Cuenta los pasos desde ella hasta su letra cifrada: ese es el desplazamiento.',
+        '¿No tienes ninguna letra? Empieza por la palabra cifrada más corta y prueba desplazamientos hasta que salga una palabra de verdad.',
+        'Para descifrar, haz retroceder cada letra cifrada el mismo número de pasos.',
+        'Comprueba: todo el mensaje debe tener sentido.'],
+      guideSubShift: level => `${level} · cómo encontrar el desplazamiento del cifrado César`,
+      keySubShift: (level, n) => `${level} · ${n1(n, 'caso', 'casos')} · el desplazamiento y el mensaje`,
+    },
+  };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = T;
 })(typeof ENGINE !== 'undefined' ? ENGINE : require('./engine.js'));

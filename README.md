@@ -5,16 +5,17 @@ A small static site of logic and math puzzles for children. Every puzzle is a pl
 from any static server, and on GitHub Pages. Puzzles can be played online and/or printed as A4
 worksheets with answer keys.
 
-**Languages:** Polish (default), English, Ukrainian, Vietnamese, French. Every page has a language
-dropdown; the choice is remembered in the browser and follows the links between pages. A language can
-also be forced with `?lang=pl|en|uk|vi|fr`. The shared helper is [`i18n.js`](i18n.js); each page keeps its own
+**Languages:** Polish (default), English, Ukrainian, Vietnamese, French, Italian, Spanish. Every page
+has a language dropdown; the choice is remembered in the browser and follows the links between pages. A
+language can also be forced with `?lang=pl|en|uk|vi|fr|it|es`. The shared helper is [`i18n.js`](i18n.js); each page keeps its own
 dictionary of strings. Cipher Detective has a second choice, the **message language**: the alphabet
 and the secret messages (Polish letters incl. ą/ż, the Ukrainian Cyrillic alphabet, the Vietnamese
-alphabet, French without accents) can be in a different language than the game texts (`?msg=`).
+alphabet, French without accents, the 21-letter Italian alphabet, Spanish with Ñ) can be in a
+different language than the game texts (`?msg=`).
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | **Home page** — pick a puzzle, grouped by age: for little ones (5–8) on top, for bigger kids (8–12) below (five languages) |
+| [`index.html`](index.html) | **Home page** — pick a puzzle, grouped by age: for little ones (5–8) on top, for bigger kids (8–12) below (seven languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
@@ -43,6 +44,6 @@ then open <http://localhost:8123/>. Opening `index.html` directly from the file 
 ## Adding a puzzle
 
 Put it in its own folder with an `index.html`, load `../i18n.js` and give it a `<nav class="langs">`
-plus a dictionary for the five languages, add a home link back to `../index.html` (with
+plus a dictionary for the seven languages, add a home link back to `../index.html` (with
 `data-keep-lang`), and add a card with a screenshot (`assets/`) to the root `index.html`. On the home page the worksheet button is the
 main one (blue, first) and the screenshot links to the worksheet; "Play" comes second.

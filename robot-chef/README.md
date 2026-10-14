@@ -3,14 +3,15 @@
 A game and printable worksheets for ages 8–12. The robot chef cannot taste, so it counts. A dish is a
 list of portions, and a guest's **taste card** is a list of points (weights). Points = Σ portions ×
 weight. The guest likes the dish 😋 when the points reach a threshold, otherwise 🤢. That is one
-artificial neuron. Plain HTML + vanilla JS, no build step, five languages (pl/en/uk/vi/fr).
+artificial neuron. Plain HTML + vanilla JS, no build step, seven languages (pl/en/uk/vi/fr/it/es; the game is
+"Robot cuoco" in Italian and "Robot cocinero" in Spanish).
 
 | File | What it is |
 |---|---|
 | [`index.html`](index.html) | Online game: 7 chapters with tasks A/B(/C), a lesson box, a discovery after each chapter, and a finish page with a certificate |
 | [`worksheet.html`](worksheet.html) | Printable A4 sheets: one per chapter (or all 7), answer key pages, an optional teacher page (unplugged activity) |
 | [`engine.js`](engine.js) | Shared: ingredients, guests, seeded generators for every chapter, the perceptron, the taste map and network SVGs |
-| [`strings.js`](strings.js) | Texts in five languages (`common`, `game`, `sheet`) |
+| [`strings.js`](strings.js) | Texts in seven languages (`common`, `game`, `sheet`) |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
 
 ## Chapters

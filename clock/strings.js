@@ -1,5 +1,5 @@
 /**
- * Texts of the clock game and worksheet in five languages. Classic script; defines the global `CLOCK_TEXT`.
+ * Texts of the clock game and worksheet in seven languages (pl, en, uk, vi, fr, it, es). Classic script; defines the global `CLOCK_TEXT`.
  * `common` is shared by both pages, `game` belongs to index.html, `sheet` to worksheet.html.
  * Functions get plain values and return plain text (the pages escape it).
  */
@@ -7,6 +7,13 @@ const CLOCK_TEXT = (() => {
   // Plural forms. pl: 1 / 2–4 (not 12–14) / rest.  uk: like pl, but 21, 31… take the singular form.
   const plPl = (n, one, few, many) => n === 1 ? one : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? few : many;
   const ukPl = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11) ? one : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? few : many;
+  // it: the article before a number on the dial (il 3, l’1, l’8, l’11; sul 3, sull’8) and before a time (le 3:30, l’1:30).
+  const itIl = n => (n === 1 || n === 8 || n === 11 ? 'l’' : 'il ') + n;
+  const itSul = n => (n === 1 || n === 8 || n === 11 ? 'sull’' : 'sul ') + n;
+  const itLe = dig => (dig.startsWith('1:') ? 'l’' : 'le ') + dig;
+  // es: the article before a time (las 3:30, la 1:30).
+  const esLas = dig => (dig.startsWith('1:') ? 'la ' : 'las ') + dig;
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   // o = { h, nx, m, dig, words, per, dig24, h24, num } — h/nx: the hour and the next one (1–12), num: the number the long hand points at
   const T = {};
 
@@ -267,6 +274,110 @@ const CLOCK_TEXT = (() => {
       keyTitle: 'Corrigé', keySub: (lvl, n) => `${lvl} · ${n} ${n <= 1 ? 'horloge' : 'horloges'}`,
       summary: (n, p) => `${n} ${n <= 1 ? 'horloge' : 'horloges'} · ${p} ${p <= 1 ? 'page' : 'pages'}`,
       genError: 'Erreur : ',
+    },
+  };
+
+  T.it = {
+    common: {
+      brand: '🕐 Leggere l’orologio',
+      allPuzzles: '🧩 Tutti i rompicapi', printWorksheet: '🖨️ Scheda di esercizi', playOnline: '🎮 Gioca online',
+      level: 'Livello', levels: { hour: 'Ore in punto', half: 'Ore e mezz’ore', quarter: 'Quarti d’ora', five: 'Ogni 5 minuti', minute: 'Ogni minuto' },
+      periods: { night: '🌙 di notte', morning: '🌅 di mattina', afternoon: '☀️ di pomeriggio', evening: '🌆 di sera' },
+      optMinutes: 'Minuti sul quadrante (00, 05, 10…)', opt24: 'Orologio a 24 ore (es. 15:30)',
+      hourHand: 'lancetta corta — ore', minuteHand: 'lancetta lunga — minuti',
+    },
+    game: {
+      title: 'Leggere l’orologio — gioco',
+      modeLabel: 'Tipo di gioco', modeRead: '🔎 Che ore sono?', modeSet: '✋ Regola l’orologio',
+      settings: 'Impostazioni',
+      readQ: 'Che ore segna l’orologio?',
+      setQ: 'Regola l’orologio su quest’ora:',
+      setHelp: 'Trascina una lancetta con il dito o con il mouse. Puoi anche usare i pulsanti.',
+      hourMinus: '−1 ora', hourPlus: '+1 ora', minMinus: s => `−${s} min`, minPlus: s => `+${s} min`,
+      check: '✅ Controlla', next: 'Avanti ➜', show: '👀 Mostra la soluzione',
+      good: ['Ben fatto!', 'Ottimo!', 'Super!', 'Esatto!', 'Fantastico!'], bad: 'Purtroppo no.', shown: 'Ecco la soluzione.',
+      taskN: n => `Esercizio ${n}`,
+      explain: o => (o.m === 0
+        ? `La lancetta corta indica ${itIl(o.h)} e quella lunga è sul 12: è l’ora in punto.`
+        : `La lancetta corta è tra ${itIl(o.h)} e ${itIl(o.nx)}: contiamo ${itIl(o.h)}, perché l’ha già superato. La lancetta lunga indica ${o.m} ${o.m === 1 ? 'minuto' : 'minuti'}.`)
+        + ` L’orologio segna ${itLe(o.dig)}${o.words ? ` — ${o.words}` : ''}.` + (o.h24 ? ` È un orario ${o.per}: nel formato 24 ore si scrive ${o.dig24}.` : ''),
+      yourClock: dig => `Il tuo orologio segna ${itLe(dig)}.`,
+      fixMinute: o => o.m === 0 ? 'La lancetta lunga deve essere sul 12: è l’ora in punto.' : `La lancetta lunga deve indicare ${o.m} ${o.m === 1 ? 'minuto' : 'minuti'}${o.num ? `: deve essere ${itSul(o.num)}` : ''}.`,
+      fixHour: o => o.m === 0 ? `I minuti vanno bene, ma la lancetta corta deve indicare ${itIl(o.h)}.` : `I minuti vanno bene, ma la lancetta corta deve essere tra ${itIl(o.h)} e ${itIl(o.nx)}.`,
+      tryAgain: 'Correggi e controlla di nuovo.',
+      starsTitle: 'Stelle raccolte', streakTitle: 'Risposte giuste di fila',
+      stats: (ok, all, best) => `Giuste: ${ok} su ${all} · serie migliore: ${best}`,
+      reset: 'Azzera i punteggi', resetConfirm: 'Azzerare le stelle e i punteggi?',
+      clockLabel: dig => `L’orologio segna ${itLe(dig)}`, clockSetLabel: 'Orologio da regolare',
+    },
+    sheet: {
+      title: 'Leggere l’orologio — scheda di esercizi',
+      appTitle: '🕐 Leggere l’orologio — scheda di esercizi',
+      appSub: 'Schede A4 da stampare: leggi l’ora o disegna le lancette. Con le soluzioni.',
+      seed: 'Codice della scheda', seedHint: 'Stesso codice + stesse impostazioni ⇒ la stessa scheda.', randomSeed: 'Codice a caso',
+      task: 'Esercizio', tasks: { read: '🔎 Leggi l’ora', draw: '✏️ Disegna le lancette', mix: '🔀 Misto' },
+      count: 'Numero di orologi', options: 'Opzioni',
+      optWords: 'Ora in lettere per il disegno', optKey: 'Pagina delle soluzioni',
+      newWorksheet: 'Nuova scheda', print: 'Stampa / PDF',
+      sheetTitle: 'Che ore sono?', sheetSub: (lvl, n) => `${lvl} · ${n} ${n === 1 ? 'orologio' : 'orologi'}`,
+      instr: { read: 'Leggi l’ora su ogni orologio e scrivila nelle caselle.', draw: 'Disegna le lancette: una corta per le ore e una lunga per i minuti.', mix: 'Sotto un orologio con le lancette, scrivi l’ora. Su un orologio vuoto, disegna le lancette: una corta per le ore, una lunga per i minuti.' },
+      instr24: ' Il momento della giornata ti dice se è mattina o pomeriggio (le 3:30 di pomeriggio sono le 15:30).',
+      name: 'Nome: ____________________', date: 'Data: ____________________', seedLabel: 'Codice:',
+      keyTitle: 'Soluzioni', keySub: (lvl, n) => `${lvl} · ${n} ${n === 1 ? 'orologio' : 'orologi'}`,
+      summary: (n, p) => `${n} ${n === 1 ? 'orologio' : 'orologi'} · ${p} ${p === 1 ? 'pagina' : 'pagine'}`,
+      genError: 'Errore: ',
+    },
+  };
+
+  T.es = {
+    common: {
+      brand: '🕐 Leer la hora',
+      allPuzzles: '🧩 Todos los acertijos', printWorksheet: '🖨️ Ficha de ejercicios', playOnline: '🎮 Jugar en línea',
+      level: 'Nivel', levels: { hour: 'Horas en punto', half: 'Horas y medias', quarter: 'Cuartos de hora', five: 'Cada 5 minutos', minute: 'Cada minuto' },
+      periods: { night: '🌙 de noche', morning: '🌅 por la mañana', afternoon: '☀️ por la tarde', evening: '🌆 al atardecer' },
+      optMinutes: 'Minutos en la esfera (00, 05, 10…)', opt24: 'Reloj de 24 horas (p. ej., 15:30)',
+      hourHand: 'aguja corta — horas', minuteHand: 'aguja larga — minutos',
+    },
+    game: {
+      title: 'Leer la hora — juego',
+      modeLabel: 'Modo de juego', modeRead: '🔎 ¿Qué hora es?', modeSet: '✋ Ajusta el reloj',
+      settings: 'Ajustes',
+      readQ: '¿Qué hora marca el reloj?',
+      setQ: 'Ajusta el reloj a esta hora:',
+      setHelp: 'Arrastra una aguja con el dedo o con el ratón. También puedes usar los botones.',
+      hourMinus: '−1 hora', hourPlus: '+1 hora', minMinus: s => `−${s} min`, minPlus: s => `+${s} min`,
+      check: '✅ Comprobar', next: 'Siguiente ➜', show: '👀 Ver la solución',
+      good: ['¡Muy bien!', '¡Genial!', '¡Súper!', '¡Eso es!', '¡Excelente!'], bad: 'Esta vez no.', shown: 'Aquí tienes la solución.',
+      taskN: n => `Ejercicio ${n}`,
+      explain: o => (o.m === 0
+        ? `La aguja corta señala el ${o.h} y la larga está en el 12: es la hora en punto.`
+        : `La aguja corta está entre el ${o.h} y el ${o.nx}: contamos el ${o.h}, porque ya lo ha pasado. La aguja larga marca ${o.m} ${o.m === 1 ? 'minuto' : 'minutos'}.`)
+        + ` El reloj marca ${esLas(o.dig)}${o.words ? ` — ${o.words}` : ''}.` + (o.h24 ? ` ${cap(esLas(o.dig))} ${o.per} son las ${o.dig24} en el reloj de 24 horas.` : ''),
+      yourClock: dig => `Tu reloj marca ${esLas(dig)}.`,
+      fixMinute: o => o.m === 0 ? 'La aguja larga tiene que estar en el 12: es la hora en punto.' : `La aguja larga tiene que marcar ${o.m} ${o.m === 1 ? 'minuto' : 'minutos'}${o.num ? `: tiene que señalar el ${o.num}` : ''}.`,
+      fixHour: o => o.m === 0 ? `Los minutos están bien, pero la aguja corta tiene que señalar el ${o.h}.` : `Los minutos están bien, pero la aguja corta tiene que estar entre el ${o.h} y el ${o.nx}.`,
+      tryAgain: 'Corrígelo y vuelve a comprobarlo.',
+      starsTitle: 'Estrellas conseguidas', streakTitle: 'Respuestas correctas seguidas',
+      stats: (ok, all, best) => `Bien: ${ok} de ${all} · mejor racha: ${best}`,
+      reset: 'Borrar resultados', resetConfirm: '¿Borrar las estrellas y los resultados?',
+      clockLabel: dig => `El reloj marca ${esLas(dig)}`, clockSetLabel: 'Reloj para ajustar',
+    },
+    sheet: {
+      title: 'Leer la hora — ficha de ejercicios',
+      appTitle: '🕐 Leer la hora — ficha de ejercicios',
+      appSub: 'Fichas A4 para imprimir: lee la hora o dibuja las agujas. Con soluciones.',
+      seed: 'Código de la ficha', seedHint: 'Mismo código + mismos ajustes ⇒ la misma ficha.', randomSeed: 'Código al azar',
+      task: 'Ejercicio', tasks: { read: '🔎 Lee la hora', draw: '✏️ Dibuja las agujas', mix: '🔀 Mezclado' },
+      count: 'Número de relojes', options: 'Opciones',
+      optWords: 'Hora en palabras al dibujar', optKey: 'Página de soluciones',
+      newWorksheet: 'Nueva ficha', print: 'Imprimir / PDF',
+      sheetTitle: '¿Qué hora es?', sheetSub: (lvl, n) => `${lvl} · ${n} ${n === 1 ? 'reloj' : 'relojes'}`,
+      instr: { read: 'Lee la hora de cada reloj y escríbela en las casillas.', draw: 'Dibuja las agujas: una corta para las horas y una larga para los minutos.', mix: 'Debajo de un reloj con agujas, escribe la hora. En un reloj vacío, dibuja las agujas: una corta para las horas y una larga para los minutos.' },
+      instr24: ' El momento del día te dice si es por la mañana o por la tarde (las 3:30 de la tarde son las 15:30).',
+      name: 'Nombre: ____________________', date: 'Fecha: ____________________', seedLabel: 'Código:',
+      keyTitle: 'Soluciones', keySub: (lvl, n) => `${lvl} · ${n} ${n === 1 ? 'reloj' : 'relojes'}`,
+      summary: (n, p) => `${n} ${n === 1 ? 'reloj' : 'relojes'} · ${p} ${p === 1 ? 'página' : 'páginas'}`,
+      genError: 'Error: ',
     },
   };
 

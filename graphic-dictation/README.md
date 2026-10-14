@@ -1,14 +1,14 @@
 # Graphic Dictation (Dyktando graficzne)
 
 Drawing on squared paper by arrows: `3→ 2↑ 1↗ …` — at the end the line comes back to the start and a
-picture appears. Plain HTML + vanilla JS, no build step, five languages (pl/en/uk/vi/fr).
+picture appears. Plain HTML + vanilla JS, no build step, seven languages (pl/en/uk/vi/fr/it/es).
 
 | File | What it is |
 |---|---|
 | [`index.html`](index.html) | Online game |
 | [`worksheet.html`](worksheet.html) | Printable A4 worksheet + answer key |
 | [`engine.js`](engine.js) | Shared: the pictures, variants, the steps, sums/products, arrows, squared paper SVG |
-| [`strings.js`](strings.js) | Texts in five languages (`common`, `game`, `sheet`), picture names |
+| [`strings.js`](strings.js) | Texts in seven languages (`common`, `game`, `sheet`), picture names |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
 
 ## Pictures and levels

@@ -510,7 +510,7 @@
   }
 
   /* ---------- the answer key ---------- */
-  const shown = (x) => {   // the letters as sent, plus the normal spelling when it differs (vi, fr)
+  const shown = (x) => {   // the letters as sent, plus the normal spelling when it differs (vi, fr, it, es)
     const plain = String(x.orig).toUpperCase();
     return `<span class="kw">${esc(x.text)}</span>${plain !== x.text ? ` <span class="korig">(${esc(x.orig)})</span>` : ''}`;
   };
