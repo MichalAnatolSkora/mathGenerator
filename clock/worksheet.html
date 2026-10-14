@@ -173,8 +173,9 @@
   const C = () => UI[I18N.get()] || UI.en;
   const TASKS = ['read', 'draw', 'mix'];
   const COUNTS = [6, 9, 12, 16, 20];
-  /** Layout per number of clocks: columns, clock size and row gap, so one A4 page holds them all. */
-  const LAYOUT = { 6: { cols: 2, clock: 56, gap: 7 }, 9: { cols: 3, clock: 48, gap: 5 }, 12: { cols: 3, clock: 41, gap: 3 }, 16: { cols: 4, clock: 36, gap: 3 }, 20: { cols: 4, clock: 29, gap: 2 } };
+  /** Layout per number of clocks: columns, clock size and row gap, so one A4 page holds them all.
+   *  clock24: smaller clocks where the 24-hour option's time-of-day line under them would not fit otherwise. */
+  const LAYOUT = { 6: { cols: 2, clock: 56, gap: 7, clock24: 52 }, 9: { cols: 3, clock: 48, gap: 5 }, 12: { cols: 3, clock: 41, gap: 3, clock24: 37 }, 16: { cols: 4, clock: 36, gap: 3 }, 20: { cols: 4, clock: 29, gap: 2 } };
   let task = 'read', level = 'hour', count = 12;
 
   function randomSeed() {
@@ -220,7 +221,9 @@
   const gridStyle = L => `--cols:${L.cols};--clock:${L.clock}mm;--clockmax:${L.clock}mm;--gap:${L.gap}mm`;
 
   function renderSheet(items, s) {
-    const L = LAYOUT[s.count], lang = I18N.get();
+    const lang = I18N.get();
+    let L = LAYOUT[s.count];
+    if (s.h24 && s.task !== 'draw' && L.clock24) L = { ...L, clock: L.clock24 };
     const cells = items.map((it, i) => {
       const per = s.h24 && it.kind === 'read' ? `<div class="per">${esc(perLabel(it.t))}</div>` : '';
       if (it.kind === 'read') {

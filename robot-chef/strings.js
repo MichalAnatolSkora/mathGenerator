@@ -994,7 +994,7 @@ const CHEF_TEXT = (() => {
       bossCount: (k, n) => `Le chef est d’accord avec la princesse : ${k} sur ${n}`,
       bossOk: (a, b, t) => `Ça marche ! Le chef : \`🤖1×${a} + 🤖2×${b} ≥ ${t}\`.`,
       netWhy: 'Trois robots ensemble ont fait ce qu’un seul ne savait pas faire.',
-      chapterWord: 'CHAPITRE', lessonTitle: '💡 Comment ça marche', tasksLabel: 'Exercices', discTitle: '🔎 Découverte',
+      chapterWord: 'CHAP.', lessonTitle: '💡 Comment ça marche', tasksLabel: 'Exercices', discTitle: '🔎 Découverte',
       discs: [
         ['Le robot ne pense pas comme un humain — il **compte**. Il additionne des points et les compare à un seuil. C’est ainsi que fonctionne un **neurone artificiel** : la plus petite brique de l’intelligence artificielle.'],
         ['Portions × points, puis la somme : les mathématiciens appellent ça le **produit scalaire**. Une carte des goûts est une liste de nombres (un vecteur), et un plat aussi. Les ordinateurs calculent de telles sommes des milliards de fois par seconde.'],

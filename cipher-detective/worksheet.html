@@ -58,11 +58,11 @@
   .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:3px;}
   .namebox{flex:0 0 220px;border:1px solid #bbb;border-radius:6px;padding:6px 12px;font-size:12.5px;color:#555;line-height:2.1;}
   .instr{font-size:12px;color:#333;margin:0 0 8px;}
-  .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 14px;font-size:11.5px;color:#333;margin:0 0 4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;}
+  .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 14px;font-size:11.5px;line-height:1.35;color:#333;margin:0 0 4px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;}
   .alpha-row{display:grid;gap:0.6mm;margin:4px 0 6px;}
   .alpha-row span{border:0.3mm solid #999;border-radius:1mm;text-align:center;font:800 9.5px/1.15 ui-monospace,Menlo,Consolas,monospace;padding:1mm 0 0.6mm;}
   .alpha-row small{display:block;font-size:7.5px;font-weight:600;color:#666;}
-  .case{padding:6px 0 8px;border-top:1px dashed #bbb;break-inside:avoid;page-break-inside:avoid;}
+  .case{padding:4px 0 6px;border-top:1px dashed #bbb;break-inside:avoid;page-break-inside:avoid;}
   .case-top{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-bottom:4px;}
   .case-no{font-weight:800;font-size:14px;}
   .ticks{display:flex;gap:4px 12px;flex-wrap:wrap;font-size:11.5px;}
@@ -78,7 +78,7 @@
   .shiftbox{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;}
   .sbox{display:inline-flex;align-items:center;justify-content:center;width:12mm;height:7mm;border:0.4mm solid #222;border-radius:1mm;font:800 4mm/1 ui-monospace,Menlo,Consolas,monospace;}
   .r.plain .t.given{color:#555;}
-  .flip{transform:rotate(180deg);margin-top:14px;padding-top:6px;border-top:1px dashed #bbb;font-size:10.5px;color:#444;line-height:1.5;}
+  .flip{transform:rotate(180deg);margin-top:8px;padding-top:5px;border-top:1px dashed #bbb;font-size:10.5px;color:#444;line-height:1.4;}
   .flip b{margin-right:2px;}
   .muted{color:var(--muted);font-weight:400;}
 
@@ -121,6 +121,7 @@
     .sheetscroll{overflow:visible;}
     .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;max-width:none;}
     .sheet + .sheet{page-break-before:always;break-before:page;}
+    .case.fit .letters{--tile:var(--fit);}   /* a long message keeps to one row of tiles */
   }
 </style>
 </head>
@@ -290,6 +291,13 @@
       return `<div class="word"><div class="r code">${rc}</div><div class="r plain">${rp}</div></div>`;
     }).join('') + '</div>';
   }
+  /** Opening tag of a case on the sheet. A message too long for one row of tiles across the printed page
+   *  (186 mm, less a little slack; --tgap 0.8 mm, --wgap 3 mm) prints with smaller tiles instead of wrapping. */
+  function caseOpen(p) {
+    const words = p.plaintext.split(' '), n = words.reduce((a, w) => a + [...w].length, 0);
+    const tile = (185 - (words.length - 1) * 3 + words.length * 0.8) / n - 0.8;
+    return tile < 6.2 ? `<div class="case fit" style="--fit:${tile.toFixed(2)}mm">` : '<div class="case">';
+  }
   const shiftBoxHTML = value => `<span class="shiftbox">${esc(t('shiftBox'))} <span class="sbox">${value == null ? '' : esc(value)}</span></span>`;
 
   function headHTML(title, subtitle, seed, namebox) {
@@ -299,7 +307,7 @@
   function renderShiftWorksheet(W, s) {
     const A = AL(), tx = ENGINE.cipherInfo('caesar', lang(), A);
     const cases = W.cases.map((p, i) =>
-      `<div class="case"><div class="case-top"><span class="case-no">${esc(t('caseN', i + 1))}</span>${shiftBoxHTML()}</div>${shiftTilesHTML(p, s.level === 'easy' ? 'first' : 'none')}</div>`).join('');
+      `${caseOpen(p)}<div class="case-top"><span class="case-no">${esc(t('caseN', i + 1))}</span>${shiftBoxHTML()}</div>${shiftTilesHTML(p, s.level === 'easy' ? 'first' : 'none')}</div>`).join('');
     const hints = s.hints
       ? `<div class="flip"><b>${esc(t('hintsFlip'))}</b> — ${W.cases.map((p, i) => `<b>${i + 1}:</b> ${esc(ENGINE.shiftText(p, lang()).hints[0])}`).join(' ')}</div>`
       : '';
@@ -319,7 +327,7 @@
     const ticks = ids.map(id => `<span class="tick"><span class="cb"></span>${esc(CT[id].name)}</span>`).join('');
     const legend = ids.map(id => `<div><b>${ENGINE.CIPHERS[id].icon} ${esc(CT[id].name)}</b> — ${esc(CT[id].blurb)}</div>`).join('');
     const cases = W.cases.map((p, i) =>
-      `<div class="case"><div class="case-top"><span class="case-no">${esc(t('caseN', i + 1))}</span><span class="ticks">${ticks}</span></div>${tilesHTML(p, s.steps ? 'blank' : 'none')}</div>`).join('');
+      `${caseOpen(p)}<div class="case-top"><span class="case-no">${esc(t('caseN', i + 1))}</span><span class="ticks">${ticks}</span></div>${tilesHTML(p, s.steps ? 'blank' : 'none')}</div>`).join('');
     const hints = s.hints
       ? `<div class="flip"><b>${esc(t('hintsFlip'))}</b> — ${W.cases.map((p, i) => `<b>${i + 1}:</b> ${esc(ENGINE.puzzleText(p, lang()).hints[0])}`).join(' ')}</div>`
       : '';
