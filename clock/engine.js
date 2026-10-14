@@ -3,7 +3,7 @@
  * Classic script; defines the global `CLOCK` (also exported for Node: `node engine.test.js`).
  *
  * A time is { h, m } with h = 0..23 and m = 0..59. Without the 24-hour option only h = 1..12 is used.
- *   CLOCK.LEVELS                      → minute step per level (half → :00/:30, quarter → :15, five → 5 min, minute → 1 min)
+ *   CLOCK.LEVELS                      → minute step per level (hour → :00 only, half → :00/:30, quarter → :15, five → 5 min, minute → 1 min)
  *   CLOCK.rng(seed)                   → seeded random numbers 0..1 (same seed ⇒ same worksheet)
  *   CLOCK.randomTime(rnd, level, h24) → a time that fits the level
  *   CLOCK.digital(t, h24)             → "3:30" / "15:30"
@@ -13,7 +13,7 @@
  *   CLOCK.svg(opts)                   → the clock face as an SVG string
  */
 const CLOCK = (() => {
-  const LEVELS = { half: 30, quarter: 15, five: 5, minute: 1 };
+  const LEVELS = { hour: 60, half: 30, quarter: 15, five: 5, minute: 1 };
   const LEVEL_IDS = Object.keys(LEVELS);
 
   /** mulberry32 on a string hash: a small seeded generator. */

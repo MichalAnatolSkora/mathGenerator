@@ -35,6 +35,7 @@ for (const l of Object.keys(T)) for (let h = 0; h < 24; h++) for (let m = 0; m <
 eq('digital 12h', C.digital({ h: 15, m: 5 }, false), '3:05');
 eq('digital 24h', C.digital({ h: 15, m: 5 }, true), '15:05');
 eq('digital midnight 12h', C.digital({ h: 0, m: 30 }, false), '12:30');
+ok('hour level: only :00', C.randomTimes(C.rng('H'), 'hour', false, 12).every(x => x.m === 0));
 eq('periods', [0, 6, 12, 18, 22].map(h => C.period({ h, m: 0 })).join(','), 'night,morning,afternoon,evening,night');
 
 // generator: levels, uniqueness, determinism
@@ -44,7 +45,7 @@ for (const lvl of C.LEVEL_IDS) for (const h24 of [false, true]) {
   const rnd = C.rng(lvl + h24);
   const ts = C.randomTimes(rnd, lvl, h24, 20);
   ok(`${lvl} ${h24}: 20 times`, ts.length === 20);
-  ok(`${lvl} ${h24}: unique`, new Set(ts.map(x => x.h + ':' + x.m)).size === 20);
+  ok(`${lvl} ${h24}: unique`, new Set(ts.map(x => x.h + ':' + x.m)).size === Math.min(20, (60 / C.LEVELS[lvl]) * (h24 ? 24 : 12)));
   ok(`${lvl} ${h24}: fit level`, ts.every(x => x.m % C.LEVELS[lvl] === 0 && x.m < 60 && (h24 ? x.h >= 0 && x.h < 24 : x.h >= 1 && x.h <= 12)), JSON.stringify(ts));
   // distractors: 3, distinct, different from the answer and valid
   for (let i = 0; i < 300; i++) {

@@ -14,7 +14,7 @@ const CLOCK_TEXT = (() => {
     common: {
       brand: '🕐 Nauka zegara',
       allPuzzles: '🧩 Wszystkie zagadki', printWorksheet: '🖨️ Karta pracy', playOnline: '🎮 Graj online',
-      level: 'Poziom', levels: { half: 'Pełne i wpół', quarter: 'Kwadranse', five: 'Co 5 minut', minute: 'Co minutę' },
+      level: 'Poziom', levels: { hour: 'Pełne godziny', half: 'Pełne i wpół', quarter: 'Kwadranse', five: 'Co 5 minut', minute: 'Co minutę' },
       periods: { night: '🌙 w nocy', morning: '🌅 rano', afternoon: '☀️ po południu', evening: '🌆 wieczorem' },
       optMinutes: 'Minuty na tarczy (00, 05, 10…)', opt24: 'Zegar 24-godzinny (np. 15:30)',
       hourHand: 'krótka wskazówka — godziny', minuteHand: 'długa wskazówka — minuty',
@@ -66,7 +66,7 @@ const CLOCK_TEXT = (() => {
     common: {
       brand: '🕐 Tell the Time',
       allPuzzles: '🧩 All puzzles', printWorksheet: '🖨️ Worksheet', playOnline: '🎮 Play online',
-      level: 'Level', levels: { half: 'O’clock & half past', quarter: 'Quarters', five: 'Every 5 minutes', minute: 'Every minute' },
+      level: 'Level', levels: { hour: 'O’clock', half: 'O’clock & half past', quarter: 'Quarters', five: 'Every 5 minutes', minute: 'Every minute' },
       periods: { night: '🌙 at night', morning: '🌅 in the morning', afternoon: '☀️ in the afternoon', evening: '🌆 in the evening' },
       optMinutes: 'Minutes on the dial (00, 05, 10…)', opt24: '24-hour clock (e.g. 15:30)',
       hourHand: 'short hand — hours', minuteHand: 'long hand — minutes',
@@ -118,7 +118,7 @@ const CLOCK_TEXT = (() => {
     common: {
       brand: '🕐 Котра година?',
       allPuzzles: '🧩 Усі головоломки', printWorksheet: '🖨️ Робочий аркуш', playOnline: '🎮 Грати онлайн',
-      level: 'Рівень', levels: { half: 'Рівно і пів', quarter: 'Чверті', five: 'Кожні 5 хвилин', minute: 'Кожна хвилина' },
+      level: 'Рівень', levels: { hour: 'Повні години', half: 'Рівно і пів', quarter: 'Чверті', five: 'Кожні 5 хвилин', minute: 'Кожна хвилина' },
       periods: { night: '🌙 уночі', morning: '🌅 уранці', afternoon: '☀️ удень', evening: '🌆 увечері' },
       optMinutes: 'Хвилини на циферблаті (00, 05, 10…)', opt24: '24-годинний формат (напр. 15:30)',
       hourHand: 'коротка стрілка — години', minuteHand: 'довга стрілка — хвилини',
@@ -170,7 +170,7 @@ const CLOCK_TEXT = (() => {
     common: {
       brand: '🕐 Xem đồng hồ',
       allPuzzles: '🧩 Tất cả câu đố', printWorksheet: '🖨️ Phiếu bài tập', playOnline: '🎮 Chơi trực tuyến',
-      level: 'Mức độ', levels: { half: 'Giờ đúng và rưỡi', quarter: 'Mười lăm phút', five: 'Mỗi 5 phút', minute: 'Từng phút' },
+      level: 'Mức độ', levels: { hour: 'Giờ đúng', half: 'Giờ đúng và rưỡi', quarter: 'Mười lăm phút', five: 'Mỗi 5 phút', minute: 'Từng phút' },
       periods: { night: '🌙 ban đêm', morning: '🌅 buổi sáng', afternoon: '☀️ buổi chiều', evening: '🌆 buổi tối' },
       optMinutes: 'Số phút trên mặt đồng hồ (00, 05, 10…)', opt24: 'Đồng hồ 24 giờ (ví dụ 15:30)',
       hourHand: 'kim ngắn — giờ', minuteHand: 'kim dài — phút',
@@ -222,7 +222,7 @@ const CLOCK_TEXT = (() => {
     common: {
       brand: '🕐 Lire l’heure',
       allPuzzles: '🧩 Toutes les énigmes', printWorksheet: '🖨️ Fiche d’exercices', playOnline: '🎮 Jouer en ligne',
-      level: 'Niveau', levels: { half: 'Heures et demies', quarter: 'Quarts d’heure', five: 'Toutes les 5 minutes', minute: 'À la minute' },
+      level: 'Niveau', levels: { hour: 'Heures pile', half: 'Heures et demies', quarter: 'Quarts d’heure', five: 'Toutes les 5 minutes', minute: 'À la minute' },
       periods: { night: '🌙 la nuit', morning: '🌅 le matin', afternoon: '☀️ l’après-midi', evening: '🌆 le soir' },
       optMinutes: 'Minutes sur le cadran (00, 05, 10…)', opt24: 'Horloge de 24 heures (ex. 15:30)',
       hourHand: 'petite aiguille — heures', minuteHand: 'grande aiguille — minutes',

@@ -12,7 +12,7 @@ Learning to read an analog clock. Plain HTML + vanilla JS, no build step, five l
 
 ## Levels and options (game and worksheet)
 
-- **Levels:** o'clock and half past (`:00`, `:30`) · quarters · every 5 minutes · every minute.
+- **Levels:** o'clock only (`:00`) · o'clock and half past (`:00`, `:30`) · quarters · every 5 minutes · every minute.
 - **Minutes on the dial:** small 00, 05, 10… labels round the edge (help for beginners).
 - **24-hour clock:** times 0:00–23:59 with a time-of-day label (🌙 night, 🌅 morning, ☀️ afternoon, 🌆 evening);
   the clock face looks the same, the label tells whether to answer 3:30 or 15:30.
@@ -27,7 +27,7 @@ Learning to read an analog clock. Plain HTML + vanilla JS, no build step, five l
   A wrong check says which hand is off and lets the child fix it; stars: 3 on the first try, 2 on the second, 1 later.
   After a wrong check "Show the answer" turns the hands to the right time.
 
-Stars, streak and the chosen mode/level are saved in `localStorage` (`clock.v1`). URL: `?mode=read|set&level=half|quarter|five|minute`.
+Stars, streak and the chosen mode/level are saved in `localStorage` (`clock.v1`). URL: `?mode=read|set&level=hour|half|quarter|five|minute`.
 
 ## Worksheet
 
