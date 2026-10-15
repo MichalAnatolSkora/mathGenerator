@@ -441,7 +441,13 @@ const MORSE = (() => {
 
   /* ---------- the Titanic story ---------- */
   /** The codes of the story: the old call CQD, then SOS. On the air SOS was one signal with no gaps (`SOS_SIGNAL`). */
-  const STORY = { cqd: ['-.-.', '--.-', '-..'], sos: ['...', '---', '...'], letters: ['C', 'D', 'O', 'Q', 'S'] };
+  const STORY = {
+    cqd: ['-.-.', '--.-', '-..'], sos: ['...', '---', '...'], letters: ['C', 'D', 'O', 'Q', 'S'],
+    // the real message the Carpathia (call sign MPA) took down from the Titanic (MGY), about 0:25 on 15 April 1912
+    telegram: 'COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.',
+    words: ['MGY', 'CQD', 'OM', 'BERG', 'POSITION'],   // explained in the texts (`tgWords`, same order)
+    names: ['MGY', 'MPA'], nameLetters: ['A', 'G', 'M', 'P', 'Y'],
+  };
   const SOS_SIGNAL = '...---...';
   /** The night of 14/15 April 1912 as a light line drawing (cheap to print), 900 × 300 units:
    *  the Titanic calling SOS, the Californian close by with its radio off (Zzz), the Carpathia far away coming to help.

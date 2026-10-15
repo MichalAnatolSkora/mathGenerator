@@ -186,9 +186,21 @@
   .story{display:flex;flex-direction:column;}
   .story .seedlabel{display:none;}
   .story .story-scene{display:block;width:100%;height:auto;max-height:46mm;margin:0 auto 2.5mm;}
-  .story .st{font-size:13.5px;line-height:1.4;margin:0 0 1.3mm;}
+  .story .st{font-size:14px;line-height:1.45;margin:0 0 1.6mm;}
   .story .st b{font-weight:800;}
-  .story .radio{font-size:12px;line-height:1.4;border:0.3mm solid #9db6dc;background:#f2f7fd;border-radius:2mm;padding:2mm 3mm;margin:1mm 0 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .story .radio{font-size:13px;line-height:1.45;border:0.3mm solid #9db6dc;background:#f2f7fd;border-radius:2mm;padding:2.5mm 3.5mm;margin:2mm 0 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .story .radio b{display:block;font-size:14px;margin:0 0 1mm;}
+  .marconi{border:0.5mm solid #1e2436;border-radius:1.5mm;background:#fbf6e9;padding:3mm 4mm;margin:1mm 0 2.5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .marconi .mh{display:flex;justify-content:space-between;flex-wrap:wrap;gap:1mm 4mm;font-size:11px;letter-spacing:.06em;border-bottom:0.3mm dashed #888;padding-bottom:1.5mm;margin-bottom:2.5mm;}
+  .marconi .mh b{letter-spacing:.18em;}
+  .marconi .mt{font:700 17px/1.5 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.03em;margin:0;}
+  .story .tr{font-size:13.5px;font-style:italic;margin:0 0 2.5mm;}
+  .gloss{display:grid;grid-template-columns:auto 1fr;gap:1.2mm 3mm;font-size:13px;margin:0 0 2.5mm;align-items:baseline;}
+  .gloss dt{font:800 13px/1.3 ui-monospace,Menlo,Consolas,monospace;}
+  .gloss dd{margin:0;}
+  .story h4{font-size:14px;margin:0 0 1.5mm;}
+  .wbox{display:flex;gap:2.5mm;margin-top:1.5mm;}
+  .wbox span{flex:1;height:10mm;border-bottom:0.35mm solid #444;}
   .stasks{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm 8mm;margin-top:2.5mm;padding-top:3mm;border-top:0.3mm solid #bbb;}
   .stasks .wide{grid-column:1 / -1;}
   .calls{display:flex;flex-wrap:wrap;gap:3mm 7mm;align-items:flex-end;}
@@ -586,12 +598,28 @@
     return `<div class="sheet story"><div class="u">${headHTML(true, M, st.title, st.sub)}</div>`
       + MORSE.storySVG({ labels: { near: st.near, off: st.off, far: st.far } })
       + st.text.map(x => `<p class="st">${bold(x)}</p>`).join('')
-      + `<div class="radio"><b>📻 ${esc(st.radioTitle)}</b> ${esc(st.radio)}</div>`
       + `<div class="stasks">`
       + `<div class="wide">${head(1, st.callTitle, esc(st.callInstr))}<div class="calls">${call(MORSE.STORY.cqd, st.old)}${call(MORSE.STORY.sos, st.new)}${strip}</div></div>`
-      + `<div>${head(2, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.q)}</p>${lines(2)}</div>`
+      + `<div>${head(2, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.q)}</p>${lines(3)}</div>`
       + `<div>${head(3, st.lampTitle, '')}<p class="bi" style="font-size:13px">${esc(st.lamp)}</p><div class="sossig">${svg(MORSE.SOS_SIGNAL, 2.6)}</div></div>`
-      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.answer)}</p></div>`;
+      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.answer)}</p></div>`
+      + telegramPage(M);
+  }
+  /** The second story page: the real message the Carpathia took down, a word list, how telegrams were sent, two tasks. */
+  function telegramPage(M) {
+    const st = C().story, S = MORSE.STORY, en = l => MORSE.code(l, 'en');
+    const name = n => `<div class="tiles">${[...n].map(l => `<span class="tile"><span class="tc">${svg(en(l), 2)}</span><span class="ab"></span></span>`).join('')}</div>`;
+    const strip = `<div class="strip"><b class="stl">${esc(t('stripTitle'))}:</b>${S.nameLetters.map(l => `<span class="sc"><b>${l}</b>${svg(en(l), 1.4)}</span>`).join('')}</div>`;
+    return `<div class="sheet story"><div class="u">${headHTML(true, M, st.tgTitle, st.tgSub)}</div>`
+      + `<div class="marconi"><div class="mh"><b>MARCONI · TELEGRAM</b><span>${esc(st.tgFrom)}</span></div><p class="mt">${esc(S.telegram)}</p></div>`
+      + `<p class="tr">${esc(st.tgTr)}</p>`
+      + `<h4>${esc(st.tgWordsTitle)}</h4><dl class="gloss">${S.words.map((w, i) => `<dt>${w}</dt><dd>${esc(st.tgWords[i])}</dd>`).join('')}</dl>`
+      + `<p class="st">${esc(st.tgSos)}</p>`
+      + `<div class="radio"><b>📻 ${esc(st.radioTitle)}</b>${esc(st.radio)}</div>`
+      + `<div class="stasks">`
+      + `<div class="wide">${head(4, st.namesTitle, esc(st.namesInstr))}<div class="calls">${S.names.map(name).join('')}${strip}</div></div>`
+      + `<div class="wide">${head(5, st.writeTitle, esc(st.writeInstr))}<div class="wbox">${'<span></span>'.repeat(5)}</div></div>`
+      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.namesAnswer)}</p></div>`;
   }
   function diplomaPage(M) {
     const bravo = MORSE.norm(t('diplomaBravo'), lang());

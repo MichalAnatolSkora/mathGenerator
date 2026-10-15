@@ -123,6 +123,7 @@ ok('lighthouse', M.lighthouseSVG().includes('lh-beam'));
 // the Titanic story: the calls are real Morse, SOS on the air is one signal with no gaps
 eq('story CQD', M.STORY.cqd.join(' '), ['C', 'Q', 'D'].map(l => M.code(l, 'en')).join(' '));
 eq('story SOS', M.STORY.sos.join(''), M.SOS_SIGNAL);
+ok('story names can be read with their strip', M.STORY.names.every(n => [...n].every(c => M.STORY.nameLetters.includes(c))));
 ok('story picture', M.storySVG({ labels: { near: 'n', off: 'a', far: 'b' } }).includes('sos-arcs'));
 
 // texts: every language has the same keys as Polish, and the functions give text
@@ -134,6 +135,7 @@ for (const l of Object.keys(T)) {
   ok(`${l}: picture names (from the graphic dictation)`, pics.every(p => require('../graphic-dictation/strings.js')[l].common.pics[p.id]));
   for (const n of [1, 2, 5, 12, 22]) ok(`${l} plurals ${n}`, !/undefined/.test(T[l].sheet.summary(n) + T[l].game.dictResult(n, n) + T[l].game.stats(n, n)));
   eq(`${l}.story keys`, keys(T[l].common.story), keys(T.pl.common.story));
+  eq(`${l}: telegram words`, T[l].common.story.tgWords.length, M.STORY.words.length);
   eq(`${l}: story paragraphs`, T[l].common.story.text.length, T.pl.common.story.text.length);
   ok(`${l}: extra letters label`, !M.extras(l).length || T[l].common.extraLabel(M.extras(l).join(' ')).length > 0);
 }

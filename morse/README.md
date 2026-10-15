@@ -60,9 +60,13 @@ pages (a task that does not fit starts the next page). The default mix fits one 
   people from the lifeboats; since then big ships keep a radio watch day and night). The exact Titanic–Californian
   distance was never measured (estimates from about 15 to 37 km), so the page says “less than 40 km”. A box tells how
   wireless telegrams were sent then (a key, a spark transmitter, headphones, letters written down in pencil, paid per
-  word). A line drawing of the three ships with the distances (cheap to print),
+  word; on the second page). A line drawing of the three ships with the distances (cheap to print),
   and three small tasks: read CQD and SOS (with their own cheat strip, Latin letters in every language), a question,
   and sending SOS with a torch as one signal with no gaps. The answers are printed upside down at the bottom.
+  A second page shows **the real telegram** the Carpathia (MPA) took down from the Titanic (MGY) at about 0:25:
+  “COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.” (kept in English in every language),
+  a translation, a word list (MGY, CQD, OM, BERG, POSITION), a note that the SOS calls looked much the same (the exact
+  words of those were not kept), and two tasks: read the ships’ radio names MGY and MPA, write a telegram of five words.
 - Same code + same settings ⇒ the same sheet.
   URL: `?seed=&level=young|older&upto=1-4&extra=1&tasks=telegram,riddle,…&aid=none|strip|tree&cheat=1&key=1&treepage=1&diploma=1&story=1`.
 

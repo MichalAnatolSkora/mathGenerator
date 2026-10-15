@@ -112,7 +112,13 @@
   .story p{margin:0 0 10px;font-size:15.5px;max-width:68ch;}
   .story .radio{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:4px 0 12px;max-width:72ch;}
   .story .radio h3{margin:0 0 6px;font-size:16px;}
-  .story .radio p{margin:0;}
+  .story .radio p{margin:0 0 8px;}
+  .story .radio p:last-child{margin:0;}
+  .story .mt{font:700 16px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fbf6e9;border:1px solid var(--ink);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;}
+  .story .small{font-size:13px;color:var(--muted);}
+  .story .gloss{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0 0 8px;font-size:15px;}
+  .story .gloss dt{font:800 14px/1.45 ui-monospace,Menlo,Consolas,monospace;}
+  .story .gloss dd{margin:0;}
   .story .row{align-items:center;}
   .story .code{color:var(--bad);}
 
@@ -558,6 +564,8 @@
     $('storyTitle').textContent = st.title;
     $('storyBody').innerHTML = MORSE.storySVG({ labels: { near: st.near, off: st.off, far: st.far } })
       + st.text.map(x => `<p>${esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>`).join('')
+      + `<div class="radio"><h3>✉️ ${esc(st.tgTitle)}</h3><p class="mt">${esc(MORSE.STORY.telegram)}</p><p class="small">${esc(st.tgFrom)}</p><p><i>${esc(st.tgTr)}</i></p>`
+      + `<dl class="gloss">${MORSE.STORY.words.map((w, i) => `<dt>${w}</dt><dd>${esc(st.tgWords[i])}</dd>`).join('')}</dl><p>${esc(st.tgSos)}</p></div>`
       + `<div class="radio"><h3>📻 ${esc(st.radioTitle)}</h3><p>${esc(st.radio)}</p></div>`;
     $('storyCode').innerHTML = svg(MORSE.SOS_SIGNAL, 14);
   }
