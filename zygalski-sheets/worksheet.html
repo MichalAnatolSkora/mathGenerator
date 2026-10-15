@@ -40,6 +40,10 @@
   .map th,.map td{border:0.3mm solid #bbb;padding:1mm 2mm;text-align:left;vertical-align:top;}
   .map th{background:#f1f1f1;}
   .map td:first-child{width:58%;}
+  /* the real sheet page */
+  .orig p{font-size:11.5px;line-height:1.42;margin:0 0 2mm;}
+  .orig .realsheet{text-align:center;margin:1mm 0 2mm;}
+  .orig .note{font-size:10px;color:#666;}
   @media (max-width:600px){ .arrow{display:none;} .parts,.lrow{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -115,11 +119,25 @@
     </div>`;
   }
 
+  /** One real sheet of 1938, recomputed: a rotor order and a left rotor position picked by the sheet code. */
+  function origPage(api) {
+    const { C, esc } = api, O = C.orig, rnd = api.rnd('orig');
+    const order = KIT.shuffle(rnd, ['I', 'II', 'III']), left = String.fromCharCode(65 + Math.floor(rnd() * 26));
+    const sheet = ZYG.realSheet(order, left), holes = sheet.flat().filter(Boolean).length;
+    return `<div class="sheet orig">
+      ${api.head(O.title, O.sub(order.join('-'), left), false)}
+      <p>${esc(O.intro)}</p>
+      <div class="realsheet">${ZYG.realSvg(sheet, { w: 176, right: O.axisRight, middle: O.axisMiddle })}</div>
+      <p>${esc(O.twice)} ${esc(O.count(holes, Math.round(100 * holes / 676)))}</p>
+      <p class="note">${esc(O.note)}</p>
+    </div>`;
+  }
+
   KIT.app({
     store: 'zygalski.sheet',
     text: ZYG_TEXT,
     groups: [{ id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] }],
-    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'cut', def: false, label: 'optCut' }],
+    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: false, label: 'optCut' }],
     render(s, api) {
       const { t, C, esc } = api;
       const word = KIT.pick(api.rnd('word'), C.words);
@@ -150,7 +168,7 @@
       };
 
       const sub = C.levels[s.level];
-      let html = (s.learn ? learnPage(api) : '') + `<div class="sheet">
+      let html = (s.learn ? learnPage(api) : '') + (s.orig ? origPage(api) : '') + `<div class="sheet">
         ${api.head(t('sheetTitle'), sub, true)}
         <p class="story">${esc(t('story'))}</p>
         <p class="instr">${esc(t('instr'))}${anyShift ? `<br><b>${esc(t('instrShift'))}</b>` : ''}</p>
@@ -185,7 +203,7 @@
           ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(cut.word)} (${cellName(cut.answer, cut.n)})</p>` : ''}
         </div>`;
       }
-      return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
+      return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
     },
   });
 })();

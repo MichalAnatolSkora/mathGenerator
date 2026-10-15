@@ -22,6 +22,23 @@ for (const level of Object.keys(Z.LEVELS)) {
   }
 }
 
+// the Enigma simulation: the well-known test vector, decoding = encoding, a double step of the middle rotor
+ok('enigma: AAA, AAAAA → BDZGO', Z.encrypt(['I', 'II', 'III'], 'AAA', 'AAAAA') === 'BDZGO');
+const msg = 'ZYGALSKIWASHERE';
+ok('enigma: encrypting twice gives the text back', Z.encrypt(['II', 'III', 'I'], 'QEV', Z.encrypt(['II', 'III', 'I'], 'QEV', msg)) === msg);
+// from ADU the windows go ADV, AEW, BFX, BFY: the 3rd and 4th presses match a start at BFW
+ok('enigma: double step', Z.encrypt(['I', 'II', 'III'], 'ADU', 'AAAA').slice(2) === Z.encrypt(['I', 'II', 'III'], 'BFW', 'AA'));
+// a real sheet: about 4 squares in 10 are holes, and a hole means a doubled key can show a female there
+for (const order of [['I', 'II', 'III'], ['III', 'II', 'I'], ['II', 'I', 'III']]) for (const left of 'AMZ') {
+  const sh = Z.realSheet(order, left), share = sh.flat().filter(Boolean).length / 676;
+  ok(`real sheet ${order.join('-')} ${left}: 25–55 % holes`, share > 0.25 && share < 0.55, share);
+  for (let t = 0; t < 40; t++) {
+    const m = (t * 7) % 26, r = (t * 11 + 3) % 26, start = left + String.fromCharCode(65 + m, 65 + r);
+    const female = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].some(k => { const c = Z.encrypt(order, start, k + 'XX' + k); return c[0] === c[3]; });
+    ok(`real sheet ${order.join('-')} ${start}: hole ⇔ female`, sh[m][r] === female);
+  }
+}
+
 // every language has the same keys as Polish (deep), and every label fits its square
 const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' : v && typeof v === 'object'
   ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;

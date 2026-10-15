@@ -7,12 +7,20 @@
  *   ZYG.cutRound(rnd)                → a round for cutting out: 5×5, 3 sheets, no shift
  *   ZYG.board(rnd, n, answer, word, pool) → n·n labels, `word` at the answer, other labels from `pool`
  *   ZYG.svg(n, cells, opts)          → a grid as an SVG string
+ *   ZYG.encrypt(order, start, text)  → Enigma I (rotors I–III, reflector B, rings at A, no plugboard)
+ *   ZYG.realSheet(order, left)       → a real sheet: 26 rows (middle rotor) × 26 (right rotor), true = hole
+ *   ZYG.realSvg(sheet, opts)         → that sheet drawn 51 × 51, as Zygalski drew it
  *
  * Cells are numbers y·n + x. `table[s]` holds the holes of sheet s where they land on the light table (after
  * the shift); `sheets[s].holes` holds them where they are printed on the sheet. A sheet printed with a hole at
  * (x, y) and shift (dx, dy) lights the table at ((x + dx) mod n, (y + dy) mod n), like Zygalski's sheets, which
  * were drawn twice over (51×51) so they could slide against each other.
  * Every round: exactly one cell is a hole in every sheet, and every sheet is needed to find it.
+ *
+ * A real sheet: rotor order and left rotor position fixed, a square for every middle × right rotor position.
+ * The square is a hole when the 1st and 4th key presses from that position can turn one letter into the same
+ * letter (some x with E1(x) = E4(x)), i.e. when a doubled key could show a "female" there. The plugboard does
+ * not change that, which is why the method worked without knowing it.
  */
 const ZYG = (() => {
   const LEVELS = {
@@ -109,6 +117,85 @@ const ZYG = (() => {
     return s + '</svg>';
   }
 
-  return { LEVELS, round, cutRound, board, svg };
+  /* ---------- a real sheet: Enigma I as in 1938 ---------- */
+  const ROTORS = {
+    I: ['EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'],
+    II: ['AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'],
+    III: ['BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'],
+  };
+  const REFLECTOR_B = 'YRUHQSLDPXNGOKMIEBFZCWVJAT';
+  const code = ch => ch.charCodeAt(0) - 65;
+  const mod = x => ((x % 26) + 26) % 26;
+
+  /** order = rotor names left → right, e.g. ['I', 'II', 'III']. */
+  function rotors(order) {
+    return order.map(name => {
+      const [w, notch] = ROTORS[name], fwd = [...w].map(code), inv = Array(26);
+      fwd.forEach((o, i) => { inv[o] = i; });
+      return { fwd, inv, notch: code(notch) };
+    });
+  }
+  /** The window letters [left, middle, right] after one key press (with the middle rotor's double step). */
+  function step(rs, [l, m, r]) {
+    if (m === rs[1].notch) { l = mod(l + 1); m = mod(m + 1); } else if (r === rs[2].notch) m = mod(m + 1);
+    return [l, m, mod(r + 1)];
+  }
+  /** The machine's letter swap at window letters `pos`, as an array (rings at A). */
+  function perm(rs, pos) {
+    const out = [];
+    for (let x = 0; x < 26; x++) {
+      let c = x;
+      for (let i = 2; i >= 0; i--) c = mod(rs[i].fwd[mod(c + pos[i])] - pos[i]);
+      c = code(REFLECTOR_B[c]);
+      for (let i = 0; i < 3; i++) c = mod(rs[i].inv[mod(c + pos[i])] - pos[i]);
+      out.push(c);
+    }
+    return out;
+  }
+  /** The swaps of the next `n` key presses from window letters `start`. */
+  function perms(rs, start, n) {
+    const out = [];
+    let pos = start;
+    for (let i = 0; i < n; i++) { pos = step(rs, pos); out.push(perm(rs, pos)); }
+    return out;
+  }
+  function encrypt(order, start, text) {
+    const rs = rotors(order), ps = perms(rs, [...start].map(code), text.length);
+    return [...text].map((ch, i) => String.fromCharCode(65 + ps[i][code(ch)])).join('');
+  }
+  function realSheet(order, left) {
+    const rs = rotors(order), l = code(left);
+    return Array.from({ length: 26 }, (_, m) => Array.from({ length: 26 }, (__, r) => {
+      const [e1, , , e4] = perms(rs, [l, m, r], 4);
+      return e1.some((y, x) => y === e4[x]);
+    }));
+  }
+
+  /** A real sheet as an SVG string, 51 × 51 squares with the letters around, the first 26 × 26 framed. */
+  function realSvg(sheet, o = {}) {
+    const N = 51, C = 10, M = 18, W = M + N * C + 1;
+    const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    const letter = i => String.fromCharCode(97 + i % 26);
+    let s = `<svg viewBox="0 0 ${W} ${W}" style="width:${o.w}mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif">`;
+    s += `<text x="${M}" y="5" font-size="6.5" font-weight="700" fill="#444" dominant-baseline="central">${esc(o.right || '')}</text>`;
+    s += `<text transform="translate(5 ${M}) rotate(90)" font-size="6.5" font-weight="700" fill="#444" dominant-baseline="central">${esc(o.middle || '')}</text>`;
+    for (let i = 0; i < N; i++) {
+      s += `<text x="${M + i * C + C / 2}" y="${M - 4}" font-size="5.6" fill="#555" text-anchor="middle" dominant-baseline="central">${letter(i)}</text>`;
+      s += `<text x="${M - 4}" y="${M + i * C + C / 2}" font-size="5.6" fill="#555" text-anchor="middle" dominant-baseline="central">${letter(i)}</text>`;
+    }
+    let holes = '';
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      if (sheet[y % 26][x % 26]) holes += `M${M + x * C + 1.2} ${M + y * C + 1.2}h7.6v7.6h-7.6z`;
+    }
+    s += `<path d="${holes}" fill="#222"/>`;
+    let grid = '';
+    for (let i = 0; i <= N; i++) grid += `M${M + i * C} ${M}V${M + N * C}M${M} ${M + i * C}H${M + N * C}`;
+    s += `<path d="${grid}" stroke="#bbb" stroke-width="0.4" fill="none"/>`;
+    s += `<rect x="${M}" y="${M}" width="${26 * C}" height="${26 * C}" fill="none" stroke="#c0252b" stroke-width="1.6"/>`;
+    s += `<rect x="${M}" y="${M}" width="${N * C}" height="${N * C}" fill="none" stroke="#222" stroke-width="1"/>`;
+    return s + '</svg>';
+  }
+
+  return { LEVELS, round, cutRound, board, svg, ROTORS, encrypt, realSheet, realSvg };
 })();
 if (typeof module !== 'undefined') module.exports = ZYG;
