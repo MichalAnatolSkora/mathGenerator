@@ -28,6 +28,7 @@
   .gico{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-size:22px;background:#fff;border:1px solid var(--line);}
   .young .gico{background:#fff4e0;border-color:#f6d9a8;}
   .older .gico{background:#e8ecff;border-color:#c9d1fa;}
+  .ambitious .gico{background:#e6f5ec;border-color:#b9e0c8;}
   .age{font-size:14px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;}
   /* cards: a grid of tiles (screenshot on top) on wide screens, compact rows on phones */
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
@@ -49,8 +50,8 @@
   .btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d);}
   @media (max-width:640px){
     .page{padding:16px 16px 32px;}
-    .jump{flex-wrap:nowrap;}
-    .jump a{flex:1 1 0;min-width:0;gap:6px;padding:6px 10px 6px 6px;font-size:14px;line-height:1.2;}
+    .jump{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}   /* three groups side by side, icon on top */
+    .jump a{flex-direction:column;justify-content:center;min-width:0;gap:4px;padding:8px 6px;border-radius:14px;font-size:13.5px;line-height:1.2;text-align:center;}
     .jump .gico{width:30px;height:30px;font-size:17px;flex:none;}
     .cards{grid-template-columns:1fr;gap:12px;}
     .card{display:grid;grid-template-columns:110px minmax(0,1fr);}   /* 14px margin + 96px thumbnail */
@@ -75,6 +76,7 @@
   <nav class="jump" aria-label="Grupy wiekowe" data-i18n-attr="aria-label:jumpLabel">
     <a href="#young"><span class="gico" aria-hidden="true">🧸</span><span data-i18n="youngTitle">Dla maluszków</span><span class="n" id="nYoung"></span></a>
     <a href="#older"><span class="gico" aria-hidden="true">🚀</span><span data-i18n="olderTitle">Dla większych dzieci</span><span class="n" id="nOlder"></span></a>
+    <a href="#ambitious"><span class="gico" aria-hidden="true">🎓</span><span data-i18n="ambTitle">Dla ambitnych</span><span class="n" id="nAmb"></span></a>
   </nav>
 
   <section class="group young" id="young">
@@ -250,6 +252,24 @@
     </div>
   </section>
 
+  <section class="group ambitious" id="ambitious">
+    <h2 class="group-h"><span class="gico" aria-hidden="true">🎓</span><span data-i18n="ambTitle">Dla ambitnych</span><span class="age" data-i18n="ambAge">14+ i dorośli</span></h2>
+
+    <div class="cards">
+    <article class="card">
+      <a class="shot" href="zygalski-full/worksheet.html" data-keep-lang><img src="assets/zygalski-full.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:zygFullAlt" alt="Płachta Zygalskiego 51 × 51 z pełnej wersji"></a>
+      <div class="body">
+        <h3><span class="ico" aria-hidden="true">🔦</span><span data-i18n="zygFullTitle">Płachty Zygalskiego: pełna wersja</span></h3>
+        <p class="desc" data-i18n="zygFullText"></p>
+        <button type="button" class="more" hidden data-i18n="more">więcej</button>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="zygalski-full/worksheet.html" data-keep-lang data-i18n="zygFullPrint">Wydrukuj pakiet</a>
+      </div>
+    </article>
+    </div>
+  </section>
+
   <p class="note" data-i18n="note">Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.</p>
   <p class="note contact"><span data-i18n="contact">Masz sugestię albo widzisz błąd? Napisz do mnie:</span> <a href="mailto:michal.anatol.skora@gmail.com">michal.anatol.skora@gmail.com</a></p>
 </div>
@@ -263,6 +283,9 @@
       note: 'Wszystko tu jest za darmo i nie trzeba zakładać konta. Tak już zostanie.',
       contact: 'Masz sugestię albo widzisz błąd? Napisz do mnie:',
       youngTitle: 'Dla maluszków', youngAge: '5–8 lat', olderTitle: 'Dla większych dzieci', olderAge: '8–12 lat',
+      ambTitle: "Dla ambitnych", ambAge: "14+ i dorośli",
+      zygFullTitle: "Płachty Zygalskiego: pełna wersja", zygFullText: "Prawdziwa praca kryptologa z 1938 roku. Dostajesz przechwycone depesze z jednego dnia i komplet płacht 51 × 51 obliczonych symulacją Enigmy. Znajdź samiczki, nałóż płachty (najlepiej wydrukowane na folii) i odczytaj klucz dnia: kolejność wirników i ustawienie pierścieni. Z tabelą roboczą, trzema poziomami pomocy i rozwiązaniem. Dla nastolatków i dorosłych.",
+      zygFullPrint: "Wydrukuj pakiet", zygFullAlt: "Płachta Zygalskiego 51 × 51 z pełnej wersji",
       mathTitle: 'Krzyżówki matematyczne',
       mathText: 'Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.',
       mathBtn: 'Zrób kartę pracy', mathAlt: 'Zrzut ekranu: krzyżówka matematyczna',
@@ -298,6 +321,9 @@
       note: 'Everything here is free and you don\'t need an account. It will stay that way.',
       contact: 'Got an idea or found a mistake? Email me:',
       youngTitle: 'For little ones', youngAge: 'ages 5–8', olderTitle: 'For bigger kids', olderAge: 'ages 8–12',
+      ambTitle: "For the ambitious", ambAge: "ages 14+ and adults",
+      zygFullTitle: "Zygalski Sheets: Full Version", zygFullText: "Real codebreaking work from 1938. You get one day of intercepted messages and a full set of 51 × 51 sheets computed by simulating Enigma. Find the females, stack the sheets (best printed on film) and read off the daily key: the rotor order and the ring settings. With a work table, three levels of help and the answer. For teens and adults.",
+      zygFullPrint: "Print the pack", zygFullAlt: "A 51 × 51 Zygalski sheet from the full version",
       mathTitle: 'Math Crossword',
       mathText: 'Printable arithmetic crosswords: every equation reads across and down, and the numbers meet where they cross. Pick the number range and operators, and get a worksheet with its answer key.',
       mathBtn: 'Make a worksheet', mathAlt: 'Screenshot: a math crossword',
@@ -333,6 +359,9 @@
       note: 'Усе тут безкоштовне, і не треба створювати акаунт. Так і залишиться.',
       contact: 'Маєте ідею або знайшли помилку? Напишіть мені:',
       youngTitle: 'Для малят', youngAge: '5–8 років', olderTitle: 'Для старших дітей', olderAge: '8–12 років',
+      ambTitle: "Для амбітних", ambAge: "14+ і дорослі",
+      zygFullTitle: "Листи Зигальського: повна версія", zygFullText: "Справжня робота криптолога 1938 року. Ти отримуєш перехоплені повідомлення за один день і повний комплект листів 51 × 51, обчислених моделюванням Енігми. Знайди самички, наклади листи (найкраще надруковані на плівці) й прочитай ключ дня: порядок роторів і положення кілець. З робочою таблицею, трьома рівнями допомоги і розв’язком. Для підлітків і дорослих.",
+      zygFullPrint: "Роздрукувати комплект", zygFullAlt: "Лист Зигальського 51 × 51 з повної версії",
       mathTitle: 'Математичні кросворди',
       mathText: 'Кросворди з прикладами для друку: кожна рівність читається по горизонталі й по вертикалі, а числа з\'єднуються на перетинах. Обираєш діапазон чисел і дії — отримуєш робочий аркуш разом із відповідями.',
       mathBtn: 'Створити аркуш', mathAlt: 'Знімок екрана: математичний кросворд',
@@ -368,6 +397,9 @@
       note: 'Mọi thứ ở đây đều miễn phí và không cần tạo tài khoản. Sẽ luôn như vậy.',
       contact: 'Bạn có ý tưởng hoặc phát hiện lỗi? Hãy viết cho tôi:',
       youngTitle: 'Cho bé nhỏ', youngAge: '5–8 tuổi', olderTitle: 'Cho các bạn lớn hơn', olderAge: '8–12 tuổi',
+      ambTitle: "Cho người thích thử thách", ambAge: "14+ và người lớn",
+      zygFullTitle: "Tấm Zygalski: bản đầy đủ", zygFullText: "Công việc giải mã thật sự năm 1938. Bạn nhận các bức điện chặn được trong một ngày và trọn bộ tấm 51 × 51 tính bằng mô phỏng Enigma. Tìm các con mái, chồng các tấm (tốt nhất in lên phim trong) và đọc ra khóa ngày: thứ tự rôto và vị trí các vòng. Kèm bảng làm việc, ba mức trợ giúp và lời giải. Dành cho thiếu niên và người lớn.",
+      zygFullPrint: "In trọn bộ", zygFullAlt: "Một tấm Zygalski 51 × 51 trong bản đầy đủ",
       mathTitle: 'Ô chữ toán học',
       mathText: 'Ô chữ phép tính để in: mỗi phép tính đọc theo hàng ngang và hàng dọc, các con số gặp nhau ở chỗ giao. Bạn chọn phạm vi số và phép tính, nhận được phiếu bài tập kèm đáp án.',
       mathBtn: 'Tạo phiếu bài tập', mathAlt: 'Ảnh chụp màn hình: ô chữ toán học',
@@ -403,6 +435,9 @@
       note: 'Tout est gratuit ici et il n’y a pas besoin de créer de compte. Et ça restera comme ça.',
       contact: 'Une idée ou une erreur repérée ? Écrivez-moi :',
       youngTitle: 'Pour les petits', youngAge: '5–8 ans', olderTitle: 'Pour les plus grands', olderAge: '8–12 ans',
+      ambTitle: "Pour les ambitieux", ambAge: "14 ans et plus, adultes",
+      zygFullTitle: "Feuilles de Zygalski : version complète", zygFullText: "Un vrai travail de cryptologue de 1938. Tu reçois les messages interceptés d’une journée et un jeu complet de feuilles 51 × 51 calculées en simulant Enigma. Trouve les femelles, superpose les feuilles (idéalement imprimées sur transparents) et lis la clé du jour : l’ordre des rotors et la position des anneaux. Avec un tableau de travail, trois niveaux d’aide et la solution. Pour les ados et les adultes.",
+      zygFullPrint: "Imprimer le dossier", zygFullAlt: "Une feuille de Zygalski 51 × 51 de la version complète",
       mathTitle: 'Mots croisés mathématiques',
       mathText: 'Des mots croisés de calcul à imprimer : chaque opération se lit à l’horizontale et à la verticale, et les nombres se rejoignent aux croisements. Tu choisis les nombres et les opérations, et tu obtiens une fiche d’exercices avec son corrigé.',
       mathBtn: 'Créer une fiche', mathAlt: 'Capture d’écran : des mots croisés mathématiques',
@@ -438,6 +473,9 @@
       note: 'Qui è tutto gratis e non serve creare un account. E resterà così.',
       contact: 'Hai un’idea o hai trovato un errore? Scrivimi:',
       youngTitle: 'Per i più piccoli', youngAge: '5–8 anni', olderTitle: 'Per i più grandi', olderAge: '8–12 anni',
+      ambTitle: "Per gli ambiziosi", ambAge: "dai 14 anni e adulti",
+      zygFullTitle: "Fogli di Zygalski: versione completa", zygFullText: "Il vero lavoro di un crittologo del 1938. Ricevi i messaggi intercettati in un giorno e una serie completa di fogli 51 × 51 calcolati simulando Enigma. Trova le femmine, sovrapponi i fogli (meglio se stampati su lucidi) e ricava la chiave del giorno: l’ordine dei rotori e la posizione degli anelli. Con una tabella di lavoro, tre livelli di aiuto e la soluzione. Per ragazzi e adulti.",
+      zygFullPrint: "Stampa il pacchetto", zygFullAlt: "Un foglio di Zygalski 51 × 51 della versione completa",
       mathTitle: 'Cruciverba matematici',
       mathText: 'Cruciverba con le operazioni da stampare: ogni operazione si legge in orizzontale e in verticale, e i numeri si incontrano negli incroci. Scegli i numeri e le operazioni, e ottieni una scheda con le soluzioni.',
       mathBtn: 'Crea una scheda', mathAlt: 'Screenshot: un cruciverba matematico',
@@ -473,6 +511,9 @@
       note: 'Aquí todo es gratis y no hace falta crear una cuenta. Y seguirá siendo así.',
       contact: '¿Tienes una idea o has encontrado un error? Escríbeme:',
       youngTitle: 'Para los más pequeños', youngAge: '5–8 años', olderTitle: 'Para los mayores', olderAge: '8–12 años',
+      ambTitle: "Para los ambiciosos", ambAge: "14+ y adultos",
+      zygFullTitle: "Hojas de Zygalski: versión completa", zygFullText: "El verdadero trabajo de un criptólogo de 1938. Recibes los mensajes interceptados en un día y un juego completo de hojas de 51 × 51 calculadas simulando Enigma. Encuentra las hembras, superpón las hojas (mejor impresas en acetato) y lee la clave del día: el orden de los rotores y la posición de los anillos. Con tabla de trabajo, tres niveles de ayuda y la solución. Para adolescentes y adultos.",
+      zygFullPrint: "Imprimir el paquete", zygFullAlt: "Una hoja de Zygalski de 51 × 51 de la versión completa",
       mathTitle: 'Crucigramas matemáticos',
       mathText: 'Crucigramas de operaciones para imprimir: cada operación se lee en horizontal y en vertical, y los números se encuentran en los cruces. Eliges los números y las operaciones, y obtienes una ficha con sus soluciones.',
       mathBtn: 'Crear una ficha', mathAlt: 'Captura de pantalla: un crucigrama matemático',
@@ -520,6 +561,7 @@
     document.getElementById('count').textContent = I18N.t(S, 'count', document.querySelectorAll('.card').length);
     document.getElementById('nYoung').textContent = document.querySelectorAll('#young .card').length;
     document.getElementById('nOlder').textContent = document.querySelectorAll('#older .card').length;
+    document.getElementById('nAmb').textContent = document.querySelectorAll('#ambitious .card').length;
     updateMore();
   }
   document.querySelectorAll('.more').forEach(b => b.addEventListener('click', () => { b.closest('.card').classList.toggle('open'); updateMore(); }));

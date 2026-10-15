@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Płachty Zygalskiego — pełna wersja</title>
+<meta name="description" content="Pełna wersja płacht Zygalskiego do druku: przechwycone depesze z jednego dnia, komplet płacht 51 × 51 obliczonych symulacją Enigmy, tabela robocza i rozwiązanie. Dla ambitnych.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .full{font-size:11.5px;line-height:1.42;color:#222;}
+  .full h3{font-size:13px;margin:0 0 1mm;}
+  .full p{margin:0 0 2mm;}
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:3mm 6mm;margin:2mm 0;}
+  .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 3mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;}
+  .traffic{display:grid;grid-template-columns:repeat(4,1fr);gap:0 5mm;font:11px/1.55 ui-monospace,Menlo,Consolas,monospace;}
+  .traffic div{white-space:nowrap;border-bottom:0.2mm solid #eee;}
+  .traffic .n{color:#999;}
+  .traffic .g{font-weight:700;}
+  .traffic u{text-decoration:none;background:#ffe36b;font-weight:700;}
+  .work{width:100%;border-collapse:collapse;font-size:12px;}
+  .work th,.work td{border:0.3mm solid #999;padding:0 2mm;height:7.4mm;text-align:center;}
+  .work th{background:#f1f1f1;font-size:11px;height:auto;padding:1mm 2mm;}
+  .result{font-size:12.5px;line-height:2.3;margin-top:3mm;}
+  .result span{display:inline-block;border-bottom:0.3mm solid #333;min-width:16mm;margin:0 1mm;text-align:center;font-weight:700;}
+  .sheetpage{text-align:center;}
+  .sheetpage .sheet-head{text-align:left;}
+  .sheetpage .note{font-size:10px;color:#666;margin-top:1mm;}
+  .keygrid{display:grid;grid-template-columns:auto 1fr;gap:1mm 4mm;font-size:12.5px;margin-bottom:3mm;}
+  .keygrid b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;}
+  @media (max-width:600px){ .steps{grid-template-columns:1fr;} .traffic{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🔦 Płachty Zygalskiego — pełna wersja</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="../zygalski-sheets/engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const L = i => String.fromCharCode(65 + (((i % 26) + 26) % 26));
+  const code = ch => ch.charCodeAt(0) - 65;
+  const WORK_ROWS = 18;
+
+  /** What a female gives: its message, ground setting, type, R′ and the lay of its sheet (or blanks). */
+  function rows(d, fill) {
+    const out = d.females.map(f => {
+      const m = d.messages[f.msg], [, , r] = [...m.ground].map(code);
+      return [String(f.msg + 1).padStart(3, '0'), m.ground.split('').join(' '), `${f.type + 1}/${f.type + 4}`, L(r + f.type), String(f.dl), L(f.row), L(f.col)];
+    });
+    if (fill) return out;
+    return Array.from({ length: Math.max(WORK_ROWS, out.length) }, () => Array(7).fill(''));
+  }
+
+  KIT.app({
+    store: 'zygalskiFull.sheet',
+    text: ZYGF_TEXT,
+    groups: [
+      { id: 'level', values: ['full', 'females', 'trial'], def: 'full', label: (v, C) => C.levels[v] },
+      { id: 'sheets', title: 'sheetsTitle', values: ['day', 'all', 'none'], def: 'day', label: (v, C) => C.sheetSets[v] },
+    ],
+    checks: [{ id: 'intro', def: true, label: 'optIntro' }, { id: 'film', def: false, label: 'optFilm' }],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const d = ZYG.day(api.rnd('day'));
+      const hints = s.level !== 'full', f0 = d.females[0], g0 = [...d.messages[f0.msg].ground].map(code);
+      const pages = [];
+
+      if (s.intro) {
+        const I = C.intro;
+        pages.push(`<div class="sheet full">
+          ${api.head(I.title, I.sub, false)}
+          ${I.lead.map(([h, p]) => `<div class="box"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}
+          <div class="steps">${I.steps.map(([h, p]) => `<div><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div>
+          ${I.tips.map(([h, p], i) => `<div class="box${i === 0 ? ' tip' : ''}"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}
+        </div>`);
+      }
+
+      // the day's traffic, in four columns; with hints the females are marked
+      const fem = new Set(d.females.map(f => `${f.msg}|${f.type}`));
+      const ind = (m, i) => [...m.ind].map((ch, k) => hints && (fem.has(`${i}|${k}`) || fem.has(`${i}|${k - 3}`)) ? `<u>${ch}</u>` : ch);
+      const T = C.traffic;
+      pages.push(`<div class="sheet full">
+        ${api.head(T.title, T.sub(d.messages.length), true)}
+        <p>${esc(T.instr)}${hints ? ' ' + esc(T.hintNote) : ''}</p>
+        <div class="traffic">${d.messages.map((m, i) => {
+          const x = ind(m, i);
+          return `<div><span class="n">${String(i + 1).padStart(3, '0')}</span> <span class="g">${m.ground}</span> ${x.slice(0, 3).join('')} ${x.slice(3).join('')}</div>`;
+        }).join('')}</div>
+      </div>`);
+
+      // the work table
+      const W = C.work, rs = rows(d, hints);
+      const trial = s.level === 'trial' ? `<p class="box tip">${esc(W.trialHint(d.order.join('-'), L(d.answer.s)))}</p>` : '';
+      pages.push(`<div class="sheet full">
+        ${api.head(W.title, W.sub, false)}
+        <p>${esc(W.instr)}</p>
+        ${trial}
+        <table class="work"><tr>${W.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+          ${rs.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>
+        <div class="result">${W.result.map(line => line.replace(/_/g, '<span></span>')).join('<br>')}</div>
+      </div>`);
+
+      // the sheets: the day's set (one rotor order) or all six sets
+      const orders = s.sheets === 'all' ? ZYG.ORDERS : s.sheets === 'day' ? [d.order] : [];
+      const S = C.sheet;
+      for (const order of orders) for (let l = 0; l < 26; l++) {
+        pages.push(`<div class="sheet sheetpage">
+          ${api.head(S.title(L(l)), S.sub(order.join('-'), L(l)), false)}
+          ${ZYG.realSvg(ZYG.realSheet(order, L(l)), { w: 184, right: S.right, middle: S.middle, film: s.film })}
+          <div class="note">${esc(S.note)}</div>
+        </div>`);
+      }
+
+      // the answer: the daily key, how the light gives it, and a message deciphered with it
+      if (s.key) {
+        const K = C.key, a = d.answer, rings = [g0[0] - a.s, g0[1] - a.y, g0[2] + f0.type - a.x].map(L).join('');
+        const m0 = d.messages[f0.msg], filled = rows(d, true);
+        pages.push(`<div class="sheet full key">
+          ${api.head(t('keyTitle'), t('title'), false)}
+          <div class="keygrid">
+            <span>${esc(K.order)}</span><b>${d.order.join('-')}</b>
+            <span>${esc(K.trial)}</span><b>s = ${L(a.s)}</b>
+            <span>${esc(K.light)}</span><b>${esc(K.cell(L(a.y), L(a.x)))}</b>
+            <span>${esc(K.rings)}</span><b>${L(g0[0])} − ${L(a.s)} = ${rings[0]} · ${L(g0[1])} − ${L(a.y)} = ${rings[1]} · ${L(g0[2] + f0.type)} − ${L(a.x)} = ${rings[2]} → ${rings}</b>
+            <span>${esc(K.plug)}</span><b>${d.plug}</b>
+          </div>
+          <table class="work"><tr>${W.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+            ${filled.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>
+          <p class="box" style="margin-top:3mm">${esc(K.check(String(f0.msg + 1).padStart(3, '0'), m0.ground, m0.ind, m0.key))}</p>
+        </div>`);
+      }
+      return { html: pages.join(''), tasks: 1, pages: pages.length };
+    },
+  });
+})();
+</script>
+</body>
+</html>

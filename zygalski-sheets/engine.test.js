@@ -32,33 +32,32 @@ ok('enigma: double step', Z.encrypt(['I', 'II', 'III'], 'ADU', 'AAAA').slice(2) 
 for (const order of [['I', 'II', 'III'], ['III', 'II', 'I'], ['II', 'I', 'III']]) for (const left of 'AMZ') {
   const sh = Z.realSheet(order, left), share = sh.flat().filter(Boolean).length / 676;
   ok(`real sheet ${order.join('-')} ${left}: 25–55 % holes`, share > 0.25 && share < 0.55, share);
+  const nm = Z.ROTORS[order[1]][1].charCodeAt(0) - 65, nr = Z.ROTORS[order[2]][1].charCodeAt(0) - 65;
   for (let t = 0; t < 40; t++) {
     const m = (t * 7) % 26, r = (t * 11 + 3) % 26, start = left + String.fromCharCode(65 + m, 65 + r);
+    if (m === nm || [0, 1, 2, 3].some(k => (r + k) % 26 === nr)) continue;   // the sheets assume no turn of the middle rotor
     const female = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].some(k => { const c = Z.encrypt(order, start, k + 'XX' + k); return c[0] === c[3]; });
     ok(`real sheet ${order.join('-')} ${start}: hole ⇔ female`, sh[m][r] === female);
   }
 }
 
-// every language has the same keys as Polish (deep), and every label fits its square
-const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' : v && typeof v === 'object'
-  ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;
-const noSep = ({ wordSep, ...rest }) => rest;
-for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
-  ok(`${l}: same keys as pl`, JSON.stringify(shape(noSep(T[l]))) === JSON.stringify(shape(noSep(T.pl))));
-  ok(`${l}: learn lists as long as pl`, ['parts', 'timeline', 'map'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
-}
-for (const l of ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es']) {
-  const L = T[l];
-  const labels = [...L.words.flat(), ...L.syllables, ...L.cutWords, ...L.cutPool];
-  ok(`${l}: labels have at most 6 letters`, labels.every(w => [...w].length <= 6), labels.filter(w => [...w].length > 6));
-  ok(`${l}: a pool keeps enough decoys`, L.syllables.length >= 20 && L.cutPool.length >= 20);
-  ok(`${l}: three syllables per word`, L.words.every(w => w.length === 3));
-  // the answer must not stand out: no password syllable longer than the longest decoy
-  const len = w => [...w].length, maxDecoy = Math.max(...L.syllables.map(len));
-  ok(`${l}: password syllables no longer than decoys`, L.words.flat().every(w => len(w) <= maxDecoy), L.words.flat().filter(w => len(w) > maxDecoy));
-  const b = Z.board(K.rng('b'), 6, 7, 'NIG', L.syllables);
-  ok(`${l}: the answer label appears once`, b.filter(x => x === 'NIG').length === 1 && b[7] === 'NIG');
+// a day of traffic: the plugboard and rings do not hide the answer, and it is the only one
+for (const seed of ['d1', 'd2', 'd3', 'd4']) {
+  const d = Z.day(K.rng(seed)), m = Z.machine(d.order, d.rings, d.plug);
+  ok(`day ${seed}: every message deciphers to its doubled key`, d.messages.every(x => m.encrypt(x.ground, x.ind) === x.key + x.key));
+  ok(`day ${seed}: at least 10 females`, d.females.length >= 10);
+  ok(`day ${seed}: the one answer is the daily key`, d.answer.order === d.order && d.answer.s === d.truth.s && d.answer.y === d.truth.y && d.answer.x === d.truth.x);
+  const f0 = d.females[0], g = [...d.messages[f0.msg].ground].map(c => c.charCodeAt(0) - 65), L = i => String.fromCharCode(65 + ((i % 26) + 26) % 26);
+  ok(`day ${seed}: the light gives the rings (L₁ − s, M₁ − y, R′₁ − x)`, L(g[0] - d.answer.s) + L(g[1] - d.answer.y) + L(g[2] + f0.type - d.answer.x) === d.rings);
+  ok(`day ${seed}: six plugboard pairs`, d.plug.split(' ').length === 6 && new Set(d.plug.replace(/ /g, '')).size === 12);
 }
 
+// every language has the same keys as Polish (deep)
+const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' : v && typeof v === 'object'
+  ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;
+for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
+  ok(`${l}: same keys as pl`, JSON.stringify(shape(T[l])) === JSON.stringify(shape(T.pl)));
+  ok(`${l}: learn lists as long as pl`, ['parts', 'timeline', 'map'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
+}
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

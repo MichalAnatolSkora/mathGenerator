@@ -21,7 +21,6 @@
   .ans{flex:1 1 30mm;font-size:12.5px;line-height:2.4;}
   .ans span{display:inline-block;border-bottom:0.3mm solid #333;width:16mm;margin-left:1mm;}
   .password{display:flex;align-items:center;gap:3mm;font-weight:800;font-size:15px;margin-top:2mm;}
-  .password i{display:inline-block;width:18mm;height:10mm;border:0.4mm solid #333;border-radius:1.5mm;}
   .cutgrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm;justify-items:center;}
   .keyrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;text-align:center;font-size:12.5px;}
   .keyrow b{font-size:15px;}
@@ -37,7 +36,7 @@
   .timeline dt{font-weight:800;white-space:nowrap;}
   .timeline dd{margin:0;}
   .map{width:100%;border-collapse:collapse;}
-  .map th,.map td{border:0.3mm solid #bbb;padding:1mm 2mm;text-align:left;vertical-align:top;}
+  .map th,.map td{border:0.3mm solid #bbb;padding:0.6mm 2mm;text-align:left;vertical-align:top;}
   .map th{background:#f1f1f1;}
   .map td:first-child{width:58%;}
   /* the real sheet page */
@@ -69,14 +68,17 @@
 <script>
 (() => {
   const STARS = { easy: '★', medium: '★★', hard: '★★★' };
-  /** The three rounds of a page; their syllables make one password. */
+  /** The three rounds of a page. */
   const PLAN = {
     mix: ['easy', 'medium', 'hard'],
     easy: ['easy', 'easy', 'easy'],
     medium: ['medium', 'medium', 'medium'],
     hard: ['hard', 'hard', 'hard'],
   };
-  const cellName = (c, n) => 'ABCDEFGHIJ'[c % n] + (Math.floor(c / n) + 1);
+  /** A square's letters, as on Zygalski's sheets: the row is the middle rotor, the column the right rotor. */
+  const L = i => String.fromCharCode(65 + i);
+  const pair = (c, n) => ({ middle: L(Math.floor(c / n)), right: L(c % n) });
+  const setting = (C, c, n) => { const p = pair(c, n); return `${C.middle} ${p.middle} · ${C.right} ${p.right}`; };
 
   /**
    * Side view of the light table: a lamp, three sheets, the light going up only where holes line up.
@@ -140,12 +142,7 @@
     checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: false, label: 'optCut' }],
     render(s, api) {
       const { t, C, esc } = api;
-      const word = KIT.pick(api.rnd('word'), C.words);
-      const rounds = PLAN[s.level].map((lv, i) => {
-        const r = ZYG.round(api.rnd(`${s.level}|${i}`), lv);
-        r.labels = ZYG.board(api.rnd(`labels|${s.level}|${i}`), r.n, r.answer, word[i], C.syllables);
-        return r;
-      });
+      const rounds = PLAN[s.level].map((lv, i) => ZYG.round(api.rnd(`${s.level}|${i}`), lv));
       const anyShift = rounds.some(r => r.shift);
 
       const roundHtml = (r, i) => {
@@ -155,14 +152,14 @@
           const shift = r.shift ? ` <small>${esc(C.shift(sh.dx, sh.dy))}</small>` : '';
           return `<div class="sh"><div class="cap">${esc(C.sheet(j + 1))}${shift}</div>${ZYG.svg(r.n, cells, { w: sheetW, coords: true })}</div>`;
         }).join('');
-        const table = ZYG.svg(r.n, r.labels.map(text => ({ text })), { w: tableW, coords: true });
+        const table = ZYG.svg(r.n, Array.from({ length: r.n * r.n }, () => ({})), { w: tableW, coords: true });
         return `<div class="round">
           <div class="rhead">${esc(C.round(i + 1))} <span class="stars">${STARS[r.level]}</span></div>
           <div class="rbody">
             <div class="sheets">${sheets}</div>
             <div class="arrow">➜</div>
             <div class="tbl"><div class="cap">💡 ${esc(t('table'))}</div>${table}</div>
-            <div class="ans">${esc(t('cell'))}<span></span><br>${esc(t('syllable'))}<span></span></div>
+            <div class="ans">${esc(t('middle'))}<span></span><br>${esc(t('right'))}<span></span></div>
           </div>
         </div>`;
       };
@@ -173,14 +170,12 @@
         <p class="story">${esc(t('story'))}</p>
         <p class="instr">${esc(t('instr'))}${anyShift ? `<br><b>${esc(t('instrShift'))}</b>` : ''}</p>
         ${rounds.map(roundHtml).join('')}
-        <div class="password">${esc(t('password'))} ${rounds.map(() => '<i></i>').join('')}</div>
       </div>`;
 
       let cut = null;
       if (s.cut) {
         cut = ZYG.cutRound(api.rnd('cut'));
-        cut.word = KIT.pick(api.rnd('cutWord'), C.cutWords);
-        const labels = ZYG.board(api.rnd('cutLabels'), cut.n, cut.answer, cut.word, [...C.cutPool, ...C.cutWords]);
+        const labels = Array.from({ length: cut.n * cut.n }, (_, c) => { const p = pair(c, cut.n); return p.middle + p.right; });
         const board = ZYG.svg(cut.n, labels.map(text => ({ text })), { w: 82, top: t('cutBoard'), cut: true });
         const sheets = cut.sheets.map((sh, j) => ZYG.svg(cut.n, Array.from({ length: cut.n * cut.n }, (_, c) => ({ hole: sh.holes.has(c) })),
           { w: 82, top: C.cutSheet(j + 1), cut: true }));
@@ -193,14 +188,13 @@
 
       if (s.key) {
         const keys = rounds.map((r, i) => {
-          const cells = r.labels.map((text, c) => ({ text, hi: c === r.answer }));
-          return `<div>${esc(C.round(i + 1))}<br>${ZYG.svg(r.n, cells, { w: 50, coords: true })}<br>${cellName(r.answer, r.n)} → <b>${esc(word[i])}</b></div>`;
+          const cells = Array.from({ length: r.n * r.n }, (_, c) => ({ hi: c === r.answer }));
+          return `<div>${esc(C.round(i + 1))}<br>${ZYG.svg(r.n, cells, { w: 50, coords: true })}<br><b>${esc(setting(C, r.answer, r.n))}</b></div>`;
         }).join('');
         html += `<div class="sheet key">
           ${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
           <div class="keyrow">${keys}</div>
-          <p class="password">${esc(t('password'))} ${esc(word.join(C.wordSep || ''))}</p>
-          ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(cut.word)} (${cellName(cut.answer, cut.n)})</p>` : ''}
+          ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(setting(C, cut.answer, cut.n))}</p>` : ''}
         </div>`;
       }
       return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };

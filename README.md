@@ -15,7 +15,7 @@ different language than the game texts (`?msg=`).
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | **Home page** — pick a puzzle: a grid of cards grouped by age, for little ones (5–8) on top, for bigger kids (8–12) below, with buttons to jump to a group; one card per row on phones (seven languages) |
+| [`index.html`](index.html) | **Home page** — pick a puzzle: a grid of cards grouped by age, for little ones (5–8) on top, for bigger kids (8–12) below, for the ambitious (14+ and adults) last, with buttons to jump to a group; one card per row on phones (seven languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |
@@ -35,10 +35,11 @@ different language than the game texts (`?msg=`).
 | [`connect-dots/worksheet.html`](connect-dots/worksheet.html) | **Connect the Dots** printable worksheets: join the numbered dots and a picture appears (+ answer key) |
 | [`nonograms/worksheet.html`](nonograms/worksheet.html) | **Picture Logic Puzzles** (mini nonograms) printable worksheets, 5×5 to 10×10 (+ answer key) |
 | [`mirror-drawing/worksheet.html`](mirror-drawing/worksheet.html) | **Mirror Drawing** printable worksheets: colour the other half of a symmetric picture (+ answer key) |
-| [`zygalski-sheets/worksheet.html`](zygalski-sheets/worksheet.html) | **Zygalski Sheets** printable educational game: how the Polish codebreakers found the Enigma settings in 1938 with sheets full of holes — a "How did it work?" page, a real sheet recomputed with an Enigma simulation, three rounds of stacking sheets on a light table (with shifting on ★★★), sheets to cut out (+ answer key) |
+| [`zygalski-sheets/worksheet.html`](zygalski-sheets/worksheet.html) | **Zygalski Sheets** printable educational game: how the Polish codebreakers found the Enigma settings in 1938 with sheets full of holes — a "How did it work?" page, a real sheet recomputed with an Enigma simulation, three rounds of stacking sheets on a light table whose answer is a pair of rotor letters (with shifting on ★★★), sheets to cut out (+ answer key) |
+| [`zygalski-full/worksheet.html`](zygalski-full/worksheet.html) | **Zygalski Sheets, full version** (for the ambitious, 14+ and adults): one day of intercepted messages simulated with a real Enigma I, full sets of 51 × 51 sheets (paper or film), a work table, three levels of help and the answer — find the rotor order and the ring settings as the Cipher Bureau did in 1938 |
 | [`sheet-kit/`](sheet-kit/) | Shared kit of the paper-only worksheets above: controls, sheet code, A4 print layout, common texts |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md), [`zygalski-sheets/README.md`](zygalski-sheets/README.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md), [`zygalski-sheets/README.md`](zygalski-sheets/README.md), [`zygalski-full/README.md`](zygalski-full/README.md).
 
 ## Run locally
 
