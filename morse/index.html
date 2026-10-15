@@ -121,6 +121,8 @@
   .story .gloss dd{margin:0;}
   .story .row{align-items:center;}
   .story .code{color:var(--bad);}
+  .story .today{margin:16px 0 0;}
+  .today-scene{display:block;width:100%;height:auto;max-width:640px;margin:4px auto 12px;}
 
   .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
   .stats .grow{flex:1;}
@@ -249,6 +251,7 @@
       <button type="button" class="primary" id="storyPlay" data-i18n="storyPlay"></button>
       <div class="code" id="storyCode"></div>
     </div>
+    <div class="radio today" id="todayBody"></div>
   </details>
 
   <div class="stats">
@@ -568,6 +571,8 @@
       + `<dl class="gloss">${MORSE.STORY.words.map((w, i) => `<dt>${w}</dt><dd>${esc(st.tgWords[i])}</dd>`).join('')}</dl><p>${esc(st.tgSos)}</p></div>`
       + `<div class="radio"><h3>📻 ${esc(st.radioTitle)}</h3><p>${esc(st.radio)}</p></div>`;
     $('storyCode').innerHTML = svg(MORSE.SOS_SIGNAL, 14);
+    $('todayBody').innerHTML = `<h3>📡 ${esc(st.todayTitle)}</h3>` + MORSE.todaySVG({ labels: { voice: st.voice, morse: st.morse } })
+      + st.today.map(x => `<p>${esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>`).join('');
   }
   function renderScore() {
     $('scoreShips').textContent = `⛵ ${S.ships}`;

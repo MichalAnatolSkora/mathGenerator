@@ -207,6 +207,11 @@
   .calls .strip{flex:1 1 40mm;}
   .calls small{display:block;font-size:11px;color:#555;margin:0 0 1mm;}
   .sossig{display:flex;align-items:center;gap:3mm;margin-top:1.5mm;}
+  .story .today-scene{display:block;width:100%;height:auto;max-height:44mm;margin:0 auto 3mm;}
+  .ways{display:grid;grid-template-columns:1fr 1fr;gap:3mm 8mm;margin-top:2mm;font-size:14px;}
+  .ways span{display:flex;align-items:center;gap:2.5mm;}
+  .ways span::before{content:"";flex:none;width:6mm;height:6mm;border:0.4mm solid #333;border-radius:1mm;}
+  .ways .own{border-bottom:0.35mm solid #444;flex:1;align-self:flex-end;height:6mm;}
   .upside{transform:rotate(180deg);font-size:11px;color:#555;margin:auto 0 0;padding-top:2.5mm;}
 
   /* diploma */
@@ -619,7 +624,19 @@
       + `<div class="stasks">`
       + `<div class="wide">${head(4, st.namesTitle, esc(st.namesInstr))}<div class="calls">${S.names.map(name).join('')}${strip}</div></div>`
       + `<div class="wide">${head(5, st.writeTitle, esc(st.writeInstr))}<div class="wbox">${'<span></span>'.repeat(5)}</div></div>`
-      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.namesAnswer)}</p></div>`;
+      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.namesAnswer)}</p></div>`
+      + todayPage(M);
+  }
+  /** The third story page: Morse today (radio amateurs, why it reaches further than a voice, no special equipment). */
+  function todayPage(M) {
+    const st = C().story, bold = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'), last = st.ways.length - 1;
+    return `<div class="sheet story"><div class="u">${headHTML(true, M, st.todayTitle, st.todaySub)}</div>`
+      + MORSE.todaySVG({ labels: { voice: st.voice, morse: st.morse } })
+      + st.today.map(x => `<p class="st">${bold(x)}</p>`).join('')
+      + `<div class="stasks">`
+      + `<div class="wide">${head(6, st.waysTitle, esc(st.waysInstr))}<div class="ways">${st.ways.map((w, i) => `<span>${esc(w)}${i === last ? '<i class="own"></i>' : ''}</span>`).join('')}</div></div>`
+      + `<div class="wide">${head(7, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.todayQ)}</p>${lines(2)}</div>`
+      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.todayAnswer)}</p></div>`;
   }
   function diplomaPage(M) {
     const bravo = MORSE.norm(t('diplomaBravo'), lang());

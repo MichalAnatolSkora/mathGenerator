@@ -67,6 +67,12 @@ pages (a task that does not fit starts the next page). The default mix fits one 
   “COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.” (kept in English in every language),
   a translation, a word list (MGY, CQD, OM, BERG, POSITION), a note that the SOS calls looked much the same (the exact
   words of those were not kept), and two tasks: read the ships’ radio names MGY and MPA, write a telegram of five words.
+  A third page, **Morse today**: big ships have called for help by satellite since 1999, but radio amateurs still send
+  Morse, because short and long beeps can be heard through the crackling when a voice can no longer be understood (so
+  Morse reaches further), and because it needs no special equipment (the simplest transmitter only switches the signal
+  on and off; without a radio a torch, a whistle or a hummed “beep” will do); radio beacons for aeroplanes still send
+  their names in Morse. A drawing (the voice gets lost in the noise, the dots and dashes get through) and two tasks:
+  send SOS without a radio (tick the ways you tried) and a question, the answer upside down.
 - Same code + same settings ⇒ the same sheet.
   URL: `?seed=&level=young|older&upto=1-4&extra=1&tasks=telegram,riddle,…&aid=none|strip|tree&cheat=1&key=1&treepage=1&diploma=1&story=1`.
 
@@ -80,5 +86,6 @@ pages (a task that does not fit starts the next page). The default mix fits one 
 - **🌳 The tree** (option): the Morse tree under the task, the way to the letter lights up (while sending, step by step).
 - **📻 Fun fact** under the game (folded): the Titanic story with the same picture; “Listen to SOS” plays the real
   signal (···−−−··· with no gaps) with sound, the lighthouse lamp and the Titanic's radio waves flashing.
+  Below it, the same **Morse today** fact with its drawing.
 - Letters missed more often come up more often. Speed: slow / medium / fast, with extra room between letters.
 - Ships saved, streak and per-letter results are kept in `localStorage` (`morse.v1`). URL: `?mode=rx|tx|dict&upto=1-4`.

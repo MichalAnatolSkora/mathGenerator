@@ -501,6 +501,48 @@ const MORSE = (() => {
       + waves(282, 30, 880, 40)
       + '</svg>';
   }
+  /** Morse today, 900 × 240 units: two radio amateurs far apart, crackling noise between them; the voice gets lost
+   *  in the noise (?), the dots and dashes get through (✓). Not to scale. o: { labels: { voice, morse } }, cls. */
+  function todaySVG(o = {}) {
+    const L = o.labels || {}, ink = '#1e2436';
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const text = (x, y, s, anchor = 'start', size = 26, w = 800, fill = ink) => s ? `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="${size}" font-weight="${w}" fill="${fill}">${esc(s)}</text>` : '';
+    // a little house with a wire antenna on a mast, the radio waves going out towards the other side (dir = ±1)
+    function station(x, dir) {
+      const mx = x + dir * 16;
+      let d = '';
+      for (let i = 1; i <= 3; i++) { const r = 10 + i * 12; d += `M${mx + dir * r * 0.5} ${52 - r * 0.87}A${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${mx + dir * r * 0.5} ${52 + r * 0.87}`; }
+      return `<path d="M${x - 30} 214V172L${x} 146L${x + 30} 172V214Z" fill="#fff" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/>`
+        + `<rect x="${x - 8}" y="190" width="16" height="24" fill="${ink}"/>`
+        + `<path d="M${mx} 158V52M${mx - 24} 52H${mx + 24}" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`
+        + `<path d="${d}" fill="none" stroke="#1f9d55" stroke-width="3.5" stroke-linecap="round"/>`;
+    }
+    // the crackling: grey zigzags over both lanes
+    let noise = '';
+    for (const y of [104, 170]) {
+      noise += `M170 ${y}`;
+      for (let i = 1, x = 170; x < 720; i++) { x += 11; noise += `L${x} ${Math.round(y + (i % 2 ? -1 : 1) * (5 + 9 * Math.abs(Math.sin(i * 1.7 + y))))}`; }
+    }
+    // the voice: a wave that gets weaker and weaker, then nothing can be understood
+    let voice = '';
+    for (let i = 0, x = 180; x < 430; i++, x += 22) { const a = 16 * (1 - i / 12); voice += `<path d="M${x} 104q5.5 ${-a} 11 0t11 0" fill="none" stroke="#7b5bc9" stroke-width="4" stroke-linecap="round" opacity="${Math.max(0.15, 1 - i / 11).toFixed(2)}"/>`; }
+    // the Morse: SOS again and again, all the way across
+    let morse = '';
+    for (let x = 180, k = 0; x < 690; k++) {
+      const s = SOS_SIGNAL[k % SOS_SIGNAL.length];
+      morse += s === '.' ? `<circle cx="${x + 5}" cy="170" r="5.5"/>` : `<rect x="${x}" y="166" width="24" height="8.5" rx="4.2"/>`;
+      x += (s === '.' ? 11 : 24) + (k % SOS_SIGNAL.length === SOS_SIGNAL.length - 1 ? 20 : 8);
+    }
+    return `<svg class="${o.cls || 'today-scene'}" viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg" role="img">`
+      + `<rect x="1.5" y="1.5" width="897" height="237" rx="16" fill="#fff" stroke="${ink}" stroke-width="3"/>`
+      + `<path d="M3 214H897V226Q897 237 884 237H16Q3 237 3 226Z" fill="#e7f2df"/><path d="M3 214H897" stroke="#9cc58a" stroke-width="2.5"/>`
+      + `<path d="${noise}" fill="none" stroke="#c9ced8" stroke-width="2" stroke-linejoin="round"/>`
+      + station(90, 1) + station(810, -1)
+      + text(180, 74, L.voice) + voice + text(470, 120, '?', 'middle', 48, 800, '#d6455a')
+      + text(180, 142, L.morse) + `<g fill="${ink}">${morse}</g>`
+      + `<path d="M716 168l10 11l20 -24" fill="none" stroke="#1f9d55" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`
+      + '</svg>';
+  }
 
   /* ---------- drawing dots and dashes ---------- */
   const DOT = 10, GAP = 7.5, DASH = 26, BAR = 7.4;
@@ -522,7 +564,7 @@ const MORSE = (() => {
   return {
     LANGS, TASKS, LEVELS, UPTO, DEFAULT_TASKS, COLOR_MAX,
     alphabet, code, extras, groupOf, groupLetters, letters, newest, norm, sendable, encode, decodeLetter, len, bank, mnemonic,
-    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG, STORY, SOS_SIGNAL, storySVG,
+    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG, STORY, SOS_SIGNAL, storySVG, todaySVG,
     dictationWords, dictationCode, parseDictationCode, sheet, svg, codeWidth,
   };
 })();
