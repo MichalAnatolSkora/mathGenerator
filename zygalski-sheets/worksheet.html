@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Płachty Zygalskiego — karta pracy</title>
+<meta name="description" content="Karta pracy A4 do druku: płachty Zygalskiego — nakładaj płachty z dziurkami i znajdź jedyne pole, przez które przechodzi światło. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .story{font-size:12px;color:#333;margin:0 0 1.5mm;font-style:italic;}
+  .instr{font-size:12.5px;margin-bottom:2.5mm;}
+  .instr b{font-weight:700;}
+  .round{border:0.3mm solid #ccc;border-radius:2mm;padding:1mm 3mm;margin:0 0 2mm;break-inside:avoid;page-break-inside:avoid;}
+  .rhead{font-weight:800;font-size:13px;margin:0 0 1mm;}
+  .stars{color:#d29a00;letter-spacing:1px;}
+  .rbody{display:flex;align-items:center;gap:3mm;flex-wrap:wrap;}
+  .sheets{display:grid;grid-template-columns:repeat(2,23mm);gap:1mm 3mm;}
+  .sh .cap,.tbl .cap{font-size:9.5px;font-weight:600;color:#444;text-align:center;white-space:nowrap;}
+  .sh .cap small{color:#c0252b;font-weight:800;}
+  .arrow{font-size:26px;color:#999;}
+  .ans{flex:1 1 30mm;font-size:12.5px;line-height:2.4;}
+  .ans span{display:inline-block;border-bottom:0.3mm solid #333;width:16mm;margin-left:1mm;}
+  .password{display:flex;align-items:center;gap:3mm;font-weight:800;font-size:15px;margin-top:2mm;}
+  .password i{display:inline-block;width:18mm;height:10mm;border:0.4mm solid #333;border-radius:1.5mm;}
+  .cutgrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm;justify-items:center;}
+  .keyrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;text-align:center;font-size:12.5px;}
+  .keyrow b{font-size:15px;}
+  /* the "How did it work?" page */
+  .learn{font-size:11.5px;line-height:1.42;color:#222;}
+  .learn h3{font-size:13px;margin:0 0 1mm;}
+  .learn p{margin:0;}
+  .parts{display:grid;grid-template-columns:1fr 1fr;gap:3mm 6mm;margin-bottom:3mm;}
+  .lrow{display:grid;grid-template-columns:66mm 1fr;gap:6mm;align-items:start;margin-bottom:3mm;}
+  .example{border:0.3mm solid #d29a00;background:#fff8dc;border-radius:2mm;padding:1.5mm 2.5mm;margin-top:2mm;}
+  .why{margin-top:1.5mm;font-style:italic;}
+  .timeline{display:grid;grid-template-columns:auto 1fr;gap:1mm 3mm;}
+  .timeline dt{font-weight:800;white-space:nowrap;}
+  .timeline dd{margin:0;}
+  .map{width:100%;border-collapse:collapse;}
+  .map th,.map td{border:0.3mm solid #bbb;padding:1mm 2mm;text-align:left;vertical-align:top;}
+  .map th{background:#f1f1f1;}
+  .map td:first-child{width:58%;}
+  @media (max-width:600px){ .arrow{display:none;} .parts,.lrow{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🔦 Płachty Zygalskiego — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const STARS = { easy: '★', medium: '★★', hard: '★★★' };
+  /** The three rounds of a page; their syllables make one password. */
+  const PLAN = {
+    mix: ['easy', 'medium', 'hard'],
+    easy: ['easy', 'easy', 'easy'],
+    medium: ['medium', 'medium', 'medium'],
+    hard: ['hard', 'hard', 'hard'],
+  };
+  const cellName = (c, n) => 'ABCDEFGHIJ'[c % n] + (Math.floor(c / n) + 1);
+
+  /**
+   * Side view of the light table: a lamp, three sheets, the light going up only where holes line up.
+   * Holes (columns 0…9) from the bottom sheet up; only column 4 is a hole in all three.
+   */
+  function diagram(D) {
+    const HOLES = [[1, 3, 4, 6, 8], [1, 4, 5, 8], [2, 4, 7]], Y = [62, 46, 30], X0 = 3, CW = 7, COLS = 10, TH = 3;
+    const light = 'fill="#ffd23f" opacity="0.75"';
+    let s = `<svg viewBox="0 0 100 92" style="width:100%;max-width:64mm" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif">`;
+    s += `<rect x="${X0}" y="${Y[0] + TH}" width="${CW * COLS}" height="${80 - Y[0] - TH}" ${light}/>`;
+    let open = HOLES[0];
+    for (let i = 0; i < 3; i++) {
+      const y = Y[i];
+      for (let c = 0; c < COLS; c++) if (!HOLES[i].includes(c)) s += `<rect x="${X0 + c * CW}" y="${y}" width="${CW}" height="${TH}" fill="#444"/>`;
+      if (i > 0) open = open.filter(c => HOLES[i].includes(c));
+      const top = i < 2 ? Y[i + 1] + TH : 12;
+      for (const c of open) s += `<rect x="${X0 + c * CW + 1}" y="${top}" width="${CW - 2}" height="${y - top}" ${light}/>`;
+      s += `<text x="${X0 + CW * COLS + 3}" y="${y + 2.4}" font-size="4.6">${KIT.esc(D.sheet(i + 1))}</text>`;
+    }
+    const cx = X0 + 4 * CW + CW / 2;
+    s += `<text x="${cx}" y="7" font-size="5" font-weight="800" text-anchor="middle">★ ${KIT.esc(D.here)}</text>`;
+    s += `<rect x="${X0}" y="80" width="${CW * COLS}" height="6" rx="1.5" fill="#f2b705" stroke="#8a6a00" stroke-width="0.4"/>`;
+    s += `<text x="${X0 + CW * COLS + 3}" y="84.6" font-size="4.6">💡 ${KIT.esc(D.lamp)}</text>`;
+    return s + '</svg>';
+  }
+
+  /** The "How did it work?" page: the story of the sheets, a picture, what happened next, what maps to what. */
+  function learnPage(api) {
+    const { C, esc } = api, L = C.learn;
+    return `<div class="sheet learn">
+      ${api.head(L.title, L.sub, false)}
+      <div class="parts">${L.parts.map(([h, p], i) => `<div><h3>${esc(h)}</h3><p>${esc(p)}</p>${i === 1 ? `<p class="example">${L.example}</p>` : ''}</div>`).join('')}</div>
+      <div class="lrow">
+        <div>${diagram(L.diagram)}<p class="why">${esc(L.why)}</p></div>
+        <div><h3>${esc(L.timelineTitle)}</h3><dl class="timeline">${L.timeline.map(([d, x]) => `<dt>${esc(d)}</dt><dd>${esc(x)}</dd>`).join('')}</dl></div>
+      </div>
+      <h3>${esc(L.mapTitle)}</h3>
+      <table class="map"><tr>${L.mapHead.map(h => `<th>${esc(h)}</th>`).join('')}</tr>
+        ${L.map.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>
+    </div>`;
+  }
+
+  KIT.app({
+    store: 'zygalski.sheet',
+    text: ZYG_TEXT,
+    groups: [{ id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'cut', def: false, label: 'optCut' }],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const word = KIT.pick(api.rnd('word'), C.words);
+      const rounds = PLAN[s.level].map((lv, i) => {
+        const r = ZYG.round(api.rnd(`${s.level}|${i}`), lv);
+        r.labels = ZYG.board(api.rnd(`labels|${s.level}|${i}`), r.n, r.answer, word[i], C.syllables);
+        return r;
+      });
+      const anyShift = rounds.some(r => r.shift);
+
+      const roundHtml = (r, i) => {
+        const sheetW = r.n === 4 ? 20 : 22, tableW = r.n === 4 ? 42 : 48;
+        const sheets = r.sheets.map((sh, j) => {
+          const cells = Array.from({ length: r.n * r.n }, (_, c) => ({ hole: sh.holes.has(c) }));
+          const shift = r.shift ? ` <small>${esc(C.shift(sh.dx, sh.dy))}</small>` : '';
+          return `<div class="sh"><div class="cap">${esc(C.sheet(j + 1))}${shift}</div>${ZYG.svg(r.n, cells, { w: sheetW, coords: true })}</div>`;
+        }).join('');
+        const table = ZYG.svg(r.n, r.labels.map(text => ({ text })), { w: tableW, coords: true });
+        return `<div class="round">
+          <div class="rhead">${esc(C.round(i + 1))} <span class="stars">${STARS[r.level]}</span></div>
+          <div class="rbody">
+            <div class="sheets">${sheets}</div>
+            <div class="arrow">➜</div>
+            <div class="tbl"><div class="cap">💡 ${esc(t('table'))}</div>${table}</div>
+            <div class="ans">${esc(t('cell'))}<span></span><br>${esc(t('syllable'))}<span></span></div>
+          </div>
+        </div>`;
+      };
+
+      const sub = C.levels[s.level];
+      let html = (s.learn ? learnPage(api) : '') + `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="story">${esc(t('story'))}</p>
+        <p class="instr">${esc(t('instr'))}${anyShift ? `<br><b>${esc(t('instrShift'))}</b>` : ''}</p>
+        ${rounds.map(roundHtml).join('')}
+        <div class="password">${esc(t('password'))} ${rounds.map(() => '<i></i>').join('')}</div>
+      </div>`;
+
+      let cut = null;
+      if (s.cut) {
+        cut = ZYG.cutRound(api.rnd('cut'));
+        cut.word = KIT.pick(api.rnd('cutWord'), C.cutWords);
+        const labels = ZYG.board(api.rnd('cutLabels'), cut.n, cut.answer, cut.word, [...C.cutPool, ...C.cutWords]);
+        const board = ZYG.svg(cut.n, labels.map(text => ({ text })), { w: 82, top: t('cutBoard'), cut: true });
+        const sheets = cut.sheets.map((sh, j) => ZYG.svg(cut.n, Array.from({ length: cut.n * cut.n }, (_, c) => ({ hole: sh.holes.has(c) })),
+          { w: 82, top: C.cutSheet(j + 1), cut: true }));
+        html += `<div class="sheet">
+          ${api.head(t('cutTitle'), t('sheetTitle'), false)}
+          <p class="instr">✂️ ${esc(t('cutInstr'))}</p>
+          <div class="cutgrid">${[board, ...sheets].map(x => `<div>${x}</div>`).join('')}</div>
+        </div>`;
+      }
+
+      if (s.key) {
+        const keys = rounds.map((r, i) => {
+          const cells = r.labels.map((text, c) => ({ text, hi: c === r.answer }));
+          return `<div>${esc(C.round(i + 1))}<br>${ZYG.svg(r.n, cells, { w: 50, coords: true })}<br>${cellName(r.answer, r.n)} → <b>${esc(word[i])}</b></div>`;
+        }).join('');
+        html += `<div class="sheet key">
+          ${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
+          <div class="keyrow">${keys}</div>
+          <p class="password">${esc(t('password'))} ${esc(word.join(''))}</p>
+          ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(cut.word)} (${cellName(cut.answer, cut.n)})</p>` : ''}
+        </div>`;
+      }
+      return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
+    },
+  });
+})();
+</script>
+</body>
+</html>
