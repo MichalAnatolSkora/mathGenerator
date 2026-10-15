@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zadania z treścią — wyzwania</title>
+<meta name="description" content="Karty do druku: krótkie zadania z treścią z dodawania i odejmowania (do 10, do 20, do 100) do wycięcia i wklejenia do zeszytu. Z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  /* eight cards to cut out: 2 columns × 4 rows of about 90 × 56 mm */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .wcard{border:0.35mm dashed #8a8f99;display:flex;flex-direction:column;height:56mm;break-inside:avoid;page-break-inside:avoid;background:#fff;min-width:0;}
+  .wcard .band{display:flex;justify-content:space-between;align-items:flex-end;gap:3mm;background:#e9eaec;padding:1.6mm 3mm 1.2mm;font-size:10.5px;color:#333;}
+  .wcard .band b{font-weight:600;white-space:nowrap;}
+  .wcard .band span{flex:1;display:flex;align-items:flex-end;gap:1.5mm;justify-content:flex-end;white-space:nowrap;}
+  .wcard .band span i{display:inline-block;width:24mm;border-bottom:0.25mm dotted #555;}
+  .wcard .q{margin:0;padding:2.6mm 3.5mm 0;font:15px/1.32 Charter,"Bitstream Charter",Cambria,"Times New Roman",serif;font-variant-numeric:lining-nums;color:#111;}
+  .wcard .foot{margin-top:auto;display:flex;justify-content:flex-end;align-items:center;gap:2.5mm;padding:0 3.5mm 2.5mm;font-size:11px;font-weight:700;}
+  .wcard .foot i{display:inline-block;width:12mm;height:12mm;border:0.35mm solid #444;border-radius:50%;}
+  .wcard .foot svg{width:8mm;height:8mm;display:block;}
+  .wcard .foot .faces{display:flex;gap:2mm;}
+  .key-list{display:grid;grid-template-columns:1fr 1fr;gap:3mm 8mm;font-size:13px;}
+  .key-list div{break-inside:avoid;border-bottom:1px solid #e5e7eb;padding:0 0 2mm;}
+  .key-list b{display:block;font-size:12px;color:#555;font-weight:600;}
+  .key-list .calc{font:600 14px ui-monospace,Menlo,Consolas,monospace;}
+  .key-list .q{color:#555;font-size:11.5px;margin:0.5mm 0 1mm;}
+  @media (max-width:600px){
+    .cards,.key-list{grid-template-columns:1fr;}
+    .wcard{height:auto;min-height:48mm;}
+  }
+  @media print{
+    .cards{grid-template-columns:1fr 1fr;}
+    .wcard{height:56mm;}
+    .key-list{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🧺 Zadania z treścią — wyzwania</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const PER_PAGE = 8;
+  const STARTS = [1, 9, 17, 25, 33, 41];
+  /** Three faces to circle (happy, so-so, sad), drawn in outline so they print on any printer. */
+  const face = mouth => `<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="none" stroke="#444" stroke-width="1.1"/>`
+    + `<circle cx="7" cy="8" r="1.1" fill="#444"/><circle cx="13" cy="8" r="1.1" fill="#444"/>`
+    + `<path d="${mouth}" fill="none" stroke="#444" stroke-width="1.1" stroke-linecap="round"/></svg>`;
+  const FACES = `<span class="faces">${face('M6 12.2q4 3.6 8 0')}${face('M6.5 13.2h7')}${face('M6 14.6q4-3.4 8 0')}</span>`;
+  KIT.app({
+    store: 'wordProblems.sheet',
+    text: WORDS_TEXT,
+    groups: [
+      { id: 'range', values: WORDS.RANGES, def: 20, label: (v, C) => C.ranges[v] },
+      { id: 'type', values: ['mix', ...WORDS.TYPES], def: 'mix', label: (v, C) => C.types[v] },
+      { id: 'start', values: STARTS, def: 1, label: v => `${v}–${v + PER_PAGE - 1}` },
+      { id: 'grade', title: 'gradeBy', values: ['self', 'teacher', 'none'], def: 'self', label: (v, C) => C.grades[v] },
+    ],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const lang = I18N.get();
+      const probs = WORDS.sheet(api.rnd(`${s.range}|${s.type}|${s.start}`), s.type, s.range, PER_PAGE);
+      const texts = probs.map(p => WORDS_TEXT.say(lang, p));
+      const sub = `${C.ranges[s.range]} · ${C.types[s.type]}`;
+      const foot = { self: `<div class="foot">${esc(t('gradeSelf'))} ${FACES}</div>`,
+        teacher: `<div class="foot">${esc(t('gradeTeacher'))} <i></i></div>`, none: '' }[s.grade];
+      const instr = t('instr') + { self: ' ' + t('instrSelf'), teacher: ' ' + t('instrTeacher'), none: '' }[s.grade];
+      const card = (p, i) => `<div class="wcard">
+          <div class="band"><b>${esc(t('challenge'))} ${s.start + i}</b><span>${esc(t('date'))} <i></i></span></div>
+          <p class="q">${esc(texts[i])}</p>
+          ${foot}
+        </div>`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, false)}
+        <p class="instr">${esc(instr)}</p>
+        <div class="cards">${probs.map(card).join('')}</div>
+      </div>`;
+      if (s.key) {
+        const item = (p, i) => `<div><b>${esc(t('challenge'))} ${s.start + i}</b>
+            <div class="q">${esc(texts[i])}</div>
+            <div class="calc">${esc(p.calc)}${p.pairs ? ' ' + esc(t('swap')) : ''}</div></div>`;
+        html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
+          <div class="key-list">${probs.map(item).join('')}</div></div>`;
+      }
+      return { html, tasks: probs.length, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>
