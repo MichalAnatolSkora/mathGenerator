@@ -195,6 +195,7 @@
 </div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
 <script>
@@ -384,6 +385,7 @@
   function regenerate() {
     const s = readSettings();
     persist(s);
+    PRINTQR.set({ seed: s.seed, chapter: s.chapter, key: s.key, teacher: s.teacher });
     const msg = $('msg'); msg.className = 'msg';
     try {
       const chs = s.chapter === 'all' ? E.CHAPTERS : [s.chapter];

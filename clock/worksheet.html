@@ -160,6 +160,7 @@
 </div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
 <script>
@@ -261,6 +262,7 @@
   function regenerate() {
     const s = readSettings();
     persist(s);
+    PRINTQR.set({ seed: s.seed, task: s.task, level: s.level, n: s.count, minutes: s.minutes, h24: s.h24, words: s.words, key: s.key });
     const msg = $('msg'); msg.className = 'msg';
     try {
       const items = generate(s);

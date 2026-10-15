@@ -270,6 +270,7 @@
 </div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
 <script>
@@ -333,10 +334,12 @@
     out.textContent = ''; frames.length = 0;
     msg.className = 'msg';
     if (!pages.length) { msg.className = 'msg error'; msg.textContent = t('nonePicked'); return; }
+    PRINTQR.set({ pages: ENIGMA.formatPages(pages) });
     for (const n of pages) {
       const f = document.createElement('div');
       f.className = 'ams-frame';
       f.appendChild(ENIGMA.renderPage(n, lang));
+      PRINTQR.stamp(f);   // before fitting, so the text is fitted around the QR code
       out.appendChild(f);
       frames.push(f);
     }
@@ -353,6 +356,7 @@
     }));
     $('printBtn').addEventListener('click', () => window.print());
     I18N.onChange(() => { I18N.apply(UI); renderChecks(); render(); });
+    PRINTQR.onChange(render);   // the code shown or hidden: fit the text again
     if (window.ResizeObserver) new ResizeObserver(fitFrames).observe($('out'));
     else window.addEventListener('resize', fitFrames);
   }

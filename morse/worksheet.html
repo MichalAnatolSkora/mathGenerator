@@ -328,6 +328,7 @@
 <div class="sheet" id="measure" aria-hidden="true"></div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="../graphic-dictation/engine.js"></script>
 <script src="../graphic-dictation/strings.js"></script>
 <script src="bank.js"></script>
@@ -657,6 +658,7 @@
   function regenerate() {
     const s = readSettings();
     persist(s);
+    PRINTQR.set({ seed: s.seed, level: s.level, upto: s.upto, tasks: s.tasks.join(','), aid: s.aid, extra: s.extra, cheat: s.cheat, key: s.key, diploma: s.diploma, treepage: s.treePage, story: s.story });
     const msg = $('msg'); msg.className = 'msg';
     try {
       const M = MORSE.sheet({ seed: s.seed, lang: lang(), level: s.level, upto: s.upto, extra: s.extra, tasks: s.tasks });

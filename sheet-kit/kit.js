@@ -184,6 +184,7 @@ const KIT = (() => {
     function regenerate() {
       const s = readSettings();
       persist(s);
+      if (typeof PRINTQR !== 'undefined') PRINTQR.set(s);   // the settings go into the QR code's link as ?seed=&<group>=&<check>=
       const msg = $('msg'); msg.className = 'msg';
       try {
         const api = { t, C: C(), esc, rnd: salt => rng(`${s.seed}|${salt}`), head: (title, sub, withName) => head(title, sub, s.seed, withName) };

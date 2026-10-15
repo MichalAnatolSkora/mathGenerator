@@ -219,6 +219,7 @@
 </div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
 <script>
@@ -488,6 +489,7 @@
   function regenerate() {
     const s = readSettings();
     persist(s);
+    PRINTQR.set({ seed: s.seed, level: s.level, axis: s.axis, tasks: s.secs.join(','), lines: s.lines, fact: s.fact, why: s.why, key: s.key });
     const msg = $('msg'); msg.className = 'msg';
     try {
       if (!s.secs.length && !s.fact && !s.why) { $('out').innerHTML = ''; msg.className = 'msg error'; msg.textContent = t('noTasks'); return; }

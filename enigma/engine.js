@@ -359,7 +359,7 @@ const ENIGMA = (() => {
     const task = i => (T.taskLetters || 'ABCD')[i];
 
     function missionHeader(n, title, subtitle) {
-      return h('div', { class: 'ams-mhead' },
+      return h('div', { class: 'ams-mhead', 'data-qr': '' },   // ../print-qr.js puts the QR code here
         h('div', { class: 'ams-stamp' }, h('span', null, t('mission')), h('b', null, String(n))),
         h('div', { class: 'ams-mtitle' }, h('h1', { class: 'ams-h1' }, title), h('p', { class: 'ams-sub' }, rich(subtitle))));
     }

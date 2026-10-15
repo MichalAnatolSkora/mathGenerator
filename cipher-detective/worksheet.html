@@ -199,6 +199,7 @@
 </div>
 
 <script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
 <script>
@@ -380,6 +381,7 @@
     const s = readSettings();
     $('count').value = s.count;
     persist(s);
+    PRINTQR.set({ seed: s.seed, level: s.level, mode: s.mode, n: s.count, alpha: s.alpha, steps: s.steps, hints: s.hints, guide: s.guide, key: s.key, msg: msgLangExplicit ? msgLang : '' });
     const msg = $('msg'); msg.className = 'msg';
     try {
       const W = ENGINE.generateWorksheet(s.seed, s.level, s.count, msgLang, s.mode);
