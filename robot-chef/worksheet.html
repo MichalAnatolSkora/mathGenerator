@@ -180,7 +180,7 @@
     <div class="grp">
       <h2 data-i18n="options">Opcje</h2>
       <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
-      <label class="check"><input type="checkbox" id="optTeacher"> <span data-i18n="optTeacher"></span></label>
+      <label class="check"><input type="checkbox" id="optTeacher" checked> <span data-i18n="optTeacher"></span></label>
     </div>
     <div class="actions">
       <button type="button" class="primary" id="newBtn" data-i18n="newWorksheet"></button>
@@ -202,7 +202,7 @@
   const E = CHEF;
   const $ = id => document.getElementById(id);
   const esc = E.esc;
-  const STORE = 'robotchef.sheet';
+  const STORE = 'robotchef.sheet2';
   const UI = {};
   for (const l of Object.keys(CHEF_TEXT)) UI[l] = { ...CHEF_TEXT[l].common, ...CHEF_TEXT[l].game, ...CHEF_TEXT[l].sheet };
   const t = (k, ...a) => I18N.t(UI, k, ...a);
@@ -229,7 +229,7 @@
       $('seed').value = s.seed || randomSeed();
       if (CHOICES.includes(s.chapter)) chapter = s.chapter;
       $('optKey').checked = s.key !== false;
-      $('optTeacher').checked = !!s.teacher;
+      $('optTeacher').checked = s.teacher !== false;
       return true;
     } catch (_) { return false; }
   }

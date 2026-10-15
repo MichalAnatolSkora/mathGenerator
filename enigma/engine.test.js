@@ -82,9 +82,9 @@ eq('8!', E.factorial(8), '40 320');
 
 // ?pages= parser
 eq('pages 1-3,6', E.parsePages('1-3,6').join(), '1,2,3,6');
-eq('pages x,99,0 → default', E.parsePages('x,99,0').join(), '1,2,3,4,5,6,7,8,9,10');
+eq('pages x,99,0 → default', E.parsePages('x,99,0').join(), '1,2,3,4,5,6,7,8,9,10,11,12,13');
 eq('pages: duplicates, order', E.parsePages('6,2,6,1-2').join(), '1,2,6');
-eq('pages: empty → default', E.parsePages('').join(), '1,2,3,4,5,6,7,8,9,10');
+eq('pages: empty → default', E.parsePages('').join(), '1,2,3,4,5,6,7,8,9,10,11,12,13');
 eq('pages: reversed range', E.parsePages('10-9').join(), '9,10');
 eq('pages: format', E.formatPages([1, 2, 3, 6, 9, 10]), '1-3,6,9-10');
 

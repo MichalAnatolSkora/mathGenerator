@@ -24,7 +24,7 @@ extra for keen kids: an Enigma wheel with the whole alphabet.
   and many worksheet texts.
 - **`index.html`**: settings (presets *For the child* 1–10, *Cut-outs* 2, 6 and 12, *Answer key* 11,
   *For the keen* 12–13, *Everything* 1–13, or single pages), preview, **Print**. The choice is saved in
-  `localStorage` (`enigma.pages`); `?pages=1-10` / `?pages=2,6` in the URL wins. Footers always keep the
+  `localStorage` (`enigma.pages2`, all 13 pages by default); `?pages=1-10` / `?pages=2,6` in the URL wins. Footers always keep the
   original page number ("page 6 of 13").
 - **`engine.js`**: the language packs, the ciphers (`caesar`, `sub`, `diskEnc`, `diskDec`, `mirror`,
   `enigma`) and the page builders (DOM only, no `innerHTML`). Every code, answer and letter named in

@@ -19,7 +19,7 @@ const ENIGMA = (() => {
   const INN_IDX = [5, 7, 0, 6, 3, 2, 1, 4];          // for AEIKLMOT gives MTAOKIEL
   const MIR_IDX = [[0, 6], [1, 7], [2, 3], [4, 5]];  // A↔O, E↔T, I↔K, L↔M
   const TOTAL = 13;                                   // pages: 10 = final report, 11 = answer key, 12–13 = big Enigma (for the keen)
-  const DEFAULT_PAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const DEFAULT_PAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
   // ---------- language packs ----------
   const LATIN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
