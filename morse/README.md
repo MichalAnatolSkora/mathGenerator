@@ -54,8 +54,17 @@ pages (a task that does not fit starts the next page). The default mix fits one 
 - **Extra pages:** the full cheat sheet (the alphabet with codes, the Polish key words, the tree), the answer key, a diploma,
   and the **Morse tree poster**: the whole A4 page, every letter with its code under it, letters with 5+ signs listed
   below (also printable on its own with the "Print the tree only" button, or `?tasks=&treepage=1`).
+- **Fun fact page: SOS from the Titanic** (on by default, after the worksheet): a true story told gently for children
+  (the Titanic called CQD and then SOS; the Californian was less than 40 km away, but its only radio operator had
+  switched the radio off and gone to bed; the Carpathia, over 100 km away, heard the call and picked up more than 700
+  people from the lifeboats; since then big ships keep a radio watch day and night). The exact Titanic–Californian
+  distance was never measured (estimates from about 15 to 37 km), so the page says “less than 40 km”. A box tells how
+  wireless telegrams were sent then (a key, a spark transmitter, headphones, letters written down in pencil, paid per
+  word). A line drawing of the three ships with the distances (cheap to print),
+  and three small tasks: read CQD and SOS (with their own cheat strip, Latin letters in every language), a question,
+  and sending SOS with a torch as one signal with no gaps. The answers are printed upside down at the bottom.
 - Same code + same settings ⇒ the same sheet.
-  URL: `?seed=&level=young|older&upto=1-4&extra=1&tasks=telegram,riddle,…&aid=none|strip|tree&cheat=1&key=1&treepage=1&diploma=1`.
+  URL: `?seed=&level=young|older&upto=1-4&extra=1&tasks=telegram,riddle,…&aid=none|strip|tree&cheat=1&key=1&treepage=1&diploma=1&story=1`.
 
 ## Game
 
@@ -65,5 +74,7 @@ pages (a task that does not fit starts the next page). The default mix fits one 
   hold = dash; it is sent after a pause). Keyboard: `.`/`←` dot, `-`/`→` dash, space = the key, Enter = send.
 - **📝 Dictation from a worksheet:** type the code printed on the sheet, play each word, type the answers, check.
 - **🌳 The tree** (option): the Morse tree under the task, the way to the letter lights up (while sending, step by step).
+- **📻 Fun fact** under the game (folded): the Titanic story with the same picture; “Listen to SOS” plays the real
+  signal (···−−−··· with no gaps) with sound, the lighthouse lamp and the Titanic's radio waves flashing.
 - Letters missed more often come up more often. Speed: slow / medium / fast, with extra room between letters.
 - Ships saved, streak and per-letter results are kept in `localStorage` (`morse.v1`). URL: `?mode=rx|tx|dict&upto=1-4`.

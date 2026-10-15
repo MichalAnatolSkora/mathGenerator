@@ -182,6 +182,21 @@
   .cr small{font-size:10.5px;color:#555;}
   .note{font-size:12px;color:#333;margin:0 0 2mm;}
 
+  /* the Titanic story */
+  .story{display:flex;flex-direction:column;}
+  .story .seedlabel{display:none;}
+  .story .story-scene{display:block;width:100%;height:auto;max-height:46mm;margin:0 auto 2.5mm;}
+  .story .st{font-size:13.5px;line-height:1.4;margin:0 0 1.3mm;}
+  .story .st b{font-weight:800;}
+  .story .radio{font-size:12px;line-height:1.4;border:0.3mm solid #9db6dc;background:#f2f7fd;border-radius:2mm;padding:2mm 3mm;margin:1mm 0 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .stasks{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm 8mm;margin-top:2.5mm;padding-top:3mm;border-top:0.3mm solid #bbb;}
+  .stasks .wide{grid-column:1 / -1;}
+  .calls{display:flex;flex-wrap:wrap;gap:3mm 7mm;align-items:flex-end;}
+  .calls .strip{flex:1 1 40mm;}
+  .calls small{display:block;font-size:11px;color:#555;margin:0 0 1mm;}
+  .sossig{display:flex;align-items:center;gap:3mm;margin-top:1.5mm;}
+  .upside{transform:rotate(180deg);font-size:11px;color:#555;margin:auto 0 0;padding-top:2.5mm;}
+
   /* diploma */
   .diploma{border:2mm double #1b1b1f;border-radius:4mm;min-height:262mm;padding:10mm 12mm;display:flex;flex-direction:column;align-items:center;text-align:center;}
   .diploma .lh{width:52mm;height:auto;margin:2mm 0 4mm;}
@@ -210,6 +225,7 @@
     .dict .arr{display:none;}
     .pairs{column-gap:14mm;}
     .diploma{padding:16px 10px;min-height:0;}
+    .stasks{grid-template-columns:1fr;}
     .diploma .line{width:100%;}
     .diploma .signs{gap:16px;width:100%;}
     .diploma .signs span{width:auto;flex:1;}
@@ -224,6 +240,7 @@
     .stage{width:100%;}
     .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;width:auto;max-width:none;}
     .sheet + .sheet{page-break-before:always;break-before:page;}
+    .story{min-height:270mm;}
   }
 </style>
 </head>
@@ -273,6 +290,7 @@
       <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
       <label class="check"><input type="checkbox" id="optTreePage" checked> <span data-i18n="optTreePage"></span></label>
       <label class="check"><input type="checkbox" id="optDiploma" checked> <span data-i18n="optDiploma"></span></label>
+      <label class="check"><input type="checkbox" id="optStory" checked> <span data-i18n="optStory"></span></label>
     </div>
 
     <div class="actions">
@@ -320,7 +338,7 @@
     return {
       seed: ($('seed').value.trim() || 'SEED').toUpperCase(), level, upto, extra: $('optExtra').checked,
       tasks: TASK_LIST.filter(x => tasks.has(x)),
-      aid, treePage: $('optTreePage').checked, cheat: $('optCheat').checked, key: $('optKey').checked, diploma: $('optDiploma').checked,
+      aid, treePage: $('optTreePage').checked, cheat: $('optCheat').checked, key: $('optKey').checked, diploma: $('optDiploma').checked, story: $('optStory').checked,
     };
   }
   function persist(s) { try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (_) { } }
@@ -334,6 +352,7 @@
     if (s.cheat !== undefined) $('optCheat').checked = !!s.cheat;
     if (s.key !== undefined) $('optKey').checked = !!s.key;
     if (s.diploma !== undefined) $('optDiploma').checked = !!s.diploma;
+    if (s.story !== undefined) $('optStory').checked = !!s.story;
     if (s.treePage !== undefined) $('optTreePage').checked = !!s.treePage;
   }
   function restore() {
@@ -557,6 +576,23 @@
       + (others.length ? `<p class="note" style="margin-top:3mm">${esc(t('treeOthers'))}</p><div class="strip" style="border:0;padding:0">${others.map(l => `<span class="sc"><b>${esc(l)}</b>${svg(code(l), 1.6)}</span>`).join('')}</div>` : '')
       + '</div>';
   }
+  /** The fun fact: the Titanic's SOS (a true story told gently), with three small tasks and the answers upside down.
+   *  The calls are the Latin letters in every language, as they were sent. */
+  function storyPage(M) {
+    const st = C().story, en = l => MORSE.code(l, 'en');
+    const bold = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    const call = (codes, label) => `<div><small>${esc(label)}</small><div class="tiles">${codes.map(c => `<span class="tile"><span class="tc">${svg(c, 2)}</span><span class="ab"></span></span>`).join('')}</div></div>`;
+    const strip = `<div class="strip"><b class="stl">${esc(t('stripTitle'))}:</b>${MORSE.STORY.letters.map(l => `<span class="sc"><b>${l}</b>${svg(en(l), 1.4)}</span>`).join('')}</div>`;
+    return `<div class="sheet story"><div class="u">${headHTML(true, M, st.title, st.sub)}</div>`
+      + MORSE.storySVG({ labels: { near: st.near, off: st.off, far: st.far } })
+      + st.text.map(x => `<p class="st">${bold(x)}</p>`).join('')
+      + `<div class="radio"><b>📻 ${esc(st.radioTitle)}</b> ${esc(st.radio)}</div>`
+      + `<div class="stasks">`
+      + `<div class="wide">${head(1, st.callTitle, esc(st.callInstr))}<div class="calls">${call(MORSE.STORY.cqd, st.old)}${call(MORSE.STORY.sos, st.new)}${strip}</div></div>`
+      + `<div>${head(2, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.q)}</p>${lines(2)}</div>`
+      + `<div>${head(3, st.lampTitle, '')}<p class="bi" style="font-size:13px">${esc(st.lamp)}</p><div class="sossig">${svg(MORSE.SOS_SIGNAL, 2.6)}</div></div>`
+      + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.answer)}</p></div>`;
+  }
   function diplomaPage(M) {
     const bravo = MORSE.norm(t('diplomaBravo'), lang());
     return `<div class="sheet"><div class="diploma">${MORSE.lighthouseSVG()}`
@@ -595,7 +631,8 @@
         units.push(RENDER[b.type](b, n));
       }
       // no tasks at all (e.g. only the tree poster or the cheat sheet wanted): no empty worksheet page
-      let html = units.length ? paginate(headHTML(true, M, '', '', aid === 'none'), headHTML(false, M), units) : '';
+      let html = numbered.length ? paginate(headHTML(true, M, '', '', aid === 'none'), headHTML(false, M), units) : '';
+      if (s.story) html += storyPage(M);
       if (s.cheat) html += cheatPage(M);
       if (s.key && numbered.length) html += paginate(headHTML(true, M, t('keyTitle'), C().levels[M.level]), headHTML(false, M, t('keyTitle')), keyUnits(M, numbered));
       if (s.treePage) html += treePage(M);
@@ -647,7 +684,7 @@
   function wire() {
     $('seed').addEventListener('change', regenerate);
     $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); regenerate(); } });
-    for (const id of ['optExtra', 'optCheat', 'optKey', 'optTreePage', 'optDiploma']) $(id).addEventListener('change', regenerate);
+    for (const id of ['optExtra', 'optCheat', 'optKey', 'optTreePage', 'optDiploma', 'optStory']) $(id).addEventListener('change', regenerate);
     $('randSeed').addEventListener('click', newWorksheet);
     $('newBtn').addEventListener('click', newWorksheet);
     $('printBtn').addEventListener('click', () => window.print());
@@ -670,7 +707,7 @@
     if (q.has('tasks')) tasks = new Set(q.get('tasks').split(',').filter(x => TASK_LIST.includes(x)));
     const flag = (k, id) => { if (q.has(k)) $(id).checked = q.get(k) === '1' || q.get(k) === 'true'; };
     if (AIDS.includes(q.get('aid'))) aid = q.get('aid');
-    flag('extra', 'optExtra'); flag('cheat', 'optCheat'); flag('key', 'optKey'); flag('diploma', 'optDiploma'); flag('treepage', 'optTreePage');
+    flag('extra', 'optExtra'); flag('cheat', 'optCheat'); flag('key', 'optKey'); flag('diploma', 'optDiploma'); flag('treepage', 'optTreePage'); flag('story', 'optStory');
     wire();
     I18N.apply(UI);
     renderControls();

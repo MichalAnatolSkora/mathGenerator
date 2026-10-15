@@ -103,6 +103,19 @@
   .intro{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
   .intro p{flex:1 1 280px;margin:0;font-size:16px;}
 
+  /* the Titanic story */
+  .story summary{cursor:pointer;font-weight:800;font-size:17px;min-height:32px;display:flex;align-items:center;gap:8px;}
+  .story[open] summary{margin-bottom:12px;}
+  .story-scene{display:block;width:100%;height:auto;max-width:640px;margin:0 auto 12px;}
+  .story-scene .sos-arcs{opacity:.3;transition:opacity .04s;}
+  .story-scene.on .sos-arcs{opacity:1;}
+  .story p{margin:0 0 10px;font-size:15.5px;max-width:68ch;}
+  .story .radio{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:4px 0 12px;max-width:72ch;}
+  .story .radio h3{margin:0 0 6px;font-size:16px;}
+  .story .radio p{margin:0;}
+  .story .row{align-items:center;}
+  .story .code{color:var(--bad);}
+
   .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
   .stats .grow{flex:1;}
   .reset{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
@@ -223,6 +236,15 @@
     <div class="treebox" id="treebox" hidden></div>
   </section>
 
+  <details class="card story" id="story">
+    <summary>📻 <span id="storyTitle"></span></summary>
+    <div id="storyBody"></div>
+    <div class="row">
+      <button type="button" class="primary" id="storyPlay" data-i18n="storyPlay"></button>
+      <div class="code" id="storyCode"></div>
+    </div>
+  </details>
+
   <div class="stats">
     <span id="stats"></span>
     <span class="grow"></span>
@@ -270,7 +292,10 @@
     if (ac.state === 'suspended') ac.resume();
     return ac;
   }
-  const lamp = on => $('lighthouse').firstChild && $('lighthouse').firstChild.classList.toggle('on', on);
+  const lamp = on => {
+    $('lighthouse').firstChild && $('lighthouse').firstChild.classList.toggle('on', on);
+    const sc = $('storyBody').querySelector('.story-scene'); if (sc) sc.classList.toggle('on', on);
+  };
   function toneAt(time, on) {   // a soft edge (5 ms) so the beeps do not click
     if (!gain) return;
     gain.gain.setTargetAtTime(on ? 0.28 : 0, time, 0.005);
@@ -280,15 +305,16 @@
     if (gain && ac) { gain.gain.cancelScheduledValues(ac.currentTime); toneAt(ac.currentTime, false); }
     lamp(false);
   }
-  /** Play text (letters and spaces): sound, the lighthouse lamp and, on phones that can, vibration. Returns the length in ms. */
-  function play(text, slower = 1) {
+  /** Play text (letters and spaces), or with `raw` one code as it is (the SOS signal, sent without gaps):
+   *  sound, the lighthouse lamp and, on phones that can, vibration. Returns the length in ms. */
+  function play(text, slower = 1, raw = false) {
     stopPlaying();
     const a = audio(), u = UNIT[S.speed] * slower, sp = SPACE[S.speed];
     const marks = [];   // [start, length] in ms
     let x = 0;
-    for (const ch of text) {
-      if (ch === ' ') { x += u * 4 * sp; continue; }
-      for (const s of MORSE.code(ch, lang())) { const d = s === '.' ? u : 3 * u; marks.push([x, d]); x += d + u; }
+    for (const c of raw ? [text] : [...text].map(ch => (ch === ' ' ? ' ' : MORSE.code(ch, lang())))) {
+      if (c === ' ') { x += u * 4 * sp; continue; }
+      for (const s of c) { const d = s === '.' ? u : 3 * u; marks.push([x, d]); x += d + u; }
       x += u * 2 * sp;
     }
     const t0 = a ? a.currentTime + 0.05 : 0;
@@ -526,6 +552,15 @@
     $('optExtra').checked = !!S.extra; $('optAid').checked = !!S.aid; $('optTree').checked = !!S.tree;
     $('dotBtn').innerHTML = svg('.', 26); $('dashBtn').innerHTML = svg('-', 26);
   }
+  /** The fun fact under the game: the Titanic's SOS. */
+  function renderStory() {
+    const st = C().story, esc = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    $('storyTitle').textContent = st.title;
+    $('storyBody').innerHTML = MORSE.storySVG({ labels: { near: st.near, off: st.off, far: st.far } })
+      + st.text.map(x => `<p>${esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>`).join('')
+      + `<div class="radio"><h3>📻 ${esc(st.radioTitle)}</h3><p>${esc(st.radio)}</p></div>`;
+    $('storyCode').innerHTML = svg(MORSE.SOS_SIGNAL, 14);
+  }
   function renderScore() {
     $('scoreShips').textContent = `⛵ ${S.ships}`;
     $('scoreStreak').textContent = `🔥 ${S.streak}`;
@@ -551,6 +586,7 @@
     $('optExtra').addEventListener('change', e => { S.extra = e.target.checked; save(); show(); });
     $('optAid').addEventListener('change', e => { S.aid = e.target.checked; save(); show(); });
     $('optTree').addEventListener('change', e => { S.tree = e.target.checked; save(); renderTree(); });
+    $('storyPlay').addEventListener('click', () => play(MORSE.SOS_SIGNAL, 1, true));
     $('resetBtn').addEventListener('click', () => {
       if (!confirm(t('resetConfirm'))) return;
       Object.assign(S, { ships: 0, streak: 0, letters: {}, recent: [] }); save(); renderScore();
@@ -572,7 +608,7 @@
       }
     });
     document.addEventListener('keyup', e => { if (started && S.mode === 'tx' && S.keyMode === 'one' && e.key === ' ') keyUp(e); });
-    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); renderSettings(); renderScore(); show(); });
+    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); renderSettings(); renderScore(); renderStory(); show(); });
   }
 
   function init() {
@@ -580,7 +616,7 @@
     wire();
     I18N.apply(UI);
     document.title = t('title');
-    renderSettings(); renderScore(); show();
+    renderSettings(); renderScore(); renderStory(); show();
   }
   init();
 })();

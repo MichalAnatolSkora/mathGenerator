@@ -17,6 +17,7 @@
  *   MORSE.dictationWords(seed, lang, upto, extra) → the words of a dictation (the game plays the same ones)
  *   MORSE.svg(code, { u, unit })      → dots and dashes as an SVG string (u = the dot's size)
  *   MORSE.treeSVG(lang, opts)         → the Morse tree (left = dot, right = dash) as an SVG string
+ *   MORSE.storySVG(opts)              → the picture of the Titanic story (the night of 14/15 April 1912)
  *   MORSE.raster(pts)                 → a picture outline filled into squares: { cols, rows, inside[r][c] }
  */
 const MORSE = (() => {
@@ -438,6 +439,63 @@ const MORSE = (() => {
       + `<circle cx="100" cy="43" r="5" fill="#1e2436"/></svg>`;
   }
 
+  /* ---------- the Titanic story ---------- */
+  /** The codes of the story: the old call CQD, then SOS. On the air SOS was one signal with no gaps (`SOS_SIGNAL`). */
+  const STORY = { cqd: ['-.-.', '--.-', '-..'], sos: ['...', '---', '...'], letters: ['C', 'D', 'O', 'Q', 'S'] };
+  const SOS_SIGNAL = '...---...';
+  /** The night of 14/15 April 1912 as a light line drawing (cheap to print), 900 × 300 units:
+   *  the Titanic calling SOS, the Californian close by with its radio off (Zzz), the Carpathia far away coming to help.
+   *  Distances are not to scale. o: { labels: { near, off, far } } (the Titanic–Californian distance, short texts under the ships), cls. */
+  function storySVG(o = {}) {
+    const L = o.labels || {}, ink = '#1e2436';
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    // a liner seen from the side, bow to the right: x = stern, y = waterline, len, funnels = [x offsets], colour of the funnels
+    function ship(x, y, len, funnels, fc, windows) {
+      const h = len * 0.13, deck = y - h, top = deck - len * 0.05;
+      let s = `<path d="M${x} ${deck}H${x + len}L${x + len - len * 0.05} ${y}H${x + len * 0.04}Z" fill="#fff" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/>`
+        + `<path d="M${x + len * 0.02} ${deck + h * 0.55}H${x + len - len * 0.025}L${x + len - len * 0.05} ${y}H${x + len * 0.04}Z" fill="${ink}"/>`
+        + `<rect x="${x + len * 0.12}" y="${top}" width="${len * 0.7}" height="${deck - top}" fill="#fff" stroke="${ink}" stroke-width="2.5"/>`;
+      const fh = Math.max(len * 0.14, 24), fw = Math.max(len * 0.055, 11), lean = fh * 0.09;   // small ships keep big funnels
+      for (const fx of funnels) s += `<path d="M${x + fx * len} ${top}l${lean} ${-fh}h${fw}l${-lean} ${fh}Z" fill="${fc}" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/>`
+        + `<path d="M${x + fx * len + lean} ${-fh + top}h${fw}l${-lean * 0.3} ${fh * 0.27}h${-fw}Z" fill="${ink}"/>`;
+      for (let i = 0; i < windows; i++) s += `<circle cx="${x + len * (0.08 + i * 0.84 / (windows - 1))}" cy="${deck + h * 0.27}" r="${len * 0.008}" fill="${o.dark && fc !== '#e8a33d' ? ink : '#ffc61a'}"/>`;
+      return s;
+    }
+    const waves = (y, from, to, step) => { let d = ''; for (let x = from; x < to; x += step) d += `M${x} ${y}q${step / 4} -6 ${step / 2} 0t${step / 2} 0`; return `<path d="${d}" fill="none" stroke="#9db6dc" stroke-width="2.5" stroke-linecap="round"/>`; };
+    const arcs = (cx, cy, dir, col, n = 3) => { let d = ''; for (let i = 1; i <= n; i++) { const r = 12 + i * 13; d += `M${cx + dir * r * 0.5} ${cy - r * 0.87}A${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${cx + dir * r * 0.5} ${cy + r * 0.87}`; } return `<path d="${d}" fill="none" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`; };
+    const star = (x, y, r) => `<path d="M${x} ${y - r}L${x + r * 0.3} ${y - r * 0.3}L${x + r} ${y}L${x + r * 0.3} ${y + r * 0.3}L${x} ${y + r}L${x - r * 0.3} ${y + r * 0.3}L${x - r} ${y}L${x - r * 0.3} ${y - r * 0.3}Z" fill="#ffd84d" stroke="#b08a00" stroke-width="1.2"/>`;
+    const text = (x, y, s, anchor = 'middle', size = 22, w = 700) => s ? `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="${size}" font-weight="${w}" fill="${ink}">${esc(s)}</text>` : '';
+    return `<svg class="${o.cls || 'story-scene'}" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img">`
+      + `<rect x="1.5" y="1.5" width="897" height="297" rx="16" fill="#fff" stroke="${ink}" stroke-width="3"/>`
+      + `<rect x="3" y="196" width="894" height="101" rx="0" fill="#e4eefb"/><path d="M3 196H897" stroke="#9db6dc" stroke-width="2.5"/>`
+      + `<path d="M3 280V284Q3 297 16 297H884Q897 297 897 284V280Z" fill="#e4eefb"/>`
+      + `<path d="M830 30a26 26 0 1 0 26 34a20 20 0 1 1 -26 -34Z" fill="#ffe9a8" stroke="#b08a00" stroke-width="2"/>`
+      + star(120, 40, 7) + star(260, 26, 5) + star(430, 48, 6) + star(560, 24, 5) + star(700, 52, 7) + star(360, 92, 4) + star(620, 96, 4)
+      // the iceberg, ahead of the Titanic
+      + `<path d="M232 196L250 160L266 168L282 136L304 172L318 196Z" fill="#f4f9ff" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/>`
+      + `<path d="M226 196L322 196L306 214L240 212Z" fill="#cfe0f5" stroke="${ink}" stroke-width="2" stroke-linejoin="round" opacity=".9"/>`
+      // the Titanic: four buff funnels with black tops, the SOS going out from the mast
+      + ship(18, 210, 210, [0.2, 0.36, 0.52, 0.68], '#e8a33d', 9)
+      + `<path d="M208 158V96M38 166V110" stroke="${ink}" stroke-width="3"/><path d="M38 110L208 96" stroke="${ink}" stroke-width="1.5"/>`
+      + arcs(208, 96, 1, '#d6455a').replace('<path ', '<path class="sos-arcs" ')
+      + text(123, 250, 'TITANIC', 'middle', 26, 800)
+      // how close the Californian was: a measuring line from the Titanic
+      + (L.near ? `<path d="M240 232H382M248 224L240 232L248 240M374 224L382 232L374 240M240 222V242M382 222V242" fill="none" stroke="${ink}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
+        + text(311, 262, L.near, 'middle', 18, 700) : '')
+      // the Californian, close by: small, lights out, the radio off and its operator asleep
+      + ship(400, 206, 150, [0.45], '#e8e8e8', 7).replace(/#ffc61a/g, '#c9ced8')
+      + `<path d="M532 172V112M420 172V122" stroke="${ink}" stroke-width="3"/><path d="M420 122L532 112" stroke="${ink}" stroke-width="1.5"/>`
+      + text(552, 104, 'Z', 'start', 22, 800) + text(574, 86, 'z', 'start', 19, 800) + text(592, 70, 'z', 'start', 16, 800)
+      + text(482, 240, 'CALIFORNIAN', 'middle', 22, 800) + text(482, 268, L.off, 'middle', 21, 600)
+      // the Carpathia, far away: one red funnel, it hears the call and turns towards the Titanic
+      + ship(720, 200, 120, [0.42], '#d6455a', 5)
+      + `<path d="M732 168V124M826 170V130" stroke="${ink}" stroke-width="3"/><path d="M732 124L826 130" stroke="${ink}" stroke-width="1.5"/>` + arcs(732, 124, -1, '#1f9d55', 2)
+      + `<path d="M712 186H662" stroke="#1f9d55" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 9"/><path d="M670 176L656 186L670 196" fill="none" stroke="#1f9d55" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`
+      + text(780, 236, 'CARPATHIA', 'middle', 22, 800) + text(780, 264, L.far, 'middle', 21, 600)
+      + waves(282, 30, 880, 40)
+      + '</svg>';
+  }
+
   /* ---------- drawing dots and dashes ---------- */
   const DOT = 10, GAP = 7.5, DASH = 26, BAR = 7.4;
   /** Width of a code in dot sizes. */
@@ -458,7 +516,7 @@ const MORSE = (() => {
   return {
     LANGS, TASKS, LEVELS, UPTO, DEFAULT_TASKS, COLOR_MAX,
     alphabet, code, extras, groupOf, groupLetters, letters, newest, norm, sendable, encode, decodeLetter, len, bank, mnemonic,
-    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG,
+    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG, STORY, SOS_SIGNAL, storySVG,
     dictationWords, dictationCode, parseDictationCode, sheet, svg, codeWidth,
   };
 })();
