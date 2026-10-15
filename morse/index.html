@@ -122,6 +122,7 @@
   .story .row{align-items:center;}
   .story .code{color:var(--bad);}
   .story .today{margin:16px 0 0;}
+  .night-scene{display:block;width:100%;height:auto;max-width:420px;margin:0 auto 12px;}
   .today-scene{display:block;width:100%;height:auto;max-width:640px;margin:4px auto 12px;}
 
   .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
@@ -571,8 +572,10 @@
       + `<dl class="gloss">${MORSE.STORY.words.map((w, i) => `<dt>${w}</dt><dd>${esc(st.tgWords[i])}</dd>`).join('')}</dl><p>${esc(st.tgSos)}</p></div>`
       + `<div class="radio"><h3>📻 ${esc(st.radioTitle)}</h3><p>${esc(st.radio)}</p></div>`;
     $('storyCode').innerHTML = svg(MORSE.SOS_SIGNAL, 14);
+    const p = x => `<p>${esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>`;
     $('todayBody').innerHTML = `<h3>📡 ${esc(st.todayTitle)}</h3>` + MORSE.todaySVG({ labels: { voice: st.voice, morse: st.morse } })
-      + st.today.map(x => `<p>${esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>`).join('');
+      + st.today.slice(0, 2).map(p).join('') + p(st.night) + MORSE.nightSVG({ labels: { layer: st.nightLayer, earth: st.nightEarth, tx: st.nightTx, rx: st.nightRx } })
+      + st.today.slice(2).map(p).join('');
   }
   function renderScore() {
     $('scoreShips').textContent = `⛵ ${S.ships}`;

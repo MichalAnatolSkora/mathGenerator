@@ -501,6 +501,52 @@ const MORSE = (() => {
       + waves(282, 30, 880, 40)
       + '</svg>';
   }
+  /** How a radio wave goes round the Earth at night, 680 × 470 units: the whole globe with the high layer of the air
+   *  (the ionosphere) round it; someone sends on the left, someone on the far side of the Earth receives on the right.
+   *  The wave bounces between the layer and the ground over the top of the globe. Not to scale.
+   *  o: { labels: { layer, earth, tx, rx } }, cls. */
+  function nightSVG(o = {}) {
+    const L = o.labels || {}, ink = '#1e2436', cx = 340, cy = 245, R = 128, RL = 200, RB = 192;
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const text = (x, y, s, size = 22, fill = ink) => s ? `<text x="${x}" y="${y}" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="${size}" font-weight="800" fill="${fill}">${esc(s)}</text>` : '';
+    const f = n => Math.round(n * 10) / 10, rad = d => d * Math.PI / 180;
+    const at = (r, d) => [cx + r * Math.sin(rad(d)), cy - r * Math.cos(rad(d))];   // d: degrees from the top, clockwise
+    const star = (x, y, r) => `<path d="M${x} ${y - r}L${x + r * 0.3} ${y - r * 0.3}L${x + r} ${y}L${x + r * 0.3} ${y + r * 0.3}L${x} ${y + r}L${x - r * 0.3} ${y + r * 0.3}L${x - r} ${y}L${x - r * 0.3} ${y - r * 0.3}Z" fill="#ffd84d" stroke="#b08a00" stroke-width="1.2"/>`;
+    // a little house with an antenna standing on the globe at angle d (people stand on every side of the Earth)
+    const mx = 7, my = -34;
+    function station(d) {
+      const [bx, by] = at(R, d), s = d < 0 ? 1 : -1, c = Math.cos(rad(d)), sn = Math.sin(rad(d));
+      const top = [bx + s * mx * c - my * sn, by + s * mx * sn + my * c];
+      return { top, svg: `<g transform="translate(${f(bx)} ${f(by)}) rotate(${d})"><path d="M-10 2V-12L0 -21L10 -12V2Z" fill="#fff" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><rect x="-3" y="-7" width="6" height="9" fill="${ink}"/>`
+        + `<path d="M${s * mx} -16V${my}M${s * mx - 8} ${my}H${s * mx + 8}" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/></g>` };
+    }
+    const tx = station(-90), rx = station(90);
+    // the wave: up to the layer, down to the ground, and so on over the top of the globe to the receiver
+    const pts = [tx.top];
+    for (let i = 0; i < 7; i++) pts.push(at(i % 2 ? R : RB, -67.5 + i * 22.5));
+    pts.push(rx.top);
+    let chev = '';
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [a, b] = [pts[i], pts[i + 1]], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+      chev += `<path transform="translate(${f(m[0])} ${f(m[1])}) rotate(${f(ang)})" d="M-6 -7L5 0L-6 7" fill="none" stroke="#1f9d55" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    const id = 'nc' + Math.random().toString(36).slice(2, 7);
+    return `<svg class="${o.cls || 'night-scene'}" viewBox="0 0 680 470" xmlns="http://www.w3.org/2000/svg" role="img">`
+      + `<defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath></defs>`
+      + `<rect x="1.5" y="1.5" width="677" height="467" rx="16" fill="#fff" stroke="${ink}" stroke-width="3"/>`
+      + `<path d="M600 40a20 20 0 1 0 20 26a15 15 0 1 1 -20 -26Z" fill="#ffe9a8" stroke="#b08a00" stroke-width="2"/>`
+      + star(52, 70, 6) + star(120, 120, 4) + star(560, 120, 4) + star(630, 410, 5) + star(48, 430, 4) + star(580, 445, 4)
+      + `<circle cx="${cx}" cy="${cy}" r="${RL}" fill="none" stroke="#e3dbf7" stroke-width="16"/><circle cx="${cx}" cy="${cy}" r="${RB}" fill="none" stroke="#8f7ad6" stroke-width="2"/>`
+      + `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#e4eefb"/>`
+      + `<g clip-path="url(#${id})" fill="#cfe8c4"><path d="M240 190q30 -50 80 -35t25 50q-30 25 -65 8t-40 -23Z"/><path d="M365 270q40 -25 75 0t-8 55q-40 16 -56 -16t-11 -39Z"/><path d="M262 292q25 -8 40 8t-16 32q-25 -8 -24 -40Z"/></g>`
+      + `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#9db6dc" stroke-width="3"/>`
+      + `<path d="M${pts.map(p => `${f(p[0])} ${f(p[1])}`).join('L')}" fill="none" stroke="#1f9d55" stroke-width="4" stroke-linejoin="round"/>` + chev
+      + pts.slice(1, -1).map(p => `<circle cx="${f(p[0])}" cy="${f(p[1])}" r="4.5" fill="#fff" stroke="#1f9d55" stroke-width="3"/>`).join('')
+      + tx.svg + rx.svg
+      + text(cx, 30, L.layer, 26, '#5b45a8') + text(cx, cy + 10, L.earth, 32)
+      + text(68, cy + 8, L.tx, 24) + text(612, cy + 8, L.rx, 24)
+      + '</svg>';
+  }
   /** Morse today, 900 × 240 units: two radio amateurs far apart, crackling noise between them; the voice gets lost
    *  in the noise (?), the dots and dashes get through (✓). Not to scale. o: { labels: { voice, morse } }, cls. */
   function todaySVG(o = {}) {
@@ -564,7 +610,7 @@ const MORSE = (() => {
   return {
     LANGS, TASKS, LEVELS, UPTO, DEFAULT_TASKS, COLOR_MAX,
     alphabet, code, extras, groupOf, groupLetters, letters, newest, norm, sendable, encode, decodeLetter, len, bank, mnemonic,
-    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG, STORY, SOS_SIGNAL, storySVG, todaySVG,
+    rng, pick, shuffle, oneOff, tilesWidth, slotsWidth, raster, pointIn, colorPictures, treeNodes, treeSVG, lighthouseSVG, STORY, SOS_SIGNAL, storySVG, todaySVG, nightSVG,
     dictationWords, dictationCode, parseDictationCode, sheet, svg, codeWidth,
   };
 })();

@@ -207,7 +207,9 @@
   .calls .strip{flex:1 1 40mm;}
   .calls small{display:block;font-size:11px;color:#555;margin:0 0 1mm;}
   .sossig{display:flex;align-items:center;gap:3mm;margin-top:1.5mm;}
-  .story .today-scene{display:block;width:100%;height:auto;max-height:44mm;margin:0 auto 3mm;}
+  .story .today-scene{display:block;width:100%;height:auto;max-height:34mm;margin:0 auto 3mm;}
+  .night{display:flow-root;}
+  .night .night-scene{float:right;width:66mm;height:auto;margin:0.8mm 0 1.5mm 4mm;}
   .ways{display:grid;grid-template-columns:1fr 1fr;gap:3mm 8mm;margin-top:2mm;font-size:14px;}
   .ways span{display:flex;align-items:center;gap:2.5mm;}
   .ways span::before{content:"";flex:none;width:6mm;height:6mm;border:0.4mm solid #333;border-radius:1mm;}
@@ -243,6 +245,7 @@
     .pairs{column-gap:14mm;}
     .diploma{padding:16px 10px;min-height:0;}
     .stasks{grid-template-columns:1fr;}
+    .night .night-scene{float:none;display:block;width:100%;max-width:110mm;margin:0 auto 2mm;}
     .diploma .line{width:100%;}
     .diploma .signs{gap:16px;width:100%;}
     .diploma .signs span{width:auto;flex:1;}
@@ -632,10 +635,13 @@
     const st = C().story, bold = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'), last = st.ways.length - 1;
     return `<div class="sheet story"><div class="u">${headHTML(true, M, st.todayTitle, st.todaySub)}</div>`
       + MORSE.todaySVG({ labels: { voice: st.voice, morse: st.morse } })
-      + st.today.map(x => `<p class="st">${bold(x)}</p>`).join('')
+      + st.today.slice(0, 2).map(x => `<p class="st">${bold(x)}</p>`).join('')
+      // the drawing floats beside the night paragraph, the paragraphs after it flow on under it
+      + `<div class="night">${MORSE.nightSVG({ labels: { layer: st.nightLayer, earth: st.nightEarth, tx: st.nightTx, rx: st.nightRx } })}`
+      + [st.night, ...st.today.slice(2)].map(x => `<p class="st">${bold(x)}</p>`).join('') + '</div>'
       + `<div class="stasks">`
       + `<div class="wide">${head(6, st.waysTitle, esc(st.waysInstr))}<div class="ways">${st.ways.map((w, i) => `<span>${esc(w)}${i === last ? '<i class="own"></i>' : ''}</span>`).join('')}</div></div>`
-      + `<div class="wide">${head(7, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.todayQ)}</p>${lines(2)}</div>`
+      + `<div class="wide">${head(7, st.qTitle, '')}<p class="bi" style="font-size:13px">${esc(st.todayQ)}</p>${lines(1)}</div>`
       + `</div><p class="upside"><b>${esc(st.keyTitle)}</b> ${esc(st.todayAnswer)}</p></div>`;
   }
   function diplomaPage(M) {

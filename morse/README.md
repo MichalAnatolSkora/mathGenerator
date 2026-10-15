@@ -71,7 +71,12 @@ pages (a task that does not fit starts the next page). The default mix fits one 
   Morse, because short and long beeps can be heard through the crackling when a voice can no longer be understood (so
   Morse reaches further), and because it needs no special equipment (the simplest transmitter only switches the signal
   on and off; without a radio a torch, a whistle or a hummed “beep” will do); radio beacons for aeroplanes still send
-  their names in Morse. A drawing (the voice gets lost in the noise, the dots and dashes get through) and two tasks:
+  their names in Morse. A drawing (the voice gets lost in the noise, the dots and dashes get through). A paragraph on
+  why radio waves go further at night: they are electromagnetic waves like light and go straight, but they bounce
+  between a high layer of the air (the ionosphere) and the ground, round the globe even to the other side; in the
+  daytime the sun makes a lower layer that swallows some of them, at night it is gone. Beside it a second drawing
+  (floated, the text flows round it): the whole globe, someone sends on the left, someone on the far side of the Earth
+  receives on the right, the wave bouncing over the top. Two tasks:
   send SOS without a radio (tick the ways you tried) and a question, the answer upside down.
 - Same code + same settings ⇒ the same sheet.
   URL: `?seed=&level=young|older&upto=1-4&extra=1&tasks=telegram,riddle,…&aid=none|strip|tree&cheat=1&key=1&treepage=1&diploma=1&story=1`.
