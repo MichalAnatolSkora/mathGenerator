@@ -35,9 +35,10 @@ different language than the game texts (`?msg=`).
 | [`connect-dots/worksheet.html`](connect-dots/worksheet.html) | **Connect the Dots** printable worksheets: join the numbered dots and a picture appears (+ answer key) |
 | [`nonograms/worksheet.html`](nonograms/worksheet.html) | **Picture Logic Puzzles** (mini nonograms) printable worksheets, 5×5 to 10×10 (+ answer key) |
 | [`mirror-drawing/worksheet.html`](mirror-drawing/worksheet.html) | **Mirror Drawing** printable worksheets: colour the other half of a symmetric picture (+ answer key) |
+| [`zygalski-sheets/worksheet.html`](zygalski-sheets/worksheet.html) | **Zygalski Sheets** printable educational game: how the Polish codebreakers found the Enigma settings in 1938 with sheets full of holes — a "How did it work?" page, three rounds of stacking sheets on a light table (with shifting on ★★★), sheets to cut out (+ answer key) |
 | [`sheet-kit/`](sheet-kit/) | Shared kit of the paper-only worksheets above: controls, sheet code, A4 print layout, common texts |
 
-Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md).
+Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`morse/README.md`](morse/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md), [`zygalski-sheets/README.md`](zygalski-sheets/README.md).
 
 ## Run locally
 

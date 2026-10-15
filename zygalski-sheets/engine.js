@@ -87,7 +87,8 @@ const ZYG = (() => {
     let s = `<svg viewBox="0 0 ${W} ${H}" style="width:${o.w}mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif">`;
     if (o.top) {
       s += `<rect x="${x0}" y="${m}" width="${n * C}" height="${top}" fill="#f1f1f1" stroke="#333" stroke-width="0.4"/>`;
-      s += `<text x="${x0 + n * C / 2}" y="${m + top / 2}" font-size="4.2" font-weight="700" text-anchor="middle" dominant-baseline="central">${esc(o.top)}</text>`;
+      const fs = Math.min(4.2, (n * C - 4) / ([...o.top].length * 0.62));   // long captions shrink to fit
+      s += `<text x="${x0 + n * C / 2}" y="${m + top / 2}" font-size="${fs.toFixed(2)}" font-weight="700" text-anchor="middle" dominant-baseline="central">${esc(o.top)}</text>`;
     }
     if (o.coords) for (let i = 0; i < n; i++) {
       s += `<text x="${x0 + i * C + C / 2}" y="${m / 2 + 0.3}" font-size="3.6" fill="#777" text-anchor="middle" dominant-baseline="central">${'ABCDEFGHIJ'[i]}</text>`;

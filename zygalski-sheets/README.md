@@ -1,15 +1,14 @@
 # Zygalski Sheets (Płachty Zygalskiego)
 
 An educational paper game about how the Polish codebreakers found the Enigma settings in 1938 with
-Henryk Zygalski's perforated sheets. Printable A4 pages only (no online game yet). Built on the shared
-[`sheet-kit`](../sheet-kit/kit.js). **Prototype:** texts in Polish and English; the other five languages
-show the English texts for now. Not linked from the home page yet.
+Henryk Zygalski's perforated sheets. Printable A4 pages only (no online game), seven languages
+(pl/en/uk/vi/fr/it/es). Built on the shared [`sheet-kit`](../sheet-kit/kit.js).
 
 | File | What it is |
 |---|---|
 | [`worksheet.html`](worksheet.html) | The pages: "How did it work?", the game, the cut-out sheets, the answer key |
 | [`engine.js`](engine.js) | Rounds (holes, shifts, the one common square), the word board, the SVG grids |
-| [`strings.js`](strings.js) | Texts (pl, en; the rest fall back to en) |
+| [`strings.js`](strings.js) | Texts in seven languages, with the passwords and the syllables of each language |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
 
 ## Pages

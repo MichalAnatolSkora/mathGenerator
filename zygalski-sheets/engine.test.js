@@ -22,9 +22,23 @@ for (const level of Object.keys(Z.LEVELS)) {
   }
 }
 
-for (const l of ['pl', 'en']) {
+// every language has the same keys as Polish (deep), and every label fits its square
+const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' : v && typeof v === 'object'
+  ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;
+const noSep = ({ wordSep, ...rest }) => rest;
+for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
+  ok(`${l}: same keys as pl`, JSON.stringify(shape(noSep(T[l]))) === JSON.stringify(shape(noSep(T.pl))));
+  ok(`${l}: learn lists as long as pl`, ['parts', 'timeline', 'map'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
+}
+for (const l of ['pl', 'en', 'uk', 'vi', 'fr', 'it', 'es']) {
   const L = T[l];
+  const labels = [...L.words.flat(), ...L.syllables, ...L.cutWords, ...L.cutPool];
+  ok(`${l}: labels have at most 6 letters`, labels.every(w => [...w].length <= 6), labels.filter(w => [...w].length > 6));
+  ok(`${l}: a pool keeps enough decoys`, L.syllables.length >= 20 && L.cutPool.length >= 20);
   ok(`${l}: three syllables per word`, L.words.every(w => w.length === 3));
+  // the answer must not stand out: no password syllable longer than the longest decoy
+  const len = w => [...w].length, maxDecoy = Math.max(...L.syllables.map(len));
+  ok(`${l}: password syllables no longer than decoys`, L.words.flat().every(w => len(w) <= maxDecoy), L.words.flat().filter(w => len(w) > maxDecoy));
   const b = Z.board(K.rng('b'), 6, 7, 'NIG', L.syllables);
   ok(`${l}: the answer label appears once`, b.filter(x => x === 'NIG').length === 1 && b[7] === 'NIG');
 }
