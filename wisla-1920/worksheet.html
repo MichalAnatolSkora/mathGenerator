@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tajne depesze 1920</title>
+<meta name="description" content="Gra na kartkę: odczytaj przechwycone depesze Armii Czerwonej z sierpnia 1920 roku tak jak polski radiowywiad i poznaj historię Cudu nad Wisłą. Siedem języków, z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .w20{font-size:12px;line-height:1.42;color:#222;}
+  .w20 p{margin:0 0 2mm;}
+  .w20 h3{font-size:13px;margin:0 0 1mm;}
+  .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 3mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;font-size:10.5px;line-height:1.32;padding:1.6mm 3mm;}
+  .cy{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.04em;}
+  /* telegram */
+  .tg{border:0.4mm solid #7a6a4f;background:#fbf7ec;border-radius:1.5mm;padding:1.2mm 2.5mm 1.6mm;margin:0 0 2mm;}
+  .tg .th{font-size:10px;color:#5a4b30;margin:0 0 0.8mm;display:flex;gap:2mm;flex-wrap:wrap;align-items:baseline;}
+  .tg .th b{font-size:12px;color:#222;}
+  .cells{display:flex;flex-wrap:wrap;gap:1.2mm 3.2mm;}
+  .wd{display:flex;gap:0.6mm;}
+  .wd.sign{padding-left:2.6mm;border-left:0.3mm dashed #aa9a7a;}
+  .c{width:5.5mm;text-align:center;}
+  .c .n{font:600 9px/1.15 ui-monospace,Menlo,Consolas,monospace;color:#333;}
+  .c .l{height:5.3mm;border:0.3mm solid #888;background:#fff;border-radius:0.8mm;font:700 12px/5.1mm ui-monospace,Menlo,Consolas,monospace;color:#1f4fbf;}
+  .c .l.pre{color:#777;}
+  /* key */
+  .keyrow{display:flex;flex-wrap:wrap;gap:1.2mm 0.6mm;margin:1mm 0 0;}
+  .keyrow .c .n{font-size:10px;}
+  .keybox{border:0.4mm solid #333;border-radius:1.5mm;padding:1.2mm 2.5mm 1.6mm;margin:0 0 2mm;}
+  .keybox h3 small{font-weight:400;color:#666;margin-left:2mm;}
+  /* glossary + map */
+  .duo{display:grid;grid-template-columns:1fr 58mm;gap:4mm;align-items:start;}
+  .gloss{columns:3;column-gap:4mm;font-size:9.5px;line-height:1.25;margin:0 0 2mm;}
+  .gloss div{break-inside:avoid;margin:0 0 0.6mm;}
+  .gloss .cy{font-size:9.5px;}
+  .map svg{display:block;width:100%;height:auto;}
+  .map .cap{font-size:10px;color:#555;text-align:center;margin-top:0.6mm;}
+  .q{margin:0 0 1.2mm;font-size:11px;line-height:1.3;}
+  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5.4mm;}
+  /* story */
+  .top{display:grid;grid-template-columns:1fr 84mm;gap:5mm;align-items:start;}
+  .cols{columns:2;column-gap:5mm;}
+  .cols > div{break-inside:avoid;margin:0 0 2.4mm;}
+  .west{border:0.5mm solid #1f4fbf;background:#eef3ff;}
+  .small{font-size:10.5px;color:#555;}
+  .ans .cy{font-size:13px;}
+  .ans .tr{margin:0 0 2.6mm;}
+  .ans ol{margin:0;padding-left:5mm;}
+  .ans li{margin:0 0 1.6mm;}
+  /* the Russian alphabet */
+  .abc{display:flex;flex-wrap:wrap;gap:1mm;margin:1mm 0 1.2mm;}
+  .abc div{width:9.6mm;border:0.3mm solid #999;border-radius:1mm;text-align:center;background:#fff;padding:0.4mm 0 0.6mm;}
+  .abc b{display:block;font:700 15px/1.2 ui-monospace,Menlo,Consolas,monospace;color:#1b2a6b;}
+  .abc span{display:block;font-size:10px;line-height:1.1;color:#444;}
+  /* how the cipher works */
+  .how{font-size:12px;line-height:1.38;}
+  .how h3{margin-top:1.8mm;font-size:13px;}
+  .how p{margin:0 0 1.4mm;}
+  .how .box{margin:0 0 2mm;padding:1.6mm 3mm;}
+  .how .demo .c,.how .tip .c{width:7.5mm;}
+  .how .demo .c .l,.how .tip .c .l{height:7.4mm;font-size:15px;line-height:7mm;}
+  .how .demo .c .n,.how .tip .c .n{font-size:12px;}
+  .how .demo .flow .c .l{font-size:15px;}
+  .demo{display:flex;flex-wrap:wrap;gap:3mm 8mm;align-items:flex-end;margin:1mm 0 2mm;}
+  .demo .cap{font-size:10px;color:#666;margin:0 0 0.6mm;}
+  .kp{display:flex;gap:0.6mm;}
+  .kp .c .l{color:#222;}
+  .flow{display:grid;grid-template-columns:auto auto;gap:0.8mm 2mm;align-items:center;}
+  .flow .lab{font-size:10px;color:#666;text-align:right;}
+  .flow .row{display:flex;gap:0.6mm;}
+  .flow .c .l{color:#222;}
+  .hl .l,.hl .n{background:#ffe36b !important;}
+  .how ol{margin:0 0 2mm;padding-left:5mm;}
+  .how li{margin:0 0 0.8mm;}
+  .opts{display:flex;gap:6mm;flex-wrap:wrap;margin:1.5mm 0 0;}
+  .opts span{font:700 13px ui-monospace,Menlo,Consolas,monospace;border:0.3mm solid #999;border-radius:5mm;padding:1mm 4mm;}
+  /* the real telegram */
+  .doc{font:10.5px/1.4 "Courier New",Courier,ui-monospace,monospace;color:#1b2a6b;background:#fdfcf6;border:0.3mm solid #999;padding:3mm 4mm;margin:0 0 3mm;box-shadow:0.6mm 0.6mm 0 #ddd;}
+  .doc .sec{text-align:right;font:700 12px system-ui,sans-serif;color:#111;text-decoration:underline;}
+  .doc .dt{text-align:center;font:600 14px Georgia,serif;color:#111;margin:0 0 1.5mm;}
+  .doc .hd{display:flex;flex-wrap:wrap;gap:1mm 5mm;margin:0 0 1.5mm;}
+  .doc .hd span{color:#555;font-family:system-ui,sans-serif;font-size:10.5px;}
+  .doc .tb{display:grid;grid-template-columns:30mm 1fr;border:0.3mm solid #333;}
+  .doc .tb > div{padding:1.5mm 2.5mm;}
+  .doc .tb > div + div{border-left:0.3mm solid #333;}
+  .doc .tb p{margin:0 0 1mm;}
+  .doc .tb .r{text-decoration:underline;font-weight:700;}
+  .doc .sg{padding-left:12mm;margin:2mm 0 0;}
+  .doc .sg b{display:block;padding-left:20mm;}
+  .doc .ft{display:flex;justify-content:space-between;gap:4mm;flex-wrap:wrap;margin-top:2mm;font:10px system-ui,sans-serif;color:#333;}
+  .doc .kow{font:italic 17px "Brush Script MT","Segoe Script",cursive;color:#333;margin:0 2mm;}
+  .photo{display:block;width:auto;max-width:100%;height:168mm;margin:0 auto;border:0.3mm solid #bbb;}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:0.8mm 5mm;font-size:10.5px;margin:0 0 3mm;}
+  .notes b{font-family:"Courier New",Courier,monospace;color:#1b2a6b;}
+  @media (max-width:600px){
+    .duo,.top,.notes{grid-template-columns:1fr;}
+    .doc .tb{grid-template-columns:1fr;}
+    .photo{height:auto;width:100%;}
+    .cols,.gloss{columns:1;}
+  }
+  @media print{ .w20{font-size:11.5px;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">📻 Tajne depesze 1920 — Cud nad Wisłą</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  /** One telegram word: a number over a box for its letter (filled in on the answer page). */
+  const word = (nums, letters, cls = '') => `<div class="wd ${cls}">${nums.map((n, i) =>
+    `<div class="c"><div class="n">${n}</div><div class="l">${letters ? letters[i] : ''}</div></div>`).join('')}</div>`;
+
+  KIT.app({
+    store: 'wisla1920.sheet',
+    text: W20_TEXT,
+    groups: [{ id: 'level', values: ['easy', 'mid', 'hard', 'expert'], def: 'easy', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'how', def: true, label: 'optHow' }, { id: 'story', def: true, label: 'optStory' }, { id: 'real', def: true, label: 'optReal' }],
+    render(s, api) {
+      const { C, esc } = api;
+      const d = W20.day(api.rnd('day'));
+      const M = C.mission, used = W20.lettersUsed(d);
+      const head = (t, i) => { const h = C.heads[t.slot]; return typeof h === 'string' ? h : h[t.id]; };
+      // ★★★: no gaps between words, the numbers in groups of five as in a real telegram
+      const groups = t => { const st = t.words.flat(), g = []; for (let i = 0; i < st.length; i += 5) g.push(st.slice(i, i + 5)); return g; };
+      const telegram = (t, i, fill) => `<div class="tg"><div class="th"><b>📻 ${esc(M.tg(i + 1))}</b><span>${esc(head(t, i))}</span></div>
+        <div class="cells">${!fill && s.level === 'expert' ? groups(t).map(g => word(g, null)).join('')
+          : t.words.map((w, j) => word(w, fill ? t.plain[j] : null, t.sign && j === t.words.length - 1 ? 'sign' : '')).join('')}</div></div>`;
+      const keyRow = show => `<div class="keyrow">${used.map(ch =>
+        `<div class="c"><div class="n">${d.key[ch]}</div><div class="l${show(ch) === 'pre' ? ' pre' : ''}">${show(ch) ? ch : ''}</div></div>`).join('')}</div>`;
+      const pages = [];
+
+      // the Russian alphabet with how each letter sounds in the page's language (Ё is in the alphabet, not in telegrams)
+      const abc = () => { const A = C.abc, snd = A.sounds.split(' ');
+        return `<div class="box"><h3 style="margin-top:0">🔤 ${esc(A.title)}</h3>
+          <div class="abc">${[...'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'].map((ch, i) => `<div><b>${ch}</b><span>${esc(snd[i])}</span></div>`).join('')}</div>
+          <p class="small" style="margin:0">${esc(A.note)}</p></div>`; };
+
+      // 0. how the cipher works, for the child to read first
+      if (s.how) {
+        const Hw = C.how, KP = [['Д', 47], ['И', 35], ['В', 58], ['З', 73], ['Я', 91], ['А', 37], ['Р', 82], ['М', 66]];
+        const kp = Object.fromEntries(KP), cell = (n, l, hl) => `<div class="c${hl ? ' hl' : ''}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+        const sec = ([h, p]) => `<h3>${esc(h)}</h3><p>${esc(p)}</p>`;
+        pages.push(`<div class="sheet w20 how">
+          ${api.head(Hw.title, Hw.sub, false)}
+          ${abc()}
+          ${sec(Hw.s1)}
+          <div class="demo">
+            <div><div class="cap">🔑 ${esc(Hw.keyPiece)}</div><div class="kp">${KP.map(([l, n]) => `<div class="c"><div class="l">${l}</div><div class="n">${n}</div></div>`).join('')}</div></div>
+            <div class="flow">
+              <span class="lab">${esc(Hw.plain)}</span><div class="row">${[...W20.PATTERN_WORD].map(ch => `<div class="c${ch === 'И' ? ' hl' : ''}"><div class="l">${ch}</div></div>`).join('')}</div>
+              <span class="lab">↓ ${esc(Hw.cipher)}</span><div class="row">${[...W20.PATTERN_WORD].map(ch => `<div class="c${ch === 'И' ? ' hl' : ''}"><div class="l">${kp[ch]}</div></div>`).join('')}</div>
+            </div>
+          </div>
+          ${sec(Hw.s2)}${sec(Hw.s3)}
+          <h3>${esc(Hw.s4t)}</h3>
+          <ol>${Hw.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+          <div class="box tip"><h3 style="margin-top:0">✏️ ${esc(Hw.warmT)}</h3>
+            <div class="q">1. ${esc(Hw.w1)}<div class="row" style="display:flex;gap:0.6mm;margin-top:1mm">${[37, 82, 66, 35, 91].map(n => cell(n, '')).join('')}</div><span class="ln"></span></div>
+            <div class="q">2. ${esc(Hw.w2)}<div class="opts">${Hw.w2opts.map(o => `<span>${o}</span>`).join('')}</div></div>
+          </div>
+          ${sec(Hw.s5)}${sec(Hw.s6)}
+          <h3>${esc(Hw.levelsT)}</h3>
+          <p class="small" style="margin:0">${Hw.levels.map(esc).join('<br>')}</p>
+        </div>`);
+      }
+
+      // 1. the mission: three telegrams, the key, the glossary, the map and the report
+      const half = s.level === 'mid' ? W20.halfKey(d, api.rnd('half')) : null;
+      const pre = ch => (s.level === 'easy' && !W20.PATTERN_WORD.includes(ch)) || (half && half.has(ch)) ? 'pre' : '';
+      pages.push(`<div class="sheet w20">
+        ${api.head(C.title, M.sub, true)}
+        <p style="font-size:11px;line-height:1.35">${esc(M.intro)}</p>
+        <div class="box tip"><h3>🔎 ${esc(M.hintTitle)}</h3><p style="margin:0">${esc(s.level === 'expert' ? M.expertHint : M.hint)} ${esc({ easy: M.easyNext, mid: M.midNext, hard: M.hardNext, expert: M.expertNext }[s.level])}</p></div>
+        ${d.telegrams.map((t, i) => telegram(t, i, false)).join('')}
+        <div class="keybox"><h3>🔑 ${esc(M.keyTitle)}<small>${esc(M.keyNote)}</small></h3>${keyRow(pre)}</div>
+        <h3>📖 ${esc(M.glossTitle)}</h3>
+        <div class="gloss">${W20.VOCAB.map(w => `<div><span class="cy">${w}</span> — ${esc(C.gloss[w])}</div>`).join('')}</div>
+        <div class="duo">
+          <div>
+            <h3>📝 ${esc(C.report.title)}</h3>
+            ${C.report.q.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}${i === 2 ? '' : '<span class="ln"></span>'.repeat(i === 3 ? 1 : 2)}</div>`).join('')}
+          </div>
+          <div class="map">${W20.mapSvg({ mode: 'choice', L: C.map })}</div>
+        </div>
+      </div>`);
+
+      // 2. the story of the Miracle on the Vistula
+      if (s.story) {
+        const S = C.story, sec = ([h, p]) => `<div><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`;
+        pages.push(`<div class="sheet w20">
+          ${api.head(S.title, S.sub, false)}
+          <div class="top">
+            <div>${S.sections.slice(0, 2).map(sec).join('')}</div>
+            <div class="map">${W20.mapSvg({ mode: 'story', L: C.map })}<div class="cap">${esc(S.mapTitle)}</div></div>
+          </div>
+          <div class="cols">${S.sections.slice(2).map(sec).join('')}</div>
+          <div class="box west">${sec(S.west).replace(/^<div>|<\/div>$/g, '')}</div>
+          <div class="box">${sec(S.next).replace(/^<div>|<\/div>$/g, '')}</div>
+          <p class="small">${esc(S.simpl)}</p>
+        </div>`);
+      }
+
+      // 3. a real decrypt from the archive
+      if (s.real) {
+        const R = W20.REAL, X = C.real;
+        pages.push(`<div class="sheet w20">
+          ${api.head(X.title, X.photoTitle, false)}
+          <p>${esc(X.intro.replace(/[^.]*:$/, ''))}</p>
+          <img class="photo" src="depesza-1920.jpg" width="1073" height="1500" alt="${esc(X.photoTitle)}">
+          <p style="margin-top:2mm">${esc(X.photoCap)}</p>
+          <p class="small">${esc(X.sourceLabel)} ${esc(R.source)}</p>
+          <h3>✏️ ${esc(X.tasksTitle)}</h3>
+          ${X.tasks.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}<span class="ln"></span></div>`).join('')}
+        </div>`);
+        pages.push(`<div class="sheet w20">
+          ${api.head(X.title, X.sub, false)}
+          <div class="doc">
+            <div class="sec">${esc(R.secret)}</div>
+            <div class="dt">${esc(R.title)}</div>
+            <div class="hd">${R.head.map(([k, v]) => `<div><span>${esc(k)}</span> ${esc(v)}</div>`).join('')}</div>
+            <div class="tb"><div>${esc(R.note)}</div><div>
+              ${R.body.map((l, i) => `<p${i ? '' : ' class="r"'}>${esc(l)}</p>`).join('')}
+              <div class="sg">${R.signs.map(([k, v]) => `${esc(k)}<b>${esc(v)}</b>`).join('')}</div>
+              <p style="margin-top:1.5mm">${esc(R.cipher)} <span style="float:right">${esc(R.date)}</span></p>
+            </div></div>
+            <div class="ft"><div>${R.foot.map(esc).join('<br>')}</div>
+              <div style="text-align:right">${esc(R.check[0])}<span class="kow">${esc(R.check[1])}</span><br>${esc(R.check[2])}</div></div>
+          </div>
+          <div class="box"><h3>${esc(X.translTitle)}</h3><p style="margin:0">${esc(X.transl)}</p></div>
+          <h3>${esc(X.notesTitle)}</h3>
+          <div class="notes">${X.notes.map(([k, v]) => `<div><b>${esc(k)}</b> — ${esc(v)}</div>`).join('')}</div>
+          <div class="box west"><h3>${esc(X.whyTitle)}</h3><p style="margin:0">${esc(X.why)}</p></div>
+          <p class="small">${esc(X.sourceLabel)} ${esc(R.source)}</p>
+        </div>`);
+      }
+
+      // 4. answers
+      if (s.key) {
+        const A = C.answers, t1 = d.telegrams[0], t2 = d.telegrams[1];
+        pages.push(`<div class="sheet w20 ans">
+          ${api.head(api.t('keyTitle'), C.title, false)}
+          <div class="keybox"><h3>🔑 ${esc(A.keyTitle)}<small>${esc(A.pattern(W20.findPattern(d) + 1))}</small></h3>${keyRow(() => 'x')}</div>
+          ${d.telegrams.map((t, i) => telegram(t, i, true) + `<p class="tr">➜ ${esc(A.tr[t.id])}</p>`).join('')}
+          <h3>📝 ${esc(C.report.title)}</h3>
+          <ol>
+            <li>${esc(A.a1[t1.id])}</li>
+            <li>${esc(A.a2[t2.id])}</li>
+            <li>${esc(A.a3)}</li>
+            <li>${esc(A.a4)}</li>
+          </ol>
+          ${s.how ? `<h3 style="margin-top:3mm">${esc(C.how.warmT)}</h3><ol><li>${esc(C.how.a1)}</li><li>${esc(C.how.a2)}</li></ol>` : ''}
+          ${s.real ? `<h3 style="margin-top:3mm">${esc(C.real.title)}</h3><ol>${C.real.answers.map(a => `<li>${esc(a)}</li>`).join('')}</ol>` : ''}
+        </div>`);
+      }
+      return { html: pages.join(''), tasks: 3, pages: pages.length };
+    },
+  });
+})();
+</script>
+</body>
+</html>
