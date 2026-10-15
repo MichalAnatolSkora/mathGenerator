@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Szerokość geograficzna N i S — gra</title>
+<meta name="description" content="Gra dla dzieci: szerokość geograficzna N i S na mapie świata, liczenie stopni i odczytywanie pozycji z gwiazd.">
+<style>
+  :root{
+    --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
+    --accent:#4f5bd5; --accent-d:#3d48b8; --accent-soft:#e9ebff;
+    --good:#1f9d55; --good-soft:#e3f6ea; --bad:#d6455a; --bad-soft:#fde8ec;
+    --hint-line:#f1d98a; --hint-soft:#fff6d6; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+  button{font:inherit;}
+
+  /* ---- top bar ---- */
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#f5f7fb;white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .score{display:flex;gap:8px;font-weight:700;font-size:14px;}
+  .score span{background:#f5f7fb;border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+
+  /* ---- layout ---- */
+  .wrap{max-width:760px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .seg{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:16px;padding:3px;background:var(--panel);}
+  .seg button{flex:1 1 auto;font-weight:600;font-size:15px;border:0;background:transparent;padding:6px 12px;border-radius:13px;cursor:pointer;color:var(--muted);min-height:44px;}
+  .seg button[aria-pressed=true]{background:var(--accent);color:#fff;}
+  .seg button:not([aria-pressed=true]):hover{color:var(--accent-d);background:var(--accent-soft);}
+  .levels{background:#f5f7fb;}
+  .levels button{font-size:14px;min-height:40px;}
+  .settings h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .settings .h2b{margin-top:12px;}
+  .opts{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:10px;}
+  .check{display:flex;align-items:center;gap:8px;font-size:14.5px;cursor:pointer;min-height:36px;}
+  .check input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--accent);}
+
+  /* ---- task ---- */
+  .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .task-head h2{margin:0;font-size:18px;}
+  .badge{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;background:var(--accent-soft);color:var(--accent-d);}
+  .q{margin:6px 0 0;font-size:17px;font-weight:700;text-align:center;}
+  .target{text-align:center;margin:6px 0 0;}
+  .target b{display:block;font:800 40px/1.1 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);}
+  .target span{display:block;font-size:16px;color:var(--muted);font-weight:600;}
+  .mapbox{width:min(440px,100%);margin:12px auto 0;}
+  .mapbox svg{display:block;width:100%;height:auto;}
+  .mapbox.pick svg{cursor:crosshair;touch-action:pan-y;}
+  .skybox{width:min(460px,100%);margin:12px auto 0;}
+  .skybox svg{display:block;width:100%;height:auto;border-radius:10px;}
+  .help{margin:8px auto 0;font-size:13.5px;color:var(--muted);text-align:center;max-width:56ch;}
+
+  /* ---- choices ---- */
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 8px;cursor:pointer;min-height:64px;color:var(--ink);}
+  .choice:hover{border-color:var(--accent);}
+  .choice b{font:800 26px/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  .choice.wide b{font-size:20px;}
+  .choice.correct{border-color:var(--good);background:var(--good-soft);}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .choice:disabled{cursor:default;}
+  .choice:disabled:not(.correct):not(.wrong){opacity:.55;}
+
+  /* ---- mark the latitude ---- */
+  .stepper{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+  .stepper button{font-weight:700;font-size:15px;min-height:46px;border:1px solid var(--line);background:#f5f7fb;border-radius:12px;cursor:pointer;color:var(--ink);padding:4px;}
+  .stepper button:hover{border-color:var(--accent);}
+  .stepper button:disabled{opacity:.5;cursor:default;}
+  .setactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .setactions .primary{flex:1 1 auto;margin:0;}
+  .fb{margin:10px 0 0;font-size:15px;color:#5a4a00;background:var(--hint-soft);border:1px solid var(--hint-line);border-radius:10px;padding:8px 12px;}
+  .fb:empty{display:none;}
+
+  /* ---- result ---- */
+  .result{border-width:2px;animation:pop .3s ease-out;}
+  .result.ok{border-color:var(--good);}
+  .result.no{border-color:var(--bad);}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion:reduce){.result{animation:none;}}
+  .verdict{font-size:22px;font-weight:800;margin:0 0 4px;}
+  .stars{font-size:22px;letter-spacing:2px;margin:0 0 8px;min-height:28px;}
+  .explain{margin:0;font-size:15.5px;}
+  .why{margin:12px 0 0;background:var(--accent-soft);border-radius:12px;padding:10px 14px;}
+  .why summary{cursor:pointer;font-weight:800;min-height:32px;display:flex;align-items:center;gap:6px;}
+  .why .whyfig{max-width:440px;margin:8px auto;}
+  .why .whyfig svg{display:block;width:100%;height:auto;}
+  .why p{margin:0;font-size:15px;}
+  .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
+  .primary:hover{background:var(--accent-d);}
+  .primary:disabled{opacity:.5;cursor:default;}
+  .secondary{font-weight:600;padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;cursor:pointer;min-height:46px;font-size:15px;color:var(--ink);}
+  .secondary:hover{border-color:var(--accent);}
+
+  /* ---- the Titanic story ---- */
+  .story summary{cursor:pointer;font-weight:800;font-size:17px;min-height:32px;display:flex;align-items:center;gap:8px;}
+  .story[open] summary{margin-bottom:12px;}
+  .story .figs{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;margin:0 0 12px;}
+  .story .figs svg{display:block;width:100%;height:auto;border-radius:10px;}
+  .story p{margin:0 0 10px;font-size:15.5px;max-width:68ch;}
+  .story .sext{float:right;width:min(42%,230px);margin:0 0 8px 14px;}
+  .story .sext img{display:block;width:100%;height:auto;border-radius:8px;}
+  .story .sext figcaption{font-size:12px;color:var(--muted);line-height:1.3;margin-top:4px;}
+  .story .tg{font:700 15px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--accent-soft);border-radius:10px;padding:8px 12px;}
+
+  /* ---- footer stats ---- */
+  .stats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;padding:0 4px;}
+  .stats .grow{flex:1;}
+  .ghost{font-size:13px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--muted);}
+  .ghost:hover{border-color:var(--bad);color:var(--bad);}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .top{padding:8px 12px;position:static;gap:6px 8px;}
+    .brand{font-size:18px;}
+    .score span{min-height:40px;display:inline-flex;align-items:center;padding:3px 8px;font-size:13px;}
+    .wrap{padding:10px;gap:10px;}
+    .card{padding:14px;}
+    .seg button{font-size:14px;padding:6px 8px;flex:1 1 40%;}
+    .choice b{font-size:23px;}
+    .choice.wide b{font-size:17px;}
+    .story .figs{grid-template-columns:1fr;}
+    .story .sext{width:48%;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">🌍 Szerokość geograficzna: N i S</h1>
+  <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karta pracy</a>
+  <nav class="langs" aria-label="Język"></nav>
+  <div class="score" aria-live="polite">
+    <span id="scoreStars" data-i18n-attr="title:starsTitle">⭐ 0</span>
+    <span id="scoreStreak" data-i18n-attr="title:streakTitle">🔥 0</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="seg modes" role="group" data-i18n-attr="aria-label:modeLabel">
+    <button type="button" data-mode="read" aria-pressed="true" data-i18n="modeRead"></button>
+    <button type="button" data-mode="set" aria-pressed="false" data-i18n="modeSet"></button>
+    <button type="button" data-mode="diff" aria-pressed="false" data-i18n="modeDiff"></button>
+    <button type="button" data-mode="star" aria-pressed="false" data-i18n="modeStar"></button>
+  </div>
+
+  <section class="card settings">
+    <h2 data-i18n="axisTitle">Współrzędne</h2>
+    <div class="seg levels" id="axes" role="group" data-i18n-attr="aria-label:axisTitle"></div>
+    <h2 class="h2b" data-i18n="level">Poziom</h2>
+    <div class="seg levels" id="levels" role="group" data-i18n-attr="aria-label:level"></div>
+    <div class="opts">
+      <label class="check"><input type="checkbox" id="optLines"> <span data-i18n="optLines"></span></label>
+    </div>
+  </section>
+
+  <section class="card" id="taskCard">
+    <div class="task-head">
+      <h2 id="taskTitle"></h2>
+      <span class="badge" id="levelBadge"></span>
+    </div>
+    <p class="q" id="question"></p>
+    <div class="target" id="target" hidden><b id="targetDig"></b><span id="targetWords"></span></div>
+    <div class="skybox" id="sky" hidden></div>
+    <p class="help" id="skyHelp" data-i18n="starHelp" hidden></p>
+    <div class="mapbox" id="map"></div>
+    <p class="help" id="rule"></p>
+
+    <div id="choicePane"><div class="choices" id="choices"></div></div>
+
+    <div id="setPane" hidden>
+      <p class="help" id="setHelp"></p>
+      <div class="stepper">
+        <button type="button" id="upBtn" data-i18n="up"></button>
+        <button type="button" id="downBtn" data-i18n="down"></button>
+        <button type="button" id="westBtn" data-i18n="west"></button>
+        <button type="button" id="eastBtn" data-i18n="east"></button>
+      </div>
+      <p class="fb" id="fb" aria-live="polite"></p>
+      <div class="setactions">
+        <button type="button" class="primary" id="checkBtn" data-i18n="check"></button>
+        <button type="button" class="secondary" id="showBtn" data-i18n="show" hidden></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card result" id="result" hidden aria-live="polite">
+    <p class="verdict" id="verdict"></p>
+    <p class="stars" id="stars"></p>
+    <p class="explain" id="explain"></p>
+    <details class="why" id="why" hidden>
+      <summary>🌍 <span id="whyTitle"></span></summary>
+      <div class="whyfig" id="whyFig"></div>
+      <p id="whyText"></p>
+    </details>
+    <button type="button" class="primary" id="nextBtn" data-i18n="next"></button>
+  </section>
+
+  <details class="card story" id="story">
+    <summary>🚢 <span data-i18n="factTitle"></span></summary>
+    <div class="figs" id="storyFigs"></div>
+    <div id="storyBody"></div>
+  </details>
+
+  <div class="stats">
+    <span id="statsText" class="grow"></span>
+    <button type="button" class="ghost" id="resetBtn" data-i18n="reset"></button>
+  </div>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STORE = 'latitude.v1';
+  const MODES = ['read', 'set', 'diff', 'star'];
+  const AXES = ['lat', 'lon', 'both'];
+  const UI = {};
+  for (const l of Object.keys(LAT_TEXT)) UI[l] = { ...LAT_TEXT[l].common, ...LAT_TEXT[l].game };
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const rnd = Math.random;
+  const CENTERS = [15, -70, 110, 140, -150, 45, -30];   // where a map window looks when the task has no real place
+  const SPAN = 140, K = 4, FS = 20, GUTTER = 66;
+
+  const state = {
+    mode: 'read', level: 'l10', axis: 'lat', lines: false,
+    task: null, taskNo: 0, answered: false,
+    cur: null, curLon: null, wrong: 0, fb: null,   // "Mark": where the player's line/dot is, wrong checks, last feedback
+    stats: { stars: 0, ok: 0, played: 0, streak: 0, best: 0 },
+  };
+  function load() {
+    try {
+      const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (!j) return;
+      if (MODES.includes(j.mode)) state.mode = j.mode;
+      if (LAT.LEVELS[j.level]) state.level = j.level;
+      if (AXES.includes(j.axis)) state.axis = j.axis;
+      state.lines = !!j.lines;
+      if (j.stats) Object.assign(state.stats, j.stats);
+    } catch (_) { /* no storage: play without saving */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ mode: state.mode, level: state.level, axis: state.axis, lines: state.lines, stats: state.stats })); } catch (_) { }
+  }
+
+  const letters = () => {
+    const c = C(), L = { N: c.N, S: c.S, E: c.E, W: c.W, equator: c.equator };
+    if (state.lines) Object.assign(L, { cancer: c.cancer, capricorn: c.capricorn, arctic: c.arctic, antarctic: c.antarctic });
+    return L;
+  };
+  const fmt = lat => LAT.fmt(lat, C());
+  const fmtLon = lon => LAT.fmtLon(lon, C());
+  const cityName = c => C().cities[c.id];
+  const km = deg => (Math.round(deg * 111 / 10) * 10).toLocaleString(I18N.get());
+  const isCity = () => state.level === 'city';
+  const step = () => LAT.LEVELS[state.level].step;
+  const wrapLon = l => ((l + 540) % 360) - 180;
+  const visLat = () => Math.round(rnd() * 110 - 50);   // where a dot sits when only its longitude matters
+
+  /** How a value of this task is written: a latitude, a longitude, both, or degrees between. */
+  function fmtVal(task, v) {
+    if (task.mode === 'diff') return `${v}°`;
+    if (task.ax === 'both') return `${fmt(v.lat)} ${fmtLon(v.lon)}`;
+    return task.ax === 'lon' ? fmtLon(v) : fmt(v);
+  }
+  const keyOf = v => typeof v === 'object' ? `${v.lat}|${v.lon}` : String(v);
+
+  /* ---------- new task ---------- */
+  function newTask() {
+    const lvl = state.level, city = isCity(), m = state.mode;
+    const pickAx = () => state.axis === 'both' ? (rnd() < 0.5 ? 'lat' : 'lon') : state.axis;
+    const task = { mode: m, ax: m === 'diff' || m === 'star' ? pickAx() : state.axis };
+    const prev = state.task;
+    if (m === 'diff') {
+      let a, b, ca = null, cb = null;
+      for (let guard = 0; guard < 300; guard++) {
+        if (city) {
+          ca = LAT.pick(rnd, LAT.CITIES); cb = LAT.pick(rnd, LAT.CITIES);
+          if (ca === cb || Math.abs(ca.lat) === 90 || Math.abs(cb.lat) === 90) continue;
+          if (task.ax === 'lat') { if (Math.abs(wrapLon(ca.lon - cb.lon)) > 100) continue; a = ca.lat; b = cb.lat; }
+          else { if (Math.abs(ca.lonR - cb.lonR) > 120) continue; a = ca.lonR; b = cb.lonR; }
+        } else if (task.ax === 'lat') { a = LAT.randomLat(rnd, lvl); b = LAT.randomLat(rnd, lvl); }
+        else { a = LAT.randomLon(rnd, lvl, 170); b = LAT.randomLon(rnd, lvl, 170); if (Math.abs(a - b) > 120) continue; }
+        if (a === b) continue;
+        if (Math.sign(a) === Math.sign(b) && rnd() < 0.45) continue;   // across the equator / Greenwich more often: that is the new idea
+        break;
+      }
+      // A is the northern one (latitude) or the western one (longitude)
+      if (task.ax === 'lat' ? a < b : a > b) { [a, b] = [b, a]; [ca, cb] = [cb, ca]; }
+      Object.assign(task, { a, b, ca, cb, answer: LAT.diff(a, b) });
+      if (task.ax === 'lat') {
+        task.center = city ? wrapLon(cb.lon + wrapLon(ca.lon - cb.lon) / 2) : LAT.pick(rnd, CENTERS);
+        task.pA = { lat: ca ? ca.real : a, lon: city ? ca.lon : task.center - 22 };
+        task.pB = { lat: cb ? cb.real : b, lon: city ? cb.lon : task.center + 22 };
+      } else {
+        task.center = (a + b) / 2;
+        const la = visLat(); let lb = visLat(); if (Math.abs(la - lb) < 15) lb = la > 0 ? la - 30 : la + 30;
+        task.pA = { lat: ca ? ca.real : la, lon: ca ? ca.lon : a };
+        task.pB = { lat: cb ? cb.real : lb, lon: cb ? cb.lon : b };
+      }
+      task.choices = LAT.shuffle(rnd, [task.answer, ...LAT.diffDistractors(a, b, lvl, rnd)]);
+    } else {
+      let lat = null, lon = null, c = null;
+      // a pole has no longitude; the noon clock stays away from the 180° line
+      const pool = task.ax === 'lat' ? LAT.CITIES : LAT.CITIES.filter(x => Math.abs(x.lat) < 90 && (m !== 'star' || Math.abs(x.lonR) <= 165));
+      for (let guard = 0; guard < 50; guard++) {
+        if (city) { c = LAT.pick(rnd, pool); lat = c.lat; lon = c.lonR; }
+        else {
+          lat = task.ax === 'lon' ? visLat() : LAT.randomLat(rnd, lvl);
+          if (task.ax === 'both' && Math.abs(lat) === 90) continue;
+          lon = task.ax === 'lat' ? null : LAT.randomLon(rnd, lvl, m === 'star' ? 165 : 180);
+        }
+        const same = prev && (task.ax === 'lon' ? prev.lon === lon : prev.lat === lat);
+        if (!same) break;
+      }
+      task.lat = lat; task.lon = lon; task.city = c;
+      if (task.ax === 'lat') {
+        task.center = c ? c.lon : LAT.pick(rnd, CENTERS);
+        task.pin = { lat: c ? c.real : lat, lon: c ? c.lon : task.center + Math.round((rnd() - 0.5) * 60) };
+      } else {
+        task.center = LAT.normLon(lon + Math.round((rnd() - 0.5) * 60));
+        task.pin = { lat: c ? c.real : lat, lon: c ? c.lon : lon };
+      }
+      task.answer = task.ax === 'both' ? { lat, lon } : task.ax === 'lon' ? lon : lat;
+      if (m !== 'set') {
+        const wrong = task.ax === 'both' ? LAT.pointDistractors(task.answer, lvl, rnd)
+          : task.ax === 'lon' ? LAT.lonDistractors(lon, lvl, rnd) : LAT.readDistractors(lat, lvl, rnd);
+        task.choices = LAT.shuffle(rnd, [task.answer, ...wrong]);
+      }
+    }
+    state.task = task; state.taskNo++; state.answered = false;
+    state.cur = null; state.curLon = null; state.wrong = 0; state.fb = null;
+    render();
+  }
+
+  /* ---------- drawing ---------- */
+  const usesLat = task => task.ax !== 'lon';
+  const usesLon = task => task.ax !== 'lat';
+  function mapOpts(task) {
+    const lvl = LAT.LEVELS[state.level];
+    const o = { lonC: task.center, span: SPAN, k: K, gutter: GUTTER, fs: FS, grid: lvl.grid, minor: state.level === 'l5' && usesLat(task) ? 5 : 0,
+      letters: letters(), lines: state.lines, hemi: task.ax === 'lat', id: 'g' };
+    if (usesLon(task)) { o.meridians = lvl.grid; o.lonLabels = lvl.grid === 30 ? 30 : 20; }
+    return o;
+  }
+  function drawMap() {
+    const box = $('map'), task = state.task, m = state.mode;
+    const o = mapOpts(task), pins = [];
+    if (m === 'star' && !state.answered) { box.hidden = true; return; }
+    box.hidden = false;
+    const showTarget = () => {
+      if (usesLat(task)) o.target = task.lat;
+      if (usesLon(task)) o.targetLon = task.lon;
+    };
+    if (m === 'read' || m === 'star') {
+      if (m === 'read' || task.city) pins.push({ lat: task.pin.lat, lon: task.pin.lon, text: task.city ? cityName(task.city) : '' });
+      if (state.answered) showTarget();
+    } else if (m === 'diff') {
+      const name = (c, l) => c ? cityName(c) : l;
+      const v = x => task.ax === 'lat' ? fmt(x) : fmtLon(x);
+      pins.push({ ...task.pA, text: name(task.ca, 'A'), sub: v(task.a), cls: 'a' });
+      pins.push({ ...task.pB, text: name(task.cb, 'B'), sub: v(task.b), cls: 'b' });
+    } else {
+      if (state.cur !== null) { o.cursor = state.cur; o.cursorText = fmt(state.cur); }
+      if (state.curLon !== null) { o.cursorLon = state.curLon; o.cursorLonText = fmtLon(state.curLon); }
+      if (task.ax === 'both' && state.cur !== null) pins.push({ lat: state.cur, lon: state.curLon, cls: 'b' });
+      if (state.answered) {
+        showTarget();
+        if (task.city) pins.push({ lat: task.city.real, lon: task.city.lon, text: cityName(task.city), cls: 'key' });
+      }
+    }
+    o.pins = pins;
+    box.className = 'mapbox' + (m === 'set' && !state.answered ? ' pick' : '');
+    box.innerHTML = LAT.mapSvg(o);
+    box.querySelector('svg').setAttribute('aria-label', t('mapLabel'));
+  }
+  function drawSky() {
+    const task = state.task, show = state.mode === 'star';
+    $('sky').hidden = !show; $('skyHelp').hidden = !show || task.ax === 'lon';
+    if (!show) return;
+    const c = C();
+    if (task.ax === 'lon') {
+      $('sky').innerHTML = LAT.noonSvg({ lon: task.lon, answer: state.answered ? fmtLon(task.lon) : '', names: { sun: c.sunName, chrono: c.chronoName, look: c.lookS } });
+      return;
+    }
+    const lat = task.lat, south = lat < 0;
+    $('sky').innerHTML = LAT.skySvg({ lat, answer: state.answered,
+      names: south ? { cross: c.cross, pole: c.skyPole, look: c.lookS } : { star: c.starName, dipper: c.dipper, look: c.lookN } });
+  }
+
+  function questionText() {
+    const task = state.task, m = state.mode, n = task.city ? cityName(task.city) : null;
+    const pick = (lat, lon, both) => task.ax === 'lat' ? lat : task.ax === 'lon' ? lon : both;
+    if (m === 'read') return n ? t(pick('readQCity', 'readQLonCity', 'readQBothCity'), n) : t(pick('readQ', 'readQLon', 'readQBoth'));
+    if (m === 'set') return n ? t(pick('setQCity', 'setQLonCity', 'setQBothCity'), n) : t(pick('setQ', 'setQLon', 'setQBoth'));
+    if (m === 'diff') return task.ca ? t(task.ax === 'lat' ? 'diffQCity' : 'diffQLonCity', cityName(task.ca), cityName(task.cb)) : t(task.ax === 'lat' ? 'diffQ' : 'diffQLon');
+    if (task.ax === 'lon') return t('clockQ');
+    return task.lat < 0 ? t('starQS') : t('starQN');
+  }
+
+  function render() {
+    const task = state.task, m = state.mode, c = C();
+    document.querySelectorAll('.modes button').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === m));
+      if (b.dataset.mode === 'star') b.textContent = t(state.axis === 'lat' ? 'modeStar' : state.axis === 'lon' ? 'modeClock' : 'modeSky');
+    });
+    $('axes').innerHTML = '';
+    for (const id of AXES) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('aria-pressed', String(id === state.axis));
+      b.textContent = id === 'lat' ? `${c.N} / ${c.S}` : id === 'lon' ? `${c.W} / ${c.E}` : `${c.N} ${c.S} ${c.W} ${c.E} — ${c.both}`;
+      b.addEventListener('click', () => { if (state.axis === id) return; state.axis = id; save(); newTask(); });
+      $('axes').appendChild(b);
+    }
+    $('levels').innerHTML = '';
+    for (const id of LAT.LEVEL_IDS) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = c.levels[id]; b.setAttribute('aria-pressed', String(id === state.level));
+      b.addEventListener('click', () => { if (state.level === id) return; state.level = id; save(); newTask(); });
+      $('levels').appendChild(b);
+    }
+    $('optLines').checked = state.lines;
+    $('taskTitle').textContent = t('taskN', state.taskNo);
+    $('levelBadge').textContent = c.levels[state.level];
+    $('question').textContent = questionText();
+    const set = m === 'set';
+    $('target').hidden = !set;
+    if (set) {
+      const lw = () => c.latWords(Math.abs(task.lat), LAT.hemi(task.lat)), ow = () => c.lonWords(Math.abs(task.lon), LAT.hemiLon(task.lon));
+      $('targetDig').textContent = fmtVal(task, task.answer);
+      $('targetWords').textContent = task.ax === 'lat' ? lw() : task.ax === 'lon' ? ow() : `${lw()}, ${ow()}`;
+    }
+    $('choicePane').hidden = set; $('setPane').hidden = !set;
+    $('rule').textContent = task.ax === 'lat' ? t('rule') : task.ax === 'lon' ? t('ruleLon') : `${t('rule')} ${t('ruleLon')}`;
+    $('rule').hidden = m === 'star' && !state.answered;
+    drawSky();
+    drawMap();
+
+    if (!set) {
+      const box = $('choices'); box.innerHTML = '';
+      task.choices.forEach(v => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'choice' + (task.ax === 'both' && m !== 'diff' ? ' wide' : '');
+        const big = document.createElement('b'); big.textContent = fmtVal(task, v); b.appendChild(big);
+        if (state.answered) {
+          b.disabled = true;
+          if (keyOf(v) === keyOf(task.answer)) b.classList.add('correct');
+          else if (keyOf(v) === keyOf(task.picked)) b.classList.add('wrong');
+        }
+        b.addEventListener('click', () => answerChoice(v));
+        box.appendChild(b);
+      });
+    } else {
+      $('setHelp').textContent = t(task.ax === 'lat' ? 'setHelp' : 'setHelpBoth');
+      $('upBtn').hidden = $('downBtn').hidden = !usesLat(task);
+      $('westBtn').hidden = $('eastBtn').hidden = !usesLon(task);
+      ['upBtn', 'downBtn', 'westBtn', 'eastBtn'].forEach(id => { $(id).disabled = state.answered; });
+      $('checkBtn').hidden = state.answered;
+      $('checkBtn').disabled = (usesLat(task) && state.cur === null) || (usesLon(task) && state.curLon === null);
+      $('showBtn').hidden = state.answered || state.wrong === 0;
+      $('fb').textContent = state.answered || !state.fb ? '' : state.fb;
+    }
+    renderResult();
+    renderScore();
+  }
+  function renderScore() {
+    const s = state.stats;
+    $('scoreStars').textContent = `⭐ ${s.stars}`;
+    $('scoreStreak').textContent = `🔥 ${s.streak}`;
+    $('statsText').textContent = t('stats', s.ok, s.played, s.best);
+  }
+  function explainText() {
+    const task = state.task, cityMode = isCity(), c = C(), name = task.city ? cityName(task.city) : null;
+    if (task.mode === 'diff') {
+      const hem = task.ax === 'lat' ? LAT.hemi : LAT.hemiLon;
+      const o = { a: Math.abs(task.a), b: Math.abs(task.b), ha: hem(task.a), hb: hem(task.b), d: task.answer,
+        nA: task.ca ? cityName(task.ca) : 'A', nB: task.cb ? cityName(task.cb) : 'B', city: !!task.ca, km: cityMode && task.ax === 'lat' ? km(task.answer) : null };
+      return t(task.ax === 'lat' ? 'explainDiff' : 'explainDiffLon', o);
+    }
+    if (task.mode === 'star') {
+      if (task.ax === 'lon') {
+        const min = Math.abs(task.lon) * 4;
+        return t('explainClock', { abs: Math.abs(task.lon), f: fmtLon(task.lon), time: LAT.hhmm(LAT.noonAt(task.lon)), dur: c.dur(Math.floor(min / 60), min % 60), later: task.lon < 0 })
+          + (name ? ` (${name})` : '');
+      }
+      return t('explainStar', { h: Math.abs(task.lat), f: fmt(task.lat), south: task.lat < 0, city: name });
+    }
+    if (task.ax === 'lon') return t('explainLon', { f: fmtLon(task.lon), abs: Math.abs(task.lon), h: LAT.hemiLon(task.lon), city: name });
+    if (task.ax === 'both') return t('explainBoth', { f: fmtVal(task, task.answer), hLat: LAT.hemi(task.lat), hLon: LAT.hemiLon(task.lon), city: name });
+    return t('explainRead', { f: fmt(task.lat), abs: Math.abs(task.lat), h: LAT.hemi(task.lat), city: name, km: cityMode && task.lat ? km(Math.abs(task.lat)) : null });
+  }
+  function renderResult() {
+    const r = state.task.result, box = $('result');
+    box.hidden = !r;
+    if (!r) return;
+    box.className = 'card result ' + (r.ok ? 'ok' : 'no');
+    $('verdict').textContent = r.shown ? t('shown') : r.ok ? (C().good[r.cheer % C().good.length]) : t('bad');
+    $('stars').textContent = r.stars ? '⭐'.repeat(r.stars) : '';
+    $('explain').textContent = explainText();
+    renderWhy();
+  }
+  /** "Why does it work?": the Earth and the star (latitude) or the turning Earth (longitude), after a sky/clock task. */
+  function renderWhy() {
+    const task = state.task, box = $('why');
+    const show = task.mode === 'star' && !!task.result && typeof LAT.whySvg === 'function';
+    box.hidden = !show;
+    if (!show) return;
+    const c = C();
+    $('whyTitle').textContent = t(task.ax === 'lon' ? 'whyLonTitle' : 'whyTitle');
+    $('whyFig').innerHTML = task.ax === 'lon'
+      ? LAT.whyLonSvg({ lon: task.lon, letters: letters(), names: c.whyNames })
+      : LAT.whySvg({ lat: task.lat, letters: letters(), names: c.whyNames });
+    $('whyText').textContent = t(task.ax === 'lon' ? 'whyLonText' : 'whyText');
+  }
+
+  function finish(ok, stars, shown) {
+    const s = state.stats;
+    s.played++;
+    if (ok) { s.ok++; s.streak++; s.best = Math.max(s.best, s.streak); s.stars += stars; } else s.streak = 0;
+    state.answered = true;
+    state.task.result = { ok, stars, shown, cheer: Math.floor(rnd() * 100) };
+    save();
+    render();
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    $('nextBtn').focus({ preventScroll: true });
+  }
+
+  /* ---------- read / how many degrees / from the sky ---------- */
+  function answerChoice(v) {
+    if (state.answered) return;
+    state.task.picked = v;
+    const ok = keyOf(v) === keyOf(state.task.answer);
+    finish(ok, ok ? 3 : 0, false);
+  }
+
+  /* ---------- mark the latitude / longitude / point ---------- */
+  const tolerance = () => isCity() ? 2 : 0;
+  const lonGap = (a, b) => LAT.normLon(a - b);   // signed, the short way round
+  function check() {
+    const task = state.task;
+    if (state.answered) return;
+    if ((usesLat(task) && state.cur === null) || (usesLon(task) && state.curLon === null)) return;
+    const latOk = !usesLat(task) || Math.abs(state.cur - task.lat) <= tolerance();
+    const lonOk = !usesLon(task) || Math.abs(lonGap(state.curLon, task.lon)) <= tolerance();
+    if (latOk && lonOk) { finish(true, Math.max(1, 3 - state.wrong), false); return; }
+    state.wrong++;
+    const latMsg = () => {
+      const cur = state.cur, want = task.lat;
+      return want !== 0 && cur !== 0 && Math.sign(cur) !== Math.sign(want) ? t('fbSide') : cur > want ? t('fbNorth') : t('fbSouth');
+    };
+    const lonMsg = () => {
+      const cur = state.curLon, want = task.lon, h = LAT.hemiLon;
+      const other = (h(cur) === 'E' && h(want) === 'W') || (h(cur) === 'W' && h(want) === 'E');
+      return other ? t('fbSideLon') : lonGap(cur, want) > 0 ? t('fbEast') : t('fbWest');
+    };
+    let msg;
+    if (task.ax === 'lat') msg = `${t('yourLine', fmt(state.cur))} ${latMsg()}`;
+    else if (task.ax === 'lon') msg = `${t('yourLine', fmtLon(state.curLon))} ${lonMsg()}`;
+    else msg = `${t('yourPoint', `${fmt(state.cur)} ${fmtLon(state.curLon)}`)} ${latOk ? t('fbOkLat') : latMsg()} ${lonOk ? t('fbOkLon') : lonMsg()}`;
+    state.fb = `${msg} ${t('tryAgain')}`;
+    render();
+  }
+  function showAnswer() {
+    if (state.answered) return;
+    const task = state.task;
+    if (usesLat(task)) state.cur = task.lat;
+    if (usesLon(task)) state.curLon = task.lon;
+    finish(false, 0, true);
+  }
+  function placeAt(lat, lon) {
+    if (state.answered) return;
+    const s = step(), task = state.task;
+    if (usesLat(task) && lat !== null) state.cur = Math.max(-90, Math.min(90, Math.round(lat / s) * s));
+    if (usesLon(task) && lon !== null) state.curLon = LAT.normLon(Math.round(lon / s) * s);
+    state.fb = null;
+    render();
+  }
+  function moveLat(dir) { placeAt((state.cur === null ? 0 : state.cur) + dir * step(), state.curLon === null ? state.task.center : null); }
+  function moveLon(dir) { placeAt(state.cur === null ? 0 : null, (state.curLon === null ? Math.round(state.task.center / step()) * step() : state.curLon) + dir * step()); }
+  /** Where on the map the pointer is (the map's own scale: K units per degree, a top margin, the label gutter). */
+  function coordsAt(e) {
+    const svg = $('map').querySelector('svg'); if (!svg) return null;
+    const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+    const x = (e.clientX - r.left) * vb.width / r.width, y = (e.clientY - r.top) * vb.height / r.height, pad = Math.ceil(FS * 0.8);
+    const lonL = state.task.center - SPAN / 2;
+    return { lat: 90 - (y - pad) / K, lon: LAT.normLon(lonL + Math.max(0, Math.min(SPAN, (x - GUTTER) / K))) };
+  }
+  function wireMap() {
+    const box = $('map');
+    // a tap places the line or dot (so a finger can still scroll the page); with a mouse it also follows a drag
+    const go = e => { const p = coordsAt(e); if (p) placeAt(p.lat, p.lon); };
+    box.addEventListener('click', e => { if (state.mode === 'set' && !state.answered) go(e); });
+    box.addEventListener('pointermove', e => {
+      if (state.mode !== 'set' || state.answered || e.pointerType !== 'mouse' || !(e.buttons & 1)) return;
+      go(e);
+    });
+  }
+
+  /* ---------- the Titanic story ---------- */
+  function renderStory() {
+    const c = C(), L = letters();
+    const pos = `41°46′${c.N} 50°14′${c.W}`;
+    $('storyFigs').innerHTML =
+      LAT.skySvg({ lat: 42, answer: true, names: { star: c.starName, dipper: c.dipper, look: c.lookN } })
+      + LAT.mapSvg({ lonC: -35, span: 90, top: 70, bottom: -10, k: 2.4, gutter: 46, fs: 12, grid: 10, meridians: 10, lonLabels: 20,
+        letters: { N: L.N, S: L.S, E: L.E, W: L.W, equator: L.equator }, hemi: false, id: 's',
+        pins: [{ lat: 41.77, lon: -50.23, text: 'Titanic', sub: pos, cls: 'a' }] });
+    $('storyBody').innerHTML = '';
+    const fig = document.createElement('figure'); fig.className = 'sext';
+    const img = document.createElement('img'); img.src = 'sextant-officer.jpg'; img.alt = ''; img.width = 320; img.height = 310;
+    const cap = document.createElement('figcaption'); cap.textContent = c.sextant;
+    fig.append(img, cap); $('storyBody').appendChild(fig);
+    c.fact.forEach((p, i) => {
+      const el = document.createElement('p'); el.textContent = p;
+      $('storyBody').appendChild(el);
+      if (i === 2) { const tg = document.createElement('p'); tg.className = 'tg'; tg.textContent = 'MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.'; $('storyBody').appendChild(tg); }
+    });
+  }
+
+  function wire() {
+    document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => {
+      if (state.mode === b.dataset.mode) return;
+      state.mode = b.dataset.mode; save(); newTask();
+    }));
+    $('optLines').addEventListener('change', e => { state.lines = e.target.checked; save(); render(); });
+    $('upBtn').addEventListener('click', () => moveLat(1));
+    $('downBtn').addEventListener('click', () => moveLat(-1));
+    $('westBtn').addEventListener('click', () => moveLon(-1));
+    $('eastBtn').addEventListener('click', () => moveLon(1));
+    $('checkBtn').addEventListener('click', check);
+    $('showBtn').addEventListener('click', showAnswer);
+    $('nextBtn').addEventListener('click', () => { newTask(); $('taskCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+    $('resetBtn').addEventListener('click', () => {
+      if (!confirm(t('resetConfirm'))) return;
+      state.stats = { stars: 0, ok: 0, played: 0, streak: 0, best: 0 };
+      save(); renderScore();
+    });
+    wireMap();
+    I18N.onChange(() => { I18N.apply(UI); document.title = t('title'); render(); renderStory(); });
+  }
+
+  load();
+  const q = new URLSearchParams(location.search);
+  if (MODES.includes(q.get('mode'))) state.mode = q.get('mode');
+  if (LAT.LEVELS[q.get('level')]) state.level = q.get('level');
+  if (AXES.includes(q.get('axis'))) state.axis = q.get('axis');
+  wire();
+  I18N.apply(UI);
+  document.title = t('title');
+  renderStory();
+  if (q.get('story') === '1') $('story').open = true;
+  newTask();
+})();
+</script>
+</body>
+</html>

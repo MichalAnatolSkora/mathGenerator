@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Szerokość geograficzna N i S — karta pracy</title>
+<meta name="description" content="Karta pracy A4 do druku: szerokość geograficzna N i S na mapie, na drabince, z gwiazd i w liczeniu stopni. Z rozwiązaniami i ciekawostką o Titanicu.">
+<style>
+  :root{
+    --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#4f5bd5; --accent-d:#3d48b8;
+    --bg:#eef1f6; --panel:#ffffff; --soft:#f3f5f9; --err:#c0252b; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  button{font:inherit;}
+  .appbar{padding:12px 18px;background:var(--panel);border-bottom:1px solid #e2e6ee;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+  .appbar .grow{flex:1 1 auto;}
+  .appbar h1{margin:0;font-size:18px;}
+  .appbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .navlink{display:inline-flex;align-items:center;min-height:40px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid #ccd2dd;border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;}
+  .navlink:hover{border-color:var(--accent);}
+  .wrap{display:flex;gap:18px;align-items:flex-start;padding:18px;max-width:1200px;margin:0 auto;}
+  @media (max-width:880px){ .wrap{flex-direction:column;align-items:stretch;} .stage{width:100%;} }
+
+  /* ---- controls ---- */
+  .controls{flex:0 0 290px;background:var(--panel);border:1px solid #e2e6ee;border-radius:var(--radius);padding:14px;position:sticky;top:14px;}
+  @media (max-width:880px){ .controls{position:static;flex-basis:auto;width:100%;} }
+  .controls h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;}
+  .grp{margin-bottom:14px;}
+  .row{display:flex;gap:8px;align-items:center;}
+  input[type=text]{font:inherit;padding:7px 8px;border:1px solid #ccd2dd;border-radius:8px;background:#fff;width:100%;}
+  #randSeed{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;border:1px solid #ccd2dd;border-radius:8px;background:var(--soft);cursor:pointer;font-size:15px;}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;}
+  .presets button{font-size:12.5px;min-height:38px;padding:6px 12px;border:1px solid #ccd2dd;background:var(--soft);border-radius:999px;cursor:pointer;}
+  .presets button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .presets button:hover{border-color:var(--accent);}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:6px 0;min-height:32px;}
+  .check input{width:18px;height:18px;flex:0 0 auto;}
+  .actions{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  button.primary{font-weight:600;padding:10px;border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;min-height:40px;}
+  button.primary:hover{background:var(--accent-d);}
+  button.ghost{padding:9px;border:1px solid #ccd2dd;border-radius:9px;background:#fff;cursor:pointer;min-height:40px;}
+  button.ghost:hover{border-color:var(--accent);}
+  .msg{min-height:18px;font-size:13px;margin-top:8px;color:var(--muted);}
+  .msg.error{color:var(--err);font-weight:600;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---- sheets (A4: 210 × 297 mm, 12 mm margins ⇒ 186 × 273 mm to draw on) ---- */
+  .stage{flex:1;min-width:0;}
+  .sheet{background:#fff;border:1px solid #e2e6ee;border-radius:6px;box-shadow:0 2px 10px rgba(20,30,60,.07);padding:12mm;margin:0 auto 18px;width:210mm;max-width:100%;color:#111;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid var(--line);padding-bottom:6px;margin-bottom:3mm;}
+  .title{font-size:20px;font-weight:800;}
+  .subtitle{font-size:12.5px;color:var(--muted);}
+  .seedlabel{font:12px ui-monospace,Menlo,Consolas,monospace;color:#888;margin-top:2px;}
+  .namebox{flex:0 0 230px;border:1px solid #bbb;border-radius:6px;padding:4px 12px;font-size:12.5px;color:#555;line-height:2;}
+  .rule{font-size:11.5px;line-height:1.35;background:#f3f5f9;border-left:3px solid #555;border-radius:3px;padding:1.5mm 3mm;margin:0 0 3mm;}
+  .sec{margin:0 0 3.5mm;break-inside:avoid;page-break-inside:avoid;}
+  .sec:last-child{margin-bottom:0;}
+  .sec h3{margin:0;font-size:14px;}
+  .sec .instr{font-size:11.5px;color:#333;margin:0.5mm 0 1.5mm;}
+  .sheet svg{display:block;}
+  .maprow{display:flex;gap:4mm;align-items:center;}
+  .mapwrap{flex:1 1 auto;min-width:0;}
+  .mapwrap svg{width:100%;height:auto;}
+  .answers{flex:0 0 44mm;display:flex;flex-direction:column;gap:3.2mm;font-size:13px;}
+  .answers.city{flex-basis:52mm;gap:2.4mm;font-size:12px;}
+  .answers .nm{flex:0 1 auto;max-width:21mm;font-size:10.5px;}
+  .answers.city .blank{width:8mm;}
+  .a{display:flex;align-items:baseline;gap:1.5mm;white-space:nowrap;min-width:0;}
+  .a .nm{overflow:hidden;text-overflow:ellipsis;font-size:11.5px;color:#333;}
+  .blank{display:inline-block;width:11mm;border-bottom:0.3mm solid #222;height:5mm;}
+  .ns{font-weight:700;letter-spacing:.06em;}
+  .key .blank{display:none;}
+  .key .val{font-weight:800;color:#1f7a43;}
+  .mapwrap.wide{width:158mm;max-width:100%;margin:0 auto;}
+  .ax-both .mapwrap.wide{width:142mm;}
+  .ax-both .rule{font-size:10.5px;padding:1.2mm 3mm;}
+  .ax-both .sec{margin-bottom:2.6mm;}
+  .city.ax-both .items.one{font-size:11.5px;gap:0.8mm;}
+  .bothrow{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:1.5mm;align-items:start;}
+  .answers.both{display:flex;flex-direction:column;gap:2.2mm;flex-basis:auto;}
+  .bothrow h3.sub{margin:0;font-size:13px;}
+  .bothrow .instr{margin:0 0 1mm;font-size:10.5px;}
+  .ax-both .answers.both{gap:1.4mm;font-size:12px;}
+  .ax-both .tiny{font-size:9.5px;margin-top:0.6mm;}
+  .ax-both .sec .instr{margin-bottom:1mm;}
+  .answers.both .nm{max-width:none;}
+  .answers.marks{font-weight:600;}
+  .sec h3.sub{margin-top:2.5mm;}
+  .lonscales{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm 6mm;}
+  .lsc{display:flex;flex-direction:column;gap:0.3mm;}
+  .lsc b{font-size:12.5px;}
+  .lsc small{font-size:10px;color:#333;}
+  .lsc svg{width:100%;height:auto;}
+  .cmp i,.dif i{font-style:normal;font-weight:800;}
+  .whyblock{display:grid;grid-template-columns:88mm 1fr;gap:6mm;align-items:center;margin:0 0 6mm;}
+  .whyblock svg{width:100%;height:auto;}
+  .whyblock h3{margin:0 0 2mm;font-size:15px;}
+  .whyblock p{margin:0;font-size:13px;line-height:1.5;}
+  .ladders{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;}
+  .lad{display:flex;flex-direction:column;align-items:center;gap:0.5mm;}
+  .lad b{font-size:12.5px;white-space:nowrap;}
+  .lad small{font-size:10px;color:#333;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lad svg{height:34mm;width:auto;}
+  .city .lad svg{height:30mm;}
+  .city .skycell svg,.ax-lon .skycell svg,.ax-both .skycell svg{max-width:47mm;}
+  .city.ax-lon .skycell svg,.city.ax-both .skycell svg{max-width:44mm;}
+  .skies{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;}
+  .skycell{display:flex;flex-direction:column;gap:1mm;font-size:13px;}
+  .skycell svg{width:100%;max-width:54mm;height:auto;}
+  .pairs{display:grid;grid-template-columns:1fr 1fr;gap:5mm;}
+  .items{display:grid;grid-template-columns:1fr 1fr;gap:2mm 3mm;font-size:13px;}
+  .items.one{grid-template-columns:1fr;gap:1.2mm;font-size:12px;}
+  .cmp{display:flex;gap:2mm;align-items:center;white-space:nowrap;}
+  .cmp span{border:0.3mm solid #999;border-radius:999px;padding:0.3mm 2.2mm;}
+  .key .cmp span.yes{border:0.6mm solid #1f7a43;color:#1f7a43;font-weight:800;}
+  .dif{white-space:nowrap;}
+  .tiny{font-size:10.5px;color:#444;margin:1mm 0 0;}
+
+  /* fact page */
+  .fact p{font-size:12.3px;line-height:1.42;margin:0 0 1.9mm;}
+  .fact .figs{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:center;margin:0 0 3mm;}
+  .fact .figs{justify-items:center;}
+  .fact .figs svg{height:42mm;width:auto;max-width:100%;}
+  .fact .sext{float:right;width:46mm;margin:0 0 2mm 4mm;}
+  .fact .sext img{display:block;width:100%;height:auto;}
+  .fact .sext figcaption{font-size:9.5px;color:#444;line-height:1.25;margin-top:1mm;}
+  .fact .tg{font:700 12px/1.4 ui-monospace,Menlo,Consolas,monospace;border:0.3mm dashed #555;padding:1.5mm 3mm;}
+  .fact .tasks{clear:both;display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:3mm;}
+  .fact .task h3{margin:0 0 1mm;font-size:13.5px;}
+  .fact .task p{font-size:12px;}
+  .lines{height:16mm;background:repeating-linear-gradient(#fff 0 7.6mm,#999 7.6mm 7.9mm);}
+
+  /* ---- phone ---- */
+  @media (max-width:600px){
+    .appbar{padding:12px 14px;}
+    .wrap{padding:10px;gap:12px;}
+    input[type=text]{font-size:16px;}   /* >=16px stops iOS zoom-on-focus */
+    .sheet{padding:14px 10px;}
+    .sheet-head{flex-wrap:wrap;gap:10px;}
+    .namebox{flex:1 1 100%;}
+    .maprow{flex-direction:column;align-items:stretch;}
+    .answers,.answers.city{flex-basis:auto;display:grid;grid-template-columns:1fr 1fr;gap:2mm 4mm;}
+    .ladders{grid-template-columns:repeat(3,1fr);row-gap:4mm;}
+    .skies{grid-template-columns:1fr 1fr;}
+    .pairs{grid-template-columns:1fr;}
+    .fact .figs,.fact .tasks{grid-template-columns:1fr;}
+    .whyblock,.bothrow{grid-template-columns:1fr;}
+    .lonscales{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{background:#fff;}
+    .appbar,.controls,.msg,.actions,.no-print{display:none !important;}
+    .wrap{display:block;padding:0;margin:0;max-width:none;}
+    .stage{width:100%;}
+    .sheet{box-shadow:none;border:0;border-radius:0;margin:0;padding:0;width:auto;max-width:none;}
+    .sheet + .sheet{page-break-before:always;break-before:page;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🌍 Szerokość geograficzna N i S — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <a class="navlink" href="index.html" data-keep-lang data-i18n="playOnline">🎮 Graj online</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false">
+    <div class="grp">
+      <h2 data-i18n="seed">Kod karty</h2>
+      <div class="row">
+        <input type="text" id="seed" autocomplete="off" spellcheck="false" data-i18n-attr="aria-label:seed">
+        <button type="button" id="randSeed" data-i18n-attr="title:randomSeed,aria-label:randomSeed">🎲</button>
+      </div>
+      <div class="hint" data-i18n="seedHint"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="axisTitle">Współrzędne</h2>
+      <div class="presets" id="axes"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="level">Poziom</h2>
+      <div class="presets" id="levels"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="tasks">Zadania</h2>
+      <div id="secChecks"></div>
+    </div>
+
+    <div class="grp">
+      <h2 data-i18n="options">Opcje</h2>
+      <label class="check"><input type="checkbox" id="optLines"> <span data-i18n="optLines"></span></label>
+      <label class="check"><input type="checkbox" id="optWhy" checked> <span data-i18n="optWhy"></span></label>
+      <label class="check"><input type="checkbox" id="optFact" checked> <span data-i18n="optFact"></span></label>
+      <label class="check"><input type="checkbox" id="optKey" checked> <span data-i18n="optKey"></span></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="newBtn" data-i18n="newWorksheet"></button>
+      <button type="button" class="ghost" id="printBtn" data-i18n="print"></button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="stage" id="out"></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STORE = 'latitude.sheet';
+  const UI = {};
+  for (const l of Object.keys(LAT_TEXT)) {   // the Titanic story is told in the game's texts
+    const g = LAT_TEXT[l].game;
+    UI[l] = { ...LAT_TEXT[l].common, ...LAT_TEXT[l].sheet, fact: g.fact, factTitle: g.factTitle };
+  }
+  const t = (k, ...a) => I18N.t(UI, k, ...a);
+  const C = () => UI[I18N.get()] || UI.en;
+  const SECS = ['map', 'ladder', 'stars', 'compare', 'diff'];
+  const AXES = ['lat', 'lon', 'both'];
+  const LETTERS = 'ABCDEF';
+  let level = 'l10', axis = 'lat', secs = new Set(SECS);
+
+  function randomSeed() {
+    const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 5; i++) s += A[Math.floor(Math.random() * A.length)];
+    return s + '-' + (100 + Math.floor(Math.random() * 900));
+  }
+  function readSettings() {
+    return { seed: $('seed').value.trim() || 'SEED', level, axis, secs: SECS.filter(x => secs.has(x)),
+      lines: $('optLines').checked, fact: $('optFact').checked, why: $('optWhy').checked, key: $('optKey').checked };
+  }
+  function persist(s) { try { localStorage.setItem(STORE, JSON.stringify(s)); } catch (_) { } }
+  function restore() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!s) return false;
+      $('seed').value = s.seed || randomSeed();
+      if (LAT.LEVELS[s.level]) level = s.level;
+      if (AXES.includes(s.axis)) axis = s.axis;
+      if (Array.isArray(s.secs)) secs = new Set(s.secs.filter(x => SECS.includes(x)));
+      $('optLines').checked = !!s.lines;
+      $('optFact').checked = s.fact !== false;
+      $('optWhy').checked = s.why !== false;
+      $('optKey').checked = s.key !== false;
+      return true;
+    } catch (_) { return false; }
+  }
+
+  /* ---------- the content of a sheet (same code + settings ⇒ same sheet) ---------- */
+  const wrap = l => ((l + 540) % 360) - 180;
+  /** Real places spread over the map: no two closer than 28° of longitude unless 14° of latitude apart. */
+  function spreadCities(rnd, n, notIds = [], maxLat = 80) {
+    const pool = LAT.shuffle(rnd, LAT.CITIES.filter(c => Math.abs(c.lat) <= maxLat && !notIds.includes(c.id)));
+    const out = [];
+    for (const c of pool) {
+      if (out.length === n) break;
+      if (out.some(o => Math.abs(wrap(o.lon - c.lon)) < 28 && Math.abs(o.real - c.real) < 14)) continue;
+      const s = out.filter(o => o.lat < 0).length;
+      if (c.lat >= 0 && n - out.length <= 2 - s) continue;   // keep at least two in the south
+      out.push(c);
+    }
+    return out;
+  }
+  const latsWithin = (rnd, lvl, n, max) => {
+    let v;
+    for (let g = 0; g < 50; g++) { v = LAT.randomLats(rnd, lvl, n); if (v.every(x => Math.abs(x) <= max)) return v; }
+    return v.map(x => Math.max(-max, Math.min(max, x)));
+  };
+  /** Points spread west to east: longitudes in their own slots, so labels do not collide. */
+  function slotLons(rnd, lvl, n) {
+    const st = LAT.LEVELS[lvl].step, w = 340 / n, out = [];
+    for (let i = 0; i < n; i++) {
+      const lo = -170 + i * w, hi = lo + w - 8;
+      let v = Math.round((lo + rnd() * (hi - lo)) / st) * st;
+      if (lvl === 'l10' && v % 30 === 0 && rnd() < 0.6) v += st * (rnd() < 0.5 ? 1 : -1);
+      out.push(Math.max(-170, Math.min(170, v)));
+    }
+    return out;
+  }
+  function generate(s) {
+    const rnd = LAT.rng(`${s.seed}|${s.level}|${s.axis}`), city = s.level === 'city', lvl = s.level, ax = s.axis;
+    const st = LAT.LEVELS[lvl].step;
+    const out = {};
+    // map: points A–F (A–D when both coordinates are read), west to east
+    const nMap = ax === 'both' ? 4 : 6;
+    if (city) out.map = spreadCities(rnd, nMap, [], 70).sort((a, b) => a.lon - b.lon).map(c => ({ lat: c.lat, real: c.real, lon: c.lonR, rlon: c.lon, city: c }));
+    else {
+      const lons = slotLons(rnd, lvl, nMap);
+      const lats = ax === 'lon' ? lons.map(() => Math.round(rnd() * 120 - 55)) : latsWithin(rnd, lvl, nMap, 70);
+      out.map = lons.map((lon, i) => ({ lat: lats[i], real: lats[i], lon, rlon: lon }));
+    }
+    const used = out.map.filter(p => p.city).map(p => p.city.id);
+    // marking: six latitudes / six longitudes / four points on the map
+    if (ax === 'both') {
+      if (city) out.ladder = spreadCities(rnd, 4, used, 70).map(c => ({ lat: c.lat, lon: c.lonR, rlon: c.lon, real: c.real, city: c }));
+      else { const lons = slotLons(rnd, lvl, 4), lats = latsWithin(rnd, lvl, 4, 70); out.ladder = lons.map((lon, i) => ({ lon, rlon: lon, lat: lats[i], real: lats[i] })); }
+      LAT.shuffle(rnd, out.ladder);
+    } else if (ax === 'lon') {
+      out.ladder = city ? spreadCities(rnd, 6, used, 80).map(c => ({ lon: c.lonR, city: c })) : LAT.randomLons(rnd, lvl, 6).map(lon => ({ lon }));
+    } else {
+      out.ladder = city ? spreadCities(rnd, 6, used, 90).map(c => ({ lat: c.lat, city: c })) : LAT.randomLats(rnd, lvl, 6).map(lat => ({ lat }));
+    }
+    // the sky: three skies (latitude) / three noon clocks (longitude) / mixed
+    const kinds = ax === 'lat' ? ['lat', 'lat', 'lat'] : ax === 'lon' ? ['lon', 'lon', 'lon'] : LAT.shuffle(rnd, ['lat', 'lon', rnd() < 0.5 ? 'lat' : 'lon']);
+    out.stars = [];
+    const seen = new Set();
+    for (const k of kinds) {
+      for (let g = 0; g < 100; g++) {
+        let v;
+        if (k === 'lat') v = city ? LAT.pick(rnd, LAT.CITIES.filter(c => Math.abs(c.lat) >= 5 && Math.abs(c.lat) <= 80)).lat : latsWithin(rnd, lvl, 1, 80)[0];
+        else v = city ? LAT.pick(rnd, LAT.CITIES.filter(c => Math.abs(c.lonR) >= 5 && Math.abs(c.lonR) <= 165)).lonR : LAT.randomLon(rnd, lvl, 165);
+        if (Math.abs(v) < 5 || seen.has(k + v)) continue;
+        const same = out.stars.filter(x => x.k === k);
+        if (k === 'lat' && same.length && same.every(x => Math.sign(x.v) === Math.sign(v)) && kinds.filter(x => x === 'lat').length - same.length === 1) continue;   // both hemispheres
+        if (k === 'lon' && same.length && same.every(x => Math.sign(x.v) === Math.sign(v)) && kinds.filter(x => x === 'lon').length - same.length === 1) continue;
+        seen.add(k + v); out.stars.push({ k, v }); break;
+      }
+    }
+    // pairs for "further north / east?" and "how many degrees?"
+    const pair = (k, cross) => {
+      for (let g = 0; g < 300; g++) {
+        let a, b, ca = null, cb = null;
+        if (city) {
+          ca = LAT.pick(rnd, LAT.CITIES); cb = LAT.pick(rnd, LAT.CITIES);
+          if (k === 'lon' && (Math.abs(ca.lat) === 90 || Math.abs(cb.lat) === 90)) continue;   // a pole has no longitude
+          a = k === 'lat' ? ca.lat : ca.lonR; b = k === 'lat' ? cb.lat : cb.lonR;
+        } else if (k === 'lat') { a = LAT.randomLat(rnd, lvl); b = LAT.randomLat(rnd, lvl); }
+        else { a = LAT.randomLon(rnd, lvl, 170); b = LAT.randomLon(rnd, lvl, 170); }
+        if (a === b || (cross !== null && (Math.sign(a) * Math.sign(b) < 0) !== cross)) continue;
+        if (k === 'lon' && Math.abs(a - b) > 180) continue;
+        return { k, a, b, ca, cb };
+      }
+      return { k, a: 30, b: -20, ca: null, cb: null };
+    };
+    const ks = ax === 'both' ? ['lat', 'lon', 'lat', 'lon'] : [ax, ax, ax, ax];
+    // compare: the trap is the same side (10°S is north of 40°S; 20°W is east of 60°W), one across, one free
+    out.compare = [pair(ks[0], false), pair(ks[1], true), pair(ks[2], null), pair(ks[3], false)];
+    if (!city) out.compare.forEach(p => { if (p.a > 0 && p.b > 0 && rnd() < 0.7) { p.a = -p.a; p.b = -p.b; } });
+    out.diff = [pair(ks[0], true), pair(ks[1], true), pair(ks[2], false), pair(ks[3], null)];
+    if (ax !== 'both') LAT.shuffle(rnd, out.diff);
+    return out;
+  }
+
+  /* ---------- drawing ---------- */
+  const fmt = lat => LAT.fmt(lat, C());
+  const fmtLon = lon => LAT.fmtLon(lon, C());
+  const fk = (k, v) => k === 'lat' ? fmt(v) : fmtLon(v);
+  const fp = p => `${fmt(p.lat)} ${fmtLon(p.lon)}`;
+  const cname = c => C().cities[c.id];
+  const ns = () => `<span class="ns">${esc(C().N)} / ${esc(C().S)}</span>`;
+  const we = () => `<span class="ns">${esc(C().W)} / ${esc(C().E)}</span>`;
+  function mapLetters(s) {
+    const c = C(), o = { N: c.N, S: c.S, E: c.E, W: c.W, equator: c.equator };
+    if (s.lines) Object.assign(o, { cancer: c.cancer, capricorn: c.capricorn, arctic: c.arctic, antarctic: c.antarctic });
+    return o;
+  }
+  function headHTML(title, subtitle, seed, namebox) {
+    return `<div class="sheet-head"><div><div class="title">${esc(title)}</div><div class="subtitle">${esc(subtitle)}</div><div class="seedlabel">${esc(t('seedLabel'))} ${esc(seed)}</div></div>${namebox ? `<div class="namebox">${esc(t('name'))}<br>${esc(t('date'))}</div>` : ''}</div>`;
+  }
+  const secName = (id, ax) => (ax === 'lon' && C().secLon[id]) || (ax === 'both' && C().secBoth[id]) || C().secs[id];
+  const instr = (id, ax, city) => {
+    const k = city && id === 'map' ? 'mapCity' : id;
+    return ax === 'lon' ? C().instrLon[k] : ax === 'both' ? C().instrBoth[k] : C().instr[k];
+  };
+  const secHead = (id, ax, txt) => `<h3>${esc(secName(id, ax))}</h3><p class="instr">${esc(txt)}</p>`;
+  const sheetTitle = ax => ax === 'lat' ? t('sheetTitle') : ax === 'lon' ? t('sheetTitleLon') : t('sheetTitleBoth');
+
+  function mapSvgFor(s, d, key, withMarks) {
+    const ax = s.axis, grid = LAT.LEVELS[s.level].grid, minor = s.level === 'l5' && ax !== 'lon' ? 5 : 0;
+    const pins = d.map.map((p, i) => ({ lat: p.real, lon: p.rlon, text: LETTERS[i], big: true, cls: key ? 'key' : 'a',
+      sub: key ? (ax === 'lat' ? fmt(p.lat) : ax === 'lon' ? fmtLon(p.lon) : fp(p)) : (p.city && ax !== 'both' ? cname(p.city) : '') }));
+    if (key && withMarks) d.ladder.forEach((p, i) => pins.push({ lat: p.real, lon: p.rlon, text: String(i + 1), cls: 'key', big: true }));
+    const o = { lonC: 0, span: 360, k: 2, gutter: 52, fs: 13, grid, minor, top: 80, bottom: -80, letters: mapLetters(s), lines: s.lines,
+      hemi: ax === 'lat', print: true, pins, id: key ? 'km' : 'sm' };
+    if (ax !== 'lat') { o.meridians = grid; o.lonLabels = 30; }
+    return LAT.mapSvg(o);
+  }
+
+  function sections(d, s, key) {
+    const city = s.level === 'city', ax = s.axis, grid = LAT.LEVELS[s.level].grid, minor = s.level === 'l5' ? 5 : 0;
+    const val = v => key ? `<span class="val">${esc(v)}</span>` : '';
+    const blank = (fill, tail) => key ? val(fill) : `<span class="blank"></span>${tail}`;
+    const marksOnMap = ax === 'both' && s.secs.includes('map') && s.secs.includes('ladder');
+    let h = '';
+    for (const id of s.secs) {
+      if (id === 'map') {
+        let ans;
+        if (ax === 'both') ans = d.map.map((p, i) => `<span class="a"><b>${LETTERS[i]}</b>${p.city ? `<span class="nm">${esc(cname(p.city))}</span>` : ''} ${blank(fp(p), `° ${ns()} <span class="blank"></span>° ${we()}`)}</span>`).join('');
+        else ans = d.map.map((p, i) => `<span class="a"><b>${LETTERS[i]}</b>${p.city ? `<span class="nm">${esc(cname(p.city))}</span>` : ''} ${blank(ax === 'lat' ? fmt(p.lat) : fmtLon(p.lon), `° ${ax === 'lat' ? ns() : we()}`)}</span>`).join('');
+        const marks = marksOnMap ? `<div><h3 class="sub">${esc(secName('ladder', ax))}</h3><p class="instr">${esc(instr('ladder', ax))}</p><div class="answers both marks">${d.ladder.map((p, i) => `<span class="a"><b>${i + 1}</b> ${esc(fp(p))}${p.city ? ` <span class="nm">${esc(cname(p.city))}</span>` : ''}</span>`).join('')}</div></div>` : '';
+        const row = ax === 'both' ? `<div class="mapwrap wide">${mapSvgFor(s, d, key, marksOnMap)}</div><div class="bothrow"><div class="answers both">${ans}</div>${marks}</div>`
+          : `<div class="maprow"><div class="mapwrap">${mapSvgFor(s, d, key, false)}</div><div class="answers${city ? ' city' : ''}">${ans}</div></div>`;
+        h += `<div class="sec">${secHead('map', ax, instr('map', ax, city))}${row}</div>`;
+      } else if (id === 'ladder') {
+        if (marksOnMap) continue;
+        if (ax === 'both') {   // no map section: a blank map of its own
+          const o = { lonC: 0, span: 360, k: 2, gutter: 52, fs: 13, grid, meridians: grid, lonLabels: 30, top: 80, bottom: -80, letters: mapLetters(s), print: true, id: key ? 'kl' : 'sl',
+            pins: key ? d.ladder.map((p, i) => ({ lat: p.real, lon: p.rlon, text: String(i + 1), cls: 'key', big: true })) : [] };
+          h += `<div class="sec">${secHead('ladder', ax, instr('ladder', ax).replace(/ (powyżej|above|вгорі|ở trên|ci-dessus|qui sopra|de arriba)/, ''))}<div class="mapwrap wide">${LAT.mapSvg(o)}</div><div class="answers both marks">${d.ladder.map((p, i) => `<span class="a"><b>${i + 1}</b> ${esc(fp(p))}</span>`).join('')}</div></div>`;
+        } else if (ax === 'lon') {
+          const cells = d.ladder.map(p => `<div class="lsc"><b>${esc(fmtLon(p.lon))}</b>${p.city ? ` <small>${esc(cname(p.city))}</small>` : ''}${LAT.lonScaleSvg({ grid, minor, letters: C(), dot: key ? p.lon : null })}</div>`).join('');
+          h += `<div class="sec">${secHead('ladder', ax, instr('ladder', ax))}<div class="lonscales">${cells}</div></div>`;
+        } else {
+          const cells = d.ladder.map(p => `<div class="lad"><b>${esc(fmt(p.lat))}</b>${p.city ? `<small>${esc(cname(p.city))}</small>` : ''}${LAT.ladderSvg({ grid, minor, letters: C(), dot: key ? p.lat : null })}</div>`).join('');
+          h += `<div class="sec">${secHead('ladder', ax, instr('ladder', ax))}<div class="ladders">${cells}</div></div>`;
+        }
+      } else if (id === 'stars') {
+        const c = C();
+        const cells = d.stars.map((x, i) => {
+          if (x.k === 'lon') return `<div class="skycell">${LAT.noonSvg({ lon: x.v, print: true, answer: key ? fmtLon(x.v) : '', names: { chrono: c.chronoName, look: c.lookS } })}<span class="a"><b>${i + 1}</b> ${blank(fmtLon(x.v), `° ${we()}`)}</span></div>`;
+          const sky = LAT.skySvg({ lat: x.v, print: true, answer: key, names: x.v < 0 ? { look: c.lookS } : { look: c.lookN } });
+          return `<div class="skycell">${sky}<span class="a"><b>${i + 1}</b> ${blank(fmt(x.v), `° ${ns()}`)}</span></div>`;
+        }).join('');
+        const txt = ax === 'lat' ? t('instrStars') : ax === 'lon' ? t('instrClocks') : `${t('instrStars')} ${t('instrClocks')}`;
+        const hint = ax === 'lat' ? t('starsHint') : ax === 'lon' ? t('clocksHint') : `${t('starsHint')} ${t('clocksHint')}`;
+        h += `<div class="sec"><h3>${esc(C().secs.stars)}</h3><p class="instr">${esc(txt)}</p><div class="skies">${cells}</div><p class="tiny">${esc(hint)}</p></div>`;
+      } else if (id === 'compare' || id === 'diff') {
+        if (id === 'diff' && s.secs.includes('compare')) continue;   // compare and diff share one row
+        const both = s.secs.includes('compare') && s.secs.includes('diff');
+        const one = city ? ' one' : '';
+        const lab = (k, v, c) => c ? `${cname(c)} ${fk(k, v)}` : fk(k, v);
+        const arrow = (p, a, b) => ax === 'both' ? `<i>${p.k === 'lat' ? a : b}</i> ` : '';
+        const cmp = () => `<div>${secHead('compare', ax, instr('compare', ax))}<div class="items${one}">${d.compare.map(p => {
+          const firstWins = p.a > p.b;   // further north = bigger latitude, further east = bigger longitude
+          return `<span class="cmp">${arrow(p, '↑', '→')}<span class="${key && firstWins ? 'yes' : ''}">${esc(lab(p.k, p.a, p.ca))}</span><span class="${key && !firstWins ? 'yes' : ''}">${esc(lab(p.k, p.b, p.cb))}</span></span>`;
+        }).join('')}</div></div>`;
+        const dhint = ax === 'lat' ? t('diffHint') : ax === 'lon' ? t('diffHintLon') : `${t('diffHint')} ${t('diffHintLon')}`;
+        const dif = () => `<div>${secHead('diff', ax, instr('diff', ax))}<div class="items${one}">${d.diff.map(p =>
+          `<span class="dif">${arrow(p, '↕', '↔')}${esc(lab(p.k, p.a, p.ca))} — ${esc(lab(p.k, p.b, p.cb))} = ${blank(LAT.diff(p.a, p.b) + '°', '°')}</span>`).join('')}</div><p class="tiny">${esc(dhint)}</p></div>`;
+        h += `<div class="sec">${both ? `<div class="pairs">${cmp()}${dif()}</div>` : id === 'compare' ? cmp() : dif()}</div>`;
+      }
+    }
+    return h;
+  }
+
+  const ruleText = ax => ax === 'lat' ? t('rule') : ax === 'lon' ? t('ruleLon') : `${t('rule')} ${t('ruleLon')}`;
+  const cls = s => `${s.level === 'city' ? ' city' : ''} ax-${s.axis}`;
+  function renderSheet(d, s) {
+    return `<div class="sheet${cls(s)}">${headHTML(sheetTitle(s.axis), t('sheetSub', C().levels[s.level]), s.seed, true)}
+      <p class="rule">${esc(ruleText(s.axis))}</p>${sections(d, s, false)}</div>`;
+  }
+  function renderKey(d, s) {
+    const extra = [s.level === 'city' ? t('keyApprox') : '', s.fact ? `🚢 ${t('factKey')}` : ''].filter(Boolean);
+    return `<div class="sheet key${cls(s)}">${headHTML(t('keyTitle'), t('keySub', C().levels[s.level]), s.seed, false)}
+      ${sections(d, s, true)}${extra.map(x => `<p class="tiny">${esc(x)}</p>`).join('')}</div>`;
+  }
+  function renderFact(s) {
+    const c = C();
+    const sky = LAT.skySvg({ lat: 42, print: true, names: { star: c.starName, dipper: c.dipper, look: c.lookN } });
+    const map = LAT.mapSvg({ lonC: -35, span: 90, top: 70, bottom: -10, k: 2.4, gutter: 46, fs: 12, grid: 10, meridians: 10, lonLabels: 20, print: true, id: 'fm',
+      letters: { N: c.N, S: c.S, E: c.E, W: c.W, equator: c.equator }, pins: [{ lat: 41.77, lon: -50.23, text: 'Titanic', sub: `41°46′${c.N} 50°14′${c.W}` }] });
+    const paras = c.fact.map((p, i) => `<p>${esc(p)}</p>${i === 2 ? '<p class="tg">MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.</p>' : ''}`).join('');
+    const blankSky = LAT.skySvg({ lat: 42, print: true, blank: true, names: { look: c.lookN } });
+    return `<div class="sheet fact">${headHTML(`🚢 ${c.factTitle}`, '', s.seed, false)}
+      <div class="figs">${map}${sky}</div><figure class="sext"><img src="sextant-officer.jpg" alt="" width="320" height="310"><figcaption>${esc(c.sextant)}</figcaption></figure>${paras}
+      <div class="tasks">
+        <div class="task"><h3>1. ${esc(t('factT1Title'))}</h3><p>${esc(t('factT1'))}</p><p>41°46′ ≈ <span class="blank"></span>° ${esc(c.N)}</p>
+          <h3>3. ${esc(t('factT3Title'))}</h3><p>${esc(t('factT3'))}</p><div class="lines"></div></div>
+        <div class="task"><h3>2. ${esc(t('factT2Title'))}</h3><p>${esc(t('factT2'))}</p>${blankSky}</div>
+      </div></div>`;
+  }
+  /** "Why does it work?": the Earth and the Pole Star (latitude), the turning Earth and the sun (longitude). */
+  function renderWhy(s) {
+    const c = C(), L = mapLetters(s);
+    const blocks = [];
+    if (s.axis !== 'lon') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyTitle)}</h3><p>${esc(c.whyText)}</p></div></div>`);
+    if (s.axis !== 'lat') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyLonTitle)}</h3><p>${esc(c.whyLonText)}</p></div></div>`);
+    return `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}${blocks.join('')}</div>`;
+  }
+
+  function regenerate() {
+    const s = readSettings();
+    persist(s);
+    const msg = $('msg'); msg.className = 'msg';
+    try {
+      if (!s.secs.length && !s.fact && !s.why) { $('out').innerHTML = ''; msg.className = 'msg error'; msg.textContent = t('noTasks'); return; }
+      const d = generate(s);
+      let html = '', pages = 0;
+      if (s.secs.length) { html += renderSheet(d, s); pages++; }
+      if (s.why) { html += renderWhy(s); pages++; }
+      if (s.fact) { html += renderFact(s); pages++; }
+      if (s.key && s.secs.length) { html += renderKey(d, s); pages++; }
+      $('out').innerHTML = html;
+      document.title = `${t('title')} · ${s.seed}`;
+      msg.textContent = t('summary', pages);
+    } catch (e) {
+      msg.className = 'msg error'; msg.textContent = t('genError') + e.message;
+    }
+  }
+  function newWorksheet() { $('seed').value = randomSeed(); regenerate(); }
+
+  function presets(boxId, values, current, label, onPick) {
+    const box = $(boxId); box.innerHTML = '';
+    for (const v of values) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label(v); b.className = v === current ? 'active' : '';
+      b.setAttribute('aria-pressed', String(v === current));
+      b.addEventListener('click', () => { onPick(v); renderControls(); regenerate(); });
+      box.appendChild(b);
+    }
+  }
+  function renderControls() {
+    const c = C();
+    presets('axes', AXES, axis, v => v === 'lat' ? `${c.N} / ${c.S}` : v === 'lon' ? `${c.W} / ${c.E}` : `${c.N} ${c.S} ${c.W} ${c.E} — ${c.both}`, v => { axis = v; });
+    presets('levels', LAT.LEVEL_IDS, level, v => c.levels[v], v => { level = v; });
+    const sc = $('secChecks'); sc.innerHTML = '';
+    for (const id of SECS) {
+      const l = document.createElement('label'); l.className = 'check';
+      const i = document.createElement('input'); i.type = 'checkbox'; i.checked = secs.has(id);
+      i.addEventListener('change', () => { if (i.checked) secs.add(id); else secs.delete(id); regenerate(); });
+      const sp = document.createElement('span'); sp.textContent = secName(id, axis);
+      l.append(i, ' ', sp); sc.appendChild(l);
+    }
+  }
+
+  function wire() {
+    $('seed').addEventListener('change', regenerate);
+    $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); regenerate(); } });
+    ['optLines', 'optFact', 'optWhy', 'optKey'].forEach(id => $(id).addEventListener('change', regenerate));
+    $('randSeed').addEventListener('click', newWorksheet);
+    $('newBtn').addEventListener('click', newWorksheet);
+    $('printBtn').addEventListener('click', () => window.print());
+    I18N.onChange(() => { I18N.apply(UI); renderControls(); regenerate(); });
+  }
+
+  function init() {
+    const q = new URLSearchParams(location.search);
+    if (!restore()) $('seed').value = randomSeed();
+    if (q.get('seed')) $('seed').value = q.get('seed');
+    if (LAT.LEVELS[q.get('level')]) level = q.get('level');
+    if (AXES.includes(q.get('axis'))) axis = q.get('axis');
+    if (q.get('tasks')) secs = new Set(q.get('tasks').split(',').filter(x => SECS.includes(x)));
+    for (const [k, id] of [['lines', 'optLines'], ['fact', 'optFact'], ['why', 'optWhy'], ['key', 'optKey']]) {
+      if (q.has(k)) $(id).checked = q.get(k) === '1' || q.get(k) === 'true';
+    }
+    wire();
+    I18N.apply(UI);
+    renderControls();
+    regenerate();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
