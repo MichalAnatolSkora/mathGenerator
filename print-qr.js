@@ -1,15 +1,13 @@
 /**
- * A small QR code on the printed worksheets that leads back to the same sheet on the site. Classic script;
+ * A small QR code on the printed worksheets that leads to the home page of the site. Classic script;
  * defines the global `PRINTQR` (also exported for Node, so the encoder can be tested with `node print-qr.test.js`).
  *
  * The code goes into every `.sheet-head` of the page (except `.slim` continuation heads) and every element with
- * `data-qr`, with "More games on the website – scan me" beside it. It links to the page on the site (SITE below,
- * also when the page is opened from file:// or localhost) with the sheet's settings and the language, so scanning it
- * opens the same sheet with the same code.
+ * `data-qr`, with "More games on the website – scan me" beside it. It links to the home page (SITE below, also when
+ * the page is opened from file:// or localhost) in the current language, where all the games are.
  * A checkbox "QR code on the printout" appears right before the #printBtn button; the choice is remembered
  * (localStorage "printQr") and shared by all pages.
  *
- *   PRINTQR.set(params)   → the page's current settings ({seed, level, key: true, …}); without it the address's query is used
  *   PRINTQR.stamp(root)   → put the codes in now (pages that measure their layout right after rendering)
  *   PRINTQR.onChange(fn)  → called after the checkbox was switched
  *   PRINTQR.matrix(text)  → QR modules, rows of booleans (byte mode, error correction level M, versions 1–10)
@@ -200,43 +198,23 @@ const PRINTQR = (() => {
 
   /* ---------- on the page ---------- */
   const TEXT = {
-    pl: { toggle: 'Kod QR na wydruku', more: 'Więcej gier na stronie – zeskanuj', scan: 'Zeskanuj telefonem, aby otworzyć tę kartę na stronie' },
-    en: { toggle: 'QR code on the printout', more: 'More games on the website – scan me', scan: 'Scan with a phone to open this sheet on the website' },
-    uk: { toggle: 'QR-код на роздруківці', more: 'Більше ігор на сайті – скануй', scan: 'Скануйте телефоном, щоб відкрити цей аркуш на сайті' },
-    vi: { toggle: 'Mã QR trên bản in', more: 'Thêm trò chơi trên trang web – quét mã', scan: 'Quét bằng điện thoại để mở phiếu này trên trang web' },
-    fr: { toggle: 'Code QR sur la fiche imprimée', more: 'Plus de jeux sur le site – scanne-moi', scan: 'Scanne avec un téléphone pour ouvrir cette fiche sur le site' },
-    it: { toggle: 'Codice QR sulla stampa', more: 'Altri giochi sul sito – inquadrami', scan: 'Inquadra con il telefono per aprire questa scheda sul sito' },
-    es: { toggle: 'Código QR en la copia impresa', more: 'Más juegos en la web – escanéame', scan: 'Escanea con el móvil para abrir esta ficha en la web' },
+    pl: { toggle: 'Kod QR na wydruku', more: 'Więcej gier na stronie – zeskanuj', scan: 'Zeskanuj telefonem, aby zobaczyć wszystkie gry na stronie' },
+    en: { toggle: 'QR code on the printout', more: 'More games on the website – scan me', scan: 'Scan with a phone to see all the games on the website' },
+    uk: { toggle: 'QR-код на роздруківці', more: 'Більше ігор на сайті – скануй', scan: 'Скануйте телефоном, щоб побачити всі ігри на сайті' },
+    vi: { toggle: 'Mã QR trên bản in', more: 'Thêm trò chơi trên trang web – quét mã', scan: 'Quét bằng điện thoại để xem tất cả trò chơi trên trang web' },
+    fr: { toggle: 'Code QR sur la fiche imprimée', more: 'Plus de jeux sur le site – scanne-moi', scan: 'Scanne avec un téléphone pour voir tous les jeux du site' },
+    it: { toggle: 'Codice QR sulla stampa', more: 'Altri giochi sul sito – inquadrami', scan: 'Inquadra con il telefono per vedere tutti i giochi del sito' },
+    es: { toggle: 'Código QR en la copia impresa', more: 'Más juegos en la web – escanéame', scan: 'Escanea con el móvil para ver todos los juegos de la web' },
   };
   const KEY = 'printQr';
   const t = k => I18N.t(TEXT, k);
   let on = true;
   try { on = localStorage.getItem(KEY) !== '0'; } catch (_) { /* no storage: on */ }
-  let params = null;
   const listeners = [];
 
-  // the folder of this script is the site root, so the page's path inside the site is known also offline
-  const root = new URL('.', document.currentScript.src).href;
-
-  /** Address of this sheet on the site. */
-  function link() {
-    const here = location.href.split(/[?#]/)[0];
-    const path = here.startsWith(root) ? here.slice(root.length) : here.split('/').slice(-2).join('/');
-    const q = new URLSearchParams(params ? '' : location.search);
-    if (params) {
-      for (const [k, v] of Object.entries(params)) {
-        if (v === undefined || v === null || v === '') continue;
-        q.set(k, v === true ? '1' : v === false ? '0' : String(v));
-      }
-    }
-    if (I18N.get() === I18N.DEFAULT) q.delete('lang'); else q.set('lang', I18N.get());
-    const qs = q.toString();
-    return SITE + path.replace(/(^|\/)index\.html$/, '$1') + (qs ? '?' + qs : '');
-  }
-  function picture() {
-    const url = link();
-    try { return svg(url); } catch (_) { return svg(url.split('?')[0]); }   // too long: the page without its settings
-  }
+  /** Address of the home page, in the current language. */
+  const link = () => I18N.get() === I18N.DEFAULT ? SITE : `${SITE}?lang=${I18N.get()}`;
+  const picture = () => svg(link());
 
   const style = document.createElement('style');
   style.textContent = '.print-qr{flex:none;display:flex;align-items:center;gap:2mm;margin-left:auto;}'
@@ -263,15 +241,13 @@ const PRINTQR = (() => {
       h.appendChild(box);
     }
   }
-  /** Draw every code again (the settings or the language changed). */
+  /** Draw every code again (the language changed). */
   function refresh() {
     const boxes = document.querySelectorAll('.print-qr');
     if (!boxes.length) return;
     const pic = picture(), title = t('scan');
     boxes.forEach(b => { b.lastChild.innerHTML = pic; b.firstChild.textContent = t('more'); b.title = title; });
   }
-  function set(p) { params = p; refresh(); }
-
   function renderToggle() {
     let label = document.querySelector('.qr-toggle');
     if (!label) {
@@ -306,6 +282,6 @@ const PRINTQR = (() => {
   });
   I18N.onChange(() => { renderToggle(); refresh(); });
 
-  return { matrix, svg, set, stamp, refresh, link, onChange: f => listeners.push(f), isOn: () => on, SITE };
+  return { matrix, svg, stamp, refresh, link, onChange: f => listeners.push(f), isOn: () => on, SITE };
 })();
 if (typeof module !== 'undefined') module.exports = PRINTQR;

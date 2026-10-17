@@ -254,7 +254,6 @@
   function regenerate() {
     const s = readSettings();
     persist(s);
-    PRINTQR.set({ seed: s.seed, level: s.level, nums: s.nums, theme: s.theme, pic: s.pic === 'random' ? '' : s.pic, key: s.key });
     const msg = $('msg'); msg.className = 'msg';
     try {
       const d = generate(s);

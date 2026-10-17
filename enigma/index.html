@@ -334,7 +334,6 @@
     out.textContent = ''; frames.length = 0;
     msg.className = 'msg';
     if (!pages.length) { msg.className = 'msg error'; msg.textContent = t('nonePicked'); return; }
-    PRINTQR.set({ pages: ENIGMA.formatPages(pages) });
     for (const n of pages) {
       const f = document.createElement('div');
       f.className = 'ams-frame';
