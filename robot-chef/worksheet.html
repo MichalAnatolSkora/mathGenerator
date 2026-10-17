@@ -98,6 +98,13 @@
   .det .eqs span{display:inline-flex;align-items:center;gap:1mm;}
   .det .eqs .e{font-size:5mm;}
   .rule{border:0.4mm solid var(--accent);background:#f6f7ff;border-radius:2.5mm;padding:1.5mm 3mm;font-size:3.3mm;display:flex;flex-direction:column;gap:0.5mm;margin-bottom:2mm;}
+  .example{border:0.4mm dashed var(--accent);border-radius:2.5mm;padding:1.5mm 3mm 2mm;margin-bottom:2.5mm;font-size:3.2mm;}
+  .example .ttl{font-weight:800;margin-bottom:1mm;}
+  .example table.t{font-size:3.2mm;}
+  .example .t td{height:auto;padding:0.5mm 1mm;color:#333;}
+  .example .t .e{font-size:4mm;}
+  .example .mk{color:var(--accent-d);font-weight:800;margin-left:1mm;}
+  .example .legend{display:grid;grid-template-columns:1fr 1fr;gap:0.5mm 5mm;margin-top:1.5mm;}
   .nb{display:flex;gap:4mm;flex-wrap:wrap;margin-bottom:2mm;align-items:center;}
   .nb > span{display:inline-flex;align-items:center;gap:1.5mm;}
   .face{font-size:5mm;}
@@ -258,6 +265,22 @@
   const mapLabels = () => ({ xLabel: t('axisSweet'), yLabel: t('axisSpicy') });
   const svgBox = (svg, cls = 'map') => `<div class="${cls}">${svg}</div>`;
 
+  /** Chapter 4: a filled-in example of the training table (🍫 🧅 🧀, two steps), with ①–④ explained below it. */
+  function example4() {
+    const g = { ing: ['choc', 'onion', 'cheese'] }, cols = t('s4cols');
+    const mk = n => `<span class="mk">${'①②③④'[n - 1]}</span>`;
+    const r2 = x => `<th rowspan="2">${esc(x)}</th>`;
+    const row = (n, x, w, pts, robot, guest, fix, m = {}) => `<tr><td>${n}</td><td class="e">${g.ing.filter((_, j) => x[j]).map(em).join(' ')}</td>`
+      + w.map((v, j) => `<td>${v}${j === 0 && m.w ? mk(4) : ''}</td>`).join('')
+      + `<td class="fx">${pts}${m.pts ? mk(1) : ''}</td><td class="e">${robot}${m.pts ? mk(2) : ''}</td><td class="e">${guest}</td><td>${fix}${m.pts ? mk(3) : ''}</td></tr>`;
+    return `<div class="example"><p class="ttl">${esc(t('exSheetTitle'))}</p>`
+      + `<table class="t"><thead><tr>${r2(cols.step)}${r2(cols.dish)}<th colspan="3">${esc(cols.weights)}</th>${r2(cols.pts)}${r2(cols.robot)}${r2(cols.guest)}${r2(cols.fix)}</tr>`
+      + `<tr>${g.ing.map(id => `<th class="e">${em(id)}</th>`).join('')}</tr></thead><tbody>`
+      + row(1, [1, 0, 1], [0, 0, 0], '0 + 0 = 0', '🤢', '😋', `${em('choc')}+1 ${em('cheese')}+1`, { pts: true })
+      + row(2, [0, 1, 0], [1, 0, 1], '0', '🤢', '🤢', '—', { w: true })
+      + `</tbody></table><div class="legend">${t('exLegend').map(x => `<p>${rich(x)}</p>`).join('')}</div></div>`;
+  }
+
   /* ---------- the chapters: data ---------- */
   function data(ch, seed) {
     const rnd = E.rng(`${seed}|${ch}`);
@@ -329,6 +352,7 @@
         + `<tr>${g.ing.map(id => `<th class="e">${em(id)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
       const end = g.ing.map((id, j) => `<span style="font-size:4mm">${em(id)} ${blank(key ? E.num(d.w[j]) : '', key, 10)}</span>`).join(' ');
       return `<div class="rule"><p>${rich(t('ruleTitle'))}</p><p>${rich(t('ruleUp'))}</p><p>${rich(t('ruleDown'))}</p><p>${rich(t('ruleSame'))}</p></div>`
+        + (key ? '' : example4())
         + task(1, t('s4'), `<p style="margin-bottom:1mm">${esc(t('notebook'))}</p><div class="nb">${nb}</div>${table}<p style="margin-top:2mm;display:flex;gap:4mm;align-items:center;flex-wrap:wrap">${esc(t('s4end'))} ${end}</p>`)
         + (key ? `<p class="note">${esc(t('trainReveal', g.ing.map((id, j) => `${em(id)} ${E.signed(g.w[j])}`).join('  '), g.ing.map((id, j) => `${em(id)} ${E.signed(d.w[j])}`).join('  ')))}</p>` : '');
     },
@@ -375,7 +399,7 @@
   };
 
   function sheetHTML(ch, d, s, key) {
-    return `<div class="sheet ${key ? 'key' : ''}">${head(ch, s, key)}${key ? '' : lesson(ch)}${PAGE[ch](d, key)}</div>`;
+    return `<div class="sheet ${key ? 'key' : ''}">${head(ch, s, key)}${key || ch === 4 ? '' : lesson(ch)}${PAGE[ch](d, key)}</div>`;
   }
   function teacherHTML(s) {
     return `<div class="sheet teacher"><div class="sheet-head"><div><div class="kicker">${esc(t('brand'))}</div><div class="title">${esc(t('teacherTitle'))}</div><div class="subtitle">${esc(t('teacherSub'))}</div></div></div>

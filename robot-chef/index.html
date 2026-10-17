@@ -175,6 +175,10 @@
   /* ---- training ---- */
   .rule{border:2px solid #b8c0f2;background:#f6f7ff;border-radius:12px;padding:10px 14px;font-size:14.5px;display:flex;flex-direction:column;gap:4px;}
   .rule b{color:var(--accent-d);}
+  .rule .why{margin-top:4px;color:var(--muted);}
+  .example{border:2px dashed #b8c0f2;border-radius:12px;padding:0 14px;background:#fff;}
+  .example summary{cursor:pointer;font-weight:700;padding:10px 0;min-height:44px;color:var(--accent-d);}
+  .example ol{margin:0 0 12px;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;}
   .notebook{display:flex;flex-wrap:wrap;gap:14px 10px;align-items:center;}
   .nbitem{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;}
   .nbitem .st{font-size:15px;min-height:20px;}
@@ -606,7 +610,9 @@
       const robotBox = h('div'), stepBox = h('div', { class: 'round' }), nb = h('div', { class: 'notebook' });
       const msg = msgEl();
       panel.append(
-        h('div', { class: 'rule' }, para(T('ruleTitle')), para(T('ruleUp')), para(T('ruleDown')), para(T('ruleSame'))),
+        h('div', { class: 'rule' }, para(T('ruleTitle')), para(T('ruleUp')), para(T('ruleDown')), para(T('ruleSame')), para(T('ruleWhy'), 'why')),
+        // a worked step, open in the first task
+        h('details', { class: 'example', open: k === 3 }, h('summary', null, T('exTitle')), h('ol', null, T('exSteps').map(x => h('li', null, rich(x))))),
         h('div', { class: 'two rev' }, stepBox, h('div', { class: 'round' }, robotBox, h('button', { type: 'button', class: 'primary', onclick: done }, T('ready')), msg)),
         h('div', null, para(T('notebook'), 'q'), nb));
       function paintRobot(live) {

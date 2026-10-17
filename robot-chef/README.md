@@ -25,7 +25,8 @@ artificial neuron. Plain HTML + vanilla JS, no build step, seven languages (pl/e
 4. **Training the robot** (9+) The perceptron: the robot starts with all weights 0 and says 😋 at ≥ 1
    point. The child applies the rule step by step: robot 🤢 but guest 😋 → +1 on every ingredient on the
    plate; robot 😋 but guest 🤢 → −1; right → no change. Rounds repeat until one is error-free. At the
-   end the guest's real card is revealed. The generator makes sure it differs from the robot's.
+   end the guest's real card is revealed. The generator makes sure it differs from the robot's. A worked
+   step (🍫 🧅 🧀, open in task A) shows how; the worksheet has a filled-in example table with ①–④ instead of the lesson box.
 5. **New dishes** (9+) A robot trained on 3 dishes is tested on new ones (always at least one surprise).
    B: questions about data, generalisation and bias.
 6. **The taste map** (10+) Dishes are points (sweet, spicy) on a 0–6 grid. The rule
