@@ -57,7 +57,7 @@ const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' :
   ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;
 for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
   ok(`${l}: same keys as pl`, JSON.stringify(shape(T[l])) === JSON.stringify(shape(T.pl)));
-  ok(`${l}: learn lists as long as pl`, ['parts', 'timeline', 'map'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
+  ok(`${l}: learn lists as long as pl`, ['steps', 'rotors', 'exSteps', 'timeline'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
 }
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

@@ -25,25 +25,36 @@
   .keyrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;text-align:center;font-size:12.5px;}
   .keyrow b{font-size:15px;}
   /* the "How did it work?" page */
-  .learn{font-size:11px;line-height:1.4;color:#222;}
-  .learn h3{font-size:13px;margin:0 0 1mm;}
+  .learn{font-size:10.7px;line-height:1.34;color:#222;}
+  .learn h3{font-size:12.5px;margin:0 0 0.6mm;}
   .learn p{margin:0;}
-  .parts{display:grid;grid-template-columns:1fr 1fr;gap:3mm 6mm;margin-bottom:3mm;}
-  .lrow{display:grid;grid-template-columns:66mm 1fr;gap:6mm;align-items:start;margin-bottom:3mm;}
-  .example{border:0.3mm solid #d29a00;background:#fff8dc;border-radius:2mm;padding:1.5mm 2.5mm;margin-top:2mm;}
-  .why{margin-top:1.5mm;font-style:italic;}
-  .timeline{display:grid;grid-template-columns:auto 1fr;gap:1mm 3mm;}
-  .timeline dt{font-weight:800;white-space:nowrap;}
-  .timeline dd{margin:0;}
-  .map{width:100%;border-collapse:collapse;}
-  .map th,.map td{border:0.3mm solid #bbb;padding:0.6mm 2mm;text-align:left;vertical-align:top;}
-  .map th{background:#f1f1f1;}
-  .map td:first-child{width:58%;}
+  .step{display:grid;grid-template-columns:7mm 1fr 50mm;gap:1.5mm 4mm;align-items:center;padding:1.2mm 0;border-top:0.3mm solid #ddd;}
+  .step .num{align-self:start;width:6.5mm;height:6.5mm;border-radius:50%;background:#4f5bd5;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .step .pic{text-align:center;}
+  .step .pic svg{display:block;margin:0 auto;}
+  .step.ex{background:#fff8dc;border:0.3mm solid #d29a00;border-radius:2mm;padding:1.6mm 2.5mm;margin-top:1mm;}
+  .step.ex .body{grid-column:2 / 4;}
+  .excols{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin:1.5mm 0;}
+  .excol{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:10px;gap:0.6mm;}
+  .excol .cap{font-weight:700;font-size:9.5px;line-height:1.15;min-height:2.3em;display:flex;align-items:flex-end;}
+  .excol .pair{display:flex;align-items:flex-end;justify-content:center;gap:1.5mm;}
+  .excol .pair > div:not(.go){display:flex;flex-direction:column;align-items:center;max-width:26mm;}
+  .excol .go{color:#999;font-size:13px;padding-bottom:8mm;}
+  .exans{font-weight:800;font-size:12px;}
+  .exshift{font-size:10px;color:#555;margin-top:0.8mm !important;}
+  .tltitle{margin-top:2.5mm !important;}
+  .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:2.5mm;font-size:10px;line-height:1.3;}
+  .timeline div{border-top:0.8mm solid #4f5bd5;padding-top:1mm;}
+  .timeline b{display:block;font-size:10.5px;}
   /* the real sheet page */
   .orig p{font-size:11.5px;line-height:1.42;margin:0 0 2mm;}
   .orig .realsheet{text-align:center;margin:1mm 0 2mm;}
   .orig .note{font-size:10px;color:#666;}
-  @media (max-width:600px){ .arrow{display:none;} .parts,.lrow{grid-template-columns:1fr;} }
+  @media (max-width:600px){
+    .arrow{display:none;}
+    .step{grid-template-columns:7mm 1fr;} .step .pic,.step.ex .body{grid-column:2;}
+    .excols,.timeline{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -106,19 +117,114 @@
     return s + '</svg>';
   }
 
-  /** The "How did it work?" page: the story of the sheets, a picture, what happened next, what maps to what. */
+  const FONT = 'font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif"';
+
+  /** Step 1: the three rotor windows nobody knows, and how many settings there are. */
+  function rotorsPic(names) {
+    let s = `<svg viewBox="0 0 100 46" style="width:44mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
+    names.forEach((name, i) => {
+      const x = 6 + i * 32;
+      s += `<rect x="${x}" y="2" width="24" height="22" rx="3" fill="#f3f3f3" stroke="#333" stroke-width="0.8"/>`;
+      s += `<text x="${x + 12}" y="13.5" font-size="14" font-weight="800" text-anchor="middle" dominant-baseline="central">?</text>`;
+      s += `<text x="${x + 12}" y="30" font-size="5.2" fill="#444" text-anchor="middle" dominant-baseline="central">${KIT.esc(name)}</text>`;
+    });
+    return s + `<text x="50" y="41" font-size="5.6" font-weight="800" text-anchor="middle" dominant-baseline="central">26 × 26 × 26 × 6 = 105 456</text></svg>`;
+  }
+
+  /** Step 2: the key ABC ABC enciphered to WAH WIK, with the female W in places 1 and 4. */
+  function femalePic(tag) {
+    const x = i => 10 + i * 13 + (i >= 3 ? 3 : 0);
+    const row = (word, y, hi) => [...word].map((ch, i) => `<rect x="${x(i)}" y="${y}" width="11" height="10" rx="1" fill="${hi && hi.includes(i) ? '#ffe36b' : '#fff'}" stroke="#333" stroke-width="0.5"/>`
+      + `<text x="${x(i) + 5.5}" y="${y + 5.3}" font-size="6.5" font-weight="700" text-anchor="middle" dominant-baseline="central">${ch}</text>`).join('');
+    let s = `<svg viewBox="0 0 100 54" style="width:44mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
+    s += row('ABCABC', 2, null) + `<text x="50" y="18" font-size="5" fill="#555" text-anchor="middle" dominant-baseline="central">↓ Enigma ↓</text>` + row('WAHWIK', 24, [0, 3]);
+    for (let i = 0; i < 6; i++) s += `<text x="${x(i) + 5.5}" y="38.5" font-size="4.2" fill="#777" text-anchor="middle" dominant-baseline="central">${i + 1}</text>`;
+    const a = x(0) + 5.5, b = x(3) + 5.5;
+    s += `<path d="M${a} 42 Q${(a + b) / 2} 53 ${b} 42" fill="none" stroke="#c0252b" stroke-width="0.9"/>`;
+    return s + `<text x="${b + 6}" y="48" font-size="5.6" font-weight="800" fill="#c0252b" dominant-baseline="central">${KIT.esc(tag)}</text></svg>`;
+  }
+
+  /**
+   * A small n × n grid with letters A… along the sides. o: { w (mm), holes (sheet holes, big black dots), dots (dots on the
+   * light table), gone (dots crossed out before, grey), crossed (dots crossed out now, red X), lit (the one square left),
+   * top/left (axis captions, as on a real sheet) }.
+   */
+  function mini(n, o) {
+    const C = 10, lab = o.top ? 7 : 0, x0 = lab + 6, y0 = lab + 6, has = (k, c) => o[k] && o[k].has(c);
+    let s = `<svg viewBox="0 0 ${x0 + n * C + 0.6} ${y0 + n * C + 0.6}" style="width:${o.w}mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
+    if (o.top) {
+      s += `<text x="${x0}" y="3.5" font-size="4.6" font-weight="700" fill="#444" dominant-baseline="central">${KIT.esc(o.top)}</text>`;
+      s += `<text transform="translate(3.5 ${y0}) rotate(90)" font-size="4.6" font-weight="700" fill="#444" dominant-baseline="central">${KIT.esc(o.left)}</text>`;
+    }
+    for (let i = 0; i < n; i++) {
+      s += `<text x="${x0 + i * C + C / 2}" y="${y0 - 3}" font-size="3.8" fill="#777" text-anchor="middle" dominant-baseline="central">${L(i)}</text>`;
+      s += `<text x="${x0 - 3}" y="${y0 + i * C + C / 2}" font-size="3.8" fill="#777" text-anchor="middle" dominant-baseline="central">${L(i)}</text>`;
+    }
+    const X = (x, y, color) => `<path d="M${x + 2} ${y + 2}L${x + 8} ${y + 8}M${x + 8} ${y + 2}L${x + 2} ${y + 8}" stroke="${color}" stroke-width="1.1" stroke-linecap="round"/>`;
+    for (let c = 0; c < n * n; c++) {
+      const x = x0 + (c % n) * C, y = y0 + Math.floor(c / n) * C;
+      s += `<rect x="${x}" y="${y}" width="${C}" height="${C}" fill="${c === o.lit ? '#ffe36b' : '#fff'}" stroke="#999" stroke-width="0.25"/>`;
+      if (has('holes', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="3.1" fill="#222"/>`;
+      if (has('dots', c) || has('crossed', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="2" fill="#222"/>`;
+      if (has('gone', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="2" fill="#c4c4c4"/>${X(x, y, '#c4c4c4')}`;
+      if (has('crossed', c)) s += X(x, y, '#c0252b');
+    }
+    return s + `<rect x="${x0}" y="${y0}" width="${n * C}" height="${n * C}" fill="none" stroke="#222" stroke-width="0.7"/></svg>`;
+  }
+
+  /** The worked example: three 4 × 4 sheets whose holes meet only in row B, column C. */
+  const EX = { n: 4, sheets: [[1, 4, 6, 9, 11, 15], [1, 6, 8, 11, 13], [3, 6, 9, 13, 15]].map(h => new Set(h)) };
+
+  /** Step 5: solve one round step by step — each sheet over the light table as it looks after that sheet. */
+  function examplePart(api) {
+    const { C, esc } = api, X = C.learn, { n, sheets } = EX;
+    let left = new Set(sheets[0]), gone = new Set();
+    const cols = sheets.map((sh, i) => {
+      let state;
+      if (i === 0) state = { dots: left };
+      else {
+        const crossed = new Set([...left].filter(c => !sh.has(c)));
+        left = new Set([...left].filter(c => sh.has(c)));
+        state = { dots: left, crossed, gone: new Set(gone) };
+        crossed.forEach(c => gone.add(c));
+      }
+      if (i === sheets.length - 1) state.lit = [...left][0];
+      return `<div class="excol">
+        <div class="pair">
+          <div><div class="cap">${esc(C.sheet(i + 1))}</div>${mini(n, { w: 19, holes: sh })}</div>
+          <div class="go">➜</div>
+          <div><div class="cap">${esc(X.exTable(i + 1))}</div>${mini(n, { w: 23, ...state })}</div>
+        </div>
+        <p>${esc(X.exSteps[i])}</p>
+      </div>`;
+    }).join('');
+    const ans = [...left][0];
+    return `<div class="step ex"><div class="num">5</div><div class="body">
+      <h3>${esc(X.exTitle)}</h3><p>${esc(X.exIntro)}</p>
+      <div class="excols">${cols}</div>
+      <p class="exans">✅ ${esc(X.exAnswer(L(Math.floor(ans / n)), L(ans % n)))}</p>
+      <p class="exshift">${esc(X.exShift)}</p>
+    </div></div>`;
+  }
+
+  /** The "How did it work?" page: four numbered steps with a picture each, a worked example, what happened next. */
   function learnPage(api) {
-    const { C, esc } = api, L = C.learn;
+    const { C, esc } = api, X = C.learn;
+    const SHEET = new Set([1, 3, 4, 8, 10, 13, 17, 18, 20, 23, 26, 29, 31, 34]);
+    const pics = [
+      rotorsPic(X.rotors),
+      femalePic(X.female),
+      mini(6, { w: 34, holes: SHEET, top: C.orig.axisRight, left: C.orig.axisMiddle }),
+      diagram(X.diagram).replace('max-width:64mm', 'max-width:42mm'),
+    ];
+    const steps = X.steps.map(([h, p], i) => `<div class="step"><div class="num">${i + 1}</div>
+      <div><h3>${esc(h)}</h3><p>${esc(p)}</p></div><div class="pic">${pics[i]}</div></div>`).join('');
     return `<div class="sheet learn">
-      ${api.head(L.title, L.sub, false)}
-      <div class="parts">${L.parts.map(([h, p], i) => `<div><h3>${esc(h)}</h3><p>${esc(p)}</p>${i === 1 ? `<p class="example">${L.example}</p>` : ''}</div>`).join('')}</div>
-      <div class="lrow">
-        <div>${diagram(L.diagram)}<p class="why">${esc(L.why)}</p></div>
-        <div><h3>${esc(L.timelineTitle)}</h3><dl class="timeline">${L.timeline.map(([d, x]) => `<dt>${esc(d)}</dt><dd>${esc(x)}</dd>`).join('')}</dl></div>
-      </div>
-      <h3>${esc(L.mapTitle)}</h3>
-      <table class="map"><tr>${L.mapHead.map(h => `<th>${esc(h)}</th>`).join('')}</tr>
-        ${L.map.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>
+      ${api.head(X.title, X.sub, false)}
+      ${steps}
+      ${examplePart(api)}
+      <h3 class="tltitle">${esc(X.timelineTitle)}</h3>
+      <div class="timeline">${X.timeline.map(([d, x]) => `<div><b>${esc(d)}</b>${esc(x)}</div>`).join('')}</div>
     </div>`;
   }
 
@@ -137,10 +243,10 @@
   }
 
   KIT.app({
-    store: 'zygalski.sheet',
+    store: 'zygalski.sheet2',
     text: ZYG_TEXT,
     groups: [{ id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] }],
-    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: false, label: 'optCut' }],
+    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: true, label: 'optCut' }],
     render(s, api) {
       const { t, C, esc } = api;
       const rounds = PLAN[s.level].map((lv, i) => ZYG.round(api.rnd(`${s.level}|${i}`), lv));
@@ -166,7 +272,7 @@
       };
 
       const sub = C.levels[s.level];
-      let html = (s.learn ? learnPage(api) : '') + (s.orig ? origPage(api) : '') + `<div class="sheet">
+      let html = (s.learn ? learnPage(api) : '') + `<div class="sheet">
         ${api.head(t('sheetTitle'), sub, true)}
         <p class="story">${esc(t('story'))}</p>
         <p class="instr">${esc(t('instr'))}${anyShift ? `<br><b>${esc(t('instrShift'))}</b>` : ''}</p>
@@ -198,6 +304,7 @@
           ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(setting(C, cut.answer, cut.n))}</p>` : ''}
         </div>`;
       }
+      if (s.orig) html += origPage(api);   // the real sheet comes last, after the answers
       return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
     },
   });

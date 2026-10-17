@@ -14,27 +14,30 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
 
 ## Pages
 
-1. **How did it work?** (option, on by default): Enigma and Rejewski, Różycki, Zygalski; the doubled message
-   key and the "females"; the sheets (26 × 26, holes cut by hand, 156 sheets); the light table; a side-view
-   picture of light going through the holes; what happened next (Dec 1938 → May 1940); a table of what in
-   1938 maps to what on our sheet.
-2. **A real sheet** (option, on by default): one sheet of 1938 recomputed, 51 × 51 squares with the letters
-   around and the 26 × 26 pattern framed in red; the rotor order and the left rotor position come from the
-   sheet code. The holes are computed by simulating an Enigma I (rotors I–III, reflector B, rings at A): a
-   square (middle rotor, right rotor) is a hole when the 1st and 4th key presses from there can turn some
-   letter into the same letter, so a doubled key could show a female. Like Zygalski's sheets, it takes the
-   middle rotor not to turn during the six letters. The page says it is a reconstruction,
-   not a scan.
-3. **The game** (one A4 page): three rounds. Each round has 3–4 sheets with holes (black dots) and an empty light
+1. **How did it work?** (option, on by default), one A4 page read top to bottom: four numbered steps, each with
+   a short text and its own picture — (1) the puzzle: three unknown rotors, 26 × 26 × 26 × 6 settings; (2) the
+   German mistake: ABC ABC → WAH WIK, a "female" in places 1 and 4; (3) Zygalski's idea: a 6 × 6 sheet with holes,
+   row = middle rotor, column = right rotor; (4) the light table: a side view of light going through the holes —
+   then (5) a worked example: three fixed 4 × 4 sheets, each next to the light table as it looks after that sheet
+   (dots, crossed-out dots, the one dot left) and the answer "middle B, right C", plus a line on the ★★★ shifts;
+   and a five-item timeline of what happened next (Dec 1938 → May 1940).
+2. **The game** (one A4 page): three rounds. Each round has 3–4 sheets with holes (black dots) and an empty light
    table; rows and columns are lettered as on Zygalski's sheets (row = middle rotor, column = right rotor). The
    child dots the holes of sheet 1, then crosses out every dot where the next sheet has no hole; one dot is
    left, and its two letters are the answer ("middle C, right E"), as in 1938.
    Levels: mixed ★ ★★ ★★★ (default), easy 4×4 with 3 sheets, medium 6×6 with 4 sheets, hard 6×6 with 4 sheets
    and shifts: a sheet marked "→1 ↓2" moves 1 right and 2 down first, and a hole over the edge comes back on
    the other side (Zygalski drew the grid twice, 51 × 51, for the same reason).
-4. **Cut-out sheets** (option, off by default): a 5 × 5 board with each square's two letters and 3 sheets with
+3. **Cut-out sheets** (option, on by default): a 5 × 5 board with each square's two letters and 3 sheets with
    grey windows to cut out; stacked on the board, only one square shows through every window.
-5. **Answer key** (option, on by default).
+4. **Answer key** (option, on by default).
+5. **A real sheet** (option, on by default), last: one sheet of 1938 recomputed, 51 × 51 squares with the letters
+   around and the 26 × 26 pattern framed in red; the rotor order and the left rotor position come from the
+   sheet code. The holes are computed by simulating an Enigma I (rotors I–III, reflector B, rings at A): a
+   square (middle rotor, right rotor) is a hole when the 1st and 4th key presses from there can turn some
+   letter into the same letter, so a doubled key could show a female. Like Zygalski's sheets, it takes the
+   middle rotor not to turn during the six letters. The page says it is a reconstruction,
+   not a scan.
 
 ## Rounds
 
@@ -43,3 +46,4 @@ has holes in about 4 of 10 squares, any other square that is a hole in all of th
 only if every sheet is needed (leave any one out and more than one square is left). The printed holes are
 the table holes shifted back by the sheet's shift. Same code + same settings ⇒ the same sheet.
 URL: `?seed=&level=mix|easy|medium|hard&learn=1|0&orig=1|0&cut=1|0&key=1|0`.
+Every page is ticked for printing by default; the last choice is kept in `localStorage` (`zygalski.sheet2`), and the URL wins.
