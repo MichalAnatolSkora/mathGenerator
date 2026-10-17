@@ -33,6 +33,14 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    Levels: mixed ★ ★★ ★★★ (default), easy 4×4 with 3 sheets, medium 6×6 with 4 sheets, hard 6×6 with 4 sheets
    and shifts: a sheet marked "→1 ↓2" moves 1 right and 2 down first, and a hole over the edge comes back on
    the other side (Zygalski drew the grid twice, 51 × 51, for the same reason).
+2b. **Decipher the message** (option, on by default), right after the game: the full path for kids. The last round's
+   answer (middle, right) is the rotor setting of an intercepted German message (`ZYG.message`: Enigma I, rotors
+   II I III, rings at A, no plugboard, left window A; words split by X as in 1938; one of 8 harmless messages). The
+   page is a paper Enigma: one row per right rotor letter B … (n − 1 + length), each row the machine's 26-letter swap
+   at windows A, middle, that letter. Letter i is read in row right + i + 1 (the rotor turns before each letter);
+   a wrong start gives nonsense. Boxes for row and letter under each cipher letter, four steps, a glossary of the 19
+   German words in the page language and a line for the translation; the answer key gives the start row, the
+   message and its meaning. Rotors chosen so no other rotor turns inside the table (I turns at Q, III at V).
 3. **Cut-out sheets** (option, on by default): a 5 × 5 board with each square's two letters and 3 sheets with
    grey windows to cut out; stacked on the board, only one square shows through every window.
 4. **Answer key** (option, on by default).
@@ -50,5 +58,5 @@ The holes are drawn where they land on the light table: the answer is a hole in 
 has holes in about 4 of 10 squares, any other square that is a hole in all of them loses one, and a round is kept
 only if every sheet is needed (leave any one out and more than one square is left). The printed holes are
 the table holes shifted back by the sheet's shift. Same code + same settings ⇒ the same sheet.
-URL: `?seed=&level=mix|easy|medium|hard&learn=1|0&orig=1|0&cut=1|0&key=1|0`.
+URL: `?seed=&level=mix|easy|medium|hard&learn=1|0&msg=1|0&orig=1|0&cut=1|0&key=1|0`.
 Every page is ticked for printing by default; the last choice is kept in `localStorage` (`zygalski.sheet2`), and the URL wins.
