@@ -44,6 +44,13 @@ for (let i = 0; i < 300; i++) {
   ok(`message #${i}: the middle and right of the answer`, g.middle * n + g.right === answer);
   ok(`message #${i}: rows B … in order, none past V`, g.rows.every((r, j) => r.right === j + 1) && g.rows.length <= 21);
 }
+// the worked example: HALLO from B, C reads back in rows D … H, and the two Ls give two different cipher letters
+{
+  const g = Z.paper('HALLO', 1, 2);
+  ok('example: rows D … H', g.rows.map(r => String.fromCharCode(65 + r.right)).join('') === 'DEFGH');
+  ok('example: reads back', [...g.cipher].map((ch, i) => String.fromCharCode(65 + g.rows[i].swap[ch.charCodeAt(0) - 65])).join('') === 'HALLO');
+  ok('example: LL → two different letters', g.cipher[2] !== g.cipher[3]);
+}
 ok('messages: A–Z only, at most 16 letters', Z.MESSAGES.every(m => /^[A-Z]{1,16}$/.test(m)));
 
 // the Enigma simulation: the well-known test vector, decoding = encoding, a double step of the middle rotor

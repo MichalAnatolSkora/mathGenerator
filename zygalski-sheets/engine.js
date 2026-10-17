@@ -14,6 +14,7 @@
  *   ZYG.females / layout / solve     → the females of a day, how to lay their sheets, every place light comes through
  *   ZYG.realSvg(sheet, opts)         → that sheet drawn 51 × 51, as Zygalski drew it
  *   ZYG.message(rnd, n, answer)      → a German message enciphered from a round's answer and the paper Enigma table to read it
+ *   ZYG.paper(plain, middle, right)  → the same for any text, with only the rows it needs (the worked example)
  *
  * Cells are numbers y·n + x. `table[s]` holds the holes of sheet s where they land on the light table (after
  * the shift); `sheets[s].holes` holds them where they are printed on the sheet. A sheet printed with a hole at
@@ -313,6 +314,13 @@ const ZYG = (() => {
     return { plain, left: 0, middle, right, cipher: m.encrypt(letter(0) + letter(middle) + letter(right), plain), rows };
   }
 
-  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, MESSAGES, message, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
+  /** Any text enciphered the same way from A, middle, right, with just the rows that read it (right + 1 …). */
+  function paper(plain, middle, right) {
+    const m = machine(MSG_ORDER);
+    return { plain, left: 0, middle, right, cipher: m.encrypt(letter(0) + letter(middle) + letter(right), plain),
+      rows: [...plain].map((_, i) => ({ right: right + i + 1, swap: m.perm([0, middle, right + i + 1]) })) };
+  }
+
+  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, MESSAGES, message, paper, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
 })();
 if (typeof module !== 'undefined') module.exports = ZYG;

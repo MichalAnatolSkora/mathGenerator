@@ -41,6 +41,9 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    a wrong start gives nonsense. Boxes for row and letter under each cipher letter, four steps, a glossary of the 19
    German words in the page language and a line for the translation; the answer key gives the start row, the
    message and its meaning. Rotors chosen so no other rotor turns inside the table (I turns at Q, III at V).
+   Before it, a worked example on a page of its own (`ZYG.paper`): HALLO from middle B, right C → BYMWJ — the
+   windows before each letter (ABC → ABD … ABH), the five rows D–H of the paper Enigma with each letter's square
+   marked, the five lookups, the filled boxes, and why the two Ls became M and W (the rotor turned).
 3. **Cut-out sheets** (option, on by default): a 5 × 5 board with each square's two letters and 3 sheets with
    grey windows to cut out; stacked on the board, only one square shows through every window.
 4. **Answer key** (option, on by default).

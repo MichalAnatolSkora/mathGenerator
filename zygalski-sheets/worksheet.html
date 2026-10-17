@@ -25,6 +25,23 @@
   .keyrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;text-align:center;font-size:12.5px;}
   .keyrow b{font-size:15px;}
   /* the "How did it work?" page */
+  /* the worked example of the message page */
+  .msgex p{font-size:11.5px;line-height:1.42;margin:0 0 2mm;}
+  .msgex h3{font-size:13px;margin:3mm 0 1.5mm;}
+  .wins{display:flex;flex-wrap:wrap;gap:2mm 3mm;align-items:flex-end;margin:0 0 2mm;}
+  .wins .w{display:flex;flex-direction:column;align-items:center;gap:0.8mm;font-size:9.5px;color:#555;}
+  .wins .w div{display:flex;gap:0.6mm;}
+  .wins .w b{width:6mm;height:7mm;border:0.35mm solid #1E3A5F;border-radius:1mm;display:flex;align-items:center;justify-content:center;font:800 12px/1 ui-monospace,Menlo,Consolas,monospace;color:#222;background:#fff;}
+  .wins .w b.r{border-color:#c0252b;background:#fdebe9;color:#c0252b;}
+  .wins .go{color:#999;font-size:14px;padding-bottom:2mm;}
+  .etab td.hit{background:#ffe36b !important;outline:0.6mm solid #c0252b;outline-offset:-0.6mm;font-weight:800;}
+  .etab th.hit{background:#c0252b !important;}
+  .etab td.hit sup{font-size:7px;color:#c0252b;margin-left:0.2mm;}
+  .exlines{margin:1.5mm 0 2mm;padding-left:5mm;font-size:11.5px;line-height:1.45;}
+  .exlines b{font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .mtab.filled tr.w td,.mtab.filled tr.p td{color:#1f5fbf;font-weight:800;font-size:14px;}
+  .exres{font-size:14px !important;font-weight:800;}
+  .extip{border:0.3mm solid #d29a00;background:#fff8dc;border-radius:2mm;padding:2mm 3mm;}
   /* the message page: a paper Enigma */
   .msgp .story{margin-bottom:1.5mm;font-size:11px;}
   .mtab{border-collapse:collapse;margin:1mm 0 2.5mm;font:12px/1.1 ui-monospace,Menlo,Consolas,monospace;}
@@ -290,6 +307,40 @@
     </div>`;
   }
 
+  /** The worked example before the message page: HALLO from middle B, right C, read letter by letter. */
+  function msgExPage(api) {
+    const { C, esc } = api, M = C.msg, X = M.ex, g = ZYG.paper('HALLO', 1, 2), cols = [...g.cipher];
+    const plain = [...g.plain], rowL = i => L(g.rows[i].right);
+    // the windows: at the start, then before each letter (the right one turns)
+    const win = (label, r) => `<div class="w">${esc(label)}<div><b>${L(g.left)}</b><b>${L(g.middle)}</b><b class="r">${L(r)}</b></div></div>`;
+    const wins = [win(X.before, g.right), ...plain.map((_, i) => win(X.letter(i + 1), g.rows[i].right))].join('<span class="go">→</span>');
+    // the piece of the paper Enigma, each letter's square marked
+    const used = new Set(cols);
+    const head = `<tr><th>${esc(M.corner)}</th>${Array.from({ length: 26 }, (_, i) => `<th${used.has(L(i)) ? ' class="hit"' : ''}>${L(i)}</th>`).join('')}</tr>`;
+    const body = g.rows.map((rw, i) => `<tr><th>${L(rw.right)}</th>${rw.swap.map((x, c) => L(c) === cols[i]
+      ? `<td class="hit">${L(x)}<sup>${i + 1}</sup></td>` : `<td>${L(x)}</td>`).join('')}</tr>`).join('');
+    const row = (cls, label, cells) => `<tr class="${cls}"><th>${esc(label)}</th>${cells.map(x => `<td>${x}</td>`).join('')}</tr>`;
+    const box = `<table class="mtab filled">${row('n', M.num, cols.map((_, i) => i + 1))}${row('c', M.cipher, cols)}${row('w', M.row, cols.map((_, i) => rowL(i)))}${row('p', M.plain, plain)}</table>`;
+    const lines = cols.map((c, i) => `<li>${esc(X.line(i + 1, c, rowL(i), plain[i]))}</li>`).join('');
+    return `<div class="sheet msgex">
+      ${api.head(X.title, X.sub, false)}
+      <p>${esc(X.intro(L(g.middle), L(g.right)))}</p>
+      <h3>📡 ${esc(M.box)}</h3>
+      <table class="mtab">${row('n', M.num, cols.map((_, i) => i + 1))}${row('c', M.cipher, cols)}</table>
+      <h3>${esc(X.turnTitle)}</h3>
+      <div class="wins">${wins}</div>
+      <p>${esc(X.turn(L(g.right), rowL(0)))}</p>
+      <h3>${esc(X.readTitle)}</h3>
+      <p class="etitle">⚙️ ${esc(X.table)}</p>
+      <div class="ewrap"><table class="etab">${head}${body}</table></div>
+      <ol class="exlines">${lines}</ol>
+      ${box}
+      <p class="exres">✅ ${esc(X.done(g.plain))} ${esc(X.meaning)}</p>
+      <p class="extip">🔁 ${esc(X.same(cols[2], cols[3]))}<br>${esc(X.back(rowL(0), plain[0], cols[0]))}</p>
+      <p class="exres">${esc(X.now)}</p>
+    </div>`;
+  }
+
   /** The message page: the last round's answer sets a paper Enigma (one row per right rotor position) that reads a German message. */
   function msgPage(api, g) {
     const { C, esc } = api, M = C.msg, cols = [...g.cipher];
@@ -354,7 +405,7 @@
 
       // the message: read with the last round's answer
       const last = rounds[rounds.length - 1], msg = s.msg ? ZYG.message(api.rnd('msg'), last.n, last.answer) : null;
-      if (msg) html += msgPage(api, msg);
+      if (msg) html += msgExPage(api) + msgPage(api, msg);
 
       let cut = null;
       if (s.cut) {
@@ -383,7 +434,7 @@
         </div>`;
       }
       if (s.orig) html += origPage(api);   // the real sheet comes last, after the answers
-      return { html, tasks: rounds.length + (cut ? 1 : 0) + (msg ? 1 : 0), pages: 1 + (s.learn ? 2 : 0) + (msg ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
+      return { html, tasks: rounds.length + (cut ? 1 : 0) + (msg ? 1 : 0), pages: 1 + (s.learn ? 2 : 0) + (msg ? 2 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
     },
   });
 })();
