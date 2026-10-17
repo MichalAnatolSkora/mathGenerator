@@ -25,24 +25,49 @@
   .keyrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;text-align:center;font-size:12.5px;}
   .keyrow b{font-size:15px;}
   /* the "How did it work?" page */
-  .learn{font-size:10.7px;line-height:1.34;color:#222;}
-  .learn h3{font-size:12.5px;margin:0 0 0.6mm;}
+  /* the message page: a paper Enigma */
+  .msgp .story{margin-bottom:1.5mm;font-size:11px;}
+  .mtab{border-collapse:collapse;margin:1mm 0 2.5mm;font:12px/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  .mtab th{font:600 9px/1.1 system-ui,sans-serif;color:#555;text-align:right;padding:0 1.5mm 0 0;white-space:nowrap;}
+  .mtab td{width:8.4mm;text-align:center;border:0.3mm solid #999;}
+  .mtab tr.n td{border:0;color:#888;font-size:9px;height:3.5mm;}
+  .mtab tr.c td{font-weight:800;font-size:14px;height:7mm;background:#fff8dc;}
+  .mtab tr.w td{height:6mm;}
+  .mtab tr.p td{height:7mm;}
+  .msteps{margin:0 0 1.5mm;padding-left:5mm;font-size:11px;line-height:1.33;}
+  .msteps li{margin:0 0 0.8mm;}
+  .msteps .blank{display:inline-block;width:9mm;border-bottom:0.3mm solid #333;margin:0 1mm;}
+  .etitle{font-weight:800;font-size:12px;margin:0 0 1mm;}
+  .etab{border-collapse:collapse;width:100%;font:10.5px/1 ui-monospace,Menlo,Consolas,monospace;table-layout:fixed;}
+  .etab th,.etab td{border:0.25mm solid #aaa;text-align:center;height:4.75mm;padding:0;}
+  .etab tr:first-child th{background:#1E3A5F;color:#fff;font-weight:800;}
+  .etab th:first-child{width:11mm;background:#f1f1f1;color:#1E3A5F;font-weight:800;font-size:11px;}
+  .etab tr:first-child th:first-child{background:#f1f1f1;color:#555;font:600 8.5px/1.1 system-ui,sans-serif;}
+  .etab tr:nth-child(2n+1) td{background:#f3f6fb;}
+  .etab td:nth-child(5n+6){border-right:0.5mm solid #777;}
+  .gloss{display:grid;grid-template-columns:repeat(4,1fr);gap:0.6mm 4mm;font-size:10.5px;margin:1mm 0 2mm;}
+  .gloss b{font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .mline{font-size:12px;display:flex;gap:2mm;align-items:baseline;margin:0 0 2mm;}
+  .mline span{flex:1;border-bottom:0.3mm solid #333;height:5mm;}
+  .mnote{font-size:10px;color:#555;margin:0;}
+  .learn{font-size:11.5px;line-height:1.42;color:#222;}
+  .learn h3{font-size:13.5px;margin:0 0 0.8mm;}
   .learn p{margin:0;}
-  .step{display:grid;grid-template-columns:7mm 1fr 50mm;gap:1.5mm 4mm;align-items:center;padding:1.2mm 0;border-top:0.3mm solid #ddd;}
+  .step{display:grid;grid-template-columns:7mm 1fr 50mm;gap:1.5mm 4mm;align-items:center;padding:2mm 0;border-top:0.3mm solid #ddd;}
   .step .num{align-self:start;width:6.5mm;height:6.5mm;border-radius:50%;background:#4f5bd5;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
   .step .pic{text-align:center;}
   .step .pic svg{display:block;margin:0 auto;}
   .step.ex{background:#fff8dc;border:0.3mm solid #d29a00;border-radius:2mm;padding:1.6mm 2.5mm;margin-top:1mm;}
   .step.ex .body{grid-column:2 / 4;}
-  .excols{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin:1.5mm 0;}
-  .excol{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:10px;gap:0.6mm;}
-  .excol .cap{font-weight:700;font-size:9.5px;line-height:1.15;min-height:2.3em;display:flex;align-items:flex-end;}
-  .excol .pair{display:flex;align-items:flex-end;justify-content:center;gap:1.5mm;}
-  .excol .pair > div:not(.go){display:flex;flex-direction:column;align-items:center;max-width:26mm;}
-  .excol .go{color:#999;font-size:13px;padding-bottom:8mm;}
-  .exans{font-weight:800;font-size:12px;}
-  .exshift{font-size:10px;color:#555;margin-top:0.8mm !important;}
-  .tltitle{margin-top:2.5mm !important;}
+  .excols{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:4mm 0 3mm;}
+  .excol{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:12px;gap:1mm;}
+  .excol .cap{font-weight:700;font-size:12px;}
+  .excol .go{color:#999;font-size:18px;line-height:1;}
+  .expage .step.ex{font-size:12.5px;line-height:1.4;padding:3mm 4mm;}
+  .exans{font-weight:800;font-size:14px;margin-top:2mm !important;}
+  .exshift{font-size:11.5px;color:#555;margin-top:2mm !important;}
+  .piccap{font-size:9px;line-height:1.25;color:#444;margin-top:0.6mm;}
+  .tltitle{font-size:12.5px;margin:2.5mm 0 1mm;}
   .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:2.5mm;font-size:10px;line-height:1.3;}
   .timeline div{border-top:0.8mm solid #4f5bd5;padding-top:1mm;}
   .timeline b{display:block;font-size:10.5px;}
@@ -54,6 +79,7 @@
     .arrow{display:none;}
     .step{grid-template-columns:7mm 1fr;} .step .pic,.step.ex .body{grid-column:2;}
     .excols,.timeline{grid-template-columns:1fr;}
+    .gloss{grid-template-columns:1fr 1fr;} .mwrap,.ewrap{overflow-x:auto;} .etab{min-width:560px;}
   }
 </style>
 </head>
@@ -119,25 +145,44 @@
 
   const FONT = 'font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif"';
 
-  /** Step 1: the three rotor windows nobody knows, and how many settings there are. */
-  function rotorsPic(names) {
-    let s = `<svg viewBox="0 0 100 46" style="width:44mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
-    names.forEach((name, i) => {
-      const x = 6 + i * 32;
-      s += `<rect x="${x}" y="2" width="24" height="22" rx="3" fill="#f3f3f3" stroke="#333" stroke-width="0.8"/>`;
-      s += `<text x="${x + 12}" y="13.5" font-size="14" font-weight="800" text-anchor="middle" dominant-baseline="central">?</text>`;
-      s += `<text x="${x + 12}" y="30" font-size="5.2" fill="#444" text-anchor="middle" dominant-baseline="central">${KIT.esc(name)}</text>`;
-    });
-    return s + `<text x="50" y="41" font-size="5.6" font-weight="800" text-anchor="middle" dominant-baseline="central">26 × 26 × 26 × 6 = 105 456</text></svg>`;
+  /** Step 1: a page of the secret key list — rotor order, rings and plugs for each day of the month. */
+  function keyTablePic(K) {
+    const COLS = [3, 17, 41, 66], ROWS = [['16', 'I III II', 'E R B', 'AQ CT HN …'], ['17', 'II I III', 'K D P', 'BL DU FX …'], ['18', 'III II I', 'M A W', 'CJ EZ GS …']];
+    const t = (x, y, txt, more = '') => `<text x="${x}" y="${y}" dominant-baseline="central" ${more}>${KIT.esc(txt)}</text>`;
+    let s = `<svg viewBox="0 0 100 44" style="width:50mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
+    s += `<rect x="0.5" y="0.5" width="99" height="43" rx="2" fill="#fafafa" stroke="#333" stroke-width="0.6"/>`;
+    s += t(50, 6, '🔒 ' + K.title, 'font-size="5.2" font-weight="800" text-anchor="middle"');
+    [K.day, K.rotors, K.rings, K.plugs].forEach((h, i) => { s += t(COLS[i], 14, h, 'font-size="3.8" fill="#666"'); });
+    s += `<path d="M2 17.5H98" stroke="#999" stroke-width="0.4"/><rect x="1.5" y="25.5" width="97" height="8" fill="#ffe36b"/>`;
+    ROWS.forEach((r, j) => r.forEach((v, i) => { s += t(COLS[i], 21.5 + j * 8, v, `font-size="4.4" font-weight="${j === 1 ? 800 : 500}"`); }));
+    return s + '</svg>';
   }
 
-  /** Step 2: the key ABC ABC enciphered to WAH WIK, with the female W in places 1 and 4. */
+  /** Step 2: how an intercepted message starts — the open start letters, the doubled key enciphered, the text. */
+  function msgPic(M) {
+    const groups = [['RTJ', 1, '#e9e9e9', M.open, ''], ['WAHWIK', 25, '#fff8dc', M.key, 'ABC ABC'], ['PSQ…', 71, '#fff', M.text, '']];
+    let s = `<svg viewBox="0 0 100 34" style="width:50mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
+    s += `<text x="0.5" y="3.5" font-size="4.8" font-weight="800" dominant-baseline="central">${KIT.esc(M.title)}</text>`;
+    for (const [word, x0, fill, label, sub] of groups) {
+      [...word].forEach((ch, i) => {
+        s += `<rect x="${x0 + i * 7}" y="8" width="6.4" height="9" rx="0.8" fill="${fill}" stroke="#333" stroke-width="0.45"/>`;
+        s += `<text x="${x0 + i * 7 + 3.2}" y="12.7" font-size="5.6" font-weight="700" text-anchor="middle" dominant-baseline="central">${ch}</text>`;
+      });
+      const x1 = x0 + word.length * 7 - 0.6, mid = (x0 + x1) / 2;
+      s += `<path d="M${x0} 19.5V21H${x1}V19.5" fill="none" stroke="#777" stroke-width="0.45"/>`;
+      s += `<text x="${mid}" y="25" font-size="4.3" font-weight="700" text-anchor="middle" dominant-baseline="central">${KIT.esc(label)}</text>`;
+      if (sub) s += `<text x="${mid}" y="30.5" font-size="4" fill="#666" text-anchor="middle" dominant-baseline="central">= ${sub}</text>`;
+    }
+    return s + '</svg>';
+  }
+
+  /** Step 3: the key ABC ABC enciphered to WAH WIK, with the female W in places 1 and 4. */
   function femalePic(tag) {
     const x = i => 10 + i * 13 + (i >= 3 ? 3 : 0);
     const row = (word, y, hi) => [...word].map((ch, i) => `<rect x="${x(i)}" y="${y}" width="11" height="10" rx="1" fill="${hi && hi.includes(i) ? '#ffe36b' : '#fff'}" stroke="#333" stroke-width="0.5"/>`
       + `<text x="${x(i) + 5.5}" y="${y + 5.3}" font-size="6.5" font-weight="700" text-anchor="middle" dominant-baseline="central">${ch}</text>`).join('');
     let s = `<svg viewBox="0 0 100 54" style="width:44mm;max-width:100%" xmlns="http://www.w3.org/2000/svg" ${FONT}>`;
-    s += row('ABCABC', 2, null) + `<text x="50" y="18" font-size="5" fill="#555" text-anchor="middle" dominant-baseline="central">↓ Enigma ↓</text>` + row('WAHWIK', 24, [0, 3]);
+    s += row('ABCABC', 2, null) + `<text x="50" y="18" font-size="5" fill="#555" text-anchor="middle" dominant-baseline="central">↓ Enigma: RTJ ↓</text>` + row('WAHWIK', 24, [0, 3]);
     for (let i = 0; i < 6; i++) s += `<text x="${x(i) + 5.5}" y="38.5" font-size="4.2" fill="#777" text-anchor="middle" dominant-baseline="central">${i + 1}</text>`;
     const a = x(0) + 5.5, b = x(3) + 5.5;
     s += `<path d="M${a} 42 Q${(a + b) / 2} 53 ${b} 42" fill="none" stroke="#c0252b" stroke-width="0.9"/>`;
@@ -175,8 +220,8 @@
   /** The worked example: three 4 × 4 sheets whose holes meet only in row B, column C. */
   const EX = { n: 4, sheets: [[1, 4, 6, 9, 11, 15], [1, 6, 8, 11, 13], [3, 6, 9, 13, 15]].map(h => new Set(h)) };
 
-  /** Step 5: solve one round step by step — each sheet over the light table as it looks after that sheet. */
-  function examplePart(api) {
+  /** Step 6, a page of its own: solve one round step by step — each sheet above the light table as it looks after that sheet. */
+  function examplePage(api) {
     const { C, esc } = api, X = C.learn, { n, sheets } = EX;
     let left = new Set(sheets[0]), gone = new Set();
     const cols = sheets.map((sh, i) => {
@@ -190,31 +235,35 @@
       }
       if (i === sheets.length - 1) state.lit = [...left][0];
       return `<div class="excol">
-        <div class="pair">
-          <div><div class="cap">${esc(C.sheet(i + 1))}</div>${mini(n, { w: 19, holes: sh })}</div>
-          <div class="go">➜</div>
-          <div><div class="cap">${esc(X.exTable(i + 1))}</div>${mini(n, { w: 23, ...state })}</div>
-        </div>
+        <div class="cap">${esc(C.sheet(i + 1))}</div>${mini(n, { w: 30, holes: sh })}
+        <div class="go">↓</div>
+        <div class="cap">💡 ${esc(X.exTable(i + 1))}</div>${mini(n, { w: 38, ...state })}
         <p>${esc(X.exSteps[i])}</p>
       </div>`;
     }).join('');
     const ans = [...left][0];
-    return `<div class="step ex"><div class="num">5</div><div class="body">
-      <h3>${esc(X.exTitle)}</h3><p>${esc(X.exIntro)}</p>
-      <div class="excols">${cols}</div>
-      <p class="exans">✅ ${esc(X.exAnswer(L(Math.floor(ans / n)), L(ans % n)))}</p>
-      <p class="exshift">${esc(X.exShift)}</p>
-    </div></div>`;
+    return `<div class="sheet learn expage">
+      ${api.head(X.exTitle, X.title, false)}
+      <div class="step ex"><div class="num">${X.steps.length + 1}</div><div class="body">
+        <p>${esc(X.exIntro)}</p>
+        <div class="excols">${cols}</div>
+        <p class="exans">✅ ${esc(X.exAnswer(L(Math.floor(ans / n)), L(ans % n)))}</p>
+        <p class="exshift">${esc(X.exShift)}</p>
+      </div></div>
+    </div>`;
   }
 
-  /** The "How did it work?" page: four numbered steps with a picture each, a worked example, what happened next. */
+  /** The "How did it work?" page: five numbered steps with a picture each (daily key, message key, female, sheet, light table), then the worked example on a page of its own. */
   function learnPage(api) {
     const { C, esc } = api, X = C.learn;
     const SHEET = new Set([1, 3, 4, 8, 10, 13, 17, 18, 20, 23, 26, 29, 31, 34]);
     const pics = [
-      rotorsPic(X.rotors),
+      keyTablePic(X.keyTable),
+      msgPic(X.msgHead),
       femalePic(X.female),
-      mini(6, { w: 34, holes: SHEET, top: C.orig.axisRight, left: C.orig.axisMiddle }),
+      // one sheet = one rotor order and one left rotor position; a square = the middle (row) and right (column) rotor
+      mini(6, { w: 34, holes: SHEET, lit: 17, top: C.orig.axisRight, left: C.orig.axisMiddle })
+        + `<div class="piccap">${esc(C.orig.sub('I-II-III', 'K'))}<br><b>${esc(X.sheetCell('K', L(2), L(5)))}</b></div>`,
       diagram(X.diagram).replace('max-width:64mm', 'max-width:42mm'),
     ];
     const steps = X.steps.map(([h, p], i) => `<div class="step"><div class="num">${i + 1}</div>
@@ -222,13 +271,10 @@
     return `<div class="sheet learn">
       ${api.head(X.title, X.sub, false)}
       ${steps}
-      ${examplePart(api)}
-      <h3 class="tltitle">${esc(X.timelineTitle)}</h3>
-      <div class="timeline">${X.timeline.map(([d, x]) => `<div><b>${esc(d)}</b>${esc(x)}</div>`).join('')}</div>
-    </div>`;
+    </div>` + examplePage(api);
   }
 
-  /** One real sheet of 1938, recomputed: a rotor order and a left rotor position picked by the sheet code. */
+  /** One real sheet of 1938, recomputed (a rotor order and a left rotor position picked by the sheet code), and what happened next. */
   function origPage(api) {
     const { C, esc } = api, O = C.orig, rnd = api.rnd('orig');
     const order = KIT.shuffle(rnd, ['I', 'II', 'III']), left = String.fromCharCode(65 + Math.floor(rnd() * 26));
@@ -236,9 +282,36 @@
     return `<div class="sheet orig">
       ${api.head(O.title, O.sub(order.join('-'), left), false)}
       <p>${esc(O.intro)}</p>
-      <div class="realsheet">${ZYG.realSvg(sheet, { w: 176, right: O.axisRight, middle: O.axisMiddle })}</div>
+      <div class="realsheet">${ZYG.realSvg(sheet, { w: 160, right: O.axisRight, middle: O.axisMiddle })}</div>
       <p>${esc(O.twice)} ${esc(O.count(holes, Math.round(100 * holes / 676)))}</p>
       <p class="note">${esc(O.note)}</p>
+      <h3 class="tltitle">${esc(C.learn.timelineTitle)}</h3>
+      <div class="timeline">${C.learn.timeline.map(([d, x]) => `<div><b>${esc(d)}</b>${esc(x)}</div>`).join('')}</div>
+    </div>`;
+  }
+
+  /** The message page: the last round's answer sets a paper Enigma (one row per right rotor position) that reads a German message. */
+  function msgPage(api, g) {
+    const { C, esc } = api, M = C.msg, cols = [...g.cipher];
+    const row = (cls, label, cells) => `<tr class="${cls}"><th>${esc(label)}</th>${cells.map(x => `<td>${x}</td>`).join('')}</tr>`;
+    const box = `<table class="mtab">${row('n', M.num, cols.map((_, i) => i + 1))}${row('c', M.cipher, cols)}${row('w', M.row, cols.map(() => ''))}${row('p', M.plain, cols.map(() => ''))}</table>`;
+    const head = `<tr><th>${esc(M.corner)}</th>${Array.from({ length: 26 }, (_, i) => `<th>${L(i)}</th>`).join('')}</tr>`;
+    const body = g.rows.map(rw => `<tr><th>${L(rw.right)}</th>${rw.swap.map(x => `<td>${L(x)}</td>`).join('')}</tr>`).join('');
+    const steps = M.steps.map(x => `<li>${esc(x).replace(/_/g, '<span class="blank"></span>')}</li>`).join('');
+    const gloss = Object.entries(M.words).map(([w, tr]) => `<span><b>${w}</b> — ${esc(tr)}</span>`).join('');
+    return `<div class="sheet msgp">
+      ${api.head(M.title, M.sub, true)}
+      <p class="story">${esc(M.story)}</p>
+      <h3 class="etitle">📡 ${esc(M.box)}</h3>
+      <div class="mwrap">${box}</div>
+      <ol class="msteps">${steps}</ol>
+      <p class="etitle">⚙️ ${esc(M.table(L(g.left), L(g.middle)))}</p>
+      <div class="ewrap"><table class="etab">${head}${body}</table></div>
+      <p class="mnote">⚠️ ${esc(M.check)}</p>
+      <h3 class="etitle" style="margin-top:2mm">${esc(M.gloss)}</h3>
+      <div class="gloss">${gloss}</div>
+      <p class="mline">${esc(M.translate)} <span></span></p>
+      <p class="mnote">${esc(M.honest)}</p>
     </div>`;
   }
 
@@ -246,7 +319,7 @@
     store: 'zygalski.sheet2',
     text: ZYG_TEXT,
     groups: [{ id: 'level', values: Object.keys(PLAN), def: 'mix', label: (v, C) => C.levels[v] }],
-    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: true, label: 'optCut' }],
+    checks: [{ id: 'learn', def: true, label: 'optLearn' }, { id: 'msg', def: true, label: 'optMsg' }, { id: 'orig', def: true, label: 'optOrig' }, { id: 'cut', def: true, label: 'optCut' }],
     render(s, api) {
       const { t, C, esc } = api;
       const rounds = PLAN[s.level].map((lv, i) => ZYG.round(api.rnd(`${s.level}|${i}`), lv));
@@ -279,6 +352,10 @@
         ${rounds.map(roundHtml).join('')}
       </div>`;
 
+      // the message: read with the last round's answer
+      const last = rounds[rounds.length - 1], msg = s.msg ? ZYG.message(api.rnd('msg'), last.n, last.answer) : null;
+      if (msg) html += msgPage(api, msg);
+
       let cut = null;
       if (s.cut) {
         cut = ZYG.cutRound(api.rnd('cut'));
@@ -302,10 +379,11 @@
           ${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
           <div class="keyrow">${keys}</div>
           ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(setting(C, cut.answer, cut.n))}</p>` : ''}
+          ${msg ? `<p class="password">📻 ${esc(C.msg.key(L(msg.right + 1), msg.plain.replace(/X/g, ' '), C.msg.meanings[msg.plain]))}</p>` : ''}
         </div>`;
       }
       if (s.orig) html += origPage(api);   // the real sheet comes last, after the answers
-      return { html, tasks: rounds.length + (cut ? 1 : 0), pages: 1 + (s.learn ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
+      return { html, tasks: rounds.length + (cut ? 1 : 0) + (msg ? 1 : 0), pages: 1 + (s.learn ? 2 : 0) + (msg ? 1 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
     },
   });
 })();

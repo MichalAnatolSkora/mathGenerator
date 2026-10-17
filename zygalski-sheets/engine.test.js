@@ -33,6 +33,19 @@ for (const level of Object.keys(Z.LEVELS)) {
   }
   ok('step: ADU → ADV', m.step([0, 3, 20]).join() === '0,3,21');
 }
+// the message page: reading letter i in row right + i + 1 of the paper Enigma gives the message back
+for (let i = 0; i < 300; i++) {
+  const n = [4, 6][i % 2], answer = i % (n * n), g = Z.message(K.rng(`m${i}`), n, answer);
+  const read = [...g.cipher].map((ch, j) => {
+    const row = g.rows.find(r => r.right === g.right + j + 1);
+    return row && String.fromCharCode(65 + row.swap[ch.charCodeAt(0) - 65]);
+  }).join('');
+  ok(`message #${i}: the paper Enigma reads it`, read === g.plain, `${g.cipher} → ${read}`);
+  ok(`message #${i}: the middle and right of the answer`, g.middle * n + g.right === answer);
+  ok(`message #${i}: rows B … in order, none past V`, g.rows.every((r, j) => r.right === j + 1) && g.rows.length <= 21);
+}
+ok('messages: A–Z only, at most 16 letters', Z.MESSAGES.every(m => /^[A-Z]{1,16}$/.test(m)));
+
 // the Enigma simulation: the well-known test vector, decoding = encoding, a double step of the middle rotor
 ok('enigma: AAA, AAAAA → BDZGO', Z.encrypt(['I', 'II', 'III'], 'AAA', 'AAAAA') === 'BDZGO');
 const msg = 'ZYGALSKIWASHERE';
@@ -68,7 +81,7 @@ const shape = v => typeof v === 'function' ? 'fn' : Array.isArray(v) ? 'array' :
   ? Object.fromEntries(Object.keys(v).sort().map(k => [k, shape(v[k])])) : typeof v;
 for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
   ok(`${l}: same keys as pl`, JSON.stringify(shape(T[l])) === JSON.stringify(shape(T.pl)));
-  ok(`${l}: learn lists as long as pl`, ['steps', 'rotors', 'exSteps', 'timeline'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
+  ok(`${l}: learn lists as long as pl`, ['steps', 'exSteps', 'timeline'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
 }
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

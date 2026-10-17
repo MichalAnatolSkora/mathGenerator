@@ -13,6 +13,7 @@
  *   ZYG.day(rnd)                     → one day of traffic with a daily key, solvable with the sheets in one way
  *   ZYG.females / layout / solve     → the females of a day, how to lay their sheets, every place light comes through
  *   ZYG.realSvg(sheet, opts)         → that sheet drawn 51 × 51, as Zygalski drew it
+ *   ZYG.message(rnd, n, answer)      → a German message enciphered from a round's answer and the paper Enigma table to read it
  *
  * Cells are numbers y·n + x. `table[s]` holds the holes of sheet s where they land on the light table (after
  * the shift); `sheets[s].holes` holds them where they are printed on the sheet. A sheet printed with a hole at
@@ -296,6 +297,22 @@ const ZYG = (() => {
     return s + '</svg>';
   }
 
-  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
+  /* ---------- the message to decipher on paper: Enigma I, rotors II I III, rings at A, no plugboard ---------- */
+  // German, as in 1938, with X between words (Enigma had no space); Ü written UE
+  const MESSAGES = ['TREFFENXAMXFLUSS', 'ZUGXUMXNEUN', 'WETTERXGUT', 'BRUECKEXFREI', 'FLUGZEUGXLANDET', 'SCHIFFXIMXHAFEN', 'POSTXUMXACHT', 'NEBELXIMXTAL'];
+  const MSG_ORDER = ['II', 'I', 'III'];   // middle rotor I turns the left one only at Q, right rotor III the middle one at V: never in the table
+  /**
+   * A message enciphered from the window letters A, middle, right of a round's answer (row = middle, column = right),
+   * and the paper Enigma that reads it: one row per right rotor letter B … (n − 1 + length), each the machine's letter
+   * swap with the windows A, middle, that letter. Letter i (from 0) of the message is read in row right + i + 1.
+   */
+  function message(rnd, n, answer) {
+    const plain = MESSAGES[Math.floor(rnd() * MESSAGES.length)], m = machine(MSG_ORDER);
+    const middle = Math.floor(answer / n), right = answer % n;
+    const rows = Array.from({ length: n - 1 + plain.length }, (_, i) => ({ right: i + 1, swap: m.perm([0, middle, i + 1]) }));
+    return { plain, left: 0, middle, right, cipher: m.encrypt(letter(0) + letter(middle) + letter(right), plain), rows };
+  }
+
+  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, MESSAGES, message, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
 })();
 if (typeof module !== 'undefined') module.exports = ZYG;

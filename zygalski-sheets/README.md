@@ -14,13 +14,18 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
 
 ## Pages
 
-1. **How did it work?** (option, on by default), one A4 page read top to bottom: four numbered steps, each with
-   a short text and its own picture — (1) the puzzle: three unknown rotors, 26 × 26 × 26 × 6 settings; (2) the
-   German mistake: ABC ABC → WAH WIK, a "female" in places 1 and 4; (3) Zygalski's idea: a 6 × 6 sheet with holes,
-   row = middle rotor, column = right rotor; (4) the light table: a side view of light going through the holes —
-   then (5) a worked example: three fixed 4 × 4 sheets, each next to the light table as it looks after that sheet
-   (dots, crossed-out dots, the one dot left) and the answer "middle B, right C", plus a line on the ★★★ shifts;
-   and a five-item timeline of what happened next (Dec 1938 → May 1940).
+1. **How did it work?** (option, on by default), two A4 pages read top to bottom. The first has five numbered
+   steps, each with a short text and its own picture: (1) Enigma and the daily key — a secret key list with
+   the rotor order, rings and plugs for each day; (2) the message key, just 3 letters: the operator's open start
+   letters (RTJ), the key typed twice from there (ABC ABC → WAHWIK), then the text from ABC — pictured as the
+   start of a message; (3) the "female": the same key letter enciphered 3 steps apart came out the same;
+   (4) how a sheet maps the rotor settings: one sheet = one rotor order and one left rotor position (6 × 26 =
+   156), column = right rotor, row = middle rotor, a hole where a female is possible, the grid drawn twice
+   because sheets were laid shifted by the differences in the open letters — a 6 × 6 sheet with one square
+   labelled as a full setting; (5) the light table, a side view of light going through the holes, which gives
+   the rotor order and the rings. The second page is (6) a worked example: three fixed 4 × 4 sheets, each above
+   the light table as it looks after that sheet (dots, crossed-out dots, the one dot left) and the answer
+   "middle B, right C", plus a line on the ★★★ shifts.
 2. **The game** (one A4 page): three rounds. Each round has 3–4 sheets with holes (black dots) and an empty light
    table; rows and columns are lettered as on Zygalski's sheets (row = middle rotor, column = right rotor). The
    child dots the holes of sheet 1, then crosses out every dot where the next sheet has no hole; one dot is
@@ -37,7 +42,7 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    square (middle rotor, right rotor) is a hole when the 1st and 4th key presses from there can turn some
    letter into the same letter, so a doubled key could show a female. Like Zygalski's sheets, it takes the
    middle rotor not to turn during the six letters. The page says it is a reconstruction,
-   not a scan.
+   not a scan. Under it, a five-item timeline of what happened next (Dec 1938 → May 1940).
 
 ## Rounds
 
