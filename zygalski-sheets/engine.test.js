@@ -22,6 +22,17 @@ for (const level of Object.keys(Z.LEVELS)) {
   }
 }
 
+// the current's way: the lamp it reaches is the machine's swap, and it never comes back to the key it left
+{
+  const m = Z.machine(['II', 'I', 'III'], 'KUM', 'AQ BT CF DL EY GH');
+  for (const win of [[0, 3, 20], [22, 25, 0], [7, 11, 19]]) for (let x = 0; x < 26; x++) {
+    const t = m.trace(win, x);
+    ok(`trace ${win} ${x}: ends at the lamp`, t.length === 10 && t[9] === m.perm(win)[x]);
+    ok(`trace ${win} ${x}: reflector swaps pairs`, Z.REFLECTOR_B.charCodeAt(t[5]) - 65 === t[4]);
+    ok(`trace ${win} ${x}: never the same letter`, t[9] !== x);
+  }
+  ok('step: ADU → ADV', m.step([0, 3, 20]).join() === '0,3,21');
+}
 // the Enigma simulation: the well-known test vector, decoding = encoding, a double step of the middle rotor
 ok('enigma: AAA, AAAAA → BDZGO', Z.encrypt(['I', 'II', 'III'], 'AAA', 'AAAAA') === 'BDZGO');
 const msg = 'ZYGALSKIWASHERE';

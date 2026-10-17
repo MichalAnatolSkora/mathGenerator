@@ -11,6 +11,12 @@ children's version is [`../zygalski-sheets/`](../zygalski-sheets/README.md).
 | [`worksheet.html`](worksheet.html) | The pack: instructions, the day's traffic, the work table, the sheets, the answer |
 | [`strings.js`](strings.js) | Texts in seven languages |
 | [`strings.test.js`](strings.test.js) | `node strings.test.js`: every language has the same keys |
+| [`play.html`](play.html) | The online light table: the same day on screen, the sheets stacked by the computer |
+| [`play-strings.js`](play-strings.js) | Texts of the online game in seven languages (the six steps, work-table columns and answer labels come from `strings.js`) |
+| [`play-strings.test.js`](play-strings.test.js) | `node play-strings.test.js`: same keys in every language, every text renders, the light gives the day's rings |
+| [`enigma-how.js`](enigma-how.js) | "How did Enigma work?": the drawing of the current's way, the parts of the machine and how a message was sent, for the pack and the game |
+| [`enigma-strings.js`](enigma-strings.js) | Its texts in seven languages |
+| [`enigma-how.test.js`](enigma-how.test.js) | `node enigma-how.test.js`: same keys in every language, every text renders, the example does what the texts say |
 
 ## The day
 
@@ -29,8 +35,27 @@ the reference. Each other female needs sheet s + (L − L₁) for trial s, laid 
 column x) gives the rings: left L₁ − s, middle M₁ − y, right R′₁ − x. The plugboard does not change where
 females can appear, which is why the sheets work without it.
 
+## How did Enigma work? (`enigma-how.js`)
+
+For readers who have never seen an Enigma. Every letter shown is computed with `ZYG.machine` from one example daily key
+(rotors II I III, rings KUM, plugboard AQ BT CF DL EY GH — not the pack's day), never typed:
+
+- **Part 1, the machine**: the intro, a drawing of one key press (`ZYG.machine(…).trace`): keys and lamps, plugboard,
+  the three rotors with all their wires faint and the window letters, the reflector's 13 pairs; the way there in red,
+  back in blue, the letter after every part written in the gaps. Then the rotor, the reflector (deciphers = enciphers,
+  no letter to itself), the stepping (A six times from ADT: WUNUCZ, the middle rotor turns at the 3rd press), the
+  plugboard and the ring (a picture: ring C, window E, wires at C; core = window − ring).
+- **Part 2, how a message was sent in 1938**: the daily key as a row of a key table, the sender's five steps (ground
+  PKE, message key LKW typed twice → KIJKYL, then the text from LKW), what the radio carried, the receiver, the weak
+  point (KIJKYL has K in places 1 and 4: a female, with the six presses in a table), 15 September 1938, the count
+  of settings (≈ 7 · 10¹⁸), and how the wiring is known: Rejewski's equations (December 1932), the Schmidt documents
+  from French intelligence (keys for September–October 1932, the manual), his guess that the entry drum goes A→A,
+  B→B… and not in keyboard order Q→A, W→B… as on the commercial Enigma, the AVA copies (1933), reflector B (1937) and
+  rotors IV–V (1938) worked out the same way; the wiring used here is the real one of I, II, III and B.
+
 ## Pages
 
+0. **How did Enigma work?** (option, on): parts 1 and 2 above, one A4 page each in every language.
 1. **Instructions** (option, on): what you have, what you look for, six steps, how to stack the sheets
    (film on a window, or pencil on paper), the simplifications.
 2. **Intercepted messages**: the day's traffic in four columns; with help, the females are marked.
@@ -42,4 +67,28 @@ females can appear, which is why the sheets work without it.
    deciphered with the key as a check.
 
 Same code + same settings ⇒ the same pack. URL:
-`?seed=&level=full|females|trial&sheets=day|all|none&intro=1|0&film=1|0&key=1|0`.
+`?seed=&level=full|females|trial&sheets=day|all|none&how=1|0&intro=1|0&film=1|0&key=1|0`.
+
+## Online light table (`play.html`)
+
+The same day as the pack: `ZYG.day(KIT.rng(code + '|day'))`, exactly as `worksheet.html` draws it, so a
+printed pack and the game with the same code show the same messages and sheets. The code comes from
+`?seed=`, else the last game, else the last printed pack (`localStorage`), else a new one; "🖨️ Print this
+pack" opens `worksheet.html?seed=` with it. Progress is kept per code in `localStorage` (`zygalskiFull.play`).
+
+0. **How did Enigma work? Try the machine** (folds; open by default, the choice kept in `zygalskiFull.enigmaOpen`):
+   the example Enigma to type on — window letters with ▲ ▼, the drawing of the last key press (the windows that
+   turned are marked), a QWERTZ keyboard (or the computer's own while the card has the focus), what was typed and what
+   lit, a suggestion to repeat the sender's example; parts 1 and 2 fold out below. On a phone the drawing scrolls
+   sideways and starts at the keys.
+1. **Find the females**: tap the messages with the same letter in places 1/4, 2/5 or 3/6 (checked against
+   `ZYG.females`; a wrong tap says why and counts as a mistake; "show all" is the help).
+2. **Light table**: pick a rotor order (6 sets) and step the trial s (buttons or ← →). The page lays the
+   sheets with `ZYG.layout`: female j gets sheet s + ΔL, shifted by its row and column, and the first sheet's
+   26 × 26 frame lights only where every sheet has a hole. Sheets can be taken off and put back one at a time
+   to watch the light shrink. A hint names the right set, then the trial. The work table (with the sheet
+   letter for this trial) folds out under the grid.
+3. **Rings**: when exactly one square lights with all sheets on, its row and column labels light up; enter
+   L₁ − s, M₁ − y, R′₁ − x (checked against the day's rings; a letters-as-numbers crib folds out).
+4. **Daily key**: rotor order, trial, light, rings with the subtraction, plugboard, and one message key
+   deciphered with `ZYG.machine` (any message, one at a time).

@@ -10,7 +10,7 @@ const ZYGF_TEXT = {
     appSub: 'Dla ambitnych: przechwycone depesze z jednego dnia, komplet płacht 51 × 51 obliczonych symulacją Enigmy, tabela robocza i rozwiązanie. Znajdź klucz dnia tak jak Biuro Szyfrów w 1938 roku.',
     level: 'Pomoc', levels: { full: 'Bez pomocy', females: 'Samiczki zaznaczone', trial: 'Samiczki i właściwa próba' },
     sheetsTitle: 'Płachty do druku', sheetSets: { day: 'Komplet dnia (26 stron)', all: 'Wszystkie 6 kompletów (156 stron)', none: 'Bez płacht' },
-    optIntro: 'Strona z instrukcją', optFilm: 'Płachty na folię (dziurki przezroczyste)',
+    optHow: 'Strony „Jak działała Enigma?”', optIntro: 'Strona z instrukcją', optFilm: 'Płachty na folię (dziurki przezroczyste)',
     intro: {
       title: 'Płachty Zygalskiego — jak pracowało Biuro Szyfrów',
       sub: 'Jesień 1938: klucz dnia z samych samiczek',
@@ -67,7 +67,7 @@ const ZYGF_TEXT = {
     appSub: 'For the ambitious: one day of intercepted messages, a full set of 51 × 51 sheets computed by simulating Enigma, a work table and the answer. Find the daily key the way the Cipher Bureau did in 1938.',
     level: 'Help', levels: { full: 'No help', females: 'Females marked', trial: 'Females and the right trial' },
     sheetsTitle: 'Sheets to print', sheetSets: { day: 'The day’s set (26 pages)', all: 'All 6 sets (156 pages)', none: 'No sheets' },
-    optIntro: 'Instructions page', optFilm: 'Sheets for film (clear holes)',
+    optHow: 'Pages “How did Enigma work?”', optIntro: 'Instructions page', optFilm: 'Sheets for film (clear holes)',
     intro: {
       title: 'Zygalski sheets — how the Cipher Bureau worked',
       sub: 'Autumn 1938: the daily key from females alone',
@@ -124,7 +124,7 @@ const ZYGF_TEXT = {
     appSub: 'Для амбітних: перехоплені повідомлення за один день, повний комплект листів 51 × 51, обчислених моделюванням Енігми, робоча таблиця і розв’язок. Знайди ключ дня так, як Бюро шифрів у 1938 році.',
     level: 'Допомога', levels: { full: 'Без допомоги', females: 'Самички позначено', trial: 'Самички і правильна спроба' },
     sheetsTitle: 'Листи для друку', sheetSets: { day: 'Комплект дня (26 сторінок)', all: 'Усі 6 комплектів (156 сторінок)', none: 'Без листів' },
-    optIntro: 'Сторінка з інструкцією', optFilm: 'Листи на плівку (прозорі дірочки)',
+    optHow: 'Сторінки «Як працювала Енігма?»', optIntro: 'Сторінка з інструкцією', optFilm: 'Листи на плівку (прозорі дірочки)',
     intro: {
       title: 'Листи Зигальського — як працювало Бюро шифрів',
       sub: 'Осінь 1938 року: ключ дня лише із самичок',
@@ -181,7 +181,7 @@ const ZYGF_TEXT = {
     appSub: 'Cho người thích thử thách: các bức điện chặn được trong một ngày, trọn bộ tấm 51 × 51 tính bằng mô phỏng Enigma, bảng làm việc và lời giải. Hãy tìm khóa ngày như Phòng Mật mã năm 1938.',
     level: 'Trợ giúp', levels: { full: 'Không trợ giúp', females: 'Đánh dấu con mái', trial: 'Con mái và lần thử đúng' },
     sheetsTitle: 'Tấm để in', sheetSets: { day: 'Bộ của ngày (26 trang)', all: 'Cả 6 bộ (156 trang)', none: 'Không in tấm' },
-    optIntro: 'Trang hướng dẫn', optFilm: 'Tấm in lên phim trong (lỗ trong suốt)',
+    optHow: 'Trang “Enigma hoạt động thế nào?”', optIntro: 'Trang hướng dẫn', optFilm: 'Tấm in lên phim trong (lỗ trong suốt)',
     intro: {
       title: 'Tấm Zygalski — Phòng Mật mã đã làm việc thế nào',
       sub: 'Mùa thu 1938: khóa ngày chỉ từ các con mái',
@@ -238,7 +238,7 @@ const ZYGF_TEXT = {
     appSub: 'Pour les ambitieux : les messages interceptés d’une journée, un jeu complet de feuilles 51 × 51 calculées en simulant Enigma, un tableau de travail et la solution. Trouve la clé du jour comme le Bureau du chiffre en 1938.',
     level: 'Aide', levels: { full: 'Sans aide', females: 'Femelles marquées', trial: 'Femelles et le bon essai' },
     sheetsTitle: 'Feuilles à imprimer', sheetSets: { day: 'Le jeu du jour (26 pages)', all: 'Les 6 jeux (156 pages)', none: 'Sans feuilles' },
-    optIntro: 'Page d’instructions', optFilm: 'Feuilles pour transparents (trous clairs)',
+    optHow: 'Pages « Comment marchait Enigma ? »', optIntro: 'Page d’instructions', optFilm: 'Feuilles pour transparents (trous clairs)',
     intro: {
       title: 'Feuilles de Zygalski — le travail du Bureau du chiffre',
       sub: 'Automne 1938 : la clé du jour à partir des seules femelles',
@@ -295,7 +295,7 @@ const ZYGF_TEXT = {
     appSub: 'Per gli ambiziosi: i messaggi intercettati in un giorno, una serie completa di fogli 51 × 51 calcolati simulando Enigma, una tabella di lavoro e la soluzione. Trova la chiave del giorno come l’Ufficio Cifra nel 1938.',
     level: 'Aiuto', levels: { full: 'Senza aiuto', females: 'Femmine segnate', trial: 'Femmine e la prova giusta' },
     sheetsTitle: 'Fogli da stampare', sheetSets: { day: 'La serie del giorno (26 pagine)', all: 'Tutte le 6 serie (156 pagine)', none: 'Senza fogli' },
-    optIntro: 'Pagina con le istruzioni', optFilm: 'Fogli per lucidi (buchi trasparenti)',
+    optHow: 'Pagine «Come funzionava Enigma?»', optIntro: 'Pagina con le istruzioni', optFilm: 'Fogli per lucidi (buchi trasparenti)',
     intro: {
       title: 'Fogli di Zygalski — come lavorava l’Ufficio Cifra',
       sub: 'Autunno 1938: la chiave del giorno dalle sole femmine',
@@ -352,7 +352,7 @@ const ZYGF_TEXT = {
     appSub: 'Para los ambiciosos: los mensajes interceptados en un día, un juego completo de hojas de 51 × 51 calculadas simulando Enigma, una tabla de trabajo y la solución. Encuentra la clave del día como la Oficina de Cifrado en 1938.',
     level: 'Ayuda', levels: { full: 'Sin ayuda', females: 'Hembras marcadas', trial: 'Hembras y la prueba correcta' },
     sheetsTitle: 'Hojas para imprimir', sheetSets: { day: 'El juego del día (26 páginas)', all: 'Los 6 juegos (156 páginas)', none: 'Sin hojas' },
-    optIntro: 'Página de instrucciones', optFilm: 'Hojas para acetato (agujeros transparentes)',
+    optHow: 'Páginas «¿Cómo funcionaba Enigma?»', optIntro: 'Página de instrucciones', optFilm: 'Hojas para acetato (agujeros transparentes)',
     intro: {
       title: 'Hojas de Zygalski — cómo trabajaba la Oficina de Cifrado',
       sub: 'Otoño de 1938: la clave del día solo con hembras',

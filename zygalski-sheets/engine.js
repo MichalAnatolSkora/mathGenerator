@@ -6,7 +6,8 @@
  *   ZYG.round(rnd, level)            → { n, k, shift, answer, table: [Set], sheets: [{ dx, dy, holes: Set }] }
  *   ZYG.cutRound(rnd)                → a round for cutting out: 5×5, 3 sheets, no shift
  *   ZYG.svg(n, cells, opts)          → a grid as an SVG string
- *   ZYG.machine(order, rings, plug)  → Enigma I (rotors I–III, reflector B) with rings and plugboard: .encrypt(start, text)
+ *   ZYG.machine(order, rings, plug)  → Enigma I (rotors I–III, reflector B) with rings and plugboard: .encrypt(start, text),
+ *                                      .step(window), .trace(window, key) (the current's way through the parts)
  *   ZYG.encrypt(order, start, text)  → the same with rings at A and no plugboard
  *   ZYG.realSheet(order, left)       → a real sheet: 26 rows (middle rotor) × 26 (right rotor), true = hole
  *   ZYG.day(rnd)                     → one day of traffic with a daily key, solvable with the sheets in one way
@@ -166,6 +167,21 @@ const ZYG = (() => {
     const swap = win => { const p = perm(rs, win.map((w, i) => mod(w - rg[i]))); return sw.map(x => sw[p[x]]); };
     return {
       perm: swap,
+      step: win => step(rs, win),
+      /**
+       * Where the current goes when key x is pressed with the rotors showing `win` (numbers, after the step): the
+       * machine's fixed contacts 0–25 (A–Z) as [key, plugboard, right, middle, left, reflector, left, middle, right,
+       * lamp] — the contact after each part. The last one is swap(win)[x].
+       */
+      trace(win, x) {
+        const p = win.map((w, i) => mod(w - rg[i])), out = [x, sw[x]];
+        let c = sw[x];
+        for (let i = 2; i >= 0; i--) out.push(c = mod(rs[i].fwd[mod(c + p[i])] - p[i]));
+        out.push(c = code(REFLECTOR_B[c]));
+        for (let i = 0; i < 3; i++) out.push(c = mod(rs[i].inv[mod(c + p[i])] - p[i]));
+        out.push(sw[c]);
+        return out;
+      },
       encrypt(start, text) {
         let win = [...start].map(code);
         return [...text].map(ch => { win = step(rs, win); return letter(swap(win)[code(ch)]); }).join('');
@@ -280,6 +296,6 @@ const ZYG = (() => {
     return s + '</svg>';
   }
 
-  return { LEVELS, round, cutRound, svg, ROTORS, ORDERS, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
+  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
 })();
 if (typeof module !== 'undefined') module.exports = ZYG;

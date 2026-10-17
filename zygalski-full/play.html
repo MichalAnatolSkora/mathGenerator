@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Płachty Zygalskiego — stół świetlny</title>
+<meta name="description" content="Płachty Zygalskiego online: depesze z jednego dnia, samiczki i stół świetlny z prawdziwymi płachtami 26 × 26 obliczonymi symulacją Enigmy. Znajdź klucz dnia tak jak Biuro Szyfrów w 1938 roku.">
+<style>
+  :root{
+    --ink:#1B1B1F; --muted:#5b6070; --line:#dfe3ec; --bg:#eef1f6; --panel:#fff; --soft:#f5f7fb;
+    --navy:#1E3A5F; --accent:#4f5bd5; --accent-d:#3d48b8; --good:#1f7a45; --good-soft:#e3f4ea;
+    --bad:#B3261E; --bad-soft:#fdebe9; --hl:#ffe36b; --dark:#161a24;
+    --mono:ui-monospace,Menlo,Consolas,"Courier New",monospace; --head:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  [hidden]{display:none !important}
+  body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;}
+  button,input{font:inherit;color:var(--ink);}
+  button{cursor:pointer;}
+  button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  p{margin:0;}
+
+  .top{display:flex;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .brand{font:800 20px/1.2 var(--head);flex:1 1 auto;margin:0;}
+  .navlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600;font-size:14px;color:var(--accent-d);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--soft);}
+  .navlink:hover{border-color:var(--accent);}
+
+  .wrap{max-width:980px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;box-shadow:0 2px 10px rgba(30,40,80,.05);}
+  .card h2{margin:0;font:800 21px/1.25 var(--head);color:var(--navy);}
+  .muted{color:var(--muted);}
+  .small{font-size:14px;}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .grow{flex:1 1 auto;}
+
+  .seed{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .seed label{font-weight:700;}
+  .seed input{width:150px;min-height:44px;border:2px solid #c5cbe0;border-radius:10px;padding:6px 10px;font:700 17px/1 var(--mono);}
+  .btn{min-height:44px;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:8px 16px;font-weight:600;font-size:15px;}
+  .btn:hover{border-color:var(--navy);}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .primary{min-height:46px;border:0;border-radius:11px;background:var(--navy);color:#fff;padding:10px 18px;font-weight:700;}
+  .primary:hover{background:#15304f;}
+  details{border:1px solid var(--line);border-radius:12px;padding:0 14px;background:var(--soft);}
+  summary{cursor:pointer;font-weight:700;color:var(--navy);min-height:44px;display:flex;align-items:center;}
+  details[open]{padding-bottom:12px;}
+  .howsteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 18px;font-size:15px;}
+  .howsteps b{display:block;color:var(--navy);}
+
+  /* 0. how Enigma worked (enigma-how.js) */
+  details.card{padding:0 16px;gap:0;}
+  details.card > summary{min-height:56px;font:800 21px/1.25 var(--head);color:var(--navy);list-style:none;}
+  details.card > summary::-webkit-details-marker{display:none;}
+  details.card > summary::after{content:"▾";margin-left:auto;padding-left:10px;color:var(--muted);transition:transform .2s;}
+  details.card:not([open]) > summary::after{transform:rotate(-90deg);}
+  details.card[open]{padding-bottom:16px;}
+  .ehbody{display:flex;flex-direction:column;gap:12px;}
+  .emwin{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;}
+  .emwin > b{font-size:14px;color:var(--muted);flex:1 1 100%;}
+  .rot{display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .rot small{font-size:12px;color:var(--muted);}
+  .rot button{width:44px;height:30px;border:1px solid var(--line);background:var(--soft);border-radius:8px;font-size:14px;padding:0;}
+  .rot button:hover{border-color:var(--navy);}
+  .rot span{width:44px;height:44px;border:2px solid var(--navy);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font:800 24px/1 var(--mono);}
+  .rot span.moved{border-color:var(--bad);background:var(--bad-soft);}
+  .eh-svgwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;}
+  .eh-svgwrap svg{display:block;width:100%;min-width:540px;height:auto;}
+  .emkeys{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--dark);border-radius:12px;padding:10px 6px;}
+  .emkeys div{display:flex;gap:5px;justify-content:center;width:100%;max-width:440px;}
+  .emkeys button{flex:1 1 0;min-width:0;max-width:44px;height:44px;border-radius:999px;border:2px solid #5b6275;background:#2a3040;color:#fff;font:700 17px/1 var(--mono);padding:0;}
+  .emkeys button:hover{border-color:var(--hl);}
+  .emkeys button:active{background:var(--hl);color:var(--ink);}
+  .emtape{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:baseline;font-size:14px;}
+  .emtape span{font:700 17px/1.4 var(--mono);overflow-wrap:anywhere;min-height:1.4em;}
+  .emtape span.lit{color:#9a6b00;}
+  .eh-intro{font-size:16px;}
+  .eh-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;}
+  .eh-block{border-top:3px solid var(--accent);padding-top:6px;min-width:0;}
+  .eh-block h3,.eh-box h3{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  .eh-wide{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 22px;align-items:start;}
+  .eh-small{font-size:14px;color:var(--muted);margin-top:6px;}
+  .eh-steps{border-collapse:collapse;margin-top:6px;font:14px/1.2 var(--mono);}
+  .eh-steps th{font:600 12px/1.2 system-ui,sans-serif;color:var(--muted);text-align:left;padding:2px 8px 2px 0;}
+  .eh-steps td{border:1px solid var(--line);padding:4px 6px;text-align:center;}
+  .eh-steps b{font-weight:400;}
+  .eh-steps b + b{font-weight:800;}
+  .eh-steps b.eh-moved{font-weight:800;color:var(--bad);}
+  .eh-steps td.eh-lamp{background:#fff3b8;font-weight:800;}
+  .eh-steps td.eh-hl{border:2px solid var(--bad);}
+  .eh-steps td.eh-lamp.eh-hl{background:var(--hl);}
+  .eh-ring svg{display:block;width:280px;max-width:100%;height:auto;margin-top:6px;}
+  .eh-box{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 10px;background:#fff;min-width:0;}
+  .eh-tip{border-color:#d29a00;background:#fff8dc;}
+  .eh-plain{border:0;padding:0;}
+  .eh-keycard{border-collapse:collapse;width:100%;margin:6px 0;font-size:13px;}
+  .eh-keycard th,.eh-keycard td{border:1px solid var(--line);padding:4px 6px;text-align:center;}
+  .eh-keycard th{background:var(--soft);font-size:12px;}
+  .eh-keycard td{font:700 13px/1.3 var(--mono);}
+  .eh-keycard tr:first-child + tr td{background:#fff3b8;}
+  .eh-keycard .eh-other td{color:#999;font-weight:400;}
+  .eh-two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+  .eh-ol{margin:0;padding-left:22px;}
+  .eh-ol li{margin:0 0 4px;}
+  .eh-radio{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;}
+  .eh-radio span{display:flex;flex-direction:column;border:1px solid #b9bfcc;border-radius:8px;padding:4px 8px;}
+  .eh-radio b{font:800 16px/1.3 var(--mono);}
+  .eh-radio i{font-style:normal;font-size:12px;color:var(--muted);}
+  .eh-radio .eh-body{flex:1 1 100%;}
+  .eh-mono{font-family:var(--mono);}
+  .eh-mono u{text-decoration:none;background:var(--hl);}
+  .eh-next{display:none;}
+  .eh-guess{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px;}
+  .eh-guess p{margin:0;}
+  .eh-guess span{display:block;font-size:13px;color:var(--muted);}
+  .eh-guess b{font-size:15px;}
+  .eh-guess i{font-style:normal;font-weight:800;font-size:17px;}
+  .eh-no{color:var(--bad);} .eh-yes{color:var(--good);}
+  @media (max-width:700px){
+    .eh-grid,.eh-two,.eh-wide{grid-template-columns:minmax(0,1fr);}
+    .eh-box{padding:8px 10px;}
+    .eh-steps{font-size:12.5px;} .eh-steps th{font-size:11px;padding-right:4px;} .eh-steps td{padding:3px 2px;}
+  }
+
+  /* traffic */
+  .status{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-weight:700;}
+  .status .bad{color:var(--bad);}
+  .say{min-height:1.45em;font-size:15px;}
+  .say.bad{color:var(--bad);font-weight:600;}
+  .say.good{color:var(--good);font-weight:700;}
+  .traffic{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:5px;max-height:60vh;overflow-y:auto;padding:2px;border:1px solid var(--line);border-radius:12px;background:var(--soft);}
+  .msg{min-height:44px;border:1.5px solid #cfd5e4;border-radius:9px;background:#fff;padding:4px 6px;font:14px/1.2 var(--mono);text-align:left;white-space:nowrap;}
+  .msg:hover{border-color:var(--navy);}
+  .msg .n{color:#8a90a0;font-size:12px;}
+  .msg .g{font-weight:800;}
+  .msg u{text-decoration:none;background:var(--hl);font-weight:800;border-radius:3px;}
+  .msg.on{border-color:#d29a00;background:#fff8dc;cursor:default;}
+  .msg.no{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  /* light table */
+  .ctl{display:flex;flex-direction:column;gap:6px;}
+  .ctl > b{font-size:14px;color:var(--muted);}
+  .orders{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}
+  @media (max-width:600px){ .orders{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  .orders button{min-height:44px;border:2px solid var(--line);border-radius:10px;background:#fff;font:700 15px/1 var(--mono);padding:4px 2px;}
+  .orders button[aria-pressed="true"]{border-color:var(--navy);background:var(--navy);color:#fff;}
+  .stepper{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .round{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--soft);font-size:22px;font-weight:800;line-height:1;padding:0;}
+  .round:hover{border-color:var(--navy);}
+  .round:disabled{opacity:.4;cursor:default;}
+  .sval{min-width:52px;text-align:center;font:800 30px/1 var(--mono);color:var(--navy);}
+  .table{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;}
+  @media (min-width:860px){ .table{grid-template-columns:minmax(0,1fr) 300px;} }
+  .lightbox{background:var(--dark);border-radius:12px;padding:8px;max-width:600px;width:100%;}
+  .axis{color:#c9cfdd;font-size:12.5px;display:flex;justify-content:space-between;gap:8px;padding:0 4px 4px;}
+  svg.light{display:block;width:100%;height:auto;}
+  svg.light text{font:600 7.4px var(--mono);fill:#8d95a8;}
+  svg.light text.hi{fill:var(--hl);font-weight:800;}
+  svg.light rect.c{fill:#232837;}
+  svg.light rect.c.on{fill:var(--hl);}
+  svg.light rect.c.one{fill:#fff6b0;stroke:#fff;stroke-width:1;}
+  svg.light line.cross{stroke:var(--hl);stroke-width:.7;stroke-dasharray:2 1.5;opacity:.85;}
+  .litmsg{font-weight:700;min-height:1.45em;}
+  .litmsg.good{color:var(--good);}
+  .twrap{overflow-x:auto;}
+  .stack{border-collapse:collapse;font:13.5px/1.2 var(--mono);width:100%;}
+  .stack th,.stack td{border:1px solid var(--line);padding:5px 6px;text-align:center;white-space:nowrap;}
+  .stack th{font:700 12px/1.2 system-ui,sans-serif;color:var(--muted);background:#fff;}
+  .stack td.sh{font-weight:800;color:var(--navy);}
+
+  /* rings */
+  .rings{display:flex;flex-direction:column;gap:8px;}
+  .ring{display:grid;grid-template-columns:minmax(0,1fr) 48px;align-items:center;gap:10px;max-width:440px;font-weight:700;font-size:17px;}
+  .ring input{width:48px;height:48px;border:2px solid var(--navy);border-radius:9px;text-align:center;font:800 22px/1 var(--mono);text-transform:uppercase;padding:0;}
+  .ring input.ok{border-color:var(--good);background:var(--good-soft);}
+  .ring input.no{border-color:var(--bad);background:var(--bad-soft);}
+  .abc{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:3px;font:13px/1.15 var(--mono);text-align:center;}
+  .abc span{border:1px solid var(--line);border-radius:6px;background:#fff;padding:3px 0;}
+  .abc b{display:block;font-size:15px;}
+
+  /* key */
+  .keygrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:15px;}
+  .keygrid b{font:800 16px/1.35 var(--mono);overflow-wrap:anywhere;}
+  @media (max-width:600px){ .keygrid{grid-template-columns:minmax(0,1fr);gap:2px;} .keygrid span{color:var(--muted);font-size:14px;margin-top:6px;} }
+  .out{font:700 16px/1.5 var(--mono);border:2px solid var(--good);background:var(--good-soft);border-radius:10px;padding:10px 12px;overflow-wrap:anywhere;}
+  .done{font:800 19px/1.3 var(--head);color:var(--good);}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <h1 class="brand" data-i18n="brand">🔦 Płachty Zygalskiego: stół świetlny</h1>
+  <a class="navlink" id="printLink" href="worksheet.html" data-i18n="printPack">🖨️ Wydrukuj ten pakiet</a>
+  <nav class="langs" aria-label="Język"></nav>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <p data-i18n="lead"></p>
+    <div class="seed">
+      <label for="seed" data-i18n="seedLabel">Kod pakietu</label>
+      <input id="seed" type="text" autocomplete="off" spellcheck="false">
+      <button type="button" class="btn" id="newDay" data-i18n="newDay">🎲 Nowy dzień</button>
+    </div>
+    <p class="small muted" data-i18n="seedHint"></p>
+    <details><summary data-i18n="howTitle"></summary><div class="howsteps" id="how"></div></details>
+  </section>
+
+  <details class="card" id="s0">
+    <summary id="ehTitle"></summary>
+    <div class="ehbody">
+      <p id="ehIntro"></p>
+      <p id="ehLead" class="small muted"></p>
+      <div class="emwin" id="emWin"></div>
+      <div class="eh-svgwrap" id="emSvg"></div>
+      <p id="emCap" class="small" aria-live="polite"></p>
+      <div class="emkeys" id="emKeys" role="group"></div>
+      <div class="emtape"><b id="emInL"></b><span id="emIn"></span><b id="emOutL"></b><span id="emOut" class="lit"></span></div>
+      <div class="row"><button type="button" class="btn" id="emClear"></button></div>
+      <p id="emIdea" class="small"></p>
+      <details><summary id="ehPartsT"></summary><div id="ehParts"></div></details>
+      <details><summary id="ehProcT"></summary><div id="ehProc"></div></details>
+    </div>
+  </details>
+
+  <section class="card" id="s1">
+    <h2 data-i18n="s1Title"></h2>
+    <p data-i18n="s1Instr"></p>
+    <div class="status"><span id="found"></span><span id="mistakes" class="bad"></span></div>
+    <div class="traffic" id="traffic"></div>
+    <p class="say" id="say1" aria-live="polite"></p>
+    <div class="row"><button type="button" class="btn" id="showFem" data-i18n="showFemales"></button></div>
+  </section>
+
+  <section class="card" id="s2" hidden>
+    <h2 data-i18n="s2Title"></h2>
+    <p data-i18n="s2Instr"></p>
+    <div class="ctl"><b data-i18n="orderLabel"></b><div class="orders" id="orders"></div></div>
+    <div class="row" style="gap:12px 28px">
+      <div class="ctl"><b data-i18n="trialLabel"></b>
+        <div class="stepper">
+          <button type="button" class="round" id="prevS" data-i18n-attr="aria-label:prevTrial,title:prevTrial">◀</button>
+          <span class="sval" id="sval" aria-live="polite"></span>
+          <button type="button" class="round" id="nextS" data-i18n-attr="aria-label:nextTrial,title:nextTrial">▶</button>
+        </div>
+      </div>
+      <div class="ctl"><b id="sheetsOn"></b>
+        <div class="stepper">
+          <button type="button" class="round" id="fewer" data-i18n-attr="aria-label:fewerSheets,title:fewerSheets">−</button>
+          <button type="button" class="round" id="more" data-i18n-attr="aria-label:moreSheets,title:moreSheets">+</button>
+        </div>
+      </div>
+    </div>
+    <p class="small muted" data-i18n="keysHint"></p>
+    <div class="table">
+      <div class="lightbox">
+        <div class="axis"><span data-i18n="rowAxis"></span><span data-i18n="colAxis"></span></div>
+        <svg class="light" id="light" role="img" viewBox="0 0 277 277"></svg>
+      </div>
+      <div class="ctl">
+        <p class="litmsg" id="litmsg" aria-live="polite"></p>
+        <details><summary data-i18n="stackTitle"></summary><div class="twrap"><table class="stack" id="stack"></table></div></details>
+        <div class="row"><button type="button" class="btn" id="hintBtn" data-i18n="hint"></button></div>
+        <p id="hintText" class="small"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="s3" hidden>
+    <h2 data-i18n="s3Title"></h2>
+    <p data-i18n="s3Instr"></p>
+    <form class="rings" id="rings" onsubmit="return false">
+      <div class="ring"><span id="rl0"></span><input id="r0" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+      <div class="ring"><span id="rl1"></span><input id="r1" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+      <div class="ring"><span id="rl2"></span><input id="r2" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+      <div class="row"><button type="submit" class="primary" id="checkBtn" data-i18n="check"></button></div>
+    </form>
+    <p class="say" id="say3" aria-live="polite"></p>
+    <details><summary data-i18n="cheatTitle"></summary><div class="abc" id="abc"></div></details>
+  </section>
+
+  <section class="card" id="s4" hidden>
+    <h2 data-i18n="s4Title"></h2>
+    <p class="done" data-i18n="done"></p>
+    <div class="keygrid" id="keygrid"></div>
+    <p data-i18n="s4Instr"></p>
+    <p id="msgLine" style="font-family:var(--mono);font-weight:700"></p>
+    <div class="row">
+      <button type="button" class="primary" id="decBtn" data-i18n="decipher"></button>
+      <button type="button" class="btn" id="otherBtn" data-i18n="otherMsg"></button>
+    </div>
+    <p class="out" id="decOut" hidden aria-live="polite"></p>
+  </section>
+</main>
+
+<script src="../i18n.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="../zygalski-sheets/engine.js"></script>
+<script src="strings.js"></script>
+<script src="play-strings.js"></script>
+<script src="enigma-strings.js"></script>
+<script src="enigma-how.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const L = i => String.fromCharCode(65 + (((i % 26) + 26) % 26));
+  const code = ch => ch.charCodeAt(0) - 65;
+  const num = i => String(i + 1).padStart(3, '0');
+  const esc = KIT.esc;
+  const T = (k, ...a) => I18N.t(ZYGP_TEXT, k, ...a);
+  const F = () => ZYGF_TEXT[I18N.get()] || ZYGF_TEXT.en;   // texts shared with the printable pack
+  const STORE = 'zygalskiFull.play';
+
+  let st, d, lay, f0, g0;
+  const load = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (_) { return null; } };
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch (_) { /* no storage */ } };
+
+  /** A day for this code: the same generator as worksheet.html (KIT seed + salt "day"). */
+  function start(seed, keep) {
+    seed = String(seed).trim() || KIT.randomSeed();   // as typed: the pack's code is case-sensitive
+    d = ZYG.day(KIT.rng(`${seed}|day`));
+    lay = d.females; f0 = lay[0]; g0 = [...d.messages[f0.msg].ground].map(code);
+    const fresh = { seed, found: [], mistakes: 0, order: 0, s: 0, k: lay.length, hint: 0, lit: false, solved: false, msg: f0.msg };
+    st = keep && keep.seed === seed ? { ...fresh, ...keep } : fresh;
+    $('seed').value = seed;
+    const u = new URL(location.href); u.searchParams.set('seed', seed); history.replaceState(null, '', u);
+    $('printLink').setAttribute('href', I18N.withLang(`worksheet.html?seed=${encodeURIComponent(seed)}`));
+    for (const i of [0, 1, 2]) { $('r' + i).value = ''; $('r' + i).className = ''; }
+    $('say1').textContent = ''; $('say3').textContent = ''; $('decOut').hidden = true;
+    save(); render();
+  }
+
+  const femMsgs = () => new Set(lay.map(f => f.msg));
+  const allFound = () => st.found.length >= femMsgs().size;
+  const foundFemales = () => lay.filter(f => st.found.includes(f.msg)).length;
+
+  /* ---------- 1. traffic ---------- */
+  function renderTraffic() {
+    const fem = new Set(lay.map(f => `${f.msg}|${f.type}`));
+    $('traffic').innerHTML = d.messages.map((m, i) => {
+      const on = st.found.includes(i);
+      const ind = [...m.ind].map((ch, k) => on && (fem.has(`${i}|${k}`) || fem.has(`${i}|${k - 3}`)) ? `<u>${ch}</u>` : ch);
+      return `<button type="button" class="msg${on ? ' on' : ''}" data-i="${i}" aria-pressed="${on}"><span class="n">${num(i)}</span> <span class="g">${m.ground}</span> ${ind.slice(0, 3).join('')} ${ind.slice(3).join('')}</button>`;
+    }).join('');
+    $('found').textContent = T('found', foundFemales(), lay.length);
+    $('mistakes').textContent = st.mistakes ? T('mistakes', st.mistakes) : '';
+    $('showFem').hidden = allFound();
+  }
+  $('traffic').addEventListener('click', e => {
+    const b = e.target.closest('.msg'); if (!b) return;
+    const i = +b.dataset.i;
+    if (st.found.includes(i)) return;
+    const say = $('say1');
+    if (femMsgs().has(i)) {
+      st.found.push(i);
+      const done = allFound();
+      say.className = done ? 'say good' : 'say'; say.textContent = done ? T('femDone') : '';
+      save(); renderTraffic(); updateSections(done);
+      $('traffic').querySelector(`[data-i="${i}"]`).focus();
+    } else {
+      st.mistakes++; save();
+      say.className = 'say bad'; say.textContent = T('notFemale', num(i));
+      b.classList.remove('no'); void b.offsetWidth; b.classList.add('no');
+      $('mistakes').textContent = T('mistakes', st.mistakes);
+    }
+  });
+  $('showFem').addEventListener('click', () => {
+    st.found = [...femMsgs()]; save();
+    $('say1').className = 'say good'; $('say1').textContent = T('femDone');
+    renderTraffic(); updateSections(true);
+  });
+
+  /* ---------- 2. light table ---------- */
+  const order = () => ZYG.ORDERS[st.order];
+  /** Light for the current set and trial with the first k sheets: a 26 × 26 array, true = light. */
+  function light(k) {
+    const sheets = lay.slice(0, k).map(f => ZYG.realSheet(order(), L(st.s + f.dl)));
+    return Array.from({ length: 26 }, (_, y) => Array.from({ length: 26 }, (__, x) =>
+      lay.slice(0, k).every((f, j) => sheets[j][(y + f.row) % 26][(x + f.col) % 26])));
+  }
+  const C = 10, M = 17;   // cell size and the margin for the letters, in SVG units
+  function buildGrid() {
+    let s = '';
+    for (let i = 0; i < 26; i++) {
+      s += `<text id="tx${i}" x="${M + i * C + C / 2}" y="${M - 6}" text-anchor="middle">${L(i)}</text>`;
+      s += `<text id="ty${i}" x="${M - 6}" y="${M + i * C + C / 2 + 2.3}" text-anchor="middle">${L(i)}</text>`;
+    }
+    for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++) s += `<rect class="c" id="c${y}_${x}" x="${M + x * C + 0.6}" y="${M + y * C + 0.6}" width="${C - 1.2}" height="${C - 1.2}" rx="1.2"/>`;
+    s += '<g id="cross"></g>';
+    $('light').innerHTML = s;
+  }
+  function renderTable() {
+    $('orders').innerHTML = ZYG.ORDERS.map((o, i) => `<button type="button" data-o="${i}" aria-pressed="${i === st.order}">${o.join('-')}</button>`).join('');
+    $('sval').textContent = L(st.s);
+    $('sheetsOn').textContent = T('sheetsOn', st.k, lay.length);
+    $('fewer').disabled = st.k <= 1; $('more').disabled = st.k >= lay.length;
+    const lt = light(st.k);
+    let n = 0, hit = null;
+    for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++) if (lt[y][x]) { n++; hit = { y, x }; }
+    const one = n === 1 && st.k === lay.length;
+    for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++) $(`c${y}_${x}`).setAttribute('class', lt[y][x] ? (one ? 'c on one' : 'c on') : 'c');
+    for (let i = 0; i < 26; i++) {
+      $('tx' + i).setAttribute('class', one && hit.x === i ? 'hi' : '');
+      $('ty' + i).setAttribute('class', one && hit.y === i ? 'hi' : '');
+    }
+    $('cross').innerHTML = one ? `<line class="cross" x1="${M}" y1="${M + hit.y * C + C / 2}" x2="${M + hit.x * C}" y2="${M + hit.y * C + C / 2}"/>`
+      + `<line class="cross" x1="${M + hit.x * C + C / 2}" y1="${M}" x2="${M + hit.x * C + C / 2}" y2="${M + hit.y * C}"/>` : '';
+    $('light').setAttribute('aria-label', T('gridLabel', order().join('-'), L(st.s)) + '. ' + (n ? T('lit', n) : ''));
+    const msg = $('litmsg');
+    msg.className = one ? 'litmsg good' : 'litmsg';
+    msg.textContent = one ? T('litOne') : n === 0 ? T('litNone') : T('lit', n) + (st.k < lay.length ? ' ' + T('putAll') : '');
+    // how the sheets lie: the work table of the pack plus the sheet each female needs in this trial
+    const W = F().work;
+    $('stack').innerHTML = `<tr>${[...W.cols, T('sheetCol')].map(c => `<th>${esc(c)}</th>`).join('')}</tr>` + lay.map((f, j) => {
+      const m = d.messages[f.msg], r = code(m.ground[2]);
+      const cells = [num(f.msg), m.ground.split('').join(' '), `${f.type + 1}/${f.type + 4}`, L(r + f.type), f.dl, L(f.row), L(f.col)];
+      return `<tr style="${j < st.k ? '' : 'opacity:.4'}">${cells.map(c => `<td>${esc(c)}</td>`).join('')}<td class="sh">${L(st.s + f.dl)}</td></tr>`;
+    }).join('');
+    const h = $('hintText');
+    h.textContent = st.hint === 1 ? T('hintOrder', d.order.join('-')) : st.hint >= 2 ? T('hintTrial', d.order.join('-'), L(d.answer.s)) : '';
+    $('hintBtn').hidden = st.hint >= 2 || st.lit;
+    if (one && !st.lit) { st.lit = true; save(); updateSections(false); $('s3').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  }
+  const stepS = k => { st.s = (st.s + k + 26) % 26; save(); renderTable(); };
+  $('orders').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (!b) return; st.order = +b.dataset.o; save(); renderTable(); $('orders').querySelector(`[data-o="${st.order}"]`).focus(); });
+  $('prevS').addEventListener('click', () => stepS(-1));
+  $('nextS').addEventListener('click', () => stepS(1));
+  $('fewer').addEventListener('click', () => { st.k = Math.max(1, st.k - 1); save(); renderTable(); });
+  $('more').addEventListener('click', () => { st.k = Math.min(lay.length, st.k + 1); save(); renderTable(); });
+  $('hintBtn').addEventListener('click', () => { st.hint++; save(); renderTable(); });
+  document.addEventListener('keydown', e => {
+    if ($('s2').hidden || e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stepS(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); stepS(1); }
+  });
+
+  /* ---------- 3. rings ---------- */
+  function renderRings() {
+    $('rl0').textContent = T('ringLeft', L(g0[0]), L(d.answer.s));
+    $('rl1').textContent = T('ringMid', L(g0[1]));
+    $('rl2').textContent = T('ringRight', L(g0[2] + f0.type));
+    [0, 1, 2].forEach(i => $('r' + i).setAttribute('aria-label', $('rl' + i).textContent));
+    $('abc').innerHTML = Array.from({ length: 26 }, (_, i) => `<span><b>${L(i)}</b>${i}</span>`).join('');
+    if (st.solved) { [0, 1, 2].forEach(i => { $('r' + i).value = d.rings[i]; $('r' + i).className = 'ok'; }); $('say3').className = 'say good'; $('say3').textContent = T('ringsOk', d.rings); }
+  }
+  [0, 1, 2].forEach(i => $('r' + i).addEventListener('input', e => {
+    const v = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(-1);
+    e.target.value = v; e.target.className = '';
+    if (v && i < 2) $('r' + (i + 1)).focus();
+  }));
+  $('rings').addEventListener('submit', () => {
+    let good = 0;
+    [0, 1, 2].forEach(i => { const ok = $('r' + i).value === d.rings[i]; $('r' + i).className = ok ? 'ok' : 'no'; good += ok; });
+    const say = $('say3');
+    if (good === 3) {
+      st.solved = true; save(); say.className = 'say good'; say.textContent = T('ringsOk', d.rings);
+      updateSections(false); $('s4').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else { say.className = 'say bad'; say.textContent = T('ringsNo'); }
+  });
+
+  /* ---------- 4. the daily key and a message deciphered with it ---------- */
+  function renderKey() {
+    const K = F().key, a = d.answer, r = d.rings;
+    $('keygrid').innerHTML = [
+      [K.order, d.order.join('-')], [K.trial, `s = ${L(a.s)}`], [K.light, K.cell(L(a.y), L(a.x))],
+      [K.rings, `${L(g0[0])} − ${L(a.s)} = ${r[0]} · ${L(g0[1])} − ${L(a.y)} = ${r[1]} · ${L(g0[2] + f0.type)} − ${L(a.x)} = ${r[2]} → ${r}`],
+      [K.plug, d.plug],
+    ].map(([k, v]) => `<span>${esc(k)}</span><b>${esc(v)}</b>`).join('');
+    const m = d.messages[st.msg];
+    $('msgLine').textContent = T('msgLine', num(st.msg), m.ground, m.ind);
+    if (!$('decOut').hidden) decipher();
+  }
+  function decipher() {
+    const m = d.messages[st.msg], out = ZYG.machine(d.order, d.rings, d.plug).encrypt(m.ground, m.ind);
+    $('decOut').textContent = F().key.check(num(st.msg), m.ground, m.ind, out.slice(0, 3));
+    $('decOut').hidden = false;
+  }
+  $('decBtn').addEventListener('click', decipher);
+  $('otherBtn').addEventListener('click', () => { st.msg = (st.msg + 1) % d.messages.length; save(); $('decOut').hidden = true; renderKey(); });
+
+  /* ---------- 0. how Enigma worked: a machine to type on ---------- */
+  const EH = ENIGMA_HOW, ET = () => ENIGMA_TEXT[I18N.get()] || ENIGMA_TEXT.en;
+  const OPEN = 'zygalskiFull.enigmaOpen';
+  let ew, eIn, eOut, eLast;   // the windows, what was typed, what lit, the last press { win, key, prev: the windows before it }
+  const resetEnigma = () => { ew = [...EH.EX.before].map(code); eIn = ''; eOut = ''; eLast = null; };
+  const five = s => (s.match(/.{1,5}/g) || []).join(' ');
+  function renderEnigma() {
+    const E = ET(), P = E.play;
+    $('emWin').innerHTML = `<b>${esc(P.windows)}</b>` + ew.map((w, i) => `<div class="rot"><small>${esc(E.diagram.rotors[i])}</small>`
+      + `<button type="button" data-r="${i}" data-d="-1" aria-label="${esc(P.down(P.rotorNames[i]))}">▲</button><span${eLast && eLast.prev[i] !== w ? ' class="moved"' : ''}>${L(w)}</span>`
+      + `<button type="button" data-r="${i}" data-d="1" aria-label="${esc(P.up(P.rotorNames[i]))}">▼</button></div>`).join('');
+    $('emSvg').innerHTML = eLast ? EH.diagram(eLast.win, eLast.key, E.diagram) : EH.diagram(ew, null, E.diagram);
+    $('emCap').textContent = eLast ? P.last(eLast.win.map(L).join(''), L(eLast.key), L(EH.machine.perm(eLast.win)[eLast.key]), EH.path(eLast.win, eLast.key)) : P.press;
+    $('emIn').textContent = five(eIn); $('emOut').textContent = five(eOut);
+  }
+  function renderHow() {
+    const E = ET(), P = E.play;
+    $('ehTitle').textContent = P.title;
+    $('ehIntro').textContent = E.intro;
+    $('ehLead').textContent = P.lead(EH.EX.order.join(' '), EH.EX.rings, EH.EX.plug);
+    $('emKeys').setAttribute('aria-label', P.keyboard);
+    $('emKeys').innerHTML = EH.KEYBOARD.map(row => `<div>${[...row].map(ch => `<button type="button" data-k="${ch}">${ch}</button>`).join('')}</div>`).join('');
+    $('emInL').textContent = P.typed; $('emOutL').textContent = P.lit; $('emClear').textContent = P.clear;
+    $('emIdea').textContent = P.idea(EH.EX.ground, EH.EX.key, EH.ind);
+    $('ehPartsT').textContent = P.partsTitle; $('ehProcT').textContent = P.procTitle;
+    $('ehParts').innerHTML = EH.partsHtml(E, esc, { intro: false, figure: false });
+    $('ehProc').innerHTML = EH.procHtml(E, esc);
+    renderEnigma();
+  }
+  function pressKey(ch) {
+    const prev = ew;
+    ew = EH.machine.step(ew);
+    const key = code(ch);
+    eLast = { win: [...ew], key, prev };
+    eIn += ch; eOut += L(EH.machine.perm(ew)[key]);
+    renderEnigma();
+  }
+  $('emKeys').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) pressKey(b.dataset.k); });
+  $('emWin').addEventListener('click', e => {
+    const b = e.target.closest('[data-r]'); if (!b) return;
+    const i = +b.dataset.r, d = +b.dataset.d;
+    ew[i] = (ew[i] + d + 26) % 26; eLast = null; renderEnigma();
+    $('emWin').querySelector(`[data-r="${i}"][data-d="${d}"]`).focus();
+  });
+  $('emClear').addEventListener('click', () => { resetEnigma(); renderEnigma(); });
+  // letters typed while the machine has the focus go to the machine
+  $('s0').addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || !/^[a-z]$/i.test(e.key) || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    e.preventDefault(); pressKey(e.key.toUpperCase());
+  });
+  $('s0').addEventListener('toggle', () => { try { localStorage.setItem(OPEN, $('s0').open ? '1' : '0'); } catch (_) { /* no storage */ } });
+  try { $('s0').open = localStorage.getItem(OPEN) !== '0'; } catch (_) { $('s0').open = true; }
+  resetEnigma();
+  // on a phone the drawing scrolls: start at the keys and lamps, the side where the current comes in
+  requestAnimationFrame(() => { const w = $('emSvg'); w.scrollLeft = w.scrollWidth; });
+
+  /* ---------- the page ---------- */
+  function updateSections(scroll) {
+    const s2 = $('s2').hidden;
+    $('s2').hidden = !allFound();
+    $('s3').hidden = !st.lit;
+    $('s4').hidden = !st.solved;
+    if (!$('s2').hidden) renderTable();
+    if (!$('s3').hidden) renderRings();
+    if (!$('s4').hidden) renderKey();
+    if (scroll && s2 && !$('s2').hidden) $('s2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function render() {
+    document.title = `${T('docTitle')} · ${st.seed}`;
+    I18N.apply(ZYGP_TEXT);
+    // messages said in the old language: keep only what still holds
+    $('say1').className = allFound() ? 'say good' : 'say'; $('say1').textContent = allFound() && $('say1').textContent ? T('femDone') : '';
+    if (!st.solved) { $('say3').className = 'say'; $('say3').textContent = ''; }
+    $('how').innerHTML = F().intro.steps.map(([h, p]) => `<div><b>${esc(h)}</b>${esc(p)}</div>`).join('');
+    renderHow();
+    renderTraffic();
+    updateSections(false);
+  }
+
+  $('seed').addEventListener('change', () => start($('seed').value));
+  $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); start($('seed').value); } });
+  $('newDay').addEventListener('click', () => start(KIT.randomSeed()));
+  I18N.onChange(() => { $('printLink').setAttribute('href', I18N.withLang(`worksheet.html?seed=${encodeURIComponent(st.seed)}`)); render(); });
+
+  buildGrid();
+  // the code: ?seed= > the last game > the last printed pack > a new one
+  const saved = load(STORE), sheet = load('zygalskiFull.sheet');
+  const q = new URLSearchParams(location.search).get('seed');
+  start(q || (saved && saved.seed) || (sheet && sheet.seed) || KIT.randomSeed(), saved);
+})();
+</script>
+</body>
+</html>
