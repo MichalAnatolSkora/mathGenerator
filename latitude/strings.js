@@ -840,6 +840,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'południk zerowy (Greenwich)' : h === '180' ? 'południk 180°' : `${a}° długości geograficznej ${h === 'E' ? 'wschodniej' : 'zachodniej'}`,
         sunName: 'słońce najwyżej', chronoName: 'czas w Greenwich',
         dur: (h, m) => [h ? `${h} godz.` : '', m ? `${m} min` : ''].filter(Boolean).join(' '),
+        noonLook: 'południe na statku', morseGame: 'Latarnik',
+        factMorse: g => `Ten sam telegram możesz nadać alfabetem Morse’a w grze ${g}.`,
       },
       game: {
         modeClock: '☀️ Słońce i zegar', modeSky: '⭐ Niebo i zegar',
@@ -902,6 +904,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'the prime meridian (Greenwich)' : h === '180' ? 'the 180° meridian' : `${a} degrees ${h === 'E' ? 'east' : 'west'}`,
         sunName: 'sun at its highest', chronoName: 'Greenwich time',
         dur: (h, m) => [h ? `${h} h` : '', m ? `${m} min` : ''].filter(Boolean).join(' '),
+        noonLook: 'noon on the ship', morseGame: 'Lighthouse Keeper',
+        factMorse: g => `You can send the same telegram in Morse code in the game ${g}.`,
       },
       game: {
         modeClock: '☀️ Sun and clock', modeSky: '⭐ Sky and clock',
@@ -962,6 +966,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'нульовий меридіан (Гринвіч)' : h === '180' ? 'меридіан 180°' : `${a}° ${h === 'E' ? 'східної' : 'західної'} довготи`,
         sunName: 'Сонце найвище', chronoName: 'час у Гринвічі',
         dur: (h, m) => [h ? `${h} год` : '', m ? `${m} хв` : ''].filter(Boolean).join(' '),
+        noonLook: 'полудень на кораблі', morseGame: 'Доглядач маяка',
+        factMorse: g => `Цю саму телеграму можна передати азбукою Морзе у грі «${g}».`,
       },
       game: {
         modeClock: '☀️ Сонце й годинник', modeSky: '⭐ Небо й годинник',
@@ -1022,6 +1028,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'kinh tuyến gốc (Greenwich)' : h === '180' ? 'kinh tuyến 180°' : `kinh độ ${a}° ${h === 'E' ? 'Đông' : 'Tây'}`,
         sunName: 'mặt trời cao nhất', chronoName: 'giờ Greenwich',
         dur: (h, m) => [h ? `${h} giờ` : '', m ? `${m} phút` : ''].filter(Boolean).join(' '),
+        noonLook: 'giữa trưa trên tàu', morseGame: 'Người gác hải đăng',
+        factMorse: g => `Bạn có thể gửi chính bức điện này bằng mã Morse trong trò chơi ${g}.`,
       },
       game: {
         modeClock: '☀️ Mặt trời và đồng hồ', modeSky: '⭐ Bầu trời và đồng hồ',
@@ -1082,6 +1090,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'le méridien de Greenwich' : h === '180' ? 'le méridien 180°' : `${a}° de longitude ${h === 'E' ? 'est' : 'ouest'}`,
         sunName: 'soleil au plus haut', chronoName: 'heure de Greenwich',
         dur: (h, m) => [h ? `${h} h` : '', m ? `${m} min` : ''].filter(Boolean).join(' '),
+        noonLook: 'midi sur le bateau', morseGame: 'Le gardien du phare',
+        factMorse: g => `Tu peux envoyer le même télégramme en morse dans le jeu ${g}.`,
       },
       game: {
         modeClock: '☀️ Soleil et horloge', modeSky: '⭐ Ciel et horloge',
@@ -1142,6 +1152,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'il meridiano di Greenwich' : h === '180' ? 'il meridiano 180°' : `${a}° di longitudine ${h === 'E' ? 'est' : 'ovest'}`,
         sunName: 'sole al punto più alto', chronoName: 'ora di Greenwich',
         dur: (h, m) => [h ? `${h} ${h === 1 ? 'ora' : 'ore'}` : '', m ? `${m} min` : ''].filter(Boolean).join(' e '),
+        noonLook: 'mezzogiorno sulla nave', morseGame: 'Il guardiano del faro',
+        factMorse: g => `Puoi inviare lo stesso telegramma in alfabeto Morse nel gioco ${g}.`,
       },
       game: {
         modeClock: '☀️ Sole e orologio', modeSky: '⭐ Cielo e orologio',
@@ -1202,6 +1214,8 @@ const LAT_TEXT = (() => {
         lonWords: (a, h) => h === '0' ? 'el meridiano de Greenwich' : h === '180' ? 'el meridiano 180°' : `${a}° de longitud ${h === 'E' ? 'este' : 'oeste'}`,
         sunName: 'sol en lo más alto', chronoName: 'hora de Greenwich',
         dur: (h, m) => [h ? `${h} h` : '', m ? `${m} min` : ''].filter(Boolean).join(' '),
+        noonLook: 'mediodía en el barco', morseGame: 'El farero',
+        factMorse: g => `Puedes enviar el mismo telegrama en código morse en el juego ${g}.`,
       },
       game: {
         modeClock: '☀️ Sol y reloj', modeSky: '⭐ Cielo y reloj',

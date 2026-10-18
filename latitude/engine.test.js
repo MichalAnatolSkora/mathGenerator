@@ -24,6 +24,7 @@ eq('normLon 190 → −170', L.normLon(190), -170);
 eq('normLon −180 → 180', L.normLon(-180), 180);
 eq('noon at 30°W is 14:00 in Greenwich', L.hhmm(L.noonAt(-30)), '14:00');
 eq('noon at 21°E is 10:36 in Greenwich', L.hhmm(L.noonAt(21)), '10:36');
+eq('noon at 110°E is 04:40 in Greenwich (two digits, not an afternoon)', L.hhmm(L.noonAt(110)), '04:40');
 eq('Titanic telegram longitude', L.fmtLon(-50), '50°W');
 
 // real places: rounded latitudes, the answer the game expects
@@ -129,7 +130,9 @@ for (const l of Object.keys(T)) {
     g.explainDiffLon({ a: 74, b: 58, ha: 'W', hb: 'W', d: 16, nA: c.cities.newYork, nB: c.cities.buenosAires, city: true }),
     g.explainClock({ abs: 30, f: '30°W', time: '14:00', dur: c.dur(2, 0), later: true }), g.explainClock({ abs: 0, f: '0°', time: '12:00', dur: '', later: false }),
     g.readQLonCity(c.cities.cairo), g.setQBothCity(c.cities.cairo), g.diffQLonCity(c.cities.cairo, c.cities.lima), c.lonWords(30, 'W'), c.dur(1, 24),
+    c.noonLook, c.morseGame, c.factMorse(c.morseGame),
   ];
+  ok(`${l} story names the Morse game`, c.factMorse(c.morseGame).includes(c.morseGame));
   ok(`${l} texts`, texts.every(s => typeof s === 'string' && s.length > 2 && !/undefined|NaN/.test(s)), texts.find(s => /undefined|NaN/.test(s)));
   eq(`${l} story has seven paragraphs (with the chronometer)`, g.fact.length, 7);
 }

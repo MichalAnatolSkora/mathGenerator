@@ -79,7 +79,7 @@ const LAT = (() => {
   /** Greenwich time (minutes after midnight) when the sun is highest at this longitude: the Earth turns 15° an hour,
    *  1° in 4 minutes; noon comes earlier in the east. */
   const noonAt = lon => 720 - lon * 4;
-  const hhmm = min => `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
+  const hhmm = min => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;   // "04:40", so the morning is not read as afternoon
 
   /** A latitude for the level. On "every 5°" the in-between values (5, 15, 25…) come more often, on
    *  "every 10°" the ones that are not on the 30° lines: they are the point of the level. The equator and

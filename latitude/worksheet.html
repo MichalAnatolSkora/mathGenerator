@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Szerokość geograficzna N i S — karta pracy</title>
-<meta name="description" content="Karta pracy A4 do druku: szerokość geograficzna N i S na mapie, na drabince, z gwiazd i w liczeniu stopni. Z rozwiązaniami i ciekawostką o Titanicu.">
+<title>Współrzędne geograficzne N S W E — karta pracy</title>
+<meta name="description" content="Karta pracy A4 do druku: szerokość (N/S) i długość (W/E) geograficzna na mapie świata — odczytaj, zaznacz, policz stopnie, znajdź pozycję statku z gwiazd oraz ze słońca i zegara. Z rozwiązaniami, stroną „Dlaczego to działa?” i ciekawostką o Titanicu.">
 <style>
   :root{
     --ink:#1b1b1f; --muted:#666; --line:#2a2a2e; --accent:#4f5bd5; --accent-d:#3d48b8;
@@ -166,7 +166,7 @@
 <body>
 <div class="appbar">
   <div class="grow">
-    <h1 data-i18n="appTitle">🌍 Szerokość geograficzna N i S — karta pracy</h1>
+    <h1 data-i18n="appTitle">🌍 Współrzędne geograficzne N S W E — karta pracy</h1>
     <p data-i18n="appSub"></p>
   </div>
   <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
@@ -425,7 +425,7 @@
       } else if (id === 'stars') {
         const c = C();
         const cells = d.stars.map((x, i) => {
-          if (x.k === 'lon') return `<div class="skycell">${LAT.noonSvg({ lon: x.v, print: true, answer: key ? fmtLon(x.v) : '', names: { chrono: c.chronoName, look: c.lookS } })}<span class="a"><b>${i + 1}</b> ${blank(fmtLon(x.v), `° ${we()}`)}</span></div>`;
+          if (x.k === 'lon') return `<div class="skycell">${LAT.noonSvg({ lon: x.v, print: true, answer: key ? fmtLon(x.v) : '', names: { chrono: c.chronoName, look: c.noonLook } })}<span class="a"><b>${i + 1}</b> ${blank(fmtLon(x.v), `° ${we()}`)}</span></div>`;
           const sky = LAT.skySvg({ lat: x.v, print: true, answer: key, names: x.v < 0 ? { look: c.lookS } : { look: c.lookN } });
           return `<div class="skycell">${sky}<span class="a"><b>${i + 1}</b> ${blank(fmt(x.v), `° ${ns()}`)}</span></div>`;
         }).join('');
@@ -467,7 +467,7 @@
     const sky = LAT.skySvg({ lat: 42, print: true, names: { star: c.starName, dipper: c.dipper, look: c.lookN } });
     const map = LAT.mapSvg({ lonC: -35, span: 90, top: 70, bottom: -10, k: 2.4, gutter: 46, fs: 12, grid: 10, meridians: 10, lonLabels: 20, print: true, id: 'fm',
       letters: { N: c.N, S: c.S, E: c.E, W: c.W, equator: c.equator }, pins: [{ lat: 41.77, lon: -50.23, text: 'Titanic', sub: `41°46′${c.N} 50°14′${c.W}` }] });
-    const paras = c.fact.map((p, i) => `<p>${esc(p)}</p>${i === 2 ? '<p class="tg">MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.</p>' : ''}`).join('');
+    const paras = c.fact.map((p, i) => `<p>${esc(p)}</p>${i === 2 ? `<p class="tg">MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.</p><p>${esc(c.factMorse(c.morseGame))}</p>` : ''}`).join('');
     const blankSky = LAT.skySvg({ lat: 42, print: true, blank: true, names: { look: c.lookN } });
     return `<div class="sheet fact">${headHTML(`🚢 ${c.factTitle}`, '', s.seed, false)}
       <div class="figs">${map}${sky}</div><figure class="sext"><img src="sextant-officer.jpg" alt="" width="320" height="310"><figcaption>${esc(c.sextant)}</figcaption></figure>${paras}

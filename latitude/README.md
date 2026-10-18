@@ -17,7 +17,8 @@ The folder is still called `latitude/` (it started as N/S only).
 
 - **Coordinates:** N / S (latitude) · W / E (longitude) · both (a point is written latitude first, then longitude: `40°N 30°W`).
 - **Levels:** every 30° · every 10° · every 5° (lines every 10°, dashed parallels at 5°) · world cities (35 real places,
-  rounded to a whole degree; marking accepts ±2°; the poles are left out of longitude tasks — a pole has no longitude).
+  rounded to a whole degree; marking accepts ±5°, since on a phone the map has about 2 px to a degree; the poles are
+  left out of longitude tasks — a pole has no longitude — and of the sky and noon tasks — no ship sails there).
 - 0° and 180° of longitude are written without a letter (180° east and west are the same line).
 
 ## Game
@@ -39,7 +40,7 @@ The folder is still called `latitude/` (it started as N/S only).
   turned by the longitude (longitude).
 - **🚢 Did you know?** — how the Titanic knew where it was: star sights at about 19:30 on 14 April 1912, dead reckoning
   through the night, a chronometer for the longitude, Boxhall's distress position 41°46′ N, 50°14′ W (the same telegram
-  as in the Morse game), the wreck found in 1985 about 24 km away; the sky as seen there (Pole Star ≈ 42°), the sextant drawing.
+  as in the Morse game, with a link to it), the wreck found in 1985 about 24 km away; the sky as seen there (Pole Star ≈ 42°), the sextant drawing.
 
 Stars, streak, mode, coordinates, level and the tropics option are saved in `localStorage` (`latitude.v1`).
 URL: `?mode=read|set|diff|star&axis=lat|lon|both&level=l30|l10|l5|city&story=1`.

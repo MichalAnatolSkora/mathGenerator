@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Szerokość geograficzna N i S — gra</title>
-<meta name="description" content="Gra dla dzieci: szerokość geograficzna N i S na mapie świata, liczenie stopni i odczytywanie pozycji z gwiazd.">
+<title>Współrzędne geograficzne N S W E — gra</title>
+<meta name="description" content="Gra dla dzieci: współrzędne geograficzne N S W E na mapie świata — odczytaj szerokość i długość, zaznacz punkt, policz stopnie, znajdź pozycję statku z gwiazd oraz ze słońca i zegara. Z ciekawostką o tym, skąd Titanic wiedział, gdzie jest.">
 <style>
   :root{
     --bg:#eef3fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1;
@@ -133,7 +133,7 @@
 
 <header class="top">
   <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
-  <h1 class="brand" data-i18n="brand">🌍 Szerokość geograficzna: N i S</h1>
+  <h1 class="brand" data-i18n="brand">🌍 Współrzędne geograficzne: N S W E</h1>
   <a class="navlink" href="worksheet.html" data-keep-lang data-i18n="printWorksheet">🖨️ Karta pracy</a>
   <nav class="langs" aria-label="Język"></nav>
   <div class="score" aria-live="polite">
@@ -310,13 +310,14 @@
       task.choices = LAT.shuffle(rnd, [task.answer, ...LAT.diffDistractors(a, b, lvl, rnd)]);
     } else {
       let lat = null, lon = null, c = null;
-      // a pole has no longitude; the noon clock stays away from the 180° line
-      const pool = task.ax === 'lat' ? LAT.CITIES : LAT.CITIES.filter(x => Math.abs(x.lat) < 90 && (m !== 'star' || Math.abs(x.lonR) <= 165));
+      // a pole has no longitude, and no ship sails there (the sky and the noon clock skip the poles); the noon clock stays away from the 180° line
+      const pool = LAT.CITIES.filter(x => (task.ax === 'lat' && m !== 'star') || Math.abs(x.lat) < 90)
+        .filter(x => m !== 'star' || task.ax === 'lat' || Math.abs(x.lonR) <= 165);
       for (let guard = 0; guard < 50; guard++) {
         if (city) { c = LAT.pick(rnd, pool); lat = c.lat; lon = c.lonR; }
         else {
           lat = task.ax === 'lon' ? visLat() : LAT.randomLat(rnd, lvl);
-          if (task.ax === 'both' && Math.abs(lat) === 90) continue;
+          if ((task.ax === 'both' || m === 'star') && Math.abs(lat) === 90) continue;
           lon = task.ax === 'lat' ? null : LAT.randomLon(rnd, lvl, m === 'star' ? 165 : 180);
         }
         const same = prev && (task.ax === 'lon' ? prev.lon === lon : prev.lat === lat);
@@ -389,7 +390,7 @@
     if (!show) return;
     const c = C();
     if (task.ax === 'lon') {
-      $('sky').innerHTML = LAT.noonSvg({ lon: task.lon, answer: state.answered ? fmtLon(task.lon) : '', names: { sun: c.sunName, chrono: c.chronoName, look: c.lookS } });
+      $('sky').innerHTML = LAT.noonSvg({ lon: task.lon, answer: state.answered ? fmtLon(task.lon) : '', names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } });
       return;
     }
     const lat = task.lat, south = lat < 0;
@@ -543,7 +544,7 @@
   }
 
   /* ---------- mark the latitude / longitude / point ---------- */
-  const tolerance = () => isCity() ? 2 : 0;
+  const tolerance = () => isCity() ? 5 : 0;   // real places: ±5°, because on a phone the map has about 2 px to a degree
   const lonGap = (a, b) => LAT.normLon(a - b);   // signed, the short way round
   function check() {
     const task = state.task;
@@ -622,7 +623,13 @@
     c.fact.forEach((p, i) => {
       const el = document.createElement('p'); el.textContent = p;
       $('storyBody').appendChild(el);
-      if (i === 2) { const tg = document.createElement('p'); tg.className = 'tg'; tg.textContent = 'MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.'; $('storyBody').appendChild(tg); }
+      if (i === 2) {
+        const tg = document.createElement('p'); tg.className = 'tg'; tg.textContent = 'MGY → MPA: COME AT ONCE. WE HAVE STRUCK A BERG. IT’S A CQD OM. POSITION 41.46 N 50.14 W.'; $('storyBody').appendChild(tg);
+        // the same telegram is tapped out in Morse in the Lighthouse Keeper game: the game's name becomes the link
+        const [before, after] = c.factMorse('\u0000').split('\u0000');
+        const a = document.createElement('a'); a.href = I18N.withLang('../morse/index.html'); a.textContent = c.morseGame;
+        const note = document.createElement('p'); note.append(before, a, after); $('storyBody').appendChild(note);
+      }
     });
   }
 
