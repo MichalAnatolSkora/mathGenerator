@@ -11,6 +11,7 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
 | [`engine.js`](engine.js) | Rounds (holes, shifts, the one common square), the SVG grids, the Enigma I simulation (rings, plugboard), the real sheets, one day of traffic and the solver |
 | [`strings.js`](strings.js) | Texts in seven languages |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js` |
+| [`henryk-zygalski.jpg`](henryk-zygalski.jpg) | Portrait of Henryk Zygalski, 1930s (public domain in Poland and the US; [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Henryk_Zygalski.jpg), first printed in *Nowy Dziennik*, 12 Dec 1994; photographer unknown) |
 
 ## Pages
 
@@ -63,7 +64,7 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    square (middle rotor, right rotor) is a hole when the 1st and 4th key presses from there can turn some
    letter into the same letter, so a doubled key could show a female. Like Zygalski's sheets, it takes the
    middle rotor not to turn during the six letters. The page says it is a reconstruction,
-   not a scan. Under it, a five-item timeline of what happened next (Dec 1938 → May 1940).
+   not a scan (no original sheets survive). Beside the texts, a portrait of Zygalski from the 1930s with its source. Under it, a five-item timeline of what happened next (Dec 1938 → May 1940).
 
 ## Rounds
 

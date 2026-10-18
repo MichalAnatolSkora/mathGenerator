@@ -71,6 +71,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Dziurek w ramce: ${holes} z 676 (około ${pct}%).`,
       note: "Rekonstrukcja: dziurki obliczyliśmy na nowo, symulując Enigmę I (wirniki I, II, III, bęben odwracający B, pierścienie w pozycji A). Oryginały wycinano ręcznie żyletką; ta strona pokazuje, jak wyglądały, ale nie jest skanem prawdziwej płachty. Inny kod karty da inną płachtę.",
       axisRight: "prawy wirnik →", axisMiddle: "środkowy wirnik →",
+      photo: "Henryk Zygalski, lata 30.", photoSrc: "Zdjęcie: domena publiczna (Wikimedia Commons)",
     },
     learn: {
       title: 'Jak płachty Zygalskiego pomogły złamać Enigmę',
@@ -178,6 +179,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Holes in the frame: ${holes} of 676 (about ${pct}%).`,
       note: "Reconstruction: we computed the holes again by simulating an Enigma I (rotors I, II, III, reflector B, rings at A). The originals were cut by hand with a razor blade; this page shows what they looked like, but it is not a scan of a real sheet. Another sheet code gives another sheet.",
       axisRight: "right rotor →", axisMiddle: "middle rotor →",
+      photo: "Henryk Zygalski in the 1930s", photoSrc: "Photo: public domain (Wikimedia Commons)",
     },
     learn: {
       title: 'How Zygalski sheets helped break Enigma',
@@ -285,6 +287,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Дірочок у рамці: ${holes} з 676 (приблизно ${pct}%).`,
       note: "Реконструкція: ми заново обчислили дірочки, змоделювавши Енігму I (ротори I, II, III, рефлектор B, кільця в положенні A). Оригінали вирізали вручну лезом; ця сторінка показує, який вигляд вони мали, але це не скан справжнього листа. Інший код аркуша дасть інший лист.",
       axisRight: "правий ротор →", axisMiddle: "середній ротор →",
+      photo: "Генрик Зигальський, 1930-ті роки", photoSrc: "Фото: суспільне надбання (Wikimedia Commons)",
     },
     learn: {
       title: 'Як листи Зигальського допомогли зламати Енігму',
@@ -392,6 +395,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Số lỗ trong khung: ${holes} trên 676 (khoảng ${pct}%).`,
       note: "Phục dựng: chúng tôi tính lại các lỗ bằng cách mô phỏng máy Enigma I (rôto I, II, III, bộ phản xạ B, vòng ở vị trí A). Bản gốc được khoét bằng tay với lưỡi dao cạo; trang này cho thấy chúng trông thế nào, nhưng không phải bản quét của một tấm thật. Mã phiếu khác sẽ cho một tấm khác.",
       axisRight: "rôto phải →", axisMiddle: "rôto giữa →",
+      photo: "Henryk Zygalski, thập niên 1930", photoSrc: "Ảnh: phạm vi công cộng (Wikimedia Commons)",
     },
     learn: {
       title: 'Tấm Zygalski đã giúp phá Enigma như thế nào',
@@ -499,6 +503,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Trous dans le cadre : ${holes} sur 676 (environ ${pct} %).`,
       note: "Reconstitution : nous avons recalculé les trous en simulant une Enigma I (rotors I, II, III, réflecteur B, anneaux sur A). Les originaux étaient découpés à la main avec une lame de rasoir ; cette page montre à quoi ils ressemblaient, mais ce n’est pas le scan d’une vraie feuille. Un autre code de fiche donne une autre feuille.",
       axisRight: "rotor de droite →", axisMiddle: "rotor du milieu →",
+      photo: "Henryk Zygalski dans les années 1930", photoSrc: "Photo : domaine public (Wikimedia Commons)",
     },
     learn: {
       title: 'Comment les feuilles de Zygalski ont aidé à casser Enigma',
@@ -606,6 +611,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Buchi nella cornice: ${holes} su 676 (circa ${pct}%).`,
       note: "Ricostruzione: abbiamo ricalcolato i buchi simulando una Enigma I (rotori I, II, III, riflettore B, anelli su A). Gli originali venivano ritagliati a mano con una lametta; questa pagina mostra com’erano, ma non è la scansione di un foglio vero. Un altro codice della scheda dà un altro foglio.",
       axisRight: "rotore destro →", axisMiddle: "rotore centrale →",
+      photo: "Henryk Zygalski negli anni Trenta", photoSrc: "Foto: pubblico dominio (Wikimedia Commons)",
     },
     learn: {
       title: 'Come i fogli di Zygalski aiutarono a violare Enigma',
@@ -713,6 +719,7 @@ const ZYG_TEXT = {
       count: (holes, pct) => `Agujeros en el marco: ${holes} de 676 (cerca del ${pct} %).`,
       note: "Reconstrucción: calculamos de nuevo los agujeros simulando una Enigma I (rotores I, II, III, reflector B, anillos en A). Los originales se recortaban a mano con una cuchilla; esta página muestra cómo eran, pero no es un escaneo de una hoja real. Otro código de ficha da otra hoja.",
       axisRight: "rotor derecho →", axisMiddle: "rotor central →",
+      photo: "Henryk Zygalski en los años treinta", photoSrc: "Foto: dominio público (Wikimedia Commons)",
     },
     learn: {
       title: 'Cómo las hojas de Zygalski ayudaron a descifrar Enigma',

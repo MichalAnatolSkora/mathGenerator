@@ -107,11 +107,15 @@
   .orig p{font-size:11.5px;line-height:1.42;margin:0 0 2mm;}
   .orig .realsheet{text-align:center;margin:1mm 0 2mm;}
   .orig .note{font-size:10px;color:#666;}
+  .orig .otop{display:grid;grid-template-columns:1fr 27mm;gap:0 5mm;align-items:start;}
+  .orig .portrait{margin:0;text-align:center;font-size:9.5px;line-height:1.25;color:#444;}
+  .orig .portrait img{display:block;width:27mm;height:auto;border:0.3mm solid #bbb;margin:0 0 1mm;}
+  .orig .portrait small{display:block;font-size:8px;color:#888;margin-top:0.5mm;}
   @media (max-width:600px){
     .arrow{display:none;}
     .step{grid-template-columns:7mm 1fr;} .step .pic,.step.ex .body{grid-column:2;}
     .excols,.timeline,.fems{grid-template-columns:1fr;}
-    .gloss{grid-template-columns:1fr 1fr;} .mwrap,.ewrap{overflow-x:auto;} .etab{min-width:560px;}
+    .gloss{grid-template-columns:1fr 1fr;} .orig .otop{grid-template-columns:1fr 22mm;gap:0 3mm;} .orig .portrait img{width:22mm;} .mwrap,.ewrap{overflow-x:auto;} .etab{min-width:560px;}
   }
 </style>
 </head>
@@ -322,17 +326,19 @@
     </div>` + examplePage(api, fem);
   }
 
-  /** One real sheet of 1938, recomputed (a rotor order and a left rotor position picked by the sheet code), and what happened next. */
+  /** One real sheet of 1938, recomputed (a rotor order and a left rotor position picked by the sheet code), a photo of Zygalski, and what happened next. */
   function origPage(api) {
     const { C, esc } = api, O = C.orig, rnd = api.rnd('orig');
     const order = KIT.shuffle(rnd, ['I', 'II', 'III']), left = String.fromCharCode(65 + Math.floor(rnd() * 26));
     const sheet = ZYG.realSheet(order, left), holes = sheet.flat().filter(Boolean).length;
     return `<div class="sheet orig">
       ${api.head(O.title, O.sub(order.join('-'), left), false)}
-      <p>${esc(O.intro)}</p>
-      <div class="realsheet">${ZYG.realSvg(sheet, { w: 160, right: O.axisRight, middle: O.axisMiddle })}</div>
-      <p>${esc(O.twice)} ${esc(O.count(holes, Math.round(100 * holes / 676)))}</p>
-      <p class="note">${esc(O.note)}</p>
+      <div class="otop"><div>
+        <p>${esc(O.intro)}</p>
+        <p>${esc(O.twice)} ${esc(O.count(holes, Math.round(100 * holes / 676)))}</p>
+        <p class="note">${esc(O.note)}</p>
+      </div><figure class="portrait"><img src="henryk-zygalski.jpg" width="451" height="570" alt="${esc(O.photo)}">${esc(O.photo)}<small>${esc(O.photoSrc)}</small></figure></div>
+      <div class="realsheet">${ZYG.realSvg(sheet, { w: 150, right: O.axisRight, middle: O.axisMiddle })}</div>
       <h3 class="tltitle">${esc(C.learn.timelineTitle)}</h3>
       <div class="timeline">${C.learn.timeline.map(([d, x]) => `<div><b>${esc(d)}</b>${esc(x)}</div>`).join('')}</div>
     </div>`;
