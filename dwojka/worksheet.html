@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teczka agenta Dwójki</title>
+<meta name="description" content="Gra na kartkę o polskim wywiadzie wojskowym 1921–1939: policz pociągi, znajdź kreta, namierz radiostację kątomierzem i sprawdź fałszywe dokumenty. Matematyka i logika, do druku, z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .dw{font-size:12px;line-height:1.42;color:#222;}
+  .dw p{margin:0 0 2mm;}
+  .dw h3{font-size:13px;margin:0 0 1mm;}
+  .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 3mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;font-size:11px;line-height:1.35;padding:1.6mm 3mm;}
+  .stamp{display:inline-block;border:0.6mm solid #b9382f;color:#b9382f;font:800 11px/1 system-ui,sans-serif;letter-spacing:.12em;padding:1.2mm 2.2mm;transform:rotate(-4deg);margin:0 0 1mm;}
+  .small{font-size:10.5px;color:#555;}
+  .q{margin:0 0 1.2mm;font-size:11.5px;line-height:1.3;}
+  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5.6mm;}
+  /* tables */
+  table.t{border-collapse:collapse;font-size:11.5px;margin:0 0 2.5mm;}
+  table.t th,table.t td{border:0.3mm solid #555;padding:1mm 2mm;text-align:center;}
+  table.t th{background:#f0f2f6;font-weight:700;}
+  table.t td.l,table.t th.l{text-align:left;}
+  table.t td.blank{min-width:14mm;height:6.5mm;}
+  table.t tr.sum td{font-weight:700;background:#fafafa;}
+  /* mission 1 */
+  .train{display:grid;grid-template-columns:26mm 1fr;align-items:center;gap:2mm;margin:0 0 1.2mm;}
+  .train .d{font-weight:700;font-size:11.5px;}
+  .legend{display:flex;flex-wrap:wrap;gap:1mm 6mm;align-items:center;font-size:11px;margin:0 0 2mm;}
+  .legend div{display:flex;align-items:center;gap:1.5mm;}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
+  /* mission 2 */
+  .msg{font:700 13px/1.4 Georgia,serif;border:0.3mm solid #333;background:#fff;padding:2mm 3mm;margin:0 0 2.5mm;}
+  .msg u{text-decoration:none;border-bottom:0.5mm solid #1f4fbf;color:#1f4fbf;}
+  .cable{font:11.5px/1.45 "Courier New",Courier,monospace;border:0.4mm solid #7a6a4f;background:#fbf7ec;padding:2mm 3mm;margin:0 0 2.5mm;}
+  .cable b{font-weight:700;}
+  table.sus td.v{font-size:10.5px;}
+  table.sus td.code{font:700 13px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;}
+  .codes{columns:2;column-gap:6mm;font-size:11px;line-height:1.4;}
+  .codes div{break-inside:avoid;}
+  .codes b{font:700 12px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;margin-right:2mm;}
+  /* mission 3 */
+  .map svg{display:block;width:100%;height:auto;}
+  .m3{display:grid;grid-template-columns:150mm 1fr;gap:4mm;align-items:start;}
+  .bear{font-size:12px;}
+  .bear div{border:0.3mm solid #1f4fbf;border-radius:1.5mm;padding:1.5mm 2mm;margin:0 0 2mm;background:#f3f6ff;}
+  .bear b{display:block;color:#1f4fbf;}
+  .bear .deg{font:800 18px/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  /* mission 4 */
+  .docs{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin:0 0 3mm;}
+  .doc{border:0.3mm solid #8a8070;background:#fdfbf3;padding:2mm 3mm;font-size:11.5px;line-height:1.45;box-shadow:0.6mm 0.6mm 0 #ddd;break-inside:avoid;}
+  .doc .t{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.08em;color:#5a4b30;border-bottom:0.3mm solid #c9bfa8;padding-bottom:0.8mm;margin-bottom:1.2mm;}
+  .doc .f{display:flex;justify-content:space-between;gap:3mm;}
+  .doc .f span:first-child{color:#666;}
+  .doc .f span:last-child{font-weight:700;}
+  .doc.letter{font-family:Georgia,serif;font-style:italic;}
+  .doc.letter .t{font-style:normal;}
+  .doc.tt table{width:100%;border-collapse:collapse;font-size:11px;}
+  .doc.tt td{padding:0.6mm 1mm;border-bottom:0.2mm dotted #bbb;}
+  /* how page */
+  .how .sec{break-inside:avoid;margin:0 0 2.4mm;}
+  .cols{columns:2;column-gap:5mm;}
+  .ans ol{margin:0 0 2mm;padding-left:5mm;}
+  .ans li{margin:0 0 1mm;}
+  .ans .map{width:90mm;}
+  @media (max-width:600px){ .duo,.docs,.m3{grid-template-columns:1fr;} .cols,.codes{columns:1;} .train{grid-template-columns:1fr;} }
+  @media print{ .dw{font-size:11.5px;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🕵️ Teczka agenta Dwójki</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const STARS = { easy: '★', mid: '★★', hard: '★★★' };
+  const lines = n => '<span class="ln"></span>'.repeat(n);
+  const q = (i, text, n = 1) => `<div class="q">${i}. ${KIT.esc(text)}${lines(n)}</div>`;
+
+  KIT.app({
+    store: 'dwojka.sheet',
+    text: DW2_TEXT,
+    groups: [{ id: 'level', values: ['easy', 'mid', 'hard'], def: 'easy', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'how', def: true, label: 'optHow' }],
+    render(s, api) {
+      const { C, esc } = api, lv = s.level, star = STARS[lv];
+      const pages = [], mhead = (m, T) => api.head(`${C.m[m]} · ${T.title}`, `${T.sub} · ${star}`, true);
+      const blank = n => '<td class="blank"></td>'.repeat(n);
+
+      // 0. how the Dwójka worked
+      if (s.how) {
+        const H = C.how;
+        pages.push(`<div class="sheet dw how">
+          ${api.head(H.title, H.sub, false)}
+          <div class="stamp">${esc(C.secret)}</div>
+          <p>${esc(H.intro)}</p>
+          <div class="cols">${H.sections.map(([h, p]) => `<div class="sec"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div>
+          <div class="box"><h3>${esc(H.simplT)}</h3><p style="margin:0">${esc(H.simpl)}</p></div>
+          <h3>${esc(H.levelsT)}</h3>
+          <p class="small" style="margin:0">${H.levels.map(esc).join('<br>')}</p>
+        </div>`);
+      }
+
+      /* ---- mission 1: trains ---- */
+      const R = DW2.rail(api.rnd('rail'), lv), M1 = C.m1, stName = id => M1.stations[id];
+      const legend = `<div class="legend">${['p', 'h', 'g'].map(k => `<div>${DW2.wagonSvg(k)}<span>${esc(M1.legend[k])}</span></div>`).join('')}</div>`;
+      let m1;
+      if (lv === 'easy') {
+        const st = R.stations[0];
+        m1 = `<p>${esc(M1.intro)}</p>${legend}
+          <h3>${esc(stName(st.id))}</h3>
+          ${st.days.map((d, i) => `<div class="train"><span class="d">${esc(M1.days[i])}</span>${DW2.trainSvg(d, api.rnd('tr' + i))}</div>`).join('')}
+          <p style="margin-top:2mm">${esc(M1.count)}</p>
+          <div class="duo"><table class="t"><tr><th class="l">${esc(M1.th.day)}</th><th>${esc(M1.th.p)}</th><th>${esc(M1.th.h)}</th><th>${esc(M1.th.g)}</th><th>${esc(M1.th.all)}</th></tr>
+            ${st.days.map((d, i) => `<tr><td class="l">${esc(M1.days[i])}</td>${blank(4)}</tr>`).join('')}
+            <tr class="sum"><td class="l">${esc(M1.total)}</td>${blank(4)}</tr></table>
+          <div>${M1.qEasy.map((t, i) => q(i + 1, t, 1)).join('')}</div></div>`;
+      } else {
+        const QS = lv === 'mid' ? M1.qMid : M1.qHard(R.normal);
+        m1 = `<p>${esc(M1.intro)} ${esc(M1.introMid)}</p>${legend}
+          <div class="duo">${R.stations.map(st => `<table class="t" style="width:100%"><tr><th class="l" colspan="5">${esc(stName(st.id))}</th></tr>
+            <tr><th class="l">${esc(M1.th.day)}</th><th>${esc(M1.th.p)}</th><th>${esc(M1.th.h)}</th><th>${esc(M1.th.g)}</th><th>${esc(M1.th.all)}</th></tr>
+            ${st.days.map((d, i) => `<tr><td class="l">${esc(M1.days[i])}</td><td>${d.p}</td><td>${d.h}</td><td>${d.g}</td><td class="blank"></td></tr>`).join('')}
+            <tr class="sum"><td class="l">${esc(M1.total)}</td>${blank(4)}</tr></table>`).join('')}</div>
+          <table class="t"><tr><th class="l">${esc(M1.th.st)}</th><th>${esc(M1.th.soldiers)} (× ${DW2.RATES.p})</th><th>${esc(M1.th.horses)} (× ${DW2.RATES.h})</th><th>${esc(M1.th.guns)}</th></tr>
+            ${R.stations.map(st => `<tr><td class="l">${esc(stName(st.id))}</td>${blank(3)}</tr>`).join('')}</table>
+          ${QS.map((t, i) => q(i + 1, t, i === 0 ? 0 : (lv === 'hard' && i === 4 ? 2 : 1))).join('')}`;
+      }
+      pages.push(`<div class="sheet dw">${mhead('m1', M1)}${m1}</div>`);
+
+      /* ---- mission 2: the mole ---- */
+      const Mo = DW2.mole(api.rnd('mole'), lv), M2 = C.m2;
+      const ver = (det, bit) => M2.details[det.id].pairs[det.pair][bit];
+      const fill = bits => { const v = { ...M2.defaults }; Mo.details.forEach((d, j) => { v[d.id] = ver(d, bits[j]); }); return v; };
+      const planted = (() => { const v = { ...M2.defaults }; Mo.details.forEach(d => { v[d.id] = `<u>${esc(ver(d, 0))} / ${esc(ver(d, 1))}</u>`; }); return M2.msg(v); })();
+      const nameOf = i => M2.names[Mo.suspects[i]];
+      let table;
+      if (lv === 'hard') {
+        table = `<h3>${esc(M2.hardList)} <small class="small">(${esc(M2.versions)}: 0 / 1)</small></h3>
+          <table class="t sus"><tr><th>${esc(M2.codeT)}</th>${Mo.details.map(d => `<th>${esc(M2.details[d.id].label)}</th>`).join('')}</tr>
+            <tr><td></td>${Mo.details.map(d => `<td class="v">0 = ${esc(ver(d, 0))}<br>1 = ${esc(ver(d, 1))}</td>`).join('')}</tr></table>
+          <div class="codes">${Array.from({ length: Mo.n }, (_, i) => `<div><b>${Mo.code(i)}</b>${esc(nameOf(i))}</div>`).join('')}</div>`;
+      } else {
+        table = `<h3>${esc(M2.tableT)}</h3><table class="t sus" style="width:100%"><tr><th class="l">${esc(M2.who)}</th>${Mo.details.map(d => `<th>${esc(M2.details[d.id].label)}</th>`).join('')}</tr>
+          ${Array.from({ length: Mo.n }, (_, i) => `<tr><td class="l">${esc(nameOf(i))}</td>${Mo.bits(i).map((b, j) => `<td class="v">${esc(ver(Mo.details[j], b))}</td>`).join('')}</tr>`).join('')}</table>`;
+      }
+      pages.push(`<div class="sheet dw">${mhead('m2', M2)}
+        <p>${esc(M2.intro)} ${lv === 'hard' ? esc(M2.introHard) : ''}</p>
+        <p class="small" style="margin-bottom:1mm">${esc(M2.msgT)}</p>
+        <div class="msg">${planted}</div>
+        ${table}
+        <p class="small" style="margin:2mm 0 1mm">${esc(M2.interceptT)}</p>
+        <div class="cable">${esc(M2.intercept(M2.msg(fill(Mo.moleBits))))}</div>
+        ${q(1, M2.q[0], 1)}${q(2, M2.q[1], 1)}${lv === 'hard' ? q(3, M2.qHard, 1) : ''}
+      </div>`);
+
+      /* ---- mission 3: direction finding ---- */
+      const D = DW2.df(api.rnd('df'), lv), M3 = C.m3;
+      const how = { easy: M3.howEasy, mid: M3.howMid, hard: M3.howMid + ' ' + M3.howHard }[lv];
+      const bearings = D.stations.map(st => `<div><b>${esc(M3.places[st.id])}</b>${lv === 'easy'
+        ? `<span class="deg">${st.compass}</span><br>${esc(M3.cells(st.cells))}`
+        : `<span class="deg">${st.deg}°</span>`}</div>`).join('');
+      pages.push(`<div class="sheet dw">${mhead('m3', M3)}
+        <p>${esc(M3.intro)}</p>
+        <div class="box tip">${esc(how)}</div>
+        <div class="m3">
+          <div class="map">${DW2.mapSvg({ L: M3, stations: D.stations })}</div>
+          <div class="bear"><h3>${esc(M3.stationT)}</h3>${bearings}
+            <p style="margin-top:4mm"><b>${esc(M3.answer)}</b></p><span class="q"><span class="ln" style="display:block;height:9mm"></span></span></div>
+        </div>
+        <p class="small" style="margin-top:2mm">${esc(M3.mapCap)}</p>
+      </div>`);
+
+      /* ---- mission 4: the cover story ---- */
+      const Lg = DW2.legend(api.rnd('legend'), lv), M4 = C.m4, date = d => M4.date(d, M4.months);
+      const [agent, gender] = M4.names[Lg.name], [from, to] = Lg.route.map(id => M4.cities[id]);
+      const f = (k, v) => `<div class="f"><span>${esc(k)}</span><span>${esc(v)}</span></div>`;
+      const intro4 = { easy: M4.introEasy, mid: M4.introMid, hard: M4.introHard }[lv];
+      pages.push(`<div class="sheet dw">${mhead('m4', M4)}
+        <p>${esc(M4.intro)} <b>${esc(intro4)}</b></p>
+        <div class="docs">
+          <div class="doc"><div class="t">🪪 ${esc(M4.passport.t)}</div>${f(M4.passport.name, agent)}${f(M4.passport.born, date(Lg.birth))}${f(M4.passport.issued, date(Lg.issued))}<div class="small">${esc(M4.passport.valid)}</div></div>
+          <div class="doc"><div class="t">🎫 ${esc(M4.ticket.t)}</div>${f(M4.ticket.route, `${from} → ${to}`)}${f(M4.ticket.date, date(Lg.trip))}${f(M4.ticket.train, Lg.trains[Lg.ticket].dep)}</div>
+          <div class="doc tt"><div class="t">🕰️ ${esc(M4.timetable.t)} ${esc(from)} → ${esc(to)}</div>
+            <table>${Lg.trains.map(t => `<tr><td>${esc(M4.timetable.dep)} <b>${t.dep}</b></td><td>${esc(M4.timetable.arr)} <b>${t.arr}</b> ${t.next ? esc(M4.timetable.next) : ''}</td></tr>`).join('')}</table></div>
+          <div class="doc"><div class="t">🏨 ${esc(M4.hotel.t)}</div>${f(M4.hotel.name, agent)}${f(M4.hotel.age, Lg.docs.hotelAge)}${f(M4.hotel.arrived, date(Lg.docs.hotelDate))}${f(M4.hotel.hour, Lg.docs.hotelArr)}</div>
+          <div class="doc letter"><div class="t">✉️ ${esc(M4.letter.t)}</div><div class="small" style="text-align:right">${esc(to)}, ${esc(M4.letter.dated)} ${esc(date(Lg.docs.letterDate))}</div><p style="margin:1mm 0 0">${esc(M4.letter.text(gender, to))}</p></div>
+        </div>
+        ${lv === 'hard' ? M4.qHard.map((t, i) => q(i + 1, t, 2)).join('') : M4.q.map((t, i) => q(i + 1, t, 2)).join('')}
+      </div>`);
+
+      /* ---- answers ---- */
+      if (s.key) {
+        const A = C.answers, spikeSt = R.stations[R.spike.st];
+        const a1 = lv === 'easy'
+          ? A.m1.easy(M1.days[spikeSt.wagons.indexOf(Math.max(...spikeSt.wagons))], spikeSt.soldiers, spikeSt.horses)
+          : [A.m1.totals + ' ' + R.stations.map(st => A.m1.line(stName(st.id), st.soldiers, st.horses, st.guns)).join('; ') + '.',
+            ...(lv === 'hard' ? [R.stations.map(st => A.m1.more(stName(st.id), st.soldiers - R.normal)).join('; ') + '.'] : []),
+            A.m1.spike(stName(spikeSt.id), M1.days[R.spike.day], R.peakSoldiers),
+            ...(lv === 'hard' ? [A.m1.days(R.daysToMove, R.peakSoldiers), A.m1.alarm(stName(spikeSt.id))] : [])];
+        const a2 = [A.m2.mole(nameOf(Mo.moleAt), lv === 'hard' ? Mo.code(Mo.moleAt) : ''), A.m2.more(Mo.n * 2), ...(lv === 'hard' ? [A.m2.decimal(Mo.code(Mo.moleAt), Mo.moleAt)] : [])];
+        const tr = Lg.trains[Lg.ticket];
+        const a4 = Lg.errs.map(e => e === 'age' ? A.m4.age(Lg.docs.hotelAge, Lg.truth.age) : e === 'hour' ? A.m4.hour(Lg.docs.hotelArr, tr.arr) : A.m4[e]);
+        if (Lg.herring) a4.push(A.m4.herring[Lg.herring]);
+        pages.push(`<div class="sheet dw ans">
+          ${api.head(api.t('keyTitle'), `${C.title} · ${star}`, false)}
+          <h3>${esc(C.m.m1)} · ${esc(M1.title)}</h3><ol>${a1.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+          <h3>${esc(C.m.m2)} · ${esc(M2.title)}</h3><ol>${a2.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+          <h3>${esc(C.m.m3)} · ${esc(M3.title)}</h3>
+          <div class="duo"><div class="map">${DW2.mapSvg({ L: M3, stations: D.stations, solved: true, target: D.target })}</div>
+            <p>${esc(A.m3.cell(D.name))} ${lv === 'hard' ? esc(A.m3.triangle) : ''}</p></div>
+          <h3>${esc(C.m.m4)} · ${esc(M4.title)}</h3><ol>${a4.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+        </div>`);
+      }
+      return { html: pages.join(''), tasks: 4, pages: pages.length };
+    },
+  });
+})();
+</script>
+</body>
+</html>
