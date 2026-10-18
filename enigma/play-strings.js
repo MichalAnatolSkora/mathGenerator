@@ -16,8 +16,8 @@
 
   // ============================== Polski ==============================
   add('pl', {
-    docTitle: 'Akademia Młodych Szyfrantów: gra',
-    brand: '🔐 Akademia Młodych Szyfrantów',
+    docTitle: 'Papierowa Enigma: gra',
+    brand: '🔐 Papierowa Enigma',
     allPuzzles: '🧩 Wszystkie zagadki',
     printSheets: '🖨️ Karty do druku',
     starsTitle: 'Zdobyte gwiazdki',
@@ -36,7 +36,7 @@
     cellLabel: (i, n, ch) => `Okienko ${i} z ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Gwiazdki: ${s} · Zaliczone misje: ${m} z ${t}`,
     reset: 'Wyczyść postępy',
-    resetConfirm: 'Na pewno zacząć Akademię od nowa?',
+    resetConfirm: 'Na pewno zacząć wszystkie misje od nowa?',
     check: '✔ Sprawdź',
     answerLabel: 'Odpowiedź',
     // wheels
@@ -130,7 +130,7 @@
     quizRight: 'Dobrze!',
     quizWrong: 'Jeszcze nie. Pomyśl i spróbuj znowu.',
     quizLeft: n => `Dobre odpowiedzi: ${n} z 5`,
-    certText: 'Biuro Szyfrów potwierdza: agent wie, jak działała Enigma, umie szyfrować i łamać szyfry.',
+    certText: 'Biuro Szyfrów potwierdza: agent wie, jak działała Enigma, umie szyfrować i łamać szyfry. Szkolenie za Tobą, czas na prawdziwe akcje: część 3, Tajne depesze 1920.',
     certStamp: 'ZALICZONE',
     starsSum: n => `Zdobyte gwiazdki: ${n}`,
     missing: list => `Wróć jeszcze do misji: ${list}.`,
@@ -139,8 +139,8 @@
 
   // ============================== English ==============================
   add('en', {
-    docTitle: 'Young Codebreakers Academy: game',
-    brand: '🔐 Young Codebreakers Academy',
+    docTitle: 'The Paper Enigma: game',
+    brand: '🔐 The Paper Enigma',
     allPuzzles: '🧩 All puzzles',
     printSheets: '🖨️ Printable sheets',
     starsTitle: 'Stars earned',
@@ -159,7 +159,7 @@
     cellLabel: (i, n, ch) => `Box ${i} of ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Stars: ${s} · Missions done: ${m} of ${t}`,
     reset: 'Reset progress',
-    resetConfirm: 'Do you really want to start the Academy again?',
+    resetConfirm: 'Do you really want to start all the missions again?',
     check: '✔ Check',
     answerLabel: 'Answer',
     wheelLabel: 'Code wheel',
@@ -244,7 +244,7 @@
     quizRight: 'Right!',
     quizWrong: 'Not yet. Think again and have another go.',
     quizLeft: n => `Right answers: ${n} of 5`,
-    certText: 'The Cipher Bureau confirms: this agent knows how the Enigma worked and can make and break codes.',
+    certText: 'The Cipher Bureau confirms: this agent knows how the Enigma worked and can make and break codes. Training done, now for the real operations: part 3, Secret telegrams 1920.',
     certStamp: 'PASSED',
     starsSum: n => `Stars earned: ${n}`,
     missing: list => `Go back to mission: ${list}.`,
@@ -253,8 +253,8 @@
 
   // ============================== Українська ==============================
   add('uk', {
-    docTitle: 'Академія юних шифрувальників: гра',
-    brand: '🔐 Академія юних шифрувальників',
+    docTitle: 'Паперова Енігма: гра',
+    brand: '🔐 Паперова Енігма',
     allPuzzles: '🧩 Усі головоломки',
     printSheets: '🖨️ Аркуші для друку',
     starsTitle: 'Зароблені зірочки',
@@ -273,7 +273,7 @@
     cellLabel: (i, n, ch) => `Віконце ${i} з ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Зірочки: ${s} · Виконані місії: ${m} з ${t}`,
     reset: 'Скинути поступ',
-    resetConfirm: 'Точно почати Академію спочатку?',
+    resetConfirm: 'Точно почати всі місії спочатку?',
     check: '✔ Перевірити',
     answerLabel: 'Відповідь',
     wheelLabel: 'Коло шифру',
@@ -358,7 +358,7 @@
     quizRight: 'Правильно!',
     quizWrong: 'Ще ні. Подумай і спробуй знову.',
     quizLeft: n => `Правильних відповідей: ${n} з 5`,
-    certText: 'Бюро шифрів підтверджує: агент знає, як працювала Енігма, і вміє шифрувати й зламувати шифри.',
+    certText: 'Бюро шифрів підтверджує: агент знає, як працювала Енігма, і вміє шифрувати й зламувати шифри. Навчання позаду, час для справжніх операцій: частина 3, «Таємні телеграми 1920».',
     certStamp: 'ЗАРАХОВАНО',
     starsSum: n => `Зароблені зірочки: ${n}`,
     missing: list => `Повернися ще до місії: ${list}.`,
@@ -367,8 +367,8 @@
 
   // ============================== Tiếng Việt ==============================
   add('vi', {
-    docTitle: 'Học viện Mật mã nhí: trò chơi',
-    brand: '🔐 Học viện Mật mã nhí',
+    docTitle: 'Enigma bằng giấy: trò chơi',
+    brand: '🔐 Enigma bằng giấy',
     allPuzzles: '🧩 Tất cả câu đố',
     printSheets: '🖨️ Phiếu để in',
     starsTitle: 'Số sao đã có',
@@ -387,7 +387,7 @@
     cellLabel: (i, n, ch) => `Ô ${i} trên ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Sao: ${s} · Nhiệm vụ đã xong: ${m} trên ${t}`,
     reset: 'Xóa tiến độ',
-    resetConfirm: 'Bạn có chắc muốn bắt đầu lại Học viện không?',
+    resetConfirm: 'Bạn có chắc muốn bắt đầu lại tất cả nhiệm vụ không?',
     check: '✔ Kiểm tra',
     answerLabel: 'Câu trả lời',
     wheelLabel: 'Vòng mật mã',
@@ -472,7 +472,7 @@
     quizRight: 'Đúng rồi!',
     quizWrong: 'Chưa đúng. Suy nghĩ thêm và thử lại nhé.',
     quizLeft: n => `Câu trả lời đúng: ${n} trên 5`,
-    certText: 'Cục Mật mã xác nhận: điệp viên này biết máy Enigma hoạt động thế nào, biết mã hóa và phá mã.',
+    certText: 'Cục Mật mã xác nhận: điệp viên này biết máy Enigma hoạt động thế nào, biết mã hóa và phá mã. Khóa huấn luyện đã xong, giờ là những chiến dịch thật: phần 3, Điện mật 1920.',
     certStamp: 'ĐẠT',
     starsSum: n => `Số sao đã có: ${n}`,
     missing: list => `Hãy quay lại nhiệm vụ: ${list}.`,
@@ -481,8 +481,8 @@
 
   // ============================== Français ==============================
   add('fr', {
-    docTitle: 'L’Académie des jeunes décodeurs : jeu',
-    brand: '🔐 L’Académie des jeunes décodeurs',
+    docTitle: 'L’Enigma en papier : jeu',
+    brand: '🔐 L’Enigma en papier',
     allPuzzles: '🧩 Toutes les énigmes',
     printSheets: '🖨️ Fiches à imprimer',
     starsTitle: 'Étoiles gagnées',
@@ -501,7 +501,7 @@
     cellLabel: (i, n, ch) => `Case ${i} sur ${n}${ch ? ` : ${ch}` : ''}`,
     statsLine: (s, m, t) => `Étoiles : ${s} · Missions réussies : ${m} sur ${t}`,
     reset: 'Effacer la progression',
-    resetConfirm: 'Tu veux vraiment recommencer l’Académie ?',
+    resetConfirm: 'Tu veux vraiment recommencer toutes les missions ?',
     check: '✔ Vérifier',
     answerLabel: 'Réponse',
     wheelLabel: 'Roue du code',
@@ -586,7 +586,7 @@
     quizRight: 'Exact !',
     quizWrong: 'Pas encore. Réfléchis et essaie encore.',
     quizLeft: n => `Bonnes réponses : ${n} sur 5`,
-    certText: 'Le Bureau du Chiffre confirme : cet agent sait comment fonctionnait l’Enigma et sait coder et casser des codes.',
+    certText: 'Le Bureau du Chiffre confirme : cet agent sait comment fonctionnait l’Enigma et sait coder et casser des codes. L’entraînement est fini, place aux vraies opérations : partie 3, Télégrammes secrets 1920.',
     certStamp: 'RÉUSSI',
     starsSum: n => `Étoiles gagnées : ${n}`,
     missing: list => `Retourne encore à la mission : ${list}.`,
@@ -595,8 +595,8 @@
 
   // ============================== Italiano ==============================
   add('it', {
-    docTitle: 'Accademia dei giovani crittografi: gioco',
-    brand: '🔐 Accademia dei giovani crittografi',
+    docTitle: 'L’Enigma di carta: gioco',
+    brand: '🔐 L’Enigma di carta',
     allPuzzles: '🧩 Tutti i rompicapi',
     printSheets: '🖨️ Schede da stampare',
     starsTitle: 'Stelle guadagnate',
@@ -615,7 +615,7 @@
     cellLabel: (i, n, ch) => `Casella ${i} di ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Stelle: ${s} · Missioni superate: ${m} su ${t}`,
     reset: 'Cancella i progressi',
-    resetConfirm: 'Vuoi davvero ricominciare l’Accademia da capo?',
+    resetConfirm: 'Vuoi davvero ricominciare tutte le missioni da capo?',
     check: '✔ Controlla',
     answerLabel: 'Risposta',
     wheelLabel: 'Ruota del codice',
@@ -700,7 +700,7 @@
     quizRight: 'Giusto!',
     quizWrong: 'Non ancora. Pensaci e riprova.',
     quizLeft: n => `Risposte giuste: ${n} su 5`,
-    certText: 'L’Ufficio Cifra conferma: questo agente sa come funzionava l’Enigma e sa creare e violare i codici.',
+    certText: 'L’Ufficio Cifra conferma: questo agente sa come funzionava l’Enigma e sa creare e violare i codici. L’addestramento è finito, ora le vere operazioni: parte 3, Telegrammi segreti 1920.',
     certStamp: 'SUPERATO',
     starsSum: n => `Stelle guadagnate: ${n}`,
     missing: list => `Missioni ancora da superare: ${list}.`,
@@ -711,8 +711,8 @@
   /** Spanish "and": y, but e before the letter I ("O e I"). */
   const yEs = xs => (xs[xs.length - 1] === 'I' ? 'e' : 'y');
   add('es', {
-    docTitle: 'Academia de jóvenes criptógrafos: juego',
-    brand: '🔐 Academia de jóvenes criptógrafos',
+    docTitle: 'La Enigma de papel: juego',
+    brand: '🔐 La Enigma de papel',
     allPuzzles: '🧩 Todos los acertijos',
     printSheets: '🖨️ Fichas para imprimir',
     starsTitle: 'Estrellas ganadas',
@@ -731,7 +731,7 @@
     cellLabel: (i, n, ch) => `Casilla ${i} de ${n}${ch ? `: ${ch}` : ''}`,
     statsLine: (s, m, t) => `Estrellas: ${s} · Misiones superadas: ${m} de ${t}`,
     reset: 'Borrar el progreso',
-    resetConfirm: '¿Seguro que quieres empezar la Academia de nuevo?',
+    resetConfirm: '¿Seguro que quieres empezar todas las misiones de nuevo?',
     check: '✔ Comprobar',
     answerLabel: 'Respuesta',
     wheelLabel: 'Rueda del código',
@@ -816,7 +816,7 @@
     quizRight: '¡Correcto!',
     quizWrong: 'Todavía no. Piénsalo y vuelve a intentarlo.',
     quizLeft: n => `Respuestas correctas: ${n} de 5`,
-    certText: 'La Oficina de Cifrado confirma: este agente sabe cómo funcionaba la Enigma y sabe crear y romper códigos.',
+    certText: 'La Oficina de Cifrado confirma: este agente sabe cómo funcionaba la Enigma y sabe crear y romper códigos. El entrenamiento ha terminado; ahora, las operaciones reales: parte 3, Telegramas secretos 1920.',
     certStamp: 'APROBADO',
     starsSum: n => `Estrellas ganadas: ${n}`,
     missing: list => `Misiones por superar: ${list}.`,

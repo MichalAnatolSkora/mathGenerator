@@ -1,5 +1,9 @@
 # Cipher Detective
 
+Part 1 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js).
+Every printed sheet names the series and the part above its title, the worksheet opens with one line of story (the Cipher Bureau
+is looking for new codebreakers) and the detective's guide ends with "What next?", pointing to part 2, The Paper Enigma.
+
 A code-breaking guessing game for kids (ages ~8–12). The child sees a short message and its
 encrypted version and must work out **which cipher** was used. A second mode, **What shift?**, shows
 only the code: the cipher is known (Caesar) and the child has to find the shift and read the message.
