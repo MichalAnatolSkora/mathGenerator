@@ -88,7 +88,7 @@
   .exshift{font-size:11.5px;color:#555;margin-top:2mm !important;}
   .fembox{border:0.3mm solid #d29a00;background:#fff8dc;border-radius:2mm;padding:2.5mm 4mm;margin-top:3mm;font-size:12px;line-height:1.4;}
   .fembox h3{font-size:13.5px;margin:0 0 1mm;}
-  .fems{display:grid;grid-template-columns:1fr 1fr;gap:4.5mm 8mm;margin:3mm 0 4mm;}
+  .fems{display:grid;grid-template-columns:repeat(auto-fit,minmax(73mm,1fr));gap:4.5mm 8mm;margin:3mm 0 4mm;}   /* two columns on A4, one when the sheet is narrower */
   .fm{display:flex;align-items:center;gap:0.8mm;}
   .fm i{font-style:normal;color:#888;width:5mm;font-size:11px;}
   .fm b{position:relative;width:6.2mm;height:7.5mm;border:0.35mm solid #333;border-radius:1mm;background:#fff;display:flex;align-items:center;justify-content:center;font:800 13px/1 ui-monospace,Menlo,Consolas,monospace;}
@@ -114,7 +114,7 @@
   @media (max-width:600px){
     .arrow{display:none;}
     .step{grid-template-columns:7mm 1fr;} .step .pic,.step.ex .body{grid-column:2;}
-    .excols,.timeline,.fems{grid-template-columns:1fr;}
+    .excols,.timeline{grid-template-columns:1fr;}
     .gloss{grid-template-columns:1fr 1fr;} .orig .otop{grid-template-columns:1fr 22mm;gap:0 3mm;} .orig .portrait img{width:22mm;} .mwrap,.ewrap{overflow-x:auto;} .etab{min-width:560px;}
   }
 </style>
