@@ -15,8 +15,9 @@ different language than the game texts (`?msg=`).
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | **Home page** — pick a puzzle: a grid of cards grouped by age, for little ones (5–8) on top, for bigger kids (8–12) below (with the "Miracle on the Vistula 1920" series — Secret Telegrams, then the "Revolution" cipher — framed together as one block), for the ambitious (14+ and adults) last, with buttons to jump to a group; one card per row on phones (seven languages) |
+| [`index.html`](index.html) | **Home page** — pick a puzzle: a grid of cards grouped by age, for little ones (5–8) on top, for bigger kids (8–12) below (with the cipher series "Young Codebreakers Academy" framed as one block: parts 1–5 there, part 6 in the ambitious group, and a link to the Morse code game, which stays a game of its own), for the ambitious (14+ and adults) last, with buttons to jump to a group; one card per row on phones (seven languages) |
 | [`i18n.js`](i18n.js) | Shared language helper (language dropdown, `?lang=`, saved choice) |
+| [`series.js`](series.js) | The cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**: a strip under the app bar of each part ("part 3 of 6", numbered links, next part, Morse code link; screen only). Training: 1 Cipher Detective, 2 The Paper Enigma (`enigma/`); real operations: 3 Secret Telegrams 1920, 4 the "Revolution" cipher 1920, 5 Zygalski Sheets, 6 Zygalski Sheets full version. A page joins with `<script src="../series.js" data-part="N"></script>` after `../i18n.js` |
 | [`print-qr.js`](print-qr.js) | Small QR code in the head of every printed sheet, with "More games on the website – scan me": it opens the home page of the site in the sheet's language; a checkbox next to the print button leaves it off the printout. Own QR encoder, no network (`node print-qr.test.js`) |
 | [`cipher-detective/index.html`](cipher-detective/index.html) | **Cipher Detective**, online game: which cipher did the spy use? — or, knowing it is Caesar, what was the shift? |
 | [`cipher-detective/worksheet.html`](cipher-detective/worksheet.html) | Cipher Detective **printable worksheets** (+ guide and answer key) |

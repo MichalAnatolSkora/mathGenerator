@@ -34,6 +34,10 @@
   .series-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 6px;font-size:19px;}
   .series .gico{background:#fdeaea;border-color:#f2c3c3;}
   .group-sub{margin:0 0 12px;font-size:15px;color:#3d4559;max-width:760px;}
+  .series-more{margin:12px 0 0;font-size:15px;}
+  .series-more + .series-more{margin-top:6px;}
+  .series-more a{color:var(--accent-d);font-weight:700;text-decoration:none;}
+  .series-more a:hover{text-decoration:underline;}
   .age{font-size:14px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;}
   /* cards: a grid of tiles (screenshot on top) on wide screens, compact rows on phones */
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
@@ -216,20 +220,7 @@
     <h2 class="group-h"><span class="gico" aria-hidden="true">🚀</span><span data-i18n="olderTitle">Dla większych dzieci</span><span class="age" data-i18n="olderAge">8–12 lat</span></h2>
 
     <div class="cards">
-    <article class="card">
-      <a class="shot" href="cipher-detective/worksheet.html" data-keep-lang><img src="assets/cipher-detective.png" width="800" height="469" data-i18n-attr="alt:cipherAlt" alt="Zrzut ekranu: gra Detektyw szyfrów"></a>
-      <div class="body">
-        <h3><span class="ico" aria-hidden="true">🕵️</span><span data-i18n="cipherTitle">Detektyw szyfrów</span></h3>
-        <p class="desc" data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
-        <button type="button" class="more" hidden data-i18n="more">więcej</button>
-      </div>
-      <div class="actions">
-        <a class="btn primary" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
-        <a class="btn" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
-      </div>
-    </article>
-
-    <article class="card">
+    <article class="card" id="morse">
       <a class="shot" href="morse/worksheet.html" data-keep-lang><img src="assets/morse.png" width="800" height="560" data-i18n-attr="alt:morseAlt" alt="Zrzut ekranu: karta pracy Latarnik z alfabetem Morse’a"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">⚓</span><span data-i18n="morseTitle">Latarnik: alfabet Morse’a</span></h3>
@@ -256,30 +247,6 @@
     </article>
 
     <article class="card">
-      <a class="shot" href="enigma/index.html" data-keep-lang><img src="assets/enigma.png" width="800" height="592" data-i18n-attr="alt:enigmaAlt" alt="Rysunek maszyny szyfrującej Enigma"></a>
-      <div class="body">
-        <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="enigmaTitle">Akademia Młodych Szyfrantów</span></h3>
-        <p class="desc" data-i18n="enigmaText">Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.</p>
-        <button type="button" class="more" hidden data-i18n="more">więcej</button>
-      </div>
-      <div class="actions">
-        <a class="btn primary" href="enigma/index.html" data-keep-lang data-i18n="enigmaPrint">Wydrukuj karty pracy</a>
-        <a class="btn" href="enigma/play.html" data-keep-lang data-i18n="enigmaPlay">Zagraj</a>
-      </div>
-    </article>
-
-    <article class="card">
-      <a class="shot" href="zygalski-sheets/worksheet.html" data-keep-lang><img src="assets/zygalski-sheets.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:zygAlt" alt="Karta pracy: płachty Zygalskiego"></a>
-      <div class="body">
-        <h3><span class="ico" aria-hidden="true">🔦</span><span data-i18n="zygTitle">Płachty Zygalskiego</span></h3>
-        <p class="desc" data-i18n="zygText"></p>
-        <button type="button" class="more" hidden data-i18n="more">więcej</button>
-      </div>
-      <div class="actions">
-        <a class="btn primary" href="zygalski-sheets/worksheet.html" data-keep-lang data-i18n="zygPrint">Wydrukuj karty pracy</a>
-      </div>
-    </article>
-    <article class="card">
       <a class="shot" href="robot-chef/worksheet.html" data-keep-lang><img src="assets/robot-chef.png" width="800" height="560" data-i18n-attr="alt:chefAlt" alt="Zrzut ekranu: gra Robot-kucharz"></a>
       <div class="body">
         <h3><span class="ico" aria-hidden="true">🤖</span><span data-i18n="chefTitle">Robot-kucharz: wstęp do sztucznej inteligencji i algebry liniowej</span></h3>
@@ -291,14 +258,39 @@
         <a class="btn" href="robot-chef/index.html" data-keep-lang data-i18n="chefPlay">Zagraj</a>
       </div>
     </article>
-    <div class="series" id="vistula">
-      <h3 class="series-h"><span class="gico" aria-hidden="true">🦅</span><span data-i18n="vistTitle">Cud nad Wisłą 1920</span><span class="age" data-i18n="vistAge">9–14 lat</span></h3>
-      <p class="group-sub" data-i18n="vistSub"></p>
+
+    <div class="series" id="ciphers">
+      <h3 class="series-h"><span class="gico" aria-hidden="true">🔐</span><span data-i18n="seriesTitle">Akademia Młodych Szyfrantów</span><span class="age" data-i18n="seriesAge">8–14 lat</span></h3>
+      <p class="group-sub" data-i18n="seriesSub"></p>
       <div class="cards">
+      <article class="card">
+        <a class="shot" href="cipher-detective/worksheet.html" data-keep-lang><img src="assets/cipher-detective.png" width="800" height="469" data-i18n-attr="alt:cipherAlt" alt="Zrzut ekranu: gra Detektyw szyfrów"></a>
+        <div class="body">
+          <h3><span class="ico" aria-hidden="true">🕵️</span><span data-i18n="cipherTitle">Część 1. Detektyw szyfrów</span></h3>
+          <p class="desc" data-i18n="cipherText">Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.</p>
+          <button type="button" class="more" hidden data-i18n="more">więcej</button>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="cipher-detective/worksheet.html" data-keep-lang data-i18n="cipherPrint">Wydrukuj karty pracy</a>
+          <a class="btn" href="cipher-detective/index.html" data-keep-lang data-i18n="cipherPlay">Zagraj</a>
+        </div>
+      </article>
+      <article class="card">
+        <a class="shot" href="enigma/index.html" data-keep-lang><img src="assets/enigma.png" width="800" height="592" data-i18n-attr="alt:enigmaAlt" alt="Rysunek maszyny szyfrującej Enigma"></a>
+        <div class="body">
+          <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="enigmaTitle">Część 2. Papierowa Enigma</span></h3>
+          <p class="desc" data-i18n="enigmaText">Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.</p>
+          <button type="button" class="more" hidden data-i18n="more">więcej</button>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="enigma/index.html" data-keep-lang data-i18n="enigmaPrint">Wydrukuj karty pracy</a>
+          <a class="btn" href="enigma/play.html" data-keep-lang data-i18n="enigmaPlay">Zagraj</a>
+        </div>
+      </article>
       <article class="card">
         <a class="shot" href="wisla-1920/worksheet.html" data-keep-lang><img src="assets/wisla-1920.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:w20Alt" alt="Karta pracy: tajne depesze z 1920 roku"></a>
         <div class="body">
-          <h3><span class="ico" aria-hidden="true">📻</span><span data-i18n="w20Title">Część 1. Tajne depesze: sztuczka z ДИВИЗИЯ</span></h3>
+          <h3><span class="ico" aria-hidden="true">📻</span><span data-i18n="w20Title">Część 3. Tajne depesze 1920: sztuczka z ДИВИЗИЯ</span></h3>
           <p class="desc" data-i18n="w20Text"></p>
           <button type="button" class="more" hidden data-i18n="more">więcej</button>
         </div>
@@ -309,7 +301,7 @@
       <article class="card">
         <a class="shot" href="rewolucja-1920/worksheet.html" data-keep-lang><img src="assets/rewolucja-1920.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:rwAlt" alt="Karta pracy: szyfr Rewolucja z 1920 roku"></a>
         <div class="body">
-          <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="rwTitle">Część 2. Szyfr „Rewolucja”: krata i zmiennik</span></h3>
+          <h3><span class="ico" aria-hidden="true">🔐</span><span data-i18n="rwTitle">Część 4. Szyfr „Rewolucja” 1920: krata i zmiennik</span></h3>
           <p class="desc" data-i18n="rwText"></p>
           <button type="button" class="more" hidden data-i18n="more">więcej</button>
         </div>
@@ -317,7 +309,20 @@
           <a class="btn primary" href="rewolucja-1920/worksheet.html" data-keep-lang data-i18n="rwPrint">Wydrukuj kartę pracy</a>
         </div>
       </article>
+      <article class="card">
+        <a class="shot" href="zygalski-sheets/worksheet.html" data-keep-lang><img src="assets/zygalski-sheets.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:zygAlt" alt="Karta pracy: płachty Zygalskiego"></a>
+        <div class="body">
+          <h3><span class="ico" aria-hidden="true">🔦</span><span data-i18n="zygTitle">Część 5. Płachty Zygalskiego</span></h3>
+          <p class="desc" data-i18n="zygText"></p>
+          <button type="button" class="more" hidden data-i18n="more">więcej</button>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="zygalski-sheets/worksheet.html" data-keep-lang data-i18n="zygPrint">Wydrukuj karty pracy</a>
+        </div>
+      </article>
       </div>
+      <p class="series-more"><a href="#zyg-full" data-i18n="seriesPart6">Część 6 dla ambitnych (14+): Płachty Zygalskiego, pełna wersja ↓</a></p>
+      <p class="series-more"><a href="#morse" data-i18n="seriesMorse">📡 Depesze szły przez radio alfabetem Morse’a. Naucz się go w grze Latarnik ↑</a></p>
     </div>
     </div>
   </section>
@@ -326,10 +331,10 @@
     <h2 class="group-h"><span class="gico" aria-hidden="true">🎓</span><span data-i18n="ambTitle">Dla ambitnych</span><span class="age" data-i18n="ambAge">14+ i dorośli</span></h2>
 
     <div class="cards">
-    <article class="card">
+    <article class="card" id="zyg-full">
       <a class="shot" href="zygalski-full/worksheet.html" data-keep-lang><img src="assets/zygalski-full.png" width="800" height="560" loading="lazy" data-i18n-attr="alt:zygFullAlt" alt="Płachta Zygalskiego 51 × 51 z pełnej wersji"></a>
       <div class="body">
-        <h3><span class="ico" aria-hidden="true">🔦</span><span data-i18n="zygFullTitle">Płachty Zygalskiego: pełna wersja</span></h3>
+        <h3><span class="ico" aria-hidden="true">🔦</span><span data-i18n="zygFullTitle">Część 6. Płachty Zygalskiego: pełna wersja</span></h3>
         <p class="desc" data-i18n="zygFullText"></p>
         <button type="button" class="more" hidden data-i18n="more">więcej</button>
       </div>
@@ -355,23 +360,24 @@
       contact: 'Masz sugestię albo widzisz błąd? Napisz do mnie:',
       youngTitle: 'Dla maluszków', youngAge: '5–8 lat', olderTitle: 'Dla większych dzieci', olderAge: '8–12 lat',
       ambTitle: "Dla ambitnych", ambAge: "14+ i dorośli",
-      zygFullTitle: "Płachty Zygalskiego: pełna wersja", zygFullText: "Prawdziwa praca kryptologa z 1938 roku. Dostajesz przechwycone depesze z jednego dnia i komplet płacht 51 × 51 obliczonych symulacją Enigmy. Znajdź samiczki, nałóż płachty (najlepiej wydrukowane na folii) i odczytaj klucz dnia: kolejność wirników i ustawienie pierścieni. Z tabelą roboczą, trzema poziomami pomocy i rozwiązaniem. Dla nastolatków i dorosłych.",
+      zygFullTitle: "Część 6. Płachty Zygalskiego: pełna wersja", zygFullText: "Prawdziwa praca kryptologa z 1938 roku. Dostajesz przechwycone depesze z jednego dnia i komplet płacht 51 × 51 obliczonych symulacją Enigmy. Znajdź samiczki, nałóż płachty (najlepiej wydrukowane na folii) i odczytaj klucz dnia: kolejność wirników i ustawienie pierścieni. Z tabelą roboczą, trzema poziomami pomocy i rozwiązaniem. Dla nastolatków i dorosłych.",
       zygFullPrint: "Wydrukuj pakiet", zygFullPlay: "Zagraj", zygFullAlt: "Płachta Zygalskiego 51 × 51 z pełnej wersji",
       mathTitle: 'Krzyżówki matematyczne',
       mathText: 'Krzyżówki z działaniami do wydruku: każde równanie czyta się w poziomie i w pionie, a liczby łączą się na skrzyżowaniach. Wybierasz zakres liczb i działania, dostajesz kartę pracy razem z rozwiązaniem.',
       mathBtn: 'Zrób kartę pracy', mathAlt: 'Zrzut ekranu: krzyżówka matematyczna',
       wordsTitle: "Zadania z treścią", wordsText: "Krótkie zadania tekstowe na karteczkach „Wyzwanie nr…” do wycięcia i wklejenia do zeszytu: ile razem, ile zostało, ile brakuje, o ile więcej, a w niektórych kilka dobrych odpowiedzi. Liczby do 10, do 20 albo do 100. Karty pracy do druku z rozwiązaniami.", wordsPrint: "Wydrukuj karty pracy", wordsAlt: "Karta pracy: zadania z treścią",
-      cipherTitle: 'Detektyw szyfrów',
+      cipherTitle: "Część 1. Detektyw szyfrów",
       cipherText: 'Szpieg wysłał wiadomość szyfrem. Porównaj ją z zaszyfrowaną wersją i odgadnij, jakiego szyfru użył: Cezara, ROT13, Atbasz, a na trudnym poziomie także Vigenère\'a, afinicznego i Beauforta. Albo znasz szyfr Cezara i szukasz przesunięcia. Dla dzieci w wieku 8–12 lat.',
       cipherPlay: 'Zagraj', cipherPrint: 'Wydrukuj karty pracy', cipherAlt: 'Zrzut ekranu: gra Detektyw szyfrów',
-      enigmaTitle: 'Akademia Młodych Szyfrantów',
+      enigmaTitle: "Część 2. Papierowa Enigma",
       enigmaText: 'Sześć misji, online i do wydruku: szyfr Cezara, pomieszany alfabet, liczenie ustawień, a na koniec własna Enigma z papieru, z kręcącym się kołem i lustrem. Jak Marian Rejewski, który złamał Enigmę w 1932 roku. Dla dzieci w wieku 8–10 lat.',
       enigmaPlay: 'Zagraj', enigmaPrint: 'Wydrukuj karty pracy', enigmaAlt: 'Rysunek maszyny szyfrującej Enigma',
-      zygTitle: "Płachty Zygalskiego", zygText: "Edukacyjna gra na kartce: nakładaj płachty z dziurkami i znajdź jedyne pole, przez które przechodzi światło. Tak w 1938 roku polscy kryptolodzy odgadywali ustawienia Enigmy. Z opowieścią, jak to naprawdę działało, płachtami do wycinania i rozwiązaniami. Dla dzieci w wieku 8–12 lat.",
+      zygTitle: "Część 5. Płachty Zygalskiego", zygText: "Edukacyjna gra na kartce: nakładaj płachty z dziurkami i znajdź jedyne pole, przez które przechodzi światło. Tak w 1938 roku polscy kryptolodzy odgadywali ustawienia Enigmy. Z opowieścią, jak to naprawdę działało, płachtami do wycinania i rozwiązaniami. Dla dzieci w wieku 8–12 lat.",
       zygPrint: "Wydrukuj karty pracy", zygAlt: "Karta pracy: płachty Zygalskiego",
-      vistTitle: "Cud nad Wisłą 1920", vistAge: "9–14 lat", vistSub: "Cykl gier na kartkę: łam szyfry Armii Czerwonej tak jak polscy kryptolodzy w sierpniu 1920 roku. Każda część to trudniejszy szyfr.",
-      w20Title: "Część 1. Tajne depesze: sztuczka z ДИВИЗИЯ", w20Text: "Sierpień 1920, Armia Czerwona pod Warszawą. Odczytaj przechwycone rosyjskie depesze tak jak porucznik Kowalewski — zaczynając od słowa ДИВИЗИЯ — doradź Piłsudskiemu, gdzie uderzyć, i poznaj historię bitwy, która ocaliła Zachód. Cztery poziomy, mapa, zdjęcie prawdziwego szyfrogramu z 1920 roku i rozwiązania. Dla dzieci w wieku 9–12 lat.", w20Print: "Wydrukuj kartę pracy", w20Alt: "Karta pracy: tajne depesze z 1920 roku",
-      rwTitle: "Część 2. Szyfr „Rewolucja”: krata i zmiennik", rwText: "12 sierpnia 1920 roku, w przededniu szturmu na Warszawę, Armia Czerwona wprowadziła szyfr dwukrotnego przekształcenia: litera to dwie cyfry z kraty, a do cyfr dodano tajny zmiennik. Złam go jak Kowalewski i Mazurkiewicz — dzięki błędom szyfrantów i odejmowaniu bez pożyczania — i odczytaj, skąd uderzy 16 Armia. Trzy poziomy, mapa, prawdziwa karta klucza z notatką Kowalewskiego i rozwiązania. Dla dzieci w wieku 10–14 lat.", rwPrint: "Wydrukuj kartę pracy", rwAlt: "Karta pracy: szyfr Rewolucja z 1920 roku",
+      seriesTitle: "Akademia Młodych Szyfrantów", seriesAge: "8–14 lat", seriesSub: "Seria gier o szyfrach, od najprostszych aż do Enigmy. Najpierw szkolenie: jak działają szyfry i maszyna szyfrująca (części 1–2). Potem prawdziwe akcje polskich kryptologów: łamanie szyfrów Armii Czerwonej w 1920 roku i Enigmy w 1938 roku (części 3–6). Każda część to trudniejszy szyfr.",
+      seriesPart6: "Część 6 dla ambitnych (14+): Płachty Zygalskiego, pełna wersja ↓", seriesMorse: "📡 Depesze szły przez radio alfabetem Morse’a. Naucz się go w grze Latarnik ↑",
+      w20Title: "Część 3. Tajne depesze 1920: sztuczka z ДИВИЗИЯ", w20Text: "Sierpień 1920, Armia Czerwona pod Warszawą. Odczytaj przechwycone rosyjskie depesze tak jak porucznik Kowalewski — zaczynając od słowa ДИВИЗИЯ — doradź Piłsudskiemu, gdzie uderzyć, i poznaj historię bitwy, która ocaliła Zachód. Cztery poziomy, mapa, zdjęcie prawdziwego szyfrogramu z 1920 roku i rozwiązania. Dla dzieci w wieku 9–12 lat.", w20Print: "Wydrukuj kartę pracy", w20Alt: "Karta pracy: tajne depesze z 1920 roku",
+      rwTitle: "Część 4. Szyfr „Rewolucja” 1920: krata i zmiennik", rwText: "12 sierpnia 1920 roku, w przededniu szturmu na Warszawę, Armia Czerwona wprowadziła szyfr dwukrotnego przekształcenia: litera to dwie cyfry z kraty, a do cyfr dodano tajny zmiennik. Złam go jak Kowalewski i Mazurkiewicz — dzięki błędom szyfrantów i odejmowaniu bez pożyczania — i odczytaj, skąd uderzy 16 Armia. Trzy poziomy, mapa, prawdziwa karta klucza z notatką Kowalewskiego i rozwiązania. Dla dzieci w wieku 10–14 lat.", rwPrint: "Wydrukuj kartę pracy", rwAlt: "Karta pracy: szyfr Rewolucja z 1920 roku",
       dictTitle: 'Dyktando graficzne',
       dictText: 'Rysuj po kratkach według strzałek: 3 w prawo, 2 w górę… i odkryj, jaki wyjdzie obrazek. Trzy poziomy, na trudnym także linie na skos. Zamiast liczb mogą być działania (2+1, 6:2), więc to też ćwiczenie z liczenia. Do wyboru także motywy religijne: krzyż, kościół, anioł… Karty pracy do druku z rozwiązaniem.',
       dictPlay: 'Zagraj', dictPrint: 'Wydrukuj karty pracy', dictAlt: 'Zrzut ekranu: gra Dyktando graficzne',
@@ -400,23 +406,24 @@
       contact: 'Got an idea or found a mistake? Email me:',
       youngTitle: 'For little ones', youngAge: 'ages 5–8', olderTitle: 'For bigger kids', olderAge: 'ages 8–12',
       ambTitle: "For the ambitious", ambAge: "ages 14+ and adults",
-      zygFullTitle: "Zygalski Sheets: Full Version", zygFullText: "Real codebreaking work from 1938. You get one day of intercepted messages and a full set of 51 × 51 sheets computed by simulating Enigma. Find the females, stack the sheets (best printed on film) and read off the daily key: the rotor order and the ring settings. With a work table, three levels of help and the answer. For teens and adults.",
+      zygFullTitle: "Part 6. Zygalski Sheets: Full Version", zygFullText: "Real codebreaking work from 1938. You get one day of intercepted messages and a full set of 51 × 51 sheets computed by simulating Enigma. Find the females, stack the sheets (best printed on film) and read off the daily key: the rotor order and the ring settings. With a work table, three levels of help and the answer. For teens and adults.",
       zygFullPrint: "Print the pack", zygFullPlay: "Play", zygFullAlt: "A 51 × 51 Zygalski sheet from the full version",
       mathTitle: 'Math Crossword',
       mathText: 'Printable arithmetic crosswords: every equation reads across and down, and the numbers meet where they cross. Pick the number range and operators, and get a worksheet with its answer key.',
       mathBtn: 'Make a worksheet', mathAlt: 'Screenshot: a math crossword',
       wordsTitle: "Word problems", wordsText: "Short word problems on “Challenge no.…” cards to cut out and glue into an exercise book: how many altogether, how many are left, how many are missing, how many more, and some with several right answers. Numbers up to 10, 20 or 100. Printable worksheets with answer keys.", wordsPrint: "Print worksheets", wordsAlt: "Worksheet: word problems",
-      cipherTitle: 'Cipher Detective',
+      cipherTitle: "Part 1. Cipher Detective",
       cipherText: 'A spy sent a message in code. Compare it with the coded version and work out which cipher was used: Caesar, ROT13, Atbash, and on the hard level also Vigenère, Affine and Beaufort. Or you know it is Caesar and hunt for the shift. For ages 8–12.',
       cipherPlay: 'Play', cipherPrint: 'Print worksheets', cipherAlt: 'Screenshot: the Cipher Detective game',
-      enigmaTitle: 'Young Codebreakers Academy',
+      enigmaTitle: "Part 2. The Paper Enigma",
       enigmaText: 'Six missions to play online or print: the Caesar cipher, a mixed-up alphabet, counting arrangements, and finally your own paper Enigma with a turning wheel and a mirror. Just like Marian Rejewski, who broke the Enigma in 1932. For ages 8–10.',
       enigmaPlay: 'Play', enigmaPrint: 'Print worksheets', enigmaAlt: 'A drawing of the Enigma cipher machine',
-      zygTitle: "Zygalski Sheets", zygText: "An educational paper game: stack sheets full of holes and find the one square the light shines through. That is how Polish codebreakers found the Enigma settings in 1938. With the true story of how it worked, sheets to cut out and answer keys. For ages 8–12.",
+      zygTitle: "Part 5. Zygalski Sheets", zygText: "An educational paper game: stack sheets full of holes and find the one square the light shines through. That is how Polish codebreakers found the Enigma settings in 1938. With the true story of how it worked, sheets to cut out and answer keys. For ages 8–12.",
       zygPrint: "Print worksheets", zygAlt: "Worksheet: Zygalski sheets",
-      vistTitle: "The Miracle on the Vistula, 1920", vistAge: "ages 9–14", vistSub: "A series of paper games: break the Red Army’s ciphers like the Polish codebreakers in August 1920. Each part is a harder cipher.",
-      w20Title: "Part 1. Secret telegrams: the ДИВИЗИЯ trick", w20Text: "August 1920, the Red Army outside Warsaw. Read intercepted Russian telegrams the way Lieutenant Kowalewski did — starting from the word ДИВИЗИЯ — advise Piłsudski where to strike, and learn the story of the battle that saved the West. Four levels, a map, a photo of a real 1920 decrypt and the answers. For ages 9–12.", w20Print: "Print the worksheet", w20Alt: "Worksheet: secret telegrams of 1920",
-      rwTitle: "Part 2. The “Revolution” cipher: grid and key", rwText: "On 12 August 1920, on the eve of the attack on Warsaw, the Red Army brought in a double-transformation cipher: a letter becomes two digits from a grid, then a secret key is added. Break it like Kowalewski and Mazurkiewicz — thanks to the cipher clerks’ mistakes and subtraction without borrowing — and find out where the 16th Army will strike. Three levels, a map, a real key card with Kowalewski’s note and the answers. For ages 10–14.", rwPrint: "Print the worksheet", rwAlt: "Worksheet: the Revolution cipher of 1920",
+      seriesTitle: "Young Codebreakers Academy", seriesAge: "ages 8–14", seriesSub: "A series of cipher games, from the simplest ones all the way to Enigma. First the training: how ciphers and a cipher machine work (parts 1–2). Then the real operations of the Polish codebreakers: breaking the Red Army’s ciphers in 1920 and Enigma in 1938 (parts 3–6). Each part is a harder cipher.",
+      seriesPart6: "Part 6, for the ambitious (14+): Zygalski Sheets, full version ↓", seriesMorse: "📡 Telegrams went by radio in Morse code. Learn it in the Lighthouse Keeper game ↑",
+      w20Title: "Part 3. Secret telegrams of 1920: the ДИВИЗИЯ trick", w20Text: "August 1920, the Red Army outside Warsaw. Read intercepted Russian telegrams the way Lieutenant Kowalewski did — starting from the word ДИВИЗИЯ — advise Piłsudski where to strike, and learn the story of the battle that saved the West. Four levels, a map, a photo of a real 1920 decrypt and the answers. For ages 9–12.", w20Print: "Print the worksheet", w20Alt: "Worksheet: secret telegrams of 1920",
+      rwTitle: "Part 4. The “Revolution” cipher of 1920: grid and key", rwText: "On 12 August 1920, on the eve of the attack on Warsaw, the Red Army brought in a double-transformation cipher: a letter becomes two digits from a grid, then a secret key is added. Break it like Kowalewski and Mazurkiewicz — thanks to the cipher clerks’ mistakes and subtraction without borrowing — and find out where the 16th Army will strike. Three levels, a map, a real key card with Kowalewski’s note and the answers. For ages 10–14.", rwPrint: "Print the worksheet", rwAlt: "Worksheet: the Revolution cipher of 1920",
       dictTitle: 'Graphic Dictation',
       dictText: 'Draw on squared paper following the arrows: 3 right, 2 up… and find out what picture appears. Three levels, the hard one with diagonal lines too. The numbers can be sums (2+1, 6÷2), so it is counting practice as well. Religious (Catholic) pictures too: a cross, a church, an angel… Printable worksheets with an answer key.',
       dictPlay: 'Play', dictPrint: 'Print worksheets', dictAlt: 'Screenshot: the Graphic Dictation game',
@@ -445,23 +452,24 @@
       contact: 'Маєте ідею або знайшли помилку? Напишіть мені:',
       youngTitle: 'Для малят', youngAge: '5–8 років', olderTitle: 'Для старших дітей', olderAge: '8–12 років',
       ambTitle: "Для амбітних", ambAge: "14+ і дорослі",
-      zygFullTitle: "Листи Зигальського: повна версія", zygFullText: "Справжня робота криптолога 1938 року. Ти отримуєш перехоплені повідомлення за один день і повний комплект листів 51 × 51, обчислених моделюванням Енігми. Знайди самички, наклади листи (найкраще надруковані на плівці) й прочитай ключ дня: порядок роторів і положення кілець. З робочою таблицею, трьома рівнями допомоги і розв’язком. Для підлітків і дорослих.",
+      zygFullTitle: "Частина 6. Листи Зигальського: повна версія", zygFullText: "Справжня робота криптолога 1938 року. Ти отримуєш перехоплені повідомлення за один день і повний комплект листів 51 × 51, обчислених моделюванням Енігми. Знайди самички, наклади листи (найкраще надруковані на плівці) й прочитай ключ дня: порядок роторів і положення кілець. З робочою таблицею, трьома рівнями допомоги і розв’язком. Для підлітків і дорослих.",
       zygFullPrint: "Роздрукувати комплект", zygFullPlay: "Грати", zygFullAlt: "Лист Зигальського 51 × 51 з повної версії",
       mathTitle: 'Математичні кросворди',
       mathText: 'Кросворди з прикладами для друку: кожна рівність читається по горизонталі й по вертикалі, а числа з\'єднуються на перетинах. Обираєш діапазон чисел і дії — отримуєш робочий аркуш разом із відповідями.',
       mathBtn: 'Створити аркуш', mathAlt: 'Знімок екрана: математичний кросворд',
       wordsTitle: "Текстові задачі", wordsText: "Короткі текстові задачі на картках «Виклик №…», щоб вирізати й вклеїти в зошит: скільки разом, скільки залишилося, скільки бракує, на скільки більше, а деякі мають кілька правильних відповідей. Числа до 10, до 20 або до 100. Робочі аркуші для друку з відповідями.", wordsPrint: "Роздрукувати аркуші", wordsAlt: "Робочий аркуш: текстові задачі",
-      cipherTitle: 'Детектив шифрів',
+      cipherTitle: "Частина 1. Детектив шифрів",
       cipherText: 'Шпигун надіслав зашифроване повідомлення. Порівняй його із зашифрованою версією та вгадай, який шифр використано: Цезаря, ROT13, Атбаш, а на складному рівні також Віженера, афінний і Бофора. Або ти знаєш, що це шифр Цезаря, і шукаєш зсув. Для дітей 8–12 років.',
       cipherPlay: 'Грати', cipherPrint: 'Роздрукувати аркуші', cipherAlt: 'Знімок екрана: гра «Детектив шифрів»',
-      enigmaTitle: 'Академія юних шифрувальників',
+      enigmaTitle: "Частина 2. Паперова Енігма",
       enigmaText: 'Шість місій онлайн і для друку: шифр Цезаря, перемішаний алфавіт, лічба розкладів, а наприкінці власна паперова Енігма з колом, що крутиться, і дзеркалом. Як Маріан Реєвський, який зламав Енігму в 1932 році. Для дітей 8–10 років.',
       enigmaPlay: 'Грати', enigmaPrint: 'Роздрукувати аркуші', enigmaAlt: 'Малюнок шифрувальної машини «Енігма»',
-      zygTitle: "Листи Зигальського", zygText: "Навчальна гра на папері: клади листи з дірочками один на одний і знайди єдину клітинку, крізь яку проходить світло. Так у 1938 році польські криптологи знаходили налаштування Енігми. З розповіддю, як це працювало насправді, листами для вирізання і відповідями. Для дітей 8–12 років.",
+      zygTitle: "Частина 5. Листи Зигальського", zygText: "Навчальна гра на папері: клади листи з дірочками один на одний і знайди єдину клітинку, крізь яку проходить світло. Так у 1938 році польські криптологи знаходили налаштування Енігми. З розповіддю, як це працювало насправді, листами для вирізання і відповідями. Для дітей 8–12 років.",
       zygPrint: "Роздрукувати аркуші", zygAlt: "Робочий аркуш: листи Зигальського",
-      vistTitle: "Чудо на Віслі, 1920", vistAge: "9–14 років", vistSub: "Цикл ігор на папері: ламай шифри Червоної армії, як польські криптологи в серпні 1920 року. Кожна частина — складніший шифр.",
-      w20Title: "Частина 1. Таємні телеграми: трюк із ДИВИЗИЯ", w20Text: "Серпень 1920 року, Червона армія під Варшавою. Прочитай перехоплені російські телеграми так, як поручник Ковалевський, — починаючи зі слова ДИВИЗИЯ, — порадь Пілсудському, де вдарити, і дізнайся історію битви, що врятувала Захід. Чотири рівні, мапа, фото справжньої шифрограми 1920 року і відповіді. Для дітей 9–12 років.", w20Print: "Роздрукувати аркуш", w20Alt: "Робочий аркуш: таємні телеграми 1920 року",
-      rwTitle: "Частина 2. Шифр «Революція»: решітка й ключ", rwText: "12 серпня 1920 року, напередодні штурму Варшави, Червона армія запровадила шифр подвійного перетворення: літера стає двома цифрами з решітки, а до цифр додають таємний ключ. Зламай його, як Ковалевський і Мазуркевич, — завдяки помилкам шифрувальників і відніманню без позичання — і дізнайся, звідки вдарить 16-та армія. Три рівні, мапа, справжня картка ключа з нотаткою Ковалевського і відповіді. Для дітей 10–14 років.", rwPrint: "Роздрукувати аркуш", rwAlt: "Робочий аркуш: шифр «Революція» 1920 року",
+      seriesTitle: "Академія юних шифрувальників", seriesAge: "8–14 років", seriesSub: "Серія ігор про шифри — від найпростіших аж до Енігми. Спочатку навчання: як працюють шифри і шифрувальна машина (частини 1–2). Потім справжні операції польських криптологів: злам шифрів Червоної армії 1920 року та Енігми 1938 року (частини 3–6). Кожна частина — складніший шифр.",
+      seriesPart6: "Частина 6 для амбітних (14+): Листи Зигальського, повна версія ↓", seriesMorse: "📡 Телеграми йшли радіо азбукою Морзе. Вивчи її у грі «Доглядач маяка» ↑",
+      w20Title: "Частина 3. Таємні телеграми 1920 року: трюк із ДИВИЗИЯ", w20Text: "Серпень 1920 року, Червона армія під Варшавою. Прочитай перехоплені російські телеграми так, як поручник Ковалевський, — починаючи зі слова ДИВИЗИЯ, — порадь Пілсудському, де вдарити, і дізнайся історію битви, що врятувала Захід. Чотири рівні, мапа, фото справжньої шифрограми 1920 року і відповіді. Для дітей 9–12 років.", w20Print: "Роздрукувати аркуш", w20Alt: "Робочий аркуш: таємні телеграми 1920 року",
+      rwTitle: "Частина 4. Шифр «Революція» 1920 року: решітка й ключ", rwText: "12 серпня 1920 року, напередодні штурму Варшави, Червона армія запровадила шифр подвійного перетворення: літера стає двома цифрами з решітки, а до цифр додають таємний ключ. Зламай його, як Ковалевський і Мазуркевич, — завдяки помилкам шифрувальників і відніманню без позичання — і дізнайся, звідки вдарить 16-та армія. Три рівні, мапа, справжня картка ключа з нотаткою Ковалевського і відповіді. Для дітей 10–14 років.", rwPrint: "Роздрукувати аркуш", rwAlt: "Робочий аркуш: шифр «Революція» 1920 року",
       dictTitle: 'Графічний диктант',
       dictText: 'Малюй по клітинках за стрілками: 3 праворуч, 2 вгору… і дізнайся, який вийде малюнок. Три рівні, на складному ще й лінії навскіс. Замість чисел можуть бути приклади (2+1, 6:2), тож це ще й вправа з лічби. Є й релігійні мотиви: хрест, костел, ангел… Робочі аркуші для друку з відповідями.',
       dictPlay: 'Грати', dictPrint: 'Роздрукувати аркуші', dictAlt: 'Знімок екрана: гра «Графічний диктант»',
@@ -490,23 +498,24 @@
       contact: 'Bạn có ý tưởng hoặc phát hiện lỗi? Hãy viết cho tôi:',
       youngTitle: 'Cho bé nhỏ', youngAge: '5–8 tuổi', olderTitle: 'Cho các bạn lớn hơn', olderAge: '8–12 tuổi',
       ambTitle: "Cho người thích thử thách", ambAge: "14+ và người lớn",
-      zygFullTitle: "Tấm Zygalski: bản đầy đủ", zygFullText: "Công việc giải mã thật sự năm 1938. Bạn nhận các bức điện chặn được trong một ngày và trọn bộ tấm 51 × 51 tính bằng mô phỏng Enigma. Tìm các con mái, chồng các tấm (tốt nhất in lên phim trong) và đọc ra khóa ngày: thứ tự rôto và vị trí các vòng. Kèm bảng làm việc, ba mức trợ giúp và lời giải. Dành cho thiếu niên và người lớn.",
+      zygFullTitle: "Phần 6. Tấm Zygalski: bản đầy đủ", zygFullText: "Công việc giải mã thật sự năm 1938. Bạn nhận các bức điện chặn được trong một ngày và trọn bộ tấm 51 × 51 tính bằng mô phỏng Enigma. Tìm các con mái, chồng các tấm (tốt nhất in lên phim trong) và đọc ra khóa ngày: thứ tự rôto và vị trí các vòng. Kèm bảng làm việc, ba mức trợ giúp và lời giải. Dành cho thiếu niên và người lớn.",
       zygFullPrint: "In trọn bộ", zygFullPlay: "Chơi", zygFullAlt: "Một tấm Zygalski 51 × 51 trong bản đầy đủ",
       mathTitle: 'Ô chữ toán học',
       mathText: 'Ô chữ phép tính để in: mỗi phép tính đọc theo hàng ngang và hàng dọc, các con số gặp nhau ở chỗ giao. Bạn chọn phạm vi số và phép tính, nhận được phiếu bài tập kèm đáp án.',
       mathBtn: 'Tạo phiếu bài tập', mathAlt: 'Ảnh chụp màn hình: ô chữ toán học',
       wordsTitle: "Toán có lời văn", wordsText: "Các bài toán có lời văn ngắn trên thẻ “Thử thách số…” để cắt và dán vào vở: tất cả bao nhiêu, còn lại bao nhiêu, thiếu bao nhiêu, nhiều hơn bao nhiêu, và có bài có nhiều đáp án đúng. Số đến 10, 20 hoặc 100. Phiếu bài tập để in, có đáp án.", wordsPrint: "In phiếu bài tập", wordsAlt: "Phiếu bài tập: toán có lời văn",
-      cipherTitle: 'Thám tử mật mã',
+      cipherTitle: "Phần 1. Thám tử mật mã",
       cipherText: 'Một điệp viên đã gửi tin nhắn bằng mật mã. So sánh tin nhắn với bản mã hóa và đoán xem mật mã nào đã được dùng: Caesar, ROT13, Atbash, và ở mức khó còn có Vigenère, Affine và Beaufort. Hoặc bạn biết đó là mật mã Caesar và đi tìm bước dịch. Dành cho trẻ 8–12 tuổi.',
       cipherPlay: 'Chơi', cipherPrint: 'In phiếu bài tập', cipherAlt: 'Ảnh chụp màn hình: trò chơi Thám tử mật mã',
-      enigmaTitle: 'Học viện Mật mã nhí',
+      enigmaTitle: "Phần 2. Enigma bằng giấy",
       enigmaText: 'Sáu nhiệm vụ để chơi trực tuyến hoặc in: mật mã Caesar, bảng chữ cái xáo trộn, đếm cách xếp, và cuối cùng là chiếc Enigma bằng giấy của riêng bạn, có bánh xe biết quay và tấm gương. Giống như Marian Rejewski, người đã phá mã Enigma năm 1932. Dành cho trẻ 8–10 tuổi.',
       enigmaPlay: 'Chơi', enigmaPrint: 'In phiếu bài tập', enigmaAlt: 'Hình vẽ máy mật mã Enigma',
-      zygTitle: "Tấm Zygalski", zygText: "Trò chơi giáo dục trên giấy: chồng các tấm đầy lỗ lên nhau và tìm ô duy nhất ánh sáng xuyên qua. Đó là cách các nhà giải mã Ba Lan tìm ra cài đặt của Enigma năm 1938. Kèm câu chuyện có thật về cách nó hoạt động, các tấm để cắt và đáp án. Dành cho trẻ 8–12 tuổi.",
+      zygTitle: "Phần 5. Tấm Zygalski", zygText: "Trò chơi giáo dục trên giấy: chồng các tấm đầy lỗ lên nhau và tìm ô duy nhất ánh sáng xuyên qua. Đó là cách các nhà giải mã Ba Lan tìm ra cài đặt của Enigma năm 1938. Kèm câu chuyện có thật về cách nó hoạt động, các tấm để cắt và đáp án. Dành cho trẻ 8–12 tuổi.",
       zygPrint: "In phiếu bài tập", zygAlt: "Phiếu bài tập: tấm Zygalski",
-      vistTitle: "Phép màu trên sông Vistula, 1920", vistAge: "9–14 tuổi", vistSub: "Loạt trò chơi trên giấy: phá mật mã của Hồng quân như các nhà mật mã Ba Lan tháng 8 năm 1920. Mỗi phần là một mật mã khó hơn.",
-      w20Title: "Phần 1. Điện mật: mẹo ДИВИЗИЯ", w20Text: "Tháng 8 năm 1920, Hồng quân trước Warszawa. Hãy đọc các bức điện Nga chặn được như trung úy Kowalewski — bắt đầu từ từ ДИВИЗИЯ — khuyên Piłsudski nên tấn công ở đâu, và tìm hiểu trận đánh đã cứu phương Tây. Bốn mức độ, bản đồ, ảnh một bức điện giải mã thật năm 1920 và đáp án. Dành cho trẻ 9–12 tuổi.", w20Print: "In phiếu bài tập", w20Alt: "Phiếu bài tập: điện mật năm 1920",
-      rwTitle: "Phần 2. Mật mã “Cách mạng”: lưới và khóa", rwText: "Ngày 12 tháng 8 năm 1920, ngay trước trận tấn công Warszawa, Hồng quân đưa vào dùng một mật mã biến đổi hai lần: mỗi chữ cái thành hai chữ số trong lưới, rồi cộng thêm một khóa bí mật. Hãy phá nó như Kowalewski và Mazurkiewicz — nhờ lỗi của nhân viên mật mã và phép trừ không mượn — và tìm ra Tập đoàn quân 16 sẽ đánh từ đâu. Ba mức độ, bản đồ, một thẻ khóa thật có ghi chú của Kowalewski và đáp án. Dành cho trẻ 10–14 tuổi.", rwPrint: "In phiếu bài tập", rwAlt: "Phiếu bài tập: mật mã Cách mạng năm 1920",
+      seriesTitle: "Học viện Mật mã nhí", seriesAge: "8–14 tuổi", seriesSub: "Loạt trò chơi về mật mã, từ những mật mã đơn giản nhất cho đến Enigma. Trước tiên là khóa huấn luyện: mật mã và máy mã hóa hoạt động thế nào (phần 1–2). Sau đó là những chiến dịch thật của các nhà mật mã Ba Lan: phá mật mã của Hồng quân năm 1920 và Enigma năm 1938 (phần 3–6). Mỗi phần là một mật mã khó hơn.",
+      seriesPart6: "Phần 6 cho người thích thử thách (14+): Tấm Zygalski, bản đầy đủ ↓", seriesMorse: "📡 Các bức điện được gửi qua radio bằng mã Morse. Hãy học mã này trong trò chơi Người gác hải đăng ↑",
+      w20Title: "Phần 3. Điện mật năm 1920: mẹo ДИВИЗИЯ", w20Text: "Tháng 8 năm 1920, Hồng quân trước Warszawa. Hãy đọc các bức điện Nga chặn được như trung úy Kowalewski — bắt đầu từ từ ДИВИЗИЯ — khuyên Piłsudski nên tấn công ở đâu, và tìm hiểu trận đánh đã cứu phương Tây. Bốn mức độ, bản đồ, ảnh một bức điện giải mã thật năm 1920 và đáp án. Dành cho trẻ 9–12 tuổi.", w20Print: "In phiếu bài tập", w20Alt: "Phiếu bài tập: điện mật năm 1920",
+      rwTitle: "Phần 4. Mật mã “Cách mạng” năm 1920: lưới và khóa", rwText: "Ngày 12 tháng 8 năm 1920, ngay trước trận tấn công Warszawa, Hồng quân đưa vào dùng một mật mã biến đổi hai lần: mỗi chữ cái thành hai chữ số trong lưới, rồi cộng thêm một khóa bí mật. Hãy phá nó như Kowalewski và Mazurkiewicz — nhờ lỗi của nhân viên mật mã và phép trừ không mượn — và tìm ra Tập đoàn quân 16 sẽ đánh từ đâu. Ba mức độ, bản đồ, một thẻ khóa thật có ghi chú của Kowalewski và đáp án. Dành cho trẻ 10–14 tuổi.", rwPrint: "In phiếu bài tập", rwAlt: "Phiếu bài tập: mật mã Cách mạng năm 1920",
       dictTitle: 'Vẽ theo ô vuông',
       dictText: 'Vẽ trên giấy ô vuông theo các mũi tên: 3 ô sang phải, 2 ô lên trên… và khám phá hình hiện ra. Ba mức độ, mức khó có cả đường chéo. Thay cho con số có thể là phép tính (2+1, 6:2), nên đây cũng là bài luyện tính toán. Có cả chủ đề Công giáo: thánh giá, nhà thờ, thiên thần… Phiếu bài tập để in kèm đáp án.',
       dictPlay: 'Chơi', dictPrint: 'In phiếu bài tập', dictAlt: 'Ảnh chụp màn hình: trò chơi Vẽ theo ô vuông',
@@ -535,23 +544,24 @@
       contact: 'Une idée ou une erreur repérée ? Écrivez-moi :',
       youngTitle: 'Pour les petits', youngAge: '5–8 ans', olderTitle: 'Pour les plus grands', olderAge: '8–12 ans',
       ambTitle: "Pour les ambitieux", ambAge: "14 ans et plus, adultes",
-      zygFullTitle: "Feuilles de Zygalski : version complète", zygFullText: "Un vrai travail de cryptologue de 1938. Tu reçois les messages interceptés d’une journée et un jeu complet de feuilles 51 × 51 calculées en simulant Enigma. Trouve les femelles, superpose les feuilles (idéalement imprimées sur transparents) et lis la clé du jour : l’ordre des rotors et la position des anneaux. Avec un tableau de travail, trois niveaux d’aide et la solution. Pour les ados et les adultes.",
+      zygFullTitle: "Partie 6. Feuilles de Zygalski : version complète", zygFullText: "Un vrai travail de cryptologue de 1938. Tu reçois les messages interceptés d’une journée et un jeu complet de feuilles 51 × 51 calculées en simulant Enigma. Trouve les femelles, superpose les feuilles (idéalement imprimées sur transparents) et lis la clé du jour : l’ordre des rotors et la position des anneaux. Avec un tableau de travail, trois niveaux d’aide et la solution. Pour les ados et les adultes.",
       zygFullPrint: "Imprimer le dossier", zygFullPlay: "Jouer", zygFullAlt: "Une feuille de Zygalski 51 × 51 de la version complète",
       mathTitle: 'Mots croisés mathématiques',
       mathText: 'Des mots croisés de calcul à imprimer : chaque opération se lit à l’horizontale et à la verticale, et les nombres se rejoignent aux croisements. Tu choisis les nombres et les opérations, et tu obtiens une fiche d’exercices avec son corrigé.',
       mathBtn: 'Créer une fiche', mathAlt: 'Capture d’écran : des mots croisés mathématiques',
       wordsTitle: "Problèmes", wordsText: "De petits problèmes sur des cartes « Défi n°… » à découper et coller dans le cahier : combien en tout, combien il en reste, combien il en manque, combien de plus, et parfois plusieurs bonnes réponses. Nombres jusqu’à 10, 20 ou 100. Fiches à imprimer avec corrigés.", wordsPrint: "Imprimer des fiches", wordsAlt: "Fiche : problèmes",
-      cipherTitle: 'Détective des codes secrets',
+      cipherTitle: "Partie 1. Détective des codes secrets",
       cipherText: 'Un espion a envoyé un message codé. Compare-le avec la version codée et devine quel chiffre il a utilisé : César, ROT13, Atbash et, au niveau difficile, aussi Vigenère, affine et Beaufort. Ou alors tu sais que c’est le chiffre de César et tu cherches le décalage. Pour les 8–12 ans.',
       cipherPlay: 'Jouer', cipherPrint: 'Imprimer des fiches', cipherAlt: 'Capture d’écran : le jeu Détective des codes secrets',
-      enigmaTitle: 'L’Académie des jeunes décodeurs',
+      enigmaTitle: "Partie 2. L’Enigma en papier",
       enigmaText: 'Six missions à jouer en ligne ou à imprimer : le code de César, un alphabet mélangé, compter les ordres possibles et, pour finir, ta propre Enigma en papier, avec une roue qui tourne et un miroir. Comme Marian Rejewski, qui a cassé l’Enigma en 1932. Pour les 8–10 ans.',
       enigmaPlay: 'Jouer', enigmaPrint: 'Imprimer des fiches', enigmaAlt: 'Dessin de la machine à chiffrer Enigma',
-      zygTitle: "Feuilles de Zygalski", zygText: "Un jeu éducatif sur papier : empile des feuilles pleines de trous et trouve la seule case où passe la lumière. C’est ainsi qu’en 1938 les cryptologues polonais trouvaient le réglage d’Enigma. Avec la vraie histoire, des feuilles à découper et les corrigés. Pour les 8–12 ans.",
+      zygTitle: "Partie 5. Feuilles de Zygalski", zygText: "Un jeu éducatif sur papier : empile des feuilles pleines de trous et trouve la seule case où passe la lumière. C’est ainsi qu’en 1938 les cryptologues polonais trouvaient le réglage d’Enigma. Avec la vraie histoire, des feuilles à découper et les corrigés. Pour les 8–12 ans.",
       zygPrint: "Imprimer des fiches", zygAlt: "Fiche : feuilles de Zygalski",
-      vistTitle: "Le miracle de la Vistule, 1920", vistAge: "9–14 ans", vistSub: "Une série de jeux sur papier : casse les chiffres de l’Armée rouge comme les cryptologues polonais en août 1920. Chaque partie est un chiffre plus difficile.",
-      w20Title: "Partie 1. Télégrammes secrets : l’astuce ДИВИЗИЯ", w20Text: "Août 1920, l’Armée rouge aux portes de Varsovie. Lis des télégrammes russes interceptés comme le lieutenant Kowalewski — en partant du mot ДИВИЗИЯ —, conseille à Piłsudski où frapper et découvre la bataille qui a sauvé l’Occident. Quatre niveaux, une carte, la photo d’un vrai déchiffrement de 1920 et les solutions. Pour les 9–12 ans.", w20Print: "Imprimer la fiche", w20Alt: "Fiche : télégrammes secrets de 1920",
-      rwTitle: "Partie 2. Le chiffre « Révolution » : grille et clé", rwText: "Le 12 août 1920, à la veille de l’assaut sur Varsovie, l’Armée rouge adopta un chiffre à double transformation : une lettre devient deux chiffres d’une grille, puis on ajoute une clé secrète. Casse-le comme Kowalewski et Mazurkiewicz — grâce aux erreurs des chiffreurs et à la soustraction sans retenue — et découvre d’où frappera la 16e armée. Trois niveaux, une carte, une vraie fiche de clé annotée par Kowalewski et les solutions. Pour les 10–14 ans.", rwPrint: "Imprimer la fiche", rwAlt: "Fiche : le chiffre Révolution de 1920",
+      seriesTitle: "L’Académie des jeunes décodeurs", seriesAge: "8–14 ans", seriesSub: "Une série de jeux sur les codes secrets, des plus simples jusqu’à Enigma. D’abord l’entraînement : comment marchent les chiffres et une machine à chiffrer (parties 1–2). Puis les vraies opérations des cryptologues polonais : casser les chiffres de l’Armée rouge en 1920 et Enigma en 1938 (parties 3–6). Chaque partie est un chiffre plus difficile.",
+      seriesPart6: "Partie 6 pour les ambitieux (14+) : Feuilles de Zygalski, version complète ↓", seriesMorse: "📡 Les télégrammes passaient par radio en code Morse. Apprends-le avec le jeu du gardien du phare ↑",
+      w20Title: "Partie 3. Télégrammes secrets de 1920 : l’astuce ДИВИЗИЯ", w20Text: "Août 1920, l’Armée rouge aux portes de Varsovie. Lis des télégrammes russes interceptés comme le lieutenant Kowalewski — en partant du mot ДИВИЗИЯ —, conseille à Piłsudski où frapper et découvre la bataille qui a sauvé l’Occident. Quatre niveaux, une carte, la photo d’un vrai déchiffrement de 1920 et les solutions. Pour les 9–12 ans.", w20Print: "Imprimer la fiche", w20Alt: "Fiche : télégrammes secrets de 1920",
+      rwTitle: "Partie 4. Le chiffre « Révolution » de 1920 : grille et clé", rwText: "Le 12 août 1920, à la veille de l’assaut sur Varsovie, l’Armée rouge adopta un chiffre à double transformation : une lettre devient deux chiffres d’une grille, puis on ajoute une clé secrète. Casse-le comme Kowalewski et Mazurkiewicz — grâce aux erreurs des chiffreurs et à la soustraction sans retenue — et découvre d’où frappera la 16e armée. Trois niveaux, une carte, une vraie fiche de clé annotée par Kowalewski et les solutions. Pour les 10–14 ans.", rwPrint: "Imprimer la fiche", rwAlt: "Fiche : le chiffre Révolution de 1920",
       dictTitle: 'Dessin sur quadrillage',
       dictText: 'Dessine sur le quadrillage en suivant les flèches : 3 à droite, 2 en haut… et découvre le dessin qui apparaît. Trois niveaux, le difficile avec aussi des traits en diagonale. Les nombres peuvent être des opérations (2+1, 6:2) : on s’entraîne aussi à calculer. Il y a aussi des motifs religieux : une croix, une église, un ange… Fiches à imprimer avec le corrigé.',
       dictPlay: 'Jouer', dictPrint: 'Imprimer des fiches', dictAlt: 'Capture d’écran : le jeu Dessin sur quadrillage',
@@ -580,23 +590,24 @@
       contact: 'Hai un’idea o hai trovato un errore? Scrivimi:',
       youngTitle: 'Per i più piccoli', youngAge: '5–8 anni', olderTitle: 'Per i più grandi', olderAge: '8–12 anni',
       ambTitle: "Per gli ambiziosi", ambAge: "dai 14 anni e adulti",
-      zygFullTitle: "Fogli di Zygalski: versione completa", zygFullText: "Il vero lavoro di un crittologo del 1938. Ricevi i messaggi intercettati in un giorno e una serie completa di fogli 51 × 51 calcolati simulando Enigma. Trova le femmine, sovrapponi i fogli (meglio se stampati su lucidi) e ricava la chiave del giorno: l’ordine dei rotori e la posizione degli anelli. Con una tabella di lavoro, tre livelli di aiuto e la soluzione. Per ragazzi e adulti.",
+      zygFullTitle: "Parte 6. Fogli di Zygalski: versione completa", zygFullText: "Il vero lavoro di un crittologo del 1938. Ricevi i messaggi intercettati in un giorno e una serie completa di fogli 51 × 51 calcolati simulando Enigma. Trova le femmine, sovrapponi i fogli (meglio se stampati su lucidi) e ricava la chiave del giorno: l’ordine dei rotori e la posizione degli anelli. Con una tabella di lavoro, tre livelli di aiuto e la soluzione. Per ragazzi e adulti.",
       zygFullPrint: "Stampa il pacchetto", zygFullPlay: "Gioca", zygFullAlt: "Un foglio di Zygalski 51 × 51 della versione completa",
       mathTitle: 'Cruciverba matematici',
       mathText: 'Cruciverba con le operazioni da stampare: ogni operazione si legge in orizzontale e in verticale, e i numeri si incontrano negli incroci. Scegli i numeri e le operazioni, e ottieni una scheda con le soluzioni.',
       mathBtn: 'Crea una scheda', mathAlt: 'Screenshot: un cruciverba matematico',
       wordsTitle: "Problemi", wordsText: "Brevi problemi su schede «Sfida n.…» da ritagliare e incollare sul quaderno: quanti in tutto, quanti ne restano, quanti ne mancano, quanti in più, e a volte più risposte giuste. Numeri fino a 10, 20 o 100. Schede da stampare con le soluzioni.", wordsPrint: "Stampa le schede", wordsAlt: "Scheda: problemi",
-      cipherTitle: 'Detective dei cifrari',
+      cipherTitle: "Parte 1. Detective dei cifrari",
       cipherText: 'Una spia ha mandato un messaggio in codice. Confrontalo con la versione cifrata e scopri quale cifrario ha usato: Cesare, ROT13, Atbash e, al livello difficile, anche Vigenère, affine e Beaufort. Oppure sai già che è il cifrario di Cesare e cerchi lo spostamento. Dagli 8 ai 12 anni.',
       cipherPlay: 'Gioca', cipherPrint: 'Stampa le schede', cipherAlt: 'Screenshot: il gioco Detective dei cifrari',
-      enigmaTitle: 'Accademia dei giovani crittografi',
+      enigmaTitle: "Parte 2. L’Enigma di carta",
       enigmaText: 'Sei missioni da giocare online o da stampare: il cifrario di Cesare, un alfabeto mescolato, quanti ordini sono possibili e infine la tua Enigma di carta, con una ruota che gira e uno specchio. Proprio come Marian Rejewski, che violò l’Enigma nel 1932. Dagli 8 ai 10 anni.',
       enigmaPlay: 'Gioca', enigmaPrint: 'Stampa le schede', enigmaAlt: 'Disegno della macchina cifrante Enigma',
-      zygTitle: "Fogli di Zygalski", zygText: "Un gioco educativo su carta: sovrapponi fogli pieni di buchi e trova l’unica casella da cui passa la luce. Così nel 1938 i crittologi polacchi trovavano l’impostazione di Enigma. Con la vera storia di come funzionava, fogli da ritagliare e soluzioni. Dagli 8 ai 12 anni.",
+      zygTitle: "Parte 5. Fogli di Zygalski", zygText: "Un gioco educativo su carta: sovrapponi fogli pieni di buchi e trova l’unica casella da cui passa la luce. Così nel 1938 i crittologi polacchi trovavano l’impostazione di Enigma. Con la vera storia di come funzionava, fogli da ritagliare e soluzioni. Dagli 8 ai 12 anni.",
       zygPrint: "Stampa le schede", zygAlt: "Scheda: fogli di Zygalski",
-      vistTitle: "Il miracolo della Vistola, 1920", vistAge: "9–14 anni", vistSub: "Una serie di giochi su carta: rompi i cifrari dell’Armata Rossa come i crittologi polacchi nell’agosto 1920. Ogni parte è un cifrario più difficile.",
-      w20Title: "Parte 1. Telegrammi segreti: il trucco ДИВИЗИЯ", w20Text: "Agosto 1920, l’Armata Rossa alle porte di Varsavia. Leggi i telegrammi russi intercettati come il tenente Kowalewski — partendo dalla parola ДИВИЗИЯ —, consiglia a Piłsudski dove attaccare e scopri la battaglia che salvò l’Occidente. Quattro livelli, una mappa, la foto di una vera decifrazione del 1920 e le soluzioni. Dai 9 ai 12 anni.", w20Print: "Stampa la scheda", w20Alt: "Scheda: telegrammi segreti del 1920",
-      rwTitle: "Parte 2. Il cifrario «Rivoluzione»: griglia e chiave", rwText: "Il 12 agosto 1920, alla vigilia dell’assalto a Varsavia, l’Armata Rossa introdusse un cifrario a doppia trasformazione: una lettera diventa due cifre di una griglia, poi si aggiunge una chiave segreta. Rompilo come Kowalewski e Mazurkiewicz — grazie agli errori dei cifratori e alla sottrazione senza prestito — e scopri da dove colpirà la 16ª armata. Tre livelli, una carta, una vera scheda di chiave con una nota di Kowalewski e le soluzioni. Dai 10 ai 14 anni.", rwPrint: "Stampa la scheda", rwAlt: "Scheda: il cifrario Rivoluzione del 1920",
+      seriesTitle: "Accademia dei giovani crittografi", seriesAge: "8–14 anni", seriesSub: "Una serie di giochi sui cifrari, dai più semplici fino a Enigma. Prima l’addestramento: come funzionano i cifrari e una macchina cifrante (parti 1–2). Poi le vere operazioni dei crittologi polacchi: rompere i cifrari dell’Armata Rossa nel 1920 ed Enigma nel 1938 (parti 3–6). Ogni parte è un cifrario più difficile.",
+      seriesPart6: "Parte 6 per gli ambiziosi (14+): Fogli di Zygalski, versione completa ↓", seriesMorse: "📡 I telegrammi viaggiavano via radio in codice Morse. Imparalo con il gioco del guardiano del faro ↑",
+      w20Title: "Parte 3. Telegrammi segreti del 1920: il trucco ДИВИЗИЯ", w20Text: "Agosto 1920, l’Armata Rossa alle porte di Varsavia. Leggi i telegrammi russi intercettati come il tenente Kowalewski — partendo dalla parola ДИВИЗИЯ —, consiglia a Piłsudski dove attaccare e scopri la battaglia che salvò l’Occidente. Quattro livelli, una mappa, la foto di una vera decifrazione del 1920 e le soluzioni. Dai 9 ai 12 anni.", w20Print: "Stampa la scheda", w20Alt: "Scheda: telegrammi segreti del 1920",
+      rwTitle: "Parte 4. Il cifrario «Rivoluzione» del 1920: griglia e chiave", rwText: "Il 12 agosto 1920, alla vigilia dell’assalto a Varsavia, l’Armata Rossa introdusse un cifrario a doppia trasformazione: una lettera diventa due cifre di una griglia, poi si aggiunge una chiave segreta. Rompilo come Kowalewski e Mazurkiewicz — grazie agli errori dei cifratori e alla sottrazione senza prestito — e scopri da dove colpirà la 16ª armata. Tre livelli, una carta, una vera scheda di chiave con una nota di Kowalewski e le soluzioni. Dai 10 ai 14 anni.", rwPrint: "Stampa la scheda", rwAlt: "Scheda: il cifrario Rivoluzione del 1920",
       dictTitle: 'Dettato grafico',
       dictText: 'Disegna sul foglio a quadretti seguendo le frecce: 3 a destra, 2 in su… e scopri quale disegno appare. Tre livelli, in quello difficile anche linee in diagonale. Al posto dei numeri ci possono essere operazioni (2+1, 6:2), così ci si allena anche con i calcoli. Ci sono anche disegni religiosi: una croce, una chiesa, un angelo… Schede da stampare con le soluzioni.',
       dictPlay: 'Gioca', dictPrint: 'Stampa le schede', dictAlt: 'Screenshot: il gioco Dettato grafico',
@@ -625,23 +636,24 @@
       contact: '¿Tienes una idea o has encontrado un error? Escríbeme:',
       youngTitle: 'Para los más pequeños', youngAge: '5–8 años', olderTitle: 'Para los mayores', olderAge: '8–12 años',
       ambTitle: "Para los ambiciosos", ambAge: "14+ y adultos",
-      zygFullTitle: "Hojas de Zygalski: versión completa", zygFullText: "El verdadero trabajo de un criptólogo de 1938. Recibes los mensajes interceptados en un día y un juego completo de hojas de 51 × 51 calculadas simulando Enigma. Encuentra las hembras, superpón las hojas (mejor impresas en acetato) y lee la clave del día: el orden de los rotores y la posición de los anillos. Con tabla de trabajo, tres niveles de ayuda y la solución. Para adolescentes y adultos.",
+      zygFullTitle: "Parte 6. Hojas de Zygalski: versión completa", zygFullText: "El verdadero trabajo de un criptólogo de 1938. Recibes los mensajes interceptados en un día y un juego completo de hojas de 51 × 51 calculadas simulando Enigma. Encuentra las hembras, superpón las hojas (mejor impresas en acetato) y lee la clave del día: el orden de los rotores y la posición de los anillos. Con tabla de trabajo, tres niveles de ayuda y la solución. Para adolescentes y adultos.",
       zygFullPrint: "Imprimir el paquete", zygFullPlay: "Jugar", zygFullAlt: "Una hoja de Zygalski de 51 × 51 de la versión completa",
       mathTitle: 'Crucigramas matemáticos',
       mathText: 'Crucigramas de operaciones para imprimir: cada operación se lee en horizontal y en vertical, y los números se encuentran en los cruces. Eliges los números y las operaciones, y obtienes una ficha con sus soluciones.',
       mathBtn: 'Crear una ficha', mathAlt: 'Captura de pantalla: un crucigrama matemático',
       wordsTitle: "Problemas", wordsText: "Problemas cortos en tarjetas «Reto n.º…» para recortar y pegar en el cuaderno: cuántos en total, cuántos quedan, cuántos faltan, cuántos más, y algunos con varias respuestas correctas. Números hasta 10, 20 o 100. Fichas para imprimir con soluciones.", wordsPrint: "Imprimir fichas", wordsAlt: "Ficha: problemas",
-      cipherTitle: 'Detective de cifrados',
+      cipherTitle: "Parte 1. Detective de cifrados",
       cipherText: 'Un espía ha enviado un mensaje en clave. Compáralo con la versión cifrada y adivina qué cifrado ha usado: César, ROT13, Atbash y, en el nivel difícil, también Vigenère, afín y Beaufort. O ya sabes que es el cifrado César y buscas el desplazamiento. De 8 a 12 años.',
       cipherPlay: 'Jugar', cipherPrint: 'Imprimir fichas', cipherAlt: 'Captura de pantalla: el juego Detective de cifrados',
-      enigmaTitle: 'Academia de jóvenes criptógrafos',
+      enigmaTitle: "Parte 2. La Enigma de papel",
       enigmaText: 'Seis misiones para jugar en línea o imprimir: el cifrado César, un alfabeto desordenado, contar de cuántas formas se puede ordenar y, para terminar, tu propia Enigma de papel, con una rueda que gira y un espejo. Igual que Marian Rejewski, que descifró la Enigma en 1932. De 8 a 10 años.',
       enigmaPlay: 'Jugar', enigmaPrint: 'Imprimir fichas', enigmaAlt: 'Dibujo de la máquina de cifrado Enigma',
-      zygTitle: "Hojas de Zygalski", zygText: "Un juego educativo en papel: apila hojas llenas de agujeros y encuentra la única casilla por la que pasa la luz. Así encontraban en 1938 los criptólogos polacos la configuración de Enigma. Con la historia real de cómo funcionaba, hojas para recortar y soluciones. De 8 a 12 años.",
+      zygTitle: "Parte 5. Hojas de Zygalski", zygText: "Un juego educativo en papel: apila hojas llenas de agujeros y encuentra la única casilla por la que pasa la luz. Así encontraban en 1938 los criptólogos polacos la configuración de Enigma. Con la historia real de cómo funcionaba, hojas para recortar y soluciones. De 8 a 12 años.",
       zygPrint: "Imprimir fichas", zygAlt: "Ficha: hojas de Zygalski",
-      vistTitle: "El milagro del Vístula, 1920", vistAge: "9–14 años", vistSub: "Una serie de juegos en papel: rompe las cifras del Ejército Rojo como los criptólogos polacos en agosto de 1920. Cada parte es una cifra más difícil.",
-      w20Title: "Parte 1. Telegramas secretos: el truco ДИВИЗИЯ", w20Text: "Agosto de 1920, el Ejército Rojo a las puertas de Varsovia. Lee telegramas rusos interceptados como el teniente Kowalewski —empezando por la palabra ДИВИЗИЯ—, aconseja a Piłsudski dónde atacar y descubre la batalla que salvó a Occidente. Cuatro niveles, un mapa, la foto de un descifrado real de 1920 y las soluciones. De 9 a 12 años.", w20Print: "Imprimir la ficha", w20Alt: "Ficha: telegramas secretos de 1920",
-      rwTitle: "Parte 2. La cifra «Revolución»: cuadrícula y clave", rwText: "El 12 de agosto de 1920, en vísperas del asalto a Varsovia, el Ejército Rojo adoptó una cifra de doble transformación: una letra se convierte en dos cifras de una cuadrícula y luego se suma una clave secreta. Rómpela como Kowalewski y Mazurkiewicz —gracias a los errores de los cifradores y a la resta sin pedir prestado— y descubre por dónde atacará el 16.º Ejército. Tres niveles, un mapa, una ficha de clave real con una nota de Kowalewski y las soluciones. De 10 a 14 años.", rwPrint: "Imprimir la ficha", rwAlt: "Ficha: la cifra Revolución de 1920",
+      seriesTitle: "Academia de jóvenes criptógrafos", seriesAge: "8–14 años", seriesSub: "Una serie de juegos sobre cifrados, desde los más sencillos hasta Enigma. Primero el entrenamiento: cómo funcionan los cifrados y una máquina de cifrar (partes 1–2). Después, las operaciones reales de los criptólogos polacos: romper las cifras del Ejército Rojo en 1920 y Enigma en 1938 (partes 3–6). Cada parte es una cifra más difícil.",
+      seriesPart6: "Parte 6 para los ambiciosos (14+): Hojas de Zygalski, versión completa ↓", seriesMorse: "📡 Los telegramas iban por radio en código Morse. Apréndelo con el juego del farero ↑",
+      w20Title: "Parte 3. Telegramas secretos de 1920: el truco ДИВИЗИЯ", w20Text: "Agosto de 1920, el Ejército Rojo a las puertas de Varsovia. Lee telegramas rusos interceptados como el teniente Kowalewski —empezando por la palabra ДИВИЗИЯ—, aconseja a Piłsudski dónde atacar y descubre la batalla que salvó a Occidente. Cuatro niveles, un mapa, la foto de un descifrado real de 1920 y las soluciones. De 9 a 12 años.", w20Print: "Imprimir la ficha", w20Alt: "Ficha: telegramas secretos de 1920",
+      rwTitle: "Parte 4. La cifra «Revolución» de 1920: cuadrícula y clave", rwText: "El 12 de agosto de 1920, en vísperas del asalto a Varsovia, el Ejército Rojo adoptó una cifra de doble transformación: una letra se convierte en dos cifras de una cuadrícula y luego se suma una clave secreta. Rómpela como Kowalewski y Mazurkiewicz —gracias a los errores de los cifradores y a la resta sin pedir prestado— y descubre por dónde atacará el 16.º Ejército. Tres niveles, un mapa, una ficha de clave real con una nota de Kowalewski y las soluciones. De 10 a 14 años.", rwPrint: "Imprimir la ficha", rwAlt: "Ficha: la cifra Revolución de 1920",
       dictTitle: 'Dictado gráfico',
       dictText: 'Dibuja en papel cuadriculado siguiendo las flechas: 3 a la derecha, 2 arriba… y descubre qué dibujo aparece. Tres niveles; en el difícil, también líneas en diagonal. En lugar de números puede haber operaciones (2+1, 6:2), así que también se practica el cálculo. También hay motivos religiosos: una cruz, una iglesia, un ángel… Fichas para imprimir con las soluciones.',
       dictPlay: 'Jugar', dictPrint: 'Imprimir fichas', dictAlt: 'Captura de pantalla: el juego Dictado gráfico',

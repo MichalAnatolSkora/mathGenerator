@@ -17,7 +17,7 @@ const REW_DOC = {
 const REW_TEXT = {
   pl: {
     title: "Szyfr „Rewolucja” 1920",
-    appTitle: "🔐 Cud nad Wisłą, część 2 — Szyfr „Rewolucja”", prevPart: "← Część 1: Tajne depesze",
+    appTitle: "🔐 Cud nad Wisłą — Szyfr „Rewolucja”",
     appSub: 'W przededniu szturmu na Warszawę Armia Czerwona zmieniła szyfr na trudniejszy. Złam go jak polscy kryptolodzy: krata, tajny zmiennik i błędy bolszewickich szyfrantów. Karta do druku z rozwiązaniami.',
     level: 'Poziom', levels: { easy: '★ Zdobyty zmiennik', mid: '★★ Znane pierwsze słowo', hard: '★★★ Jak Kowalewski i Mazurkiewicz' },
     optHow: 'Strona „Jak działa szyfr?”', optStory: 'Strona z historią', optReal: 'Ciekawostka: prawdziwy klucz z 1919 roku',
@@ -116,7 +116,7 @@ const REW_TEXT = {
   },
   en: {
     title: "The “Revolution” cipher, 1920",
-    appTitle: "🔐 The Miracle on the Vistula, part 2 — The “Revolution” cipher", prevPart: "← Part 1: Secret telegrams",
+    appTitle: "🔐 The Miracle on the Vistula — The “Revolution” cipher",
     appSub: 'On the eve of the attack on Warsaw the Red Army switched to a harder cipher. Break it like the Polish codebreakers: a grid, a secret key and the mistakes of the Bolshevik cipher clerks. A printable sheet with answers.',
     level: 'Level', levels: { easy: '★ A captured key', mid: '★★ The first word is known', hard: '★★★ Like Kowalewski and Mazurkiewicz' },
     optHow: '“How does the cipher work?” page', optStory: 'Page with the story', optReal: 'Fun fact: a real key from 1919',
@@ -215,7 +215,7 @@ const REW_TEXT = {
   },
   uk: {
     title: "Шифр «Революція», 1920",
-    appTitle: "🔐 Чудо на Віслі, частина 2 — Шифр «Революція»", prevPart: "← Частина 1: Таємні телеграми",
+    appTitle: "🔐 Чудо на Віслі — Шифр «Революція»",
     appSub: 'Напередодні штурму Варшави Червона армія змінила шифр на складніший. Зламай його, як польські криптологи: решітка, таємний ключ і помилки більшовицьких шифрувальників. Аркуш для друку з відповідями.',
     level: 'Рівень', levels: { easy: '★ Здобутий ключ', mid: '★★ Відоме перше слово', hard: '★★★ Як Ковалевський і Мазуркевич' },
     optHow: 'Сторінка «Як працює шифр?»', optStory: 'Сторінка з історією', optReal: 'Цікавинка: справжній ключ 1919 року',
@@ -314,7 +314,7 @@ const REW_TEXT = {
   },
   vi: {
     title: "Mật mã “Cách mạng” 1920",
-    appTitle: "🔐 Phép màu trên sông Vistula, phần 2 — Mật mã “Cách mạng”", prevPart: "← Phần 1: Điện mật",
+    appTitle: "🔐 Phép màu trên sông Vistula — Mật mã “Cách mạng”",
     appSub: 'Ngay trước trận tấn công Warszawa, Hồng quân đổi sang một mật mã khó hơn. Hãy phá nó như các nhà mật mã Ba Lan: lưới chữ, khóa bí mật và những lỗi của nhân viên mật mã bôn-sê-vích. Phiếu để in kèm đáp án.',
     level: 'Mức độ', levels: { easy: '★ Khóa thu được', mid: '★★ Biết chữ đầu tiên', hard: '★★★ Như Kowalewski và Mazurkiewicz' },
     optHow: 'Trang “Mật mã hoạt động thế nào?”', optStory: 'Trang kể chuyện', optReal: 'Điều thú vị: một khóa thật năm 1919',
@@ -413,7 +413,7 @@ const REW_TEXT = {
   },
   fr: {
     title: "Le chiffre « Révolution », 1920",
-    appTitle: "🔐 Le miracle de la Vistule, partie 2 — Le chiffre « Révolution »", prevPart: "← Partie 1 : Télégrammes secrets",
+    appTitle: "🔐 Le miracle de la Vistule — Le chiffre « Révolution »",
     appSub: 'À la veille de l’assaut sur Varsovie, l’Armée rouge passa à un chiffre plus difficile. Casse-le comme les cryptologues polonais : une grille, une clé secrète et les erreurs des chiffreurs bolcheviks. Une fiche à imprimer avec les solutions.',
     level: 'Niveau', levels: { easy: '★ Une clé capturée', mid: '★★ Le premier mot est connu', hard: '★★★ Comme Kowalewski et Mazurkiewicz' },
     optHow: 'Page « Comment marche le chiffre ? »', optStory: 'Page avec l’histoire', optReal: 'Le savais-tu ? Une vraie clé de 1919',
@@ -512,7 +512,7 @@ const REW_TEXT = {
   },
   it: {
     title: "Il cifrario «Rivoluzione», 1920",
-    appTitle: "🔐 Il miracolo della Vistola, parte 2 — Il cifrario «Rivoluzione»", prevPart: "← Parte 1: Telegrammi segreti",
+    appTitle: "🔐 Il miracolo della Vistola — Il cifrario «Rivoluzione»",
     appSub: 'Alla vigilia dell’assalto a Varsavia l’Armata Rossa passò a un cifrario più difficile. Rompilo come i crittologi polacchi: una griglia, una chiave segreta e gli errori dei cifratori bolscevichi. Una scheda da stampare con le soluzioni.',
     level: 'Livello', levels: { easy: '★ Una chiave catturata', mid: '★★ La prima parola è nota', hard: '★★★ Come Kowalewski e Mazurkiewicz' },
     optHow: 'Pagina «Come funziona il cifrario?»', optStory: 'Pagina con la storia', optReal: 'Curiosità: una vera chiave del 1919',
@@ -611,7 +611,7 @@ const REW_TEXT = {
   },
   es: {
     title: "La cifra «Revolución», 1920",
-    appTitle: "🔐 El milagro del Vístula, parte 2 — La cifra «Revolución»", prevPart: "← Parte 1: Telegramas secretos",
+    appTitle: "🔐 El milagro del Vístula — La cifra «Revolución»",
     appSub: 'En vísperas del asalto a Varsovia, el Ejército Rojo pasó a una cifra más difícil. Rómpela como los criptólogos polacos: una cuadrícula, una clave secreta y los errores de los cifradores bolcheviques. Una ficha para imprimir con soluciones.',
     level: 'Nivel', levels: { easy: '★ Una clave capturada', mid: '★★ Se conoce la primera palabra', hard: '★★★ Como Kowalewski y Mazurkiewicz' },
     optHow: 'Página «¿Cómo funciona la cifra?»', optStory: 'Página con la historia', optReal: 'Curiosidad: una clave real de 1919',

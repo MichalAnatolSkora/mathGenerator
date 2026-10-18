@@ -6,7 +6,7 @@
 const W20_TEXT = {
   pl: {
     title: "Tajne depesze 1920",
-    appTitle: "📻 Cud nad Wisłą, część 1 — Tajne depesze 1920", nextPart: "Część 2: Szyfr „Rewolucja” →",
+    appTitle: "📻 Cud nad Wisłą — Tajne depesze 1920",
     appSub: 'Sierpień 1920, Armia Czerwona pod Warszawą. Odczytaj przechwycone depesze tak jak polski radiowywiad, doradź Naczelnemu Wodzowi, gdzie uderzyć, i poznaj historię Cudu nad Wisłą. Karta do druku z rozwiązaniami.',
     level: 'Poziom', levels: { easy: '★ Klucz prawie gotowy', mid: '★★ Pół klucza', hard: '★★★ Jak Kowalewski', expert: '★★★★ Bez przerw, jak prawdziwa depesza' },
     optStory: 'Strona z historią Cudu nad Wisłą',
@@ -205,7 +205,7 @@ const W20_TEXT = {
 
   en: {
     title: "Secret telegrams of 1920",
-    appTitle: "📻 The Miracle on the Vistula, part 1 — Secret telegrams of 1920", nextPart: "Part 2: The “Revolution” cipher →",
+    appTitle: "📻 The Miracle on the Vistula — Secret telegrams of 1920",
     appSub: 'August 1920, the Red Army outside Warsaw. Read intercepted telegrams the way Polish radio intelligence did, advise the Commander-in-Chief where to strike, and discover the story of the Miracle on the Vistula. A printable sheet with answers.',
     level: 'Level', levels: { easy: '★ Key almost ready', mid: '★★ Half the key', hard: '★★★ Like Kowalewski', expert: '★★★★ No gaps, like a real telegram' },
     optStory: 'Page with the story of the Miracle on the Vistula',
@@ -404,7 +404,7 @@ const W20_TEXT = {
 
   uk: {
     title: "Таємні телеграми 1920 року",
-    appTitle: "📻 Чудо на Віслі, частина 1 — Таємні телеграми 1920 року", nextPart: "Частина 2: Шифр «Революція» →",
+    appTitle: "📻 Чудо на Віслі — Таємні телеграми 1920 року",
     appSub: 'Серпень 1920 року, Червона армія під Варшавою. Прочитай перехоплені телеграми так, як польська радіорозвідка, порадь Головнокомандувачу, де вдарити, і дізнайся історію Чуда на Віслі. Аркуш для друку з відповідями.',
     level: 'Рівень', levels: { easy: '★ Ключ майже готовий', mid: '★★ Пів ключа', hard: '★★★ Як Ковалевський', expert: '★★★★ Без пропусків, як справжня телеграма' },
     optStory: 'Сторінка з історією Чуда на Віслі',
@@ -603,7 +603,7 @@ const W20_TEXT = {
 
   vi: {
     title: "Những bức điện mật năm 1920",
-    appTitle: "📻 Phép màu trên sông Vistula, phần 1 — Những bức điện mật năm 1920", nextPart: "Phần 2: Mật mã “Cách mạng” →",
+    appTitle: "📻 Phép màu trên sông Vistula — Những bức điện mật năm 1920",
     appSub: 'Tháng 8 năm 1920, Hồng quân đứng trước Warszawa. Hãy đọc các bức điện chặn được như tình báo vô tuyến Ba Lan, khuyên Tổng tư lệnh nên tấn công ở đâu và tìm hiểu câu chuyện Phép màu trên sông Vistula. Phiếu để in kèm đáp án.',
     level: 'Mức độ', levels: { easy: '★ Khóa gần xong', mid: '★★ Nửa khóa', hard: '★★★ Như Kowalewski', expert: '★★★★ Không cách chữ, như điện thật' },
     optStory: 'Trang kể chuyện Phép màu trên sông Vistula',
@@ -802,7 +802,7 @@ const W20_TEXT = {
 
   fr: {
     title: "Les télégrammes secrets de 1920",
-    appTitle: "📻 Le miracle de la Vistule, partie 1 — Les télégrammes secrets de 1920", nextPart: "Partie 2 : Le chiffre « Révolution » →",
+    appTitle: "📻 Le miracle de la Vistule — Les télégrammes secrets de 1920",
     appSub: 'Août 1920, l’Armée rouge aux portes de Varsovie. Lis des télégrammes interceptés comme le renseignement radio polonais, conseille au commandant en chef où frapper et découvre l’histoire du miracle de la Vistule. Une fiche à imprimer avec les solutions.',
     level: 'Niveau', levels: { easy: '★ Clé presque prête', mid: '★★ Demi-clé', hard: '★★★ Comme Kowalewski', expert: '★★★★ Sans espaces, comme un vrai télégramme' },
     optStory: 'Page avec l’histoire du miracle de la Vistule',
@@ -1001,7 +1001,7 @@ const W20_TEXT = {
 
   it: {
     title: "I telegrammi segreti del 1920",
-    appTitle: "📻 Il miracolo della Vistola, parte 1 — I telegrammi segreti del 1920", nextPart: "Parte 2: Il cifrario «Rivoluzione» →",
+    appTitle: "📻 Il miracolo della Vistola — I telegrammi segreti del 1920",
     appSub: 'Agosto 1920, l’Armata Rossa alle porte di Varsavia. Leggi i telegrammi intercettati come l’intelligence radio polacca, consiglia al comandante supremo dove attaccare e scopri la storia del miracolo della Vistola. Una scheda da stampare con le soluzioni.',
     level: 'Livello', levels: { easy: '★ Chiave quasi pronta', mid: '★★ Mezza chiave', hard: '★★★ Come Kowalewski', expert: '★★★★ Senza spazi, come un vero telegramma' },
     optStory: 'Pagina con la storia del miracolo della Vistola',
@@ -1200,7 +1200,7 @@ const W20_TEXT = {
 
   es: {
     title: "Los telegramas secretos de 1920",
-    appTitle: "📻 El milagro del Vístula, parte 1 — Los telegramas secretos de 1920", nextPart: "Parte 2: La cifra «Revolución» →",
+    appTitle: "📻 El milagro del Vístula — Los telegramas secretos de 1920",
     appSub: 'Agosto de 1920, el Ejército Rojo a las puertas de Varsovia. Lee telegramas interceptados como el servicio de escucha polaco, aconseja al comandante en jefe dónde atacar y descubre la historia del milagro del Vístula. Una ficha para imprimir con soluciones.',
     level: 'Nivel', levels: { easy: '★ Clave casi lista', mid: '★★ Media clave', hard: '★★★ Como Kowalewski', expert: '★★★★ Sin espacios, como un telegrama real' },
     optStory: 'Página con la historia del milagro del Vístula',
