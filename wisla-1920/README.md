@@ -8,7 +8,7 @@ intelligence did before the Battle of Warsaw, advise the Commander-in-Chief wher
 | File | What it is |
 |---|---|
 | [`worksheet.html`](worksheet.html) | The sheet: how the cipher works, the mission, the story, a real decrypt (photo + transcription), the answers |
-| [`engine.js`](engine.js) | Telegrams, the day's key, the solvers used by the tests, the map (SVG), the real decrypt's text |
+| [`engine.js`](engine.js) | Telegrams, the day's key, the solvers used by the tests, the map (SVG; the ["Revolution" cipher](../rewolucja-1920/README.md) sheet draws its own arrows and units on it), the real decrypt's text |
 | [`strings.js`](strings.js) | Texts in seven languages |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js`: keys, the ДИВИЗИЯ pattern, every level solvable (★★★★ with exactly one answer) |
 | [`strings.test.js`](strings.test.js) | `node strings.test.js`: same keys in every language, every word and telegram explained |

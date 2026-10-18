@@ -187,7 +187,10 @@ const W20 = (() => {
   };
 
   /**
-   * opts: { L: labels (cities, rivers, units, prussia, red, pl5, strike, jam), mode: 'story' | 'choice' }
+   * opts: { L: labels (cities, rivers, units, prussia, red, pl5, strike, jam), mode: 'story' | 'choice',
+   *         cities?: extra towns { id: [lat, lon] }, units?: red markers instead of ours { id: [lat, lon] },
+   *         choices?: the arrows to pick from { A: [from, to], … }, choiceLabels?: { A: [dx, dy], … } }
+   *   (the extra options let the "Revolution" cipher sheet draw its own question on the same map)
    * story: the whole picture — red arrows (where they went), the blue strike from the Wieprz and Sikorski's
    *        5th Army, the jammed radio, a legend.
    * choice: the small map for the question — main towns and rivers in bigger letters, red markers only, and
@@ -217,7 +220,7 @@ const W20 = (() => {
       }
     }
     // towns
-    for (const [id, [lat, lon, minor]] of Object.entries(CITY)) {
+    for (const [id, [lat, lon, minor]] of Object.entries({ ...CITY, ...opts.cities })) {
       if (minor && !story) continue;
       const [x, y] = P(lat, lon), big = id === 'warsaw', [dx, dy, anchor] = (!story && CITY_LABEL_SMALL[id]) || CITY_LABEL[id] || [6, 4];
       s += big ? `<rect x="${x - 5}" y="${y - 5}" width="10" height="10" fill="#222" stroke="#fff" stroke-width="1.5"/>`
@@ -225,8 +228,8 @@ const W20 = (() => {
       s += label(x + dx * (big ? 1 : f), y + dy * (big ? 1 : (dy > 6 ? f : 1)), L.cities[id], { anchor, bold: big, size: (big ? 12.5 : 10) * f });
     }
     // Red Army
-    for (const [id, [lat, lon]] of Object.entries(UNITS)) {
-      const [x, y] = P(lat, lon), [dx, dy, anchor] = (!story && UNIT_LABEL_SMALL[id]) || UNIT_LABEL[id];
+    for (const [id, [lat, lon]] of Object.entries(opts.units || UNITS)) {
+      const [x, y] = P(lat, lon), [dx, dy, anchor] = (!story && UNIT_LABEL_SMALL[id]) || UNIT_LABEL[id] || [0, -10, 'middle'];
       s += `<rect x="${x - 9}" y="${y - 6}" width="18" height="12" fill="#fff" stroke="${RED}" stroke-width="2"/>`
         + `<path d="M${x - 9} ${y - 6}L${x + 9} ${y + 6}M${x - 9} ${y + 6}L${x + 9} ${y - 6}" stroke="${RED}" stroke-width="1.2"/>`
         + label(x + dx, y + (dy < 0 ? dy * f : dy), L.units[id], { anchor, color: '#a01d22', bold: true, size: 10 * (story ? 1 : 1.2) });
@@ -250,9 +253,9 @@ const W20 = (() => {
         + `<path d="M${lx} ${ly + 19}h16" stroke="${BLUE}" stroke-width="4.5"/><path d="M${lx + 25} ${ly + 19}l-9 -6v12z" fill="${BLUE}"/>` + label(lx + 30, ly + 23, L.strike, { size: 10, color: BLUE, bold: true })
         + `<path d="M${lx} ${ly + 38}l4 -4l4 8l4 -8l4 8l4 -8l4 4" stroke="#d29a00" stroke-width="2" fill="none"/>` + label(lx + 30, ly + 42, L.jam, { size: 10, color: '#8a6400', bold: true });
     } else {
-      for (const [c, pts] of Object.entries(CHOICES)) {
+      for (const [c, pts] of Object.entries(opts.choices || CHOICES)) {
         s += arrow(pts, '#444', { dash: true, w: 2.8, head: 11 });
-        const [x, y] = P(...pts[1]), [ox, oy] = { A: [16, 2], B: [0, -17], C: [0, -17] }[c];
+        const [x, y] = P(...pts[1]), [ox, oy] = (opts.choiceLabels || { A: [16, 2], B: [0, -17], C: [0, -17] })[c];
         s += `<circle cx="${x + ox}" cy="${y + oy}" r="11.5" fill="#fff" stroke="#444" stroke-width="1.8"/>`
           + `<text x="${x + ox}" y="${y + oy + 5.5}" font-size="16" font-weight="800" text-anchor="middle" fill="#222">${c}</text>`;
       }

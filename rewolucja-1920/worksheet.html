@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Szyfr „Rewolucja” 1920</title>
+<meta name="description" content="Gra na kartkę: złam szyfr „Rewolucja” z 12 sierpnia 1920 roku tak jak polscy kryptolodzy — krata, zmiennik, odejmowanie bez pożyczania i błędy bolszewickich szyfrantów. Siedem języków, z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .rw{font-size:12px;line-height:1.4;color:#222;}
+  .rw p{margin:0 0 2mm;}
+  .rw h3{font-size:13px;margin:0 0 1mm;}
+  .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 2.6mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;font-size:10.5px;line-height:1.32;padding:1.6mm 3mm;}
+  .tip p{margin:0 0 0.8mm;}
+  .cy{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.04em;}
+  .small{font-size:10px;color:#555;}
+  /* the base table (krata) */
+  .krata{border-collapse:collapse;font:700 12px/1 ui-monospace,Menlo,Consolas,monospace;}
+  .krata th,.krata td{width:5.6mm;height:5.6mm;text-align:center;border:0.3mm solid #777;padding:0;}
+  .krata th{background:#ece6d6;color:#5a4b30;font-size:10.5px;}
+  .krata th.corner{background:#fff;border-color:#fff #777 #777 #fff;}
+  .krata td{color:#1b2a6b;font-size:13px;background:#fff;}
+  .krata td.hl{background:#ffe36b;}
+  .kcap{font-size:9.5px;color:#666;margin:0.8mm 0 0;}
+  /* key boxes */
+  .keyline{display:flex;gap:0.6mm;align-items:flex-end;flex-wrap:wrap;}
+  .d{width:4.1mm;height:5mm;border:0.3mm solid #888;border-radius:0.6mm;background:#fff;text-align:center;font:700 11.5px/4.7mm ui-monospace,Menlo,Consolas,monospace;color:#1f4fbf;}
+  .d.pre{color:#777;}
+  .d.fw{border-bottom:0.9mm solid #2a6cb0;}
+  .d.bw{border-bottom:0.9mm solid #e08a00;}
+  .keyline .sep{width:1.6mm;}
+  .legend{font-size:9.5px;color:#555;margin:1mm 0 0;display:flex;gap:4mm;flex-wrap:wrap;}
+  .legend i{display:inline-block;width:5mm;height:0.9mm;vertical-align:middle;margin-right:1mm;}
+  .top{display:grid;grid-template-columns:58mm 1fr;gap:4mm;align-items:start;margin:0 0 2.4mm;}
+  .top > *{min-width:0;}
+  .top .box{margin:0 0 2mm;}
+  .top .box:last-child{margin:0;}
+  .keybox{display:flex;align-items:center;gap:2.5mm;padding:1.4mm 3mm;}
+  .keybox h3{white-space:nowrap;}
+  .keybox .keyline{flex-wrap:nowrap;}
+  .keybox h3{margin:0;}
+  .keybox .d{width:4.8mm;height:5.6mm;line-height:5.3mm;font-size:12.5px;}
+  .keybox .legend{margin:0;flex-direction:column;gap:0;line-height:1.25;}
+  /* telegram */
+  .tg{border:0.4mm solid #7a6a4f;background:#fbf7ec;border-radius:1.5mm;padding:1mm 2.2mm 1.4mm;margin:0 0 1.8mm;}
+  .tg .th{font-size:10px;color:#5a4b30;margin:0 0 1mm;display:flex;gap:2mm;flex-wrap:wrap;align-items:baseline;}
+  .tg .th b{font-size:12px;color:#222;}
+  .tg .stamp{font:700 10.5px ui-monospace,Menlo,Consolas,monospace;color:#a01d22;border:0.3mm solid #a01d22;border-radius:0.8mm;padding:0 1.2mm;}
+  .heard{font:700 12.5px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:#333;word-spacing:1.4mm;margin-left:2mm;}
+  .heard span{font:400 9.5px system-ui,sans-serif;color:#7a6a4f;letter-spacing:0;word-spacing:0;margin-right:1.5mm;}
+  .grid{display:flex;align-items:flex-start;gap:1mm;}
+  .labs{display:flex;flex-direction:column;gap:0.5mm;flex:0 0 auto;}
+  .labs div{height:5.6mm;font-size:9px;line-height:5.6mm;color:#5a4b30;text-align:right;white-space:nowrap;}
+  .labs div.ll{height:6.6mm;line-height:6.6mm;}
+  .labs div.lc{height:5mm;line-height:5mm;}
+  .blocks{display:flex;gap:2.4mm;flex-wrap:wrap;}
+  .blk{display:flex;gap:0.8mm;padding:0 0.6mm;border-radius:1mm;}
+  .blk:nth-child(2){background:#efe7d2;}
+  .pr{display:flex;flex-direction:column;gap:0.5mm;}
+  .pr .row2{display:flex;gap:0;}
+  .pr .c{width:4.8mm;height:5mm;text-align:center;font:700 12.5px/5mm ui-monospace,Menlo,Consolas,monospace;color:#222;}
+  .grid .pr .row2 .d{width:4.8mm;height:5.6mm;line-height:5.3mm;font-size:12.5px;}
+  .pr .row2 .d{border-radius:0;}
+  .pr .row2 .d + .d{border-left:0;}
+  .pr .lt{height:6.6mm;border:0.4mm solid #555;border-radius:0.8mm;background:#fff;text-align:center;font:700 14px/6.2mm ui-monospace,Menlo,Consolas,monospace;color:#1f4fbf;}
+  .pr .lt.pre{color:#888;}
+  /* trials (★★★) */
+  .trials{display:flex;gap:3mm;align-items:flex-start;flex-wrap:wrap;}
+  .trials .labs{padding-top:9.8mm;gap:0.5mm;}
+  .trial h4{margin:0 0 0.6mm;height:4.4mm;font:700 12px/4.4mm ui-monospace,Menlo,Consolas,monospace;color:#1b2a6b;}
+  .trial h4 small{color:#999;font-weight:400;}
+  .trial h4 .yn{float:right;font:400 9.5px system-ui,sans-serif;margin:0;}
+  .trials .labs div{font-size:8.5px;height:4.7mm;line-height:4.7mm;}
+  .trial .pr .c,.trial .d{width:3.8mm;}
+  .trial .d{height:4.7mm;line-height:4.4mm;}
+  .trial .pr .c{height:4.7mm;line-height:4.7mm;}
+  .trial .pr .lt{height:4.7mm;line-height:4.3mm;font-size:12px;}
+  .trial .blk:nth-child(2){background:none;}
+  .yn{font-size:9.5px;color:#555;margin-top:0.8mm;}
+  /* glossary, report, map */
+  .gloss{columns:2;column-gap:4mm;font-size:9px;line-height:1.2;margin:0 0 1.4mm;}
+  .gloss div{break-inside:avoid;margin:0 0 0.6mm;}
+  .duo{display:grid;grid-template-columns:1fr 64mm;gap:4mm;align-items:start;}
+  .map svg{display:block;width:100%;height:auto;}
+  .map .cap{font-size:9.5px;color:#555;text-align:center;margin-top:0.6mm;}
+  .q{margin:0 0 1mm;font-size:10.5px;line-height:1.28;}
+  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5mm;}
+  /* how it works */
+  .how{font-size:11.5px;line-height:1.36;}
+  .how h3{margin:1.3mm 0 0.5mm;font-size:12.5px;}
+  .how p{margin:0 0 1.2mm;}
+  .abc{display:flex;flex-wrap:wrap;gap:0.8mm;margin:0.6mm 0 0.6mm;}
+  .abc div{width:8.6mm;border:0.3mm solid #999;border-radius:1mm;text-align:center;background:#fff;padding:0.2mm 0 0.4mm;}
+  .abc b{display:block;font:700 13px/1.15 ui-monospace,Menlo,Consolas,monospace;color:#1b2a6b;}
+  .abc span{display:block;font-size:9px;line-height:1.05;color:#444;}
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:2mm 5mm;}
+  .demo{display:grid;grid-template-columns:auto 1fr;gap:0.8mm 2mm;align-items:center;margin:1mm 0 1.4mm;}
+  .demo .lab{font-size:9.5px;color:#666;text-align:right;}
+  .demo .row{display:flex;gap:0.9mm;}
+  .demo .p2{display:flex;}
+  .demo .p2 .d{color:#222;border-radius:0;width:4mm;height:5mm;line-height:4.7mm;font-size:11.5px;}
+  .demo .p2 .d + .d{border-left:0;}
+  .demo .p2.hl .d{background:#ffe36b;}
+  .demo .lt{width:8mm;text-align:center;font:700 13px ui-monospace,Menlo,Consolas,monospace;color:#1b2a6b;}
+  .demo .lt.hl{background:#ffe36b;border-radius:1mm;}
+  .how ul{margin:0 0 1.2mm;padding-left:5mm;}
+  .how li{margin:0 0 0.4mm;}
+  .trick{border:0.5mm solid #1f4fbf;background:#eef3ff;}
+  .warm{display:grid;grid-template-columns:1fr 1fr;gap:1mm 5mm;}
+  .warm .q{font-size:11px;}
+  .warm .ln{display:inline-block;width:9mm;border-bottom:0.3mm solid #444;margin:0 2.5mm 0 1mm;}
+  .warm .ops{display:block;margin-top:1mm;font:700 12px ui-monospace,Menlo,Consolas,monospace;}
+  /* story */
+  .cols{columns:2;column-gap:5mm;}
+  .cols > div{break-inside:avoid;margin:0 0 2.2mm;}
+  .stop{display:grid;grid-template-columns:1fr 84mm;gap:5mm;align-items:start;}
+  .west{border:0.5mm solid #1f4fbf;background:#eef3ff;}
+  /* the real key card */
+  .realtop{display:grid;grid-template-columns:70mm 1fr;gap:5mm;align-items:start;}
+  .photo{display:block;width:100%;height:auto;border:0.3mm solid #bbb;}
+  .realtop .doc{font-size:10px;line-height:1.33;}
+  .doc{font:10.5px/1.38 "Courier New",Courier,ui-monospace,monospace;color:#1b2a6b;background:#fdfcf6;border:0.3mm solid #999;padding:2mm 3mm;margin:0 0 2.4mm;box-shadow:0.6mm 0.6mm 0 #ddd;}
+  .doc .where{font:600 9.5px system-ui,sans-serif;color:#7a6a4f;display:block;margin:0 0 0.4mm;}
+  .doc p{margin:0 0 1.6mm;}
+  .doc table{border-collapse:collapse;margin:0.6mm 0 0;}
+  .doc td{padding:0 3mm 0 0;}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:0.6mm 5mm;font-size:10.5px;margin:0 0 2.4mm;}
+  .notes b{font-family:"Courier New",Courier,monospace;color:#1b2a6b;}
+  /* answers */
+  .ans .tr{margin:0 0 2.4mm;font-size:12px;}
+  .ans ol{margin:0;padding-left:5mm;}
+  .ans li{margin:0 0 1.4mm;}
+  .ok{color:#1d7a32;font-weight:700;}
+  .no{color:#a01d22;}
+  @media (max-width:600px){
+    .duo,.top,.stop,.steps,.realtop,.notes,.warm,.trials{grid-template-columns:1fr;}
+    .cols,.gloss{columns:1;}
+    .grid{overflow-x:auto;}
+    .keybox,.keybox .keyline{flex-wrap:wrap;}
+  }
+  @media print{ .rw{font-size:11.5px;} .rw.how{font-size:11px;} .grid{overflow:visible;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🔐 Cud nad Wisłą, część 2 — Szyfr „Rewolucja”</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../wisla-1920/worksheet.html" data-keep-lang data-i18n="prevPart">← Część 1: Tajne depesze</a>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="../wisla-1920/engine.js"></script>
+<script src="../wisla-1920/strings.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const esc = KIT.esc;
+  const d1 = (x, cls = '') => `<div class="d ${cls}">${x === undefined || x === null ? '' : x}</div>`;
+
+  /** The base table; `hl` letters get a yellow cell. */
+  const krata = (hl = '') => `<table class="krata"><tr><th class="corner"></th>${REW.GRID[0].map((_, c) => `<th>${c}</th>`).join('')}</tr>`
+    + REW.GRID.map((row, r) => `<tr><th>${r}</th>${row.map(ch => `<td${hl.includes(ch) ? ' class="hl"' : ''}>${ch}</td>`).join('')}</tr>`).join('') + '</table>';
+
+  /** The 12 key boxes: blue underline for the 6 digits, orange for the same backwards; `show(i)` → digit or ''. */
+  const keyBoxes = (show, pre = () => false) => `<div class="keyline">${Array.from({ length: 12 }, (_, i) =>
+    (i === 6 ? '<span class="sep"></span>' : '') + d1(show(i), (i < 6 ? 'fw' : 'bw') + (pre(i) ? ' pre' : ''))).join('')}</div>`;
+
+  /**
+   * The work grid of a telegram: blocks of 12 digits (one whole key), pairs of digits (one letter each).
+   * fill: { key, plain, letters } — what is written in (answers), pre: letters printed in grey (★★).
+   */
+  function workGrid(t, L, fill = {}, pre = '') {
+    const n = t.cipher.length, blocks = [];
+    for (let b = 0; b < n; b += 12) {
+      const pairs = [];
+      for (let i = b; i < Math.min(b + 12, n); i += 2) {
+        const li = i / 2, kcls = j => (j % 12 < 6 ? 'fw' : 'bw');
+        const letter = fill.letters ? t.text[li] : (pre[li] || '');
+        pairs.push(`<div class="pr">
+          <div class="row2"><div class="c">${t.cipher[i]}</div><div class="c">${t.cipher[i + 1]}</div></div>
+          <div class="row2">${d1(fill.key ? t.keyRow[i] : '', kcls(i))}${d1(fill.key ? t.keyRow[i + 1] : '', kcls(i + 1))}</div>
+          <div class="row2">${d1(fill.plain ? t.plain[i] : '')}${d1(fill.plain ? t.plain[i + 1] : '')}</div>
+          <div class="lt${!fill.letters && pre[li] ? ' pre' : ''}">${letter}</div></div>`);
+      }
+      blocks.push(`<div class="blk">${pairs.join('')}</div>`);
+    }
+    return `<div class="grid"><div class="labs"><div class="lc">${esc(L.cipher)}</div><div>${esc(L.key)}</div><div>${esc(L.plain)}</div><div class="ll">${esc(L.letters)}</div></div>
+      <div class="blocks">${blocks.join('')}</div></div>`;
+  }
+
+  /** ★★★: try a word under the first 12 digits of telegram 1 (the row labels are drawn once, by trials()). */
+  function trial(t, w, fill) {
+    const word = w.slice(0, 6), tail = w.slice(6), dig = REW.digitsOf(word), key = REW.keyFrom(t.cipher, word), pairs = [];
+    for (let i = 0; i < 12; i += 2) pairs.push(`<div class="pr">
+      <div class="lt">${word[i / 2]}</div>
+      <div class="row2"><div class="c">${t.cipher[i]}</div><div class="c">${t.cipher[i + 1]}</div></div>
+      <div class="row2">${d1(fill ? dig[i] : '')}${d1(fill ? dig[i + 1] : '')}</div>
+      <div class="row2">${d1(fill ? key[i] : '', i < 6 ? 'fw' : 'bw')}${d1(fill ? key[i + 1] : '', i + 1 < 6 ? 'fw' : 'bw')}</div></div>`);
+    return { word, tail, mirror: REW.isMirror(key), html: `<div class="blk">${pairs.join('')}</div>` };
+  }
+  const trials = (t, L, fill) => `<div class="trials"><div class="labs"><div>${esc(L.cipher)}</div><div>− ${esc(L.wordDigits)}</div><div>= ${esc(L.keyShort)}</div></div>`
+    + REW.CANDIDATES.map(w => { const r = trial(t, w, fill);
+      return `<div class="trial"><h4>${r.word}${r.tail ? `<small>${r.tail}</small>` : ''}<span class="yn">${fill
+        ? `<span class="${r.mirror ? 'ok' : 'no'}">${esc(r.mirror ? L.yes : L.no)}</span>` : esc(L.mirrorQ)}</span></h4>${r.html}</div>`; }).join('') + '</div>';
+
+  KIT.app({
+    store: 'rewolucja1920.sheet',
+    text: REW_TEXT,
+    groups: [{ id: 'level', values: ['easy', 'mid', 'hard'], def: 'easy', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'how', def: true, label: 'optHow' }, { id: 'story', def: true, label: 'optStory' }, { id: 'real', def: true, label: 'optReal' }],
+    render(s, api) {
+      const { C } = api, W = W20_TEXT[I18N.get()] || W20_TEXT.en;   // map labels, the Russian alphabet and the story map's title
+      const d = REW.day(api.rnd('day')), M = C.mission, G = C.grid, t1 = d.telegrams[0];
+      const L = { ...W.map, units: { ...W.map.units, army16: C.map.army16 } };
+      const mapChoice = () => W20.mapSvg({ mode: 'choice', L,
+        units: { army4: [53.15, 20.0], army16: [52.5, 23.0] },
+        choices: { A: [[52.33, 22.75], [52.25, 21.4]], B: [[52.85, 19.95], [52.38, 20.82]], C: [[51.3, 20.85], [51.98, 20.95]] },
+        choiceLabels: { A: [38, 12], B: [-36, -22], C: [-15, 32] } });
+      const telegram = (t, i, fill) => `<div class="tg"><div class="th"><b>📻 ${esc(M.tg(i + 1))}</b><span class="stamp">РЕВОЛЮЦИЯ ${d.num}</span>
+        <span class="heard"><span>📡 ${esc(M.heard)}</span>${t.groups.join(' ')}</span></div>${workGrid(t, G, fill ? { key: 1, plain: 1, letters: 1 } : {}, !fill && i === 0 && s.level === 'mid' ? d.start : '')}</div>`;
+      const pages = [];
+
+      // 0. how the cipher works
+      if (s.how) {
+        const H = C.how, ex = REW.EXAMPLE, pd = REW.digitsOf(ex.word), kr = REW.unfold(ex.key6), cd = REW.encrypt(ex.word, ex.key6);
+        const krow = pd.map((_, i) => kr[i % 12]), isI = i => ex.word[i] === 'И';
+        const pairsRow = (arr, cls = j => '') => `<div class="row">${ex.word.split('').map((_, j) =>
+          `<div class="p2${isI(j) ? ' hl' : ''}">${d1(arr[2 * j], cls(2 * j))}${d1(arr[2 * j + 1], cls(2 * j + 1))}</div>`).join('')}</div>`;
+        const groups = []; for (let i = 0; i < cd.length; i += 5) groups.push(cd.slice(i, i + 5).join(''));
+        const A = W.abc, snd = A.sounds.split(' ');
+        const w4 = REW.encrypt('МИР', ex.key6), trickC = cd.slice(0, 6), trickW = REW.digitsOf('ДИВ');
+        const sec = ([h, p]) => `<h3>${esc(h)}</h3><p>${esc(p)}</p>`;
+        pages.push(`<div class="sheet rw how">
+          ${api.head(H.title, H.sub, false)}
+          <div class="abc">${[...'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'].map((ch, i) => `<div><b>${ch}</b><span>${esc(snd[i])}</span></div>`).join('')}</div>
+          <p class="small" style="margin:0 0 1.4mm">🔤 ${esc(A.title)}. ${esc(A.note)}</p>
+          <p>${esc(H.intro)}</p>
+          <div class="steps">
+            <div>${sec(H.s1)}<div style="display:flex;gap:3mm;align-items:flex-start">${krata('И')}<p class="small" style="margin:0">${esc(G.gridNote)}</p></div></div>
+            <div>${sec(H.s2)}<div class="demo">
+              <span class="lab">${esc(H.word)}</span><div class="row">${ex.word.split('').map((ch, j) => `<div class="lt${isI(j) ? ' hl' : ''}">${ch}</div>`).join('')}</div>
+              <span class="lab">${esc(H.step1)}</span>${pairsRow(pd)}
+              <span class="lab">+ ${esc(H.keyLab)}<br>${ex.key6.join('')}</span>${pairsRow(krow, i => (i % 12 < 6 ? 'fw' : 'bw'))}
+              <span class="lab">= ${esc(H.sent)}</span>${pairsRow(cd)}
+            </div></div>
+          </div>
+          <div class="steps">
+            <div>${sec(H.s3)}<p class="cy" style="font-size:12.5px;letter-spacing:.08em">РЕВОЛЮЦИЯ 2 &nbsp; ${groups.join(' ')}</p></div>
+            <div>${sec(H.rcv)}</div>
+          </div>
+          ${sec(H.comb)}
+          <h3>${esc(H.breakT)}</h3>
+          <p style="margin:0 0 0.6mm">${esc(H.breakP)}</p>
+          <ul>${H.mistakes.map(m => `<li>${esc(m)}</li>`).join('')}</ul>
+          <div class="box trick"><h3 style="margin-top:0">💡 ${esc(H.trickT)}</h3><p style="margin:0">${esc(H.trick(trickC.join(' '), trickW.join(' '), REW.keyFrom(trickC, 'ДИВ').join('')))}</p></div>
+          <div class="box tip"><h3 style="margin-top:0">✏️ ${esc(H.warmT)}</h3><div class="warm">
+            <div class="q">1. ${esc(H.w[0])}<span class="ops">7 + 5 =<span class="ln"></span>9 + 9 =<span class="ln"></span>6 + 4 =<span class="ln"></span></span></div>
+            <div class="q">2. ${esc(H.w[1])}<span class="ops">3 − 8 =<span class="ln"></span>7 − 2 =<span class="ln"></span>0 − 6 =<span class="ln"></span></span></div>
+            <div class="q">3. ${esc(H.w[2])}<span class="ops"><span class="ln" style="width:60mm"></span></span></div>
+            <div class="q">4. ${esc(H.w[3])}<span class="ops">${w4.slice(0, 2).join('')} ${w4.slice(2, 4).join('')} ${w4.slice(4).join('')} =<span class="ln" style="width:22mm"></span></span></div>
+          </div></div>
+          <h3>${esc(H.levelsT)}</h3>
+          <p class="small" style="margin:0">${H.levels.map(esc).join('<br>')}</p>
+        </div>`);
+      }
+
+      // 1. the mission
+      const hint = { easy: M.easy(d.num, d.key6.join('')), mid: M.mid(d.start), hard: M.hard }[s.level];
+      const keyShown = s.level === 'easy' ? i => (i < 6 ? d.key6[i] : '') : () => '';
+      pages.push(`<div class="sheet rw">
+        ${api.head(C.title, M.sub, true)}
+        <p style="font-size:10.5px;line-height:1.32;margin:0 0 1.6mm">${esc(M.intro(d.num))}</p>
+        <div class="top">
+          <div class="box"><h3>▦ ${esc(G.gridTitle)}</h3>${krata()}<p class="kcap">${esc(G.gridNote)}</p></div>
+          <div>
+            <div class="box tip"><h3>🔎 ${esc(M.hintTitle)}</h3><p>${esc(hint)}</p><p style="margin:0">${esc(M.then)}</p></div>
+            <div class="box keybox"><h3>🔑 ${esc(M.keyTitle(d.num))}</h3>${keyBoxes(keyShown, i => s.level === 'easy' && i < 6)}
+              <div class="legend"><span><i style="background:#2a6cb0"></i>${esc(G.fw)}</span><span><i style="background:#e08a00"></i>${esc(G.bw)}</span></div></div>
+          </div>
+        </div>
+        ${s.level === 'hard' ? `<div class="box" style="padding:1.2mm 3mm 1.6mm"><h3>🧪 ${esc(M.trialsT)}</h3>${trials(t1, G, false)}</div>` : ''}
+        ${d.telegrams.map((t, i) => telegram(t, i, false)).join('')}
+        <div class="duo">
+          <div><h3>📖 ${esc(M.glossTitle)}</h3>
+            <div class="gloss">${REW.VOCAB.map(w => `<div><span class="cy">${w}</span> — ${esc(C.gloss[w])}</div>`).join('')}</div>
+            <h3>📝 ${esc(C.report.title)}</h3>
+            ${C.report.q.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}${i === 1 ? '' : '<span class="ln"></span>'}</div>`).join('')}</div>
+          <div class="map">${mapChoice()}</div>
+        </div>
+      </div>`);
+
+      // 2. the story
+      if (s.story) {
+        const S = C.story, sec = ([h, p]) => `<div><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`;
+        pages.push(`<div class="sheet rw">
+          ${api.head(S.title, S.sub, false)}
+          <div class="stop">
+            <div>${S.sections.slice(0, 2).map(sec).join('')}</div>
+            <div class="map">${W20.mapSvg({ mode: 'story', L: W.map })}<div class="cap">${esc(W.story.mapTitle)}</div></div>
+          </div>
+          <div class="cols">${S.sections.slice(2).map(sec).join('')}</div>
+          <div class="box west">${sec(S.today).replace(/^<div>|<\/div>$/g, '')}</div>
+          <p class="small">${esc(S.simpl)}</p>
+          <p class="small">${esc(S.sources)}</p>
+        </div>`);
+      }
+
+      // 3. a real key card from the archive
+      if (s.real) {
+        const X = C.real, D = REW_DOC;
+        pages.push(`<div class="sheet rw">
+          ${api.head(X.title, X.sub, false)}
+          <p>${esc(X.intro)}</p>
+          <div class="realtop">
+            <div><img class="photo" src="delegat-1919.jpg" width="490" height="720" alt="${esc(X.photoAlt)}"><p class="small" style="margin-top:1mm">${esc(X.photoCap)}</p></div>
+            <div>
+              <div class="doc">
+                <p><span class="where">${esc(X.where[0])}</span>${esc(D.title)}</p>
+                <p><span class="where">${esc(X.where[1])}</span>${esc(D.right)}</p>
+                <p><span class="where">${esc(X.where[2])}</span>${esc(D.ways)}
+                  <table>${D.keys.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table></p>
+                <p style="margin:0"><span class="where">${esc(X.where[3])}</span>${esc(D.notes)}</p>
+              </div>
+              <p class="small">${esc(X.readNote)}</p>
+            </div>
+          </div>
+          <div class="box"><h3>${esc(X.translT)}</h3><p style="margin:0">${esc(X.transl)}</p></div>
+          <h3>${esc(X.notesT)}</h3>
+          <div class="notes">${X.notes.map(([k, v]) => `<div><b>${esc(k)}</b> — ${esc(v)}</div>`).join('')}</div>
+          <h3>✏️ ${esc(X.tasksT)}</h3>
+          ${X.tasks.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}<span class="ln"></span></div>`).join('')}
+          <p class="small">${esc(X.source)}</p>
+        </div>`);
+      }
+
+      // 4. answers
+      if (s.key) {
+        const A = C.answers, t2 = d.telegrams[1], H = C.how;
+        pages.push(`<div class="sheet rw ans">
+          ${api.head(api.t('keyTitle'), C.title, false)}
+          <div class="box"><h3>🔑 ${esc(M.keyTitle(d.num))}: <span class="cy">${d.key6.join('')} ${d.key6.slice().reverse().join('')}</span></h3>
+            <p style="margin:0">${esc(A.keyHow(d.start))}</p>
+            ${s.level === 'hard' ? `<div style="margin-top:1.5mm">${trials(t1, G, true)}</div>` : ''}</div>
+          ${d.telegrams.map((t, i) => telegram(t, i, true) + `<p class="tr">➜ <span class="cy">${esc(t.words.join(' '))}</span> — ${esc(i ? A.tr2[t.id] : A.tr1[d.start])}</p>`).join('')}
+          <h3>📝 ${esc(C.report.title)}</h3>
+          <ol>${A.report(d.num).map(a => `<li>${esc(a)}</li>`).join('')}</ol>
+          ${s.how ? `<h3 style="margin-top:2.5mm">${esc(H.warmT)}</h3><ol><li>2, 8, 0</li><li>5, 5, 4</li><li><span class="cy">418620 026814</span></li><li>${REW.digitsOf('МИР').join('').replace(/(..)(?=.)/g, '$1 ')} = <span class="cy">МИР</span> — ${esc(H.mir)}</li></ol>` : ''}
+          ${s.real ? `<h3 style="margin-top:2.5mm">${esc(C.real.title)}</h3><ol>${C.real.answers.map(a => `<li>${esc(a)}</li>`).join('')}</ol>` : ''}
+        </div>`);
+      }
+      return { html: pages.join(''), tasks: 2, pages: pages.length };
+    },
+  });
+})();
+</script>
+</body>
+</html>
