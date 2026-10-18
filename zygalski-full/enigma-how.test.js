@@ -28,5 +28,13 @@ ok('the middle rotor turns once in the six presses', moved > 0 && pr.filter((p, 
 ok('the drawn press is the first of the six', H.path([...pr[0].win].map(c => c.charCodeAt(0) - 65), 0).endsWith(pr[0].lamp));
 ok('the keyboard has every letter once', [...H.KEYBOARD.join('')].sort().join('') === 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
+// the 1932 day: every letter appears in place 1, places 1 → 4 are a permutation, its chains come in pairs of equal length
+{
+  const d = H.DAY32, lens = d.chains.map(c => c.length).sort((a, b) => a - b);
+  ok('1932: place 1 covers A–Z', d.ad.every(x => x >= 0) && new Set(d.ad).size === 26);
+  ok('1932: chains in pairs of equal length', lens.length % 2 === 0 && lens.every((l, i) => i % 2 || l === lens[i + 1]));
+  ok('1932: one ground setting, keys typed twice', d.inds.every((s, i) => H.machine.encrypt(d.ground, s) === d.keys[i] + d.keys[i]));
+}
+
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

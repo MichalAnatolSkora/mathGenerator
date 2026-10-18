@@ -111,6 +111,19 @@
   .eh-mono{font-family:var(--mono);}
   .eh-mono u{text-decoration:none;background:var(--hl);}
   .eh-next{display:none;}
+  .eh-finger{margin:14px 0;border-top-color:#d29a00;}
+  .eh-start{font-weight:700;margin-top:6px;}
+  .eh-msgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:2px 12px;font:14px/1.5 var(--mono);margin:6px 0;}
+  .eh-msgs i{font-style:normal;color:#999;font-size:12px;}
+  .eh-chainwrap{overflow-x:auto;}
+  .eh-chain{border-collapse:collapse;font:14px/1 var(--mono);margin:6px 0;background:#fff;}
+  .eh-chain th,.eh-chain td{border:1px solid #b9bfcc;text-align:center;padding:0;min-width:30px;height:30px;}
+  .eh-chain th{background:var(--navy);color:#fff;}
+  .eh-chain th:first-child{background:var(--soft);color:var(--muted);font:600 12px/1.1 system-ui,sans-serif;padding:0 6px;}
+  .eh-chain input{width:30px;height:34px;border:0;text-align:center;font:800 16px/1 var(--mono);text-transform:uppercase;background:transparent;padding:0;}
+  .eh-chain input.no{background:var(--bad-soft);color:var(--bad);}
+  .eh-chain input.ok{background:var(--good-soft);}
+  .rejchains{font:700 15px/1.6 var(--mono);overflow-wrap:anywhere;}
   .eh-guess{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px;}
   .eh-guess p{margin:0;}
   .eh-guess span{display:block;font-size:13px;color:var(--muted);}
@@ -223,6 +236,9 @@
       <p id="emIdea" class="small"></p>
       <details><summary id="ehPartsT"></summary><div id="ehParts"></div></details>
       <details><summary id="ehProcT"></summary><div id="ehProc"></div></details>
+      <details><summary id="ehRejT"></summary><div id="ehRej"></div>
+        <div class="row"><button type="button" class="btn" id="rejCheck"></button><button type="button" class="btn" id="rejShow"></button></div>
+        <p class="say" id="rejSay" aria-live="polite"></p></details>
     </div>
   </details>
 
@@ -508,6 +524,9 @@
     $('ehPartsT').textContent = P.partsTitle; $('ehProcT').textContent = P.procTitle;
     $('ehParts').innerHTML = EH.partsHtml(E, esc, { intro: false, figure: false });
     $('ehProc').innerHTML = EH.procHtml(E, esc);
+    $('ehRejT').textContent = '📖 ' + E.rej.title.replace(/^[^?]*\?\s*3\.\s*/, '');
+    $('ehRej').innerHTML = EH.rejHtml(E, esc, { inputs: true });
+    $('rejCheck').textContent = E.rej.task.check; $('rejShow').textContent = E.rej.task.show; $('rejSay').textContent = '';
     renderEnigma();
   }
   function pressKey(ch) {
@@ -526,6 +545,30 @@
     $('emWin').querySelector(`[data-r="${i}"][data-d="${d}"]`).focus();
   });
   $('emClear').addEventListener('click', () => { resetEnigma(); renderEnigma(); });
+  // part 3: the chains of a 1932 day — type place 4 under place 1, check, then show the chains
+  $('ehRej').addEventListener('input', e => {
+    const t = e.target; if (!t.dataset.l) return;
+    t.value = t.value.toUpperCase().replace(/[^A-Z]/g, '').slice(-1); t.className = '';
+    const next = $('ehRej').querySelector(`[data-l="${+t.dataset.l + 1}"]`);
+    if (t.value && next) next.focus();
+  });
+  $('rejCheck').addEventListener('click', () => {
+    const K = ET().rej.task, ins = [...$('ehRej').querySelectorAll('[data-l]')];
+    let wrong = 0, empty = 0;
+    for (const t of ins) {
+      if (!t.value) { empty++; t.className = ''; continue; }
+      const ok = t.value === L(EH.DAY32.ad[+t.dataset.l]);
+      t.className = ok ? 'ok' : 'no'; wrong += !ok;
+    }
+    const say = $('rejSay');
+    say.className = !wrong && !empty ? 'say good' : 'say bad';
+    say.textContent = !wrong && !empty ? K.ok : [wrong ? K.no(wrong) : '', empty ? K.empty(empty) : ''].filter(Boolean).join(' ');
+  });
+  $('rejShow').addEventListener('click', () => {
+    const A = EH.rejAnswer();
+    $('rejSay').className = 'say good rejchains';
+    $('rejSay').textContent = ET().rej.task.key(A.chains, A.lengths);
+  });
   // letters typed while the machine has the focus go to the machine
   $('s0').addEventListener('keydown', e => {
     if (e.altKey || e.ctrlKey || e.metaKey || !/^[a-z]$/i.test(e.key) || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;

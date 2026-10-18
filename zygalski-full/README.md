@@ -48,14 +48,22 @@ For readers who have never seen an Enigma. Every letter shown is computed with `
 - **Part 2, how a message was sent in 1938**: the daily key as a row of a key table, the sender's five steps (ground
   PKE, message key LKW typed twice → KIJKYL, then the text from LKW), what the radio carried, the receiver, the weak
   point (KIJKYL has K in places 1 and 4: a female, with the six presses in a table), 15 September 1938, the count
-  of settings (≈ 7 · 10¹⁸), and how the wiring is known: Rejewski's equations (December 1932), the Schmidt documents
-  from French intelligence (keys for September–October 1932, the manual), his guess that the entry drum goes A→A,
-  B→B… and not in keyboard order Q→A, W→B… as on the commercial Enigma, the AVA copies (1933), reflector B (1937) and
-  rotors IV–V (1938) worked out the same way; the wiring used here is the real one of I, II, III and B.
+  of settings (≈ 7 · 10¹⁸).
+- **Part 3, how Rejewski found the wiring (December 1932)**: one ground setting for a whole day (1932), chains of
+  letters (place 1 → place 4), the theorem (chains come in pairs of equal length, because the reflector swaps in
+  pairs), the equations, the Schmidt documents via Bertrand, the entry-drum guess (QWERTZ ✗, A→A ✓), two quarters →
+  two rotors on the right, AVA doubles, reflector B and rotors IV–V; then, full width, the day's fingerprint: chain
+  lengths do not depend on the plugboard, so the cyclometer catalogue of 105,456 settings gave the daily rotor
+  setting until 15 September 1938.
+- **Task: Rejewski's chains** (a page of its own in the pack, an exercise with inputs in the game): 30 indicators of
+  one 1932-style day (`DAY32`: ground setting BLA on the example machine, key first letters covering A–Z), a worked
+  start (message 01 AHF TMQ: under A write T, message 14 TEL IOP: under T write I, …), why it works, the A–Z table
+  to fill, lines for the chains and their lengths. Answer: (ATIMJR) (BGZEVNC) (DYUPQOL) (FKWSHX), lengths 7, 7, 6, 6;
+  it is on the answer page (and behind "Show the chains" in the game).
 
 ## Pages
 
-0. **How did Enigma work?** (option, on): parts 1 and 2 above, one A4 page each in every language.
+0. **How did Enigma work?** (option, on): parts 1–3 and the chain task above, four A4 pages in every language.
 1. **Instructions** (option, on): what you have, what you look for, six steps, how to stack the sheets
    (film on a window, or pencil on paper), the simplifications.
 2. **Intercepted messages**: the day's traffic in four columns; with help, the females are marked.

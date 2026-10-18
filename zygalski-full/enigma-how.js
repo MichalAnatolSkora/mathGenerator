@@ -11,8 +11,11 @@
  *   ENIGMA_HOW.path(win, key)         → the letters of that way, e.g. 'A → Q → I → … → W'
  *   ENIGMA_HOW.partsHtml(T, esc, o)   → part 1: the intro, the drawing and the parts of the machine
  *                                        (o.intro / o.figure = false leave those out)
- *   ENIGMA_HOW.procHtml(T, esc)       → part 2: the daily key, sender, radio, receiver, the weak point, the count,
- *                                        how the wiring was found
+ *   ENIGMA_HOW.procHtml(T, esc)       → part 2: the daily key, sender, radio, receiver, the weak point, the count
+ *   ENIGMA_HOW.rejHtml(T, esc, o)     → part 3: how Rejewski found the wiring in 1932 (o.part 'story'), the task — the
+ *                                        chains of one 1932 day (o.part 'task'), or both; o.inputs: inputs, for the game;
+ *                                        rejAnswer() the task's answer
+ *   ENIGMA_HOW.DAY32                  → that day: { ground, keys, inds, ad (place 1 → place 4), chains }
  *   ENIGMA_HOW.presses(from, text)    → typing `text` from the windows `from`: [{ win, key, lamp }] per press
  *   ENIGMA_HOW.ind / cipher           → the example's enciphered doubled key (6 letters) and message
  *   ENIGMA_HOW.KEYBOARD               → the rows of Enigma's keyboard (QWERTZ…)
@@ -187,13 +190,69 @@ const ENIGMA_HOW = (() => {
       <div class="eh-box"><h3>${esc(T.receiver.title)}</h3><p>${esc(T.receiver.text(EX.ground, ind, EX.key, plainSp, T.meaning))}</p></div>
       <div class="eh-box eh-tip"><h3>${esc(T.weak.title)}</h3><div class="eh-wide eh-plain"><p>${esc(T.weak.text(EX.key[fem], ind, ind[fem], fem + 1)).replace(ind, `<b class="eh-mono">${indHl}</b>`)}</p>
         <div>${pressTable(presses(EX.ground, EX.key + EX.key), T.stepping, esc, { cols: [fem, fem + 3] })}</div></div></div>
-      <div class="eh-box"><h3>${esc(T.count.title)}</h3><p>${esc(T.count.text)}</p></div>
-      <div class="eh-box"><h3>${esc(T.wiring.title)}</h3><p>${esc(T.wiring.text)}</p>
-        <div class="eh-guess">${[[KEYBOARD.join(''), false], ['ABCDEFGHI', true]].map(([from, right], i) => `<p><span>${esc(T.wiring.rows[i])}</span>`
-          + `<b class="eh-mono">${[...from.slice(0, 5)].map((ch, j) => `${ch}→${L(j)}`).join(' ')} …</b> <i class="${right ? 'eh-yes">✓' : 'eh-no">✗'}</i></p>`).join('')}</div></div>
-      <p class="eh-next">${esc(T.next)}</p>`;
+      <div class="eh-box"><h3>${esc(T.count.title)}</h3><p>${esc(T.count.text)}</p></div>`;
   }
 
-  return { EX, machine, KEYBOARD, presses, ind, cipher, diagram, path, partsHtml, procHtml };
+  /* ---------- part 3: how Rejewski found the wiring (1932) ---------- */
+  /**
+   * A day of 1932: one ground setting for every message (it was part of the daily key then), 30 message keys typed twice
+   * on the example machine. The first letters of the keys cover A–Z, so the places 1 → 4 give a whole permutation (AD);
+   * it is a product of two swaps in pairs, so its chains (cycles) come in pairs of the same length.
+   */
+  function day1932() {
+    let x = 1932;
+    const rnd = () => { x = (Math.imul(x, 1103515245) + 12345) >>> 0; return x / 4294967296; };
+    const first = [...Array(26).keys()];
+    for (let i = 25; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [first[i], first[j]] = [first[j], first[i]]; }
+    for (let i = 0; i < 4; i++) first.splice(Math.floor(rnd() * first.length), 0, Math.floor(rnd() * 26));
+    const ground = 'BLA', keys = first.map(f => L(f) + L(Math.floor(rnd() * 26)) + L(Math.floor(rnd() * 26)));
+    const inds = keys.map(k => machine.encrypt(ground, k + k)), ad = Array(26).fill(-1);
+    for (const s of inds) ad[code(s[0])] = code(s[3]);
+    const seen = new Set(), chains = [];
+    for (let a = 0; a < 26; a++) {
+      if (seen.has(a)) continue;
+      let c = '';
+      for (let b = a; !seen.has(b); b = ad[b]) { seen.add(b); c += L(b); }
+      chains.push(c);
+    }
+    return { ground, keys, inds, ad, chains };
+  }
+  const DAY32 = day1932();
+
+  /** The two ways the entry drum could be wired: in keyboard order (commercial Enigma) or A→A, B→B… (military). */
+  const guessFig = (rows, esc) => `<div class="eh-guess">${[[KEYBOARD.join(''), false], ['ABCDEFGHI', true]].map(([from, right], i) => `<p><span>${esc(rows[i])}</span>`
+    + `<b class="eh-mono">${[...from.slice(0, 5)].map((ch, j) => `${ch}→${L(j)}`).join(' ')} …</b> <i class="${right ? 'eh-yes">✓' : 'eh-no">✗'}</i></p>`).join('')}</div>`;
+
+  /** Part 3: the story in steps (o.part 'story'), the task — the chains of one 1932 day (o.part 'task'), or both; o.inputs: inputs in the table, for the game. */
+  function rejHtml(T, esc, o = {}) {
+    const R = T.rej, K = R.task, d = DAY32;
+    // the story in steps; the last one (the day's fingerprint) runs the full width, it leads to the task
+    const step = ([h, p], i) => `<div class="eh-block${i === R.steps.length - 1 ? ' eh-finger' : ''}"><h3>${esc(h)}</h3><p>${esc(p)}</p>${i === R.guessStep ? guessFig(R.rows, esc) : ''}</div>`;
+    const story = `<p class="eh-intro">${esc(R.intro)}</p>
+      <div class="eh-grid">${R.steps.slice(0, -1).map(step).join('')}</div>
+      ${step(R.steps[R.steps.length - 1], R.steps.length - 1)}`;
+    const msgs = d.inds.map((s, i) => `<span><i>${String(i + 1).padStart(2, '0')}</i> ${s.slice(0, 3)} ${s.slice(3)}</span>`).join('');
+    const cell = i => o.inputs ? `<td><input data-l="${i}" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="${esc(K.row4)} ${L(i)}"></td>` : '<td></td>';
+    const table = `<table class="eh-chain"><tr><th>${esc(K.row1)}</th>${Array.from({ length: 26 }, (_, i) => `<th>${L(i)}</th>`).join('')}</tr>`
+      + `<tr><th>${esc(K.row4)}</th>${Array.from({ length: 26 }, (_, i) => cell(i)).join('')}</tr></table>`;
+    const lines = n => Array.from({ length: n }, () => '<p class="eh-lines"><span></span></p>').join('');
+    // a worked start: the first message, then the one that begins with its 4th letter
+    const n = i => String(i + 1).padStart(2, '0'), sp = x => `${x.slice(0, 3)} ${x.slice(3)}`;
+    const i1 = 0, b = d.inds[i1][3], i2 = d.inds.findIndex(x => x[0] === b);
+    const start = K.ex(n(i1), sp(d.inds[i1]), n(i2), sp(d.inds[i2]), d.inds[i1][0], b, d.inds[i2][3]);
+    const task = `<div class="eh-box eh-tip">${o.part === 'task' ? '' : `<h3>${esc(K.title)}</h3>`}<p>${esc(K.text(d.ground))}</p>
+        <p class="eh-start">✏️ ${esc(start)}</p>
+        <p class="eh-small">💡 ${esc(K.why)}</p>
+        <div class="eh-msgs">${msgs}</div>
+        <div class="eh-chainwrap">${table}</div>
+        ${o.inputs ? '' : `<h3>${esc(K.chains)}</h3>${lines(4)}<h3>${esc(K.lengths)}</h3>${lines(1)}`}
+      </div>
+      ${o.inputs ? '' : `<p class="eh-next">${esc(T.next)}</p>`}`;
+    return o.part === 'story' ? story : o.part === 'task' ? task : story + task;
+  }
+  /** The task's answer: the chains and their lengths, longest first. */
+  const rejAnswer = () => ({ chains: DAY32.chains.map(c => `(${c})`).join(' '), lengths: DAY32.chains.map(c => c.length).sort((a, b) => b - a).join(', ') });
+
+  return { EX, machine, KEYBOARD, presses, ind, cipher, diagram, path, partsHtml, procHtml, rejHtml, rejAnswer, DAY32 };
 })();
 if (typeof module !== 'undefined') module.exports = ENIGMA_HOW;
