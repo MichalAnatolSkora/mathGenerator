@@ -14,7 +14,7 @@ children's version is [`../zygalski-sheets/`](../zygalski-sheets/README.md).
 | [`play.html`](play.html) | The online light table: the same day on screen, the sheets stacked by the computer |
 | [`play-strings.js`](play-strings.js) | Texts of the online game in seven languages (the six steps, work-table columns and answer labels come from `strings.js`) |
 | [`play-strings.test.js`](play-strings.test.js) | `node play-strings.test.js`: same keys in every language, every text renders, the light gives the day's rings |
-| [`enigma-how.js`](enigma-how.js) | "How did Enigma work?": the drawing of the current's way, the parts of the machine and how a message was sent, for the pack and the game |
+| [`enigma-how.js`](enigma-how.js) | "How did Enigma work?": the drawing of the current's way, the parts of the machine, how a message was sent, Rejewski's wiring and the plugboard, with their tasks, for the pack and the game |
 | [`enigma-strings.js`](enigma-strings.js) | Its texts in seven languages |
 | [`enigma-how.test.js`](enigma-how.test.js) | `node enigma-how.test.js`: same keys in every language, every text renders, the example does what the texts say |
 
@@ -64,10 +64,23 @@ For readers who have never seen an Enigma. Every letter shown is computed with `
   start (message 01 AHF TMQ: under A write T, message 14 TEL IOP: under T write I, …), why it works, the A–Z table
   to fill, lines for the chains and their lengths. Answer: (ATIMJR) (BGZEVNC) (DYUPQOL) (FKWSHX), lengths 7, 7, 6, 6;
   it is on the answer page (and behind "Show the chains" in the game).
+- **Part 4, the plugboard**: the commercial Enigma had none, the army added it in 1930; a drawing of the front panel
+  (`plugSvg`: 26 sockets in keyboard order, two holes each, the example's 6 cables, A–Q in red) and the whole plugboard
+  as a strip (letter → after the plugboard); the plug with two pins (crossed wires: A–Q swaps both ways, an empty
+  socket goes straight), twice on the way (the drawn press: A → Q … W → lamp W), still in pairs, how many cables (6 from
+  1930, 5–8 from 1 Oct 1936, 7–10 from 1 Jan 1939), how many ways (`ways(n)` = 26! / ((26 − 2n)! · n! · 2ⁿ), the most
+  at 11 cables), the weak point (it only renames letters: females, chains and sheets ignore it); then, full width, how
+  the Poles found the cables: the page 2 message typed on a double without cables, the right letters green and E → Y
+  (yellow) as the hint for cable E–Y.
+- **Task: through the plugboard** (a page of its own, inputs in the game): the drawn press (windows ADU), the 13 pairs
+  the rotors and reflector make there without cables, the cables; for the keys A D E K M O Q W write to the rotors →
+  from the rotors → lamp (A filled in: A → Q → W → W), compare A/W and O/Q (the pairs survive); then the twin cable:
+  O–W instead of A–Q gives the same lamps at this press (tested: not at the next one), so one press cannot tell
+  cables apart. The answer (`plugAnswer`) is on the answer page and behind "Show the answer" in the game.
 
 ## Pages
 
-0. **How did Enigma work?** (option, on): parts 1–3 and the chain task above, four A4 pages in every language.
+0. **How did Enigma work?** (option, on): parts 1–4 and the two tasks above, six A4 pages in every language.
 1. **Instructions** (option, on): what you have, what you look for, six steps, how to stack the sheets
    (film on a window, or pencil on paper), the simplifications.
 2. **Intercepted messages**: the day's traffic in four columns; with help, the females are marked.
@@ -92,7 +105,8 @@ pack" opens `worksheet.html?seed=` with it. Progress is kept per code in `localS
    the example Enigma to type on — window letters with ▲ ▼ and a line on what they are (ring letters A–Z, one of 26
    positions, not letters of the text; a key press turns the right one: ADT → ADU), the drawing of the last key press (the windows that
    turned are marked), a QWERTZ keyboard (or the computer's own while the card has the focus), what was typed and what
-   lit, a suggestion to repeat the sender's example; parts 1 and 2 fold out below. On a phone the drawing scrolls
+   lit, a suggestion to repeat the sender's example; parts 1 and 2, part 3 with the chain task and part 4 with the
+   plugboard task fold out below. On a phone the drawing scrolls
    sideways and starts at the keys.
 1. **Find the females**: tap the messages with the same letter in places 1/4, 2/5 or 3/6 (checked against
    `ZYG.females`; a wrong tap says why and counts as a mistake; "show all" is the help).

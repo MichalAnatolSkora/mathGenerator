@@ -131,6 +131,30 @@
   .eh-guess b{font-size:15px;}
   .eh-guess i{font-style:normal;font-weight:800;font-size:17px;}
   .eh-no{color:var(--bad);} .eh-yes{color:var(--good);}
+  .eh-plugsvg{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;}
+  .eh-plugsvg svg{display:block;width:100%;min-width:480px;max-width:720px;height:auto;margin:0 auto;}
+  .eh-strip,.eh-demo{border-collapse:collapse;font:13px/1 var(--mono);margin:8px 0 6px;background:#fff;}
+  .eh-strip th,.eh-strip td,.eh-demo th,.eh-demo td{border:1px solid #b9bfcc;text-align:center;min-width:22px;height:24px;padding:0 2px;}
+  .eh-strip th,.eh-demo th{font:600 12px/1.1 system-ui,sans-serif;color:var(--muted);text-align:left;padding:0 6px;background:var(--soft);white-space:nowrap;}
+  .eh-strip tr + tr td{font-weight:800;}
+  .eh-strip td.eh-sw{background:#fbe3a4;}
+  .eh-demo td.eh-ok{background:var(--good-soft);font-weight:800;}
+  .eh-demo td.eh-eq{background:#fff07a;font-weight:800;}
+  .eh-ways{border-collapse:collapse;margin-top:6px;font-size:14px;}
+  .eh-ways th,.eh-ways td{border:1px solid #b9bfcc;padding:3px 8px;text-align:right;}
+  .eh-ways th{background:var(--soft);font-weight:600;}
+  .eh-ways td{font-family:var(--mono);}
+  .eh-ways .eh-max td{background:#fff3b8;font-weight:800;}
+  .eh-pairs{display:flex;flex-wrap:wrap;gap:6px 8px;margin:6px 0 8px;}
+  .eh-pairs span{border:1px solid var(--navy);border-radius:8px;padding:3px 8px;font:800 16px/1.2 var(--mono);background:#fff;}
+  .eh-ptable{border-collapse:collapse;margin:8px 0;background:#fff;}
+  .eh-ptable th,.eh-ptable td{border:1px solid #b9bfcc;text-align:center;min-width:44px;height:38px;padding:0;font:800 17px/1 var(--mono);}
+  .eh-ptable tr:first-child th{height:auto;padding:4px 6px;background:var(--soft);color:var(--muted);font:600 12px/1.2 system-ui,sans-serif;}
+  .eh-ptable tr + tr th{background:var(--navy);color:#fff;}
+  .eh-ptable td.eh-done{color:var(--accent);}
+  .eh-ptable input{width:44px;height:36px;border:0;text-align:center;font:800 17px/1 var(--mono);text-transform:uppercase;background:transparent;padding:0;}
+  .eh-ptable input.no{background:var(--bad-soft);color:var(--bad);}
+  .eh-ptable input.ok{background:var(--good-soft);}
   @media (max-width:700px){
     .eh-grid,.eh-two,.eh-wide{grid-template-columns:minmax(0,1fr);}
     .eh-box{padding:8px 10px;}
@@ -240,6 +264,9 @@
       <details><summary id="ehRejT"></summary><div id="ehRej"></div>
         <div class="row"><button type="button" class="btn" id="rejCheck"></button><button type="button" class="btn" id="rejShow"></button></div>
         <p class="say" id="rejSay" aria-live="polite"></p></details>
+      <details><summary id="ehPlugT"></summary><div id="ehPlug"></div>
+        <div class="row"><button type="button" class="btn" id="plugCheck"></button><button type="button" class="btn" id="plugShow"></button></div>
+        <p class="say" id="plugSay" aria-live="polite"></p></details>
     </div>
   </details>
 
@@ -528,6 +555,9 @@
     $('ehRejT').textContent = '📖 ' + E.rej.title.replace(/^[^?]*\?\s*3\.\s*/, '');
     $('ehRej').innerHTML = EH.rejHtml(E, esc, { inputs: true });
     $('rejCheck').textContent = E.rej.task.check; $('rejShow').textContent = E.rej.task.show; $('rejSay').textContent = '';
+    $('ehPlugT').textContent = '📖 ' + E.plug.title.replace(/^[^?]*\?\s*4\.\s*/, '');
+    $('ehPlug').innerHTML = EH.plugHtml(E, esc, { inputs: true });
+    $('plugCheck').textContent = E.plug.task.check; $('plugShow').textContent = E.plug.task.show; $('plugSay').textContent = '';
     renderEnigma();
   }
   function pressKey(ch) {
@@ -569,6 +599,31 @@
     const A = EH.rejAnswer();
     $('rejSay').className = 'say good rejchains';
     $('rejSay').textContent = ET().rej.task.key(A.chains, A.lengths);
+  });
+  // part 4: through the plugboard — fill the rows (to the rotors, from the rotors, lamp), check, then show the answer
+  const plugIns = () => [...$('ehPlug').querySelectorAll('[data-p],[data-t]')];
+  const plugWant = t => { const [i, j] = (t.dataset.p || t.dataset.t).split(',').map(Number); return (t.dataset.p ? EH.PLUG.rows : EH.PLUG.twinRows)[i][j]; };
+  $('ehPlug').addEventListener('input', e => {
+    const t = e.target; if (!t.dataset.p && !t.dataset.t) return;
+    t.value = t.value.toUpperCase().replace(/[^A-Z]/g, '').slice(-1); t.className = '';
+    const all = plugIns(), next = all[all.indexOf(t) + 1];
+    if (t.value && next) next.focus();
+  });
+  $('plugCheck').addEventListener('click', () => {
+    const K = ET().plug.task;
+    let wrong = 0, empty = 0;
+    for (const t of plugIns()) {
+      if (!t.value) { empty++; t.className = ''; continue; }
+      const ok = t.value === plugWant(t);
+      t.className = ok ? 'ok' : 'no'; wrong += !ok;
+    }
+    const say = $('plugSay');
+    say.className = !wrong && !empty ? 'say good' : 'say bad';
+    say.textContent = !wrong && !empty ? K.ok : [wrong ? K.no(wrong) : '', empty ? K.empty(empty) : ''].filter(Boolean).join(' ');
+  });
+  $('plugShow').addEventListener('click', () => {
+    $('plugSay').className = 'say good';
+    $('plugSay').textContent = EH.plugAnswer(ET());
   });
   // letters typed while the machine has the focus go to the machine
   $('s0').addEventListener('keydown', e => {

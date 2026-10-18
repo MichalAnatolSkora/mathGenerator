@@ -36,5 +36,25 @@ ok('the keyboard has every letter once', [...H.KEYBOARD.join('')].sort().join(''
   ok('1932: one ground setting, keys typed twice', d.inds.every((s, i) => H.machine.encrypt(d.ground, s) === d.keys[i] + d.keys[i]));
 }
 
+// part 4, the plugboard: the task's lamps are the machine's, the pairs come back, the twin cable fits this press only
+{
+  const Z = require('../zygalski-sheets/engine.js'), X = H.PLUG, c = ch => ch.charCodeAt(0) - 65;
+  const lamps = (plug, win) => Z.machine(EX.order, EX.rings, plug).perm(win);
+  ok('plug: the task is at the drawn press', X.win === pr[0].win);
+  ok('plug: every row ends in the machine’s lamp', X.rows.every(r => String.fromCharCode(65 + lamps(EX.plug, X.winN)[c(r[0])]) === r[3]));
+  ok('plug: the first row is the drawing’s key A', X.rows[0][0] === 'A' && H.path(X.winN, 0).endsWith(X.rows[0][3]));
+  ok('plug: 13 rotor pairs', X.pairs.length === 13 && new Set(X.pairs.join('')).size === 26);
+  ok('plug: two rows pair up', X.recip.length === 2);
+  const twin = EX.plug.replace(X.old, X.twin), next = Z.machine(EX.order, EX.rings, '').step(X.winN);
+  ok('plug: the twin cable gives the same lamps at this press', lamps(twin, X.winN).join() === lamps(EX.plug, X.winN).join());
+  ok('plug: …but not at the next press', lamps(twin, next).join() !== lamps(EX.plug, next).join());
+  ok('plug: twin rows end in the machine’s lamps', X.twinRows.every(r => String.fromCharCode(65 + lamps(twin, X.winN)[c(r[0])]) === r[3]));
+  ok('plug: 6 cables, 100 391 791 500 ways; 11 is the most', H.ways(6) === 100391791500n && H.ways(11) > H.ways(10) && H.ways(11) > H.ways(12));
+  for (const l of Object.keys(T)) {
+    const html = H.plugHtml(T[l], KIT.esc) + H.plugHtml(T[l], KIT.esc, { inputs: true }) + H.plugAnswer(T[l]);
+    ok(`${l}: plug renders without undefined/NaN`, !/undefined|NaN|\[object/.test(html));
+  }
+}
+
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

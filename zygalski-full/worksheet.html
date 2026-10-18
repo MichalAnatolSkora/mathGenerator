@@ -93,6 +93,27 @@
   .eh-guess b{font-size:11px;}
   .eh-guess i{font-style:normal;font-weight:800;font-size:12px;}
   .eh-no{color:#c0252b;} .eh-yes{color:#1f7a45;}
+  /* part 4: the plugboard */
+  .eh-plugsvg svg{display:block;width:128mm;max-width:100%;height:auto;margin:0 auto;}
+  .eh-strip,.eh-demo{border-collapse:collapse;width:100%;table-layout:fixed;font:10px/1 ui-monospace,Menlo,Consolas,monospace;margin:1.5mm 0 0;}
+  .eh-strip th,.eh-strip td,.eh-demo th,.eh-demo td{border:0.25mm solid #bbb;text-align:center;height:4.2mm;padding:0;}
+  .eh-strip th,.eh-demo th{width:19mm;font:600 8px/1.1 system-ui,sans-serif;color:#555;text-align:left;padding-left:1mm;background:#f6f6f6;}
+  .eh-strip tr + tr td{font-weight:800;}
+  .eh-strip td.eh-sw{background:#fbe3a4;}
+  .eh-demo td.eh-ok{background:#cdeccf;font-weight:800;}
+  .eh-demo td.eh-eq{background:#fff07a;font-weight:800;}
+  .eh-ways{border-collapse:collapse;margin-top:1mm;font-size:9.6px;}
+  .eh-ways th,.eh-ways td{border:0.25mm solid #bbb;padding:0.3mm 2mm;text-align:right;}
+  .eh-ways th{background:#f1f1f1;font-weight:600;}
+  .eh-ways td{font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .eh-ways .eh-max td{background:#fff3b8;font-weight:800;}
+  .eh-pairs{display:flex;flex-wrap:wrap;gap:1mm 1.6mm;margin:0.6mm 0 1mm;}
+  .eh-pairs span{border:0.3mm solid #1E3A5F;border-radius:1.5mm;padding:0.3mm 1.8mm;font:800 12px/1.2 ui-monospace,Menlo,Consolas,monospace;background:#fff;}
+  .eh-ptable{border-collapse:collapse;margin:1mm 0 1.5mm;background:#fff;}
+  .eh-ptable th,.eh-ptable td{border:0.3mm solid #999;text-align:center;width:30mm;height:7mm;font:800 14px/1 ui-monospace,Menlo,Consolas,monospace;}
+  .eh-ptable tr:first-child th{height:auto;padding:1mm;background:#f1f1f1;font:600 10px/1.2 system-ui,sans-serif;}
+  .eh-ptable tr + tr th{background:#1E3A5F;color:#fff;width:18mm;}
+  .eh-ptable td.eh-done{color:#1f5fbf;}
   @media (max-width:600px){ .eh-msgs{grid-template-columns:repeat(2,1fr);} .eh-chainwrap{overflow-x:auto;} .eh-chain{min-width:560px;} .steps{grid-template-columns:1fr;} .traffic{grid-template-columns:repeat(2,1fr);} .eh-grid,.eh-two{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -148,13 +169,15 @@
       const hints = s.level !== 'full', f0 = d.females[0], g0 = [...d.messages[f0.msg].ground].map(code);
       const pages = [];
 
-      // how Enigma worked: the machine, then how a message was sent
+      // how Enigma worked: the machine, how a message was sent, the wiring (1932) and its task, the plugboard and its task
       if (s.how) {
         const E = ENIGMA_TEXT[I18N.get()] || ENIGMA_TEXT.en;
         pages.push(`<div class="sheet how">${api.head(E.title1, E.sub1, false)}${ENIGMA_HOW.partsHtml(E, esc)}</div>`);
         pages.push(`<div class="sheet how">${api.head(E.title2, E.sub2, false)}${ENIGMA_HOW.procHtml(E, esc)}</div>`);
         pages.push(`<div class="sheet how">${api.head(E.rej.title, E.rej.sub, false)}${ENIGMA_HOW.rejHtml(E, esc, { part: 'story' })}</div>`);
         pages.push(`<div class="sheet how eh-task">${api.head(E.rej.task.title, E.rej.title, true)}${ENIGMA_HOW.rejHtml(E, esc, { part: 'task' })}</div>`);
+        pages.push(`<div class="sheet how">${api.head(E.plug.title, E.plug.sub, false)}${ENIGMA_HOW.plugHtml(E, esc, { part: 'story' })}</div>`);
+        pages.push(`<div class="sheet how eh-task">${api.head(E.plug.task.title, E.plug.title, true)}${ENIGMA_HOW.plugHtml(E, esc, { part: 'task' })}</div>`);
       }
 
       if (s.intro) {
@@ -219,7 +242,7 @@
           <table class="work"><tr>${W.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
             ${filled.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>
           <p class="box" style="margin-top:3mm">${esc(K.check(String(f0.msg + 1).padStart(3, '0'), m0.ground, m0.ind, m0.key))}</p>
-          ${s.how ? (() => { const E = ENIGMA_TEXT[I18N.get()] || ENIGMA_TEXT.en, A = ENIGMA_HOW.rejAnswer(); return `<p class="box">${esc(E.rej.task.key(A.chains, A.lengths))}</p>`; })() : ''}
+          ${s.how ? (() => { const E = ENIGMA_TEXT[I18N.get()] || ENIGMA_TEXT.en, A = ENIGMA_HOW.rejAnswer(); return `<p class="box">${esc(E.rej.task.key(A.chains, A.lengths))}</p><p class="box">${esc(ENIGMA_HOW.plugAnswer(E))}</p>`; })() : ''}
         </div>`);
       }
       return { html: pages.join(''), tasks: 1, pages: pages.length };
