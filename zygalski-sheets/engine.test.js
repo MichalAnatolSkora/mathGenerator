@@ -90,5 +90,14 @@ for (const l of ['en', 'uk', 'vi', 'fr', 'it', 'es']) {
   ok(`${l}: same keys as pl`, JSON.stringify(shape(T[l])) === JSON.stringify(shape(T.pl)));
   ok(`${l}: learn lists as long as pl`, ['steps', 'exSteps', 'timeline'].every(k => T[l].learn[k].length === T.pl.learn[k].length));
 }
+// the kids' females task: 8 starts, exactly three females, one in each pair of places, each the doubled key
+for (let i = 0; i < 100; i++) {
+  const f = Z.femaleTask(K.rng(`fem${i}`));
+  ok(`females #${i}: 8 messages`, f.messages.length === 8);
+  ok(`females #${i}: one in each pair of places`, f.females.length === 3 && new Set(f.females.map(x => x.type)).size === 3 && new Set(f.females.map(x => x.msg)).size === 3);
+  ok(`females #${i}: 3 + 6 letters`, f.messages.every(m => /^[A-Z]{3}$/.test(m.ground) && /^[A-Z]{6}$/.test(m.ind)));
+}
+ok('females: the same code gives the same task', JSON.stringify(Z.femaleTask(K.rng('x'))) === JSON.stringify(Z.femaleTask(K.rng('x'))));
+
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);

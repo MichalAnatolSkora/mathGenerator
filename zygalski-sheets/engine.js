@@ -12,6 +12,7 @@
  *   ZYG.realSheet(order, left)       → a real sheet: 26 rows (middle rotor) × 26 (right rotor), true = hole
  *   ZYG.day(rnd)                     → one day of traffic with a daily key, solvable with the sheets in one way
  *   ZYG.females / layout / solve     → the females of a day, how to lay their sheets, every place light comes through
+ *   ZYG.femaleTask(rnd)              → 8 message starts of one day, three with a female (places 1/4, 2/5, 3/6), for the kids
  *   ZYG.realSvg(sheet, opts)         → that sheet drawn 51 × 51, as Zygalski drew it
  *   ZYG.message(rnd, n, answer)      → a German message enciphered from a round's answer and the paper Enigma table to read it
  *   ZYG.paper(plain, middle, right)  → the same for any text, with only the rows it needs (the worked example)
@@ -272,6 +273,25 @@ const ZYG = (() => {
     throw new Error('no day found');
   }
 
+  /**
+   * The kids' warm-up: how `total` messages of one day began (ground setting in the clear + the doubled message key
+   * enciphered from there, on a machine with a random rotor order and rings). Exactly three have a female, one in
+   * each pair of places (1/4, 2/5, 3/6), the others none. → { messages: [{ ground, key, ind }], females: [{ msg, type }] }
+   */
+  function femaleTask(rnd, total = 8) {
+    const pick = () => letter(Math.floor(rnd() * 26));
+    const m = machine(ORDERS[Math.floor(rnd() * 6)], pick() + pick() + pick()), none = [], one = [null, null, null];
+    while (none.length < total - 3 || one.includes(null)) {
+      const ground = pick() + pick() + pick(), key = pick() + pick() + pick(), msg = { ground, key, ind: m.encrypt(ground, key + key) };
+      const f = females([msg]);
+      if (!f.length) { if (none.length < total - 3) none.push(msg); }
+      else if (f.length === 1 && !one[f[0].type]) one[f[0].type] = msg;
+    }
+    const messages = [...none, ...one];
+    for (let i = messages.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [messages[i], messages[j]] = [messages[j], messages[i]]; }
+    return { messages, females: females(messages) };
+  }
+
   /** A real sheet as an SVG string, 51 × 51 squares with the letters around, the first 26 × 26 framed (o.w mm wide). */
   function realSvg(sheet, o = {}) {
     const N = 51, C = 10, M = 18, W = M + N * C + 1;
@@ -321,6 +341,6 @@ const ZYG = (() => {
       rows: [...plain].map((_, i) => ({ right: right + i + 1, swap: m.perm([0, middle, right + i + 1]) })) };
   }
 
-  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, MESSAGES, message, paper, machine, encrypt, realSheet, realSvg, females, layout, solve, day };
+  return { LEVELS, round, cutRound, svg, ROTORS, REFLECTOR_B, ORDERS, MESSAGES, message, paper, machine, encrypt, realSheet, realSvg, females, layout, solve, day, femaleTask };
 })();
 if (typeof module !== 'undefined') module.exports = ZYG;

@@ -18,14 +18,18 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    steps, each with a short text and its own picture: (1) Enigma and the daily key — a secret key list with
    the rotor order, rings and plugs for each day; (2) the message key, just 3 letters: the operator's open start
    letters (RTJ), the key typed twice from there (ABC ABC → WAHWIK), then the text from ABC — pictured as the
-   start of a message; (3) the "female": the same key letter enciphered 3 steps apart came out the same;
+   start of a message — and why the open RTJ gives nothing away (without the daily key nobody knows what the machine
+   does at RTJ; the key itself goes out enciphered); (3) the "female": the same key letter enciphered 3 steps apart came out the same;
    (4) how a sheet maps the rotor settings: one sheet = one rotor order and one left rotor position (6 × 26 =
    156), column = right rotor, row = middle rotor, a hole where a female is possible, the grid drawn twice
    because sheets were laid shifted by the differences in the open letters — a 6 × 6 sheet with one square
    labelled as a full setting; (5) the light table, a side view of light going through the holes, which gives
    the rotor order and the rings. The second page is (6) a worked example: three fixed 4 × 4 sheets, each above
    the light table as it looks after that sheet (dots, crossed-out dots, the one dot left) and the answer
-   "middle B, right C", plus a line on the ★★★ shifts.
+   "middle B, right C", plus a line on the ★★★ shifts. Under it, the task **find the females** (`ZYG.femaleTask`):
+   how 8 messages of one day began, computed on an Enigma I (open letters grey, the 6 key letters numbered 1–6); exactly
+   three have a female, one each in places 1/4, 2/5 and 3/6; the child circles them and writes how many sheets go on the
+   table. The answer key lists them.
 2. **The game** (one A4 page): three rounds. Each round has 3–4 sheets with holes (black dots) and an empty light
    table; rows and columns are lettered as on Zygalski's sheets (row = middle rotor, column = right rotor). The
    child dots the holes of sheet 1, then crosses out every dot where the next sheet has no hole; one dot is
@@ -46,7 +50,9 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    marked, the five lookups, the filled boxes, and why the two Ls became M and W (the rotor turned).
 3. **Cut-out sheets** (option, on by default): a 5 × 5 board with each square's two letters and 3 sheets with
    grey windows to cut out; stacked on the board, only one square shows through every window.
-4. **Answer key** (option, on by default).
+4. **Answer key** (option, on by default): each round's light table solved — the dots of sheet 1, every crossed-out
+   dot with the number of the sheet that crossed it, the answer square in yellow — plus the females, the cut-out and the
+   message answers.
 5. **A real sheet** (option, on by default), last: one sheet of 1938 recomputed, 51 × 51 squares with the letters
    around and the 26 × 26 pattern framed in red; the rotor order and the left rotor position come from the
    sheet code. The holes are computed by simulating an Enigma I (rotors I–III, reflector B, rings at A): a

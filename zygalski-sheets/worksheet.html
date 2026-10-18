@@ -83,6 +83,18 @@
   .expage .step.ex{font-size:12.5px;line-height:1.4;padding:3mm 4mm;}
   .exans{font-weight:800;font-size:14px;margin-top:2mm !important;}
   .exshift{font-size:11.5px;color:#555;margin-top:2mm !important;}
+  .fembox{border:0.3mm solid #d29a00;background:#fff8dc;border-radius:2mm;padding:2.5mm 4mm;margin-top:3mm;font-size:12px;line-height:1.4;}
+  .fembox h3{font-size:13.5px;margin:0 0 1mm;}
+  .fems{display:grid;grid-template-columns:1fr 1fr;gap:4.5mm 8mm;margin:3mm 0 4mm;}
+  .fm{display:flex;align-items:center;gap:0.8mm;}
+  .fm i{font-style:normal;color:#888;width:5mm;font-size:11px;}
+  .fm b{position:relative;width:6.2mm;height:7.5mm;border:0.35mm solid #333;border-radius:1mm;background:#fff;display:flex;align-items:center;justify-content:center;font:800 13px/1 ui-monospace,Menlo,Consolas,monospace;}
+  .fm b.g{background:#e9e9e9;color:#555;border-color:#999;}
+  .fm b.k1{margin-left:2.5mm;} .fm b.k4{margin-left:1.6mm;}
+  .fm b small{position:absolute;bottom:-3.4mm;left:0;right:0;text-align:center;font:600 8px/1 system-ui,sans-serif;color:#888;}
+  .femcount{font-weight:700;}
+  .femcount .blank{display:inline-block;width:12mm;border-bottom:0.3mm solid #333;margin:0 1.5mm;}
+  .keynote{font-size:11px;color:#555;text-align:center;margin:2mm 0 0;}
   .piccap{font-size:9px;line-height:1.25;color:#444;margin-top:0.6mm;}
   .tltitle{font-size:12.5px;margin:2.5mm 0 1mm;}
   .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:2.5mm;font-size:10px;line-height:1.3;}
@@ -95,7 +107,7 @@
   @media (max-width:600px){
     .arrow{display:none;}
     .step{grid-template-columns:7mm 1fr;} .step .pic,.step.ex .body{grid-column:2;}
-    .excols,.timeline{grid-template-columns:1fr;}
+    .excols,.timeline,.fems{grid-template-columns:1fr;}
     .gloss{grid-template-columns:1fr 1fr;} .mwrap,.ewrap{overflow-x:auto;} .etab{min-width:560px;}
   }
 </style>
@@ -209,7 +221,7 @@
   /**
    * A small n × n grid with letters A… along the sides. o: { w (mm), holes (sheet holes, big black dots), dots (dots on the
    * light table), gone (dots crossed out before, grey), crossed (dots crossed out now, red X), lit (the one square left),
-   * top/left (axis captions, as on a real sheet) }.
+   * top/left (axis captions, as on a real sheet), nums (Map: crossed square → the sheet that crossed it, drawn beside the X) }.
    */
   function mini(n, o) {
     const C = 10, lab = o.top ? 7 : 0, x0 = lab + 6, y0 = lab + 6, has = (k, c) => o[k] && o[k].has(c);
@@ -227,6 +239,11 @@
       const x = x0 + (c % n) * C, y = y0 + Math.floor(c / n) * C;
       s += `<rect x="${x}" y="${y}" width="${C}" height="${C}" fill="${c === o.lit ? '#ffe36b' : '#fff'}" stroke="#999" stroke-width="0.25"/>`;
       if (has('holes', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="3.1" fill="#222"/>`;
+      if (o.nums && o.nums.has(c)) {
+        s += `<circle cx="${x + 4}" cy="${y + 5}" r="1.7" fill="#222"/><path d="M${x + 1.6} ${y + 2.6}L${x + 6.4} ${y + 7.4}M${x + 6.4} ${y + 2.6}L${x + 1.6} ${y + 7.4}" stroke="#c0252b" stroke-width="1" stroke-linecap="round"/>`;
+        s += `<text x="${x + 8.3}" y="${y + 5.2}" font-size="4" font-weight="800" fill="#c0252b" text-anchor="middle" dominant-baseline="central">${o.nums.get(c)}</text>`;
+        continue;
+      }
       if (has('dots', c) || has('crossed', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="2" fill="#222"/>`;
       if (has('gone', c)) s += `<circle cx="${x + 5}" cy="${y + 5}" r="2" fill="#c4c4c4"/>${X(x, y, '#c4c4c4')}`;
       if (has('crossed', c)) s += X(x, y, '#c0252b');
@@ -237,8 +254,18 @@
   /** The worked example: three 4 × 4 sheets whose holes meet only in row B, column C. */
   const EX = { n: 4, sheets: [[1, 4, 6, 9, 11, 15], [1, 6, 8, 11, 13], [3, 6, 9, 13, 15]].map(h => new Set(h)) };
 
-  /** Step 6, a page of its own: solve one round step by step — each sheet above the light table as it looks after that sheet. */
-  function examplePage(api) {
+  /** The task under the example: circle the females in 8 message starts (open letters grey, then the 6 key letters numbered). */
+  function femHtml(api, fem) {
+    const { esc } = api, F = api.C.learn.fem;
+    const msgs = fem.messages.map((m, i) => `<div class="fm"><i>${i + 1}.</i>${[...m.ground].map(ch => `<b class="g">${ch}</b>`).join('')}`
+      + [...m.ind].map((ch, j) => `<b class="k${j + 1}">${ch}<small>${j + 1}</small></b>`).join('') + '</div>').join('');
+    return `<div class="fembox"><h3>${esc(F.title)}</h3><p>${esc(F.text)}</p>
+      <div class="fems">${msgs}</div>
+      <p class="femcount">${esc(F.count).replace(/_/g, '<span class="blank"></span>')}</p></div>`;
+  }
+
+  /** Step 6, a page of its own: solve one round step by step — each sheet above the light table as it looks after that sheet; then the females task. */
+  function examplePage(api, fem) {
     const { C, esc } = api, X = C.learn, { n, sheets } = EX;
     let left = new Set(sheets[0]), gone = new Set();
     const cols = sheets.map((sh, i) => {
@@ -267,11 +294,12 @@
         <p class="exans">✅ ${esc(X.exAnswer(L(Math.floor(ans / n)), L(ans % n)))}</p>
         <p class="exshift">${esc(X.exShift)}</p>
       </div></div>
+      ${fem ? femHtml(api, fem) : ''}
     </div>`;
   }
 
   /** The "How did it work?" page: five numbered steps with a picture each (daily key, message key, female, sheet, light table), then the worked example on a page of its own. */
-  function learnPage(api) {
+  function learnPage(api, fem) {
     const { C, esc } = api, X = C.learn;
     const SHEET = new Set([1, 3, 4, 8, 10, 13, 17, 18, 20, 23, 26, 29, 31, 34]);
     const pics = [
@@ -288,7 +316,7 @@
     return `<div class="sheet learn">
       ${api.head(X.title, X.sub, false)}
       ${steps}
-    </div>` + examplePage(api);
+    </div>` + examplePage(api, fem);
   }
 
   /** One real sheet of 1938, recomputed (a rotor order and a left rotor position picked by the sheet code), and what happened next. */
@@ -396,7 +424,8 @@
       };
 
       const sub = C.levels[s.level];
-      let html = (s.learn ? learnPage(api) : '') + `<div class="sheet">
+      const fem = s.learn ? ZYG.femaleTask(api.rnd('fem')) : null;
+      let html = (s.learn ? learnPage(api, fem) : '') + `<div class="sheet">
         ${api.head(t('sheetTitle'), sub, true)}
         <p class="story">${esc(t('story'))}</p>
         <p class="instr">${esc(t('instr'))}${anyShift ? `<br><b>${esc(t('instrShift'))}</b>` : ''}</p>
@@ -423,18 +452,22 @@
 
       if (s.key) {
         const keys = rounds.map((r, i) => {
-          const cells = Array.from({ length: r.n * r.n }, (_, c) => ({ hi: c === r.answer }));
-          return `<div>${esc(C.round(i + 1))}<br>${ZYG.svg(r.n, cells, { w: 50, coords: true })}<br><b>${esc(setting(C, r.answer, r.n))}</b></div>`;
+          const left = new Set(r.table[0]), nums = new Map();
+          r.table.slice(1).forEach((t, j) => { for (const c of [...left]) if (!t.has(c)) { nums.set(c, j + 2); left.delete(c); } });
+          return `<div>${esc(C.round(i + 1))}<br>${mini(r.n, { w: 50, dots: left, nums, lit: r.answer })}<br><b>${esc(setting(C, r.answer, r.n))}</b></div>`;
         }).join('');
+        const femKey = fem ? C.learn.fem.key(fem.females.slice().sort((a, b) => a.msg - b.msg).map(f => `${f.msg + 1} (${f.type + 1}–${f.type + 4})`).join(', '), fem.females.length) : '';
         html += `<div class="sheet key">
           ${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}
           <div class="keyrow">${keys}</div>
+          <p class="keynote">${esc(C.learn.solved)}</p>
+          ${fem ? `<p class="password">✏️ ${esc(femKey)}</p>` : ''}
           ${cut ? `<p class="password">${esc(t('keyCut'))} ${esc(setting(C, cut.answer, cut.n))}</p>` : ''}
           ${msg ? `<p class="password">📻 ${esc(C.msg.key(L(msg.right + 1), msg.plain.replace(/X/g, ' '), C.msg.meanings[msg.plain]))}</p>` : ''}
         </div>`;
       }
       if (s.orig) html += origPage(api);   // the real sheet comes last, after the answers
-      return { html, tasks: rounds.length + (cut ? 1 : 0) + (msg ? 1 : 0), pages: 1 + (s.learn ? 2 : 0) + (msg ? 2 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
+      return { html, tasks: rounds.length + (cut ? 1 : 0) + (msg ? 1 : 0) + (fem ? 1 : 0), pages: 1 + (s.learn ? 2 : 0) + (msg ? 2 : 0) + (s.orig ? 1 : 0) + (cut ? 1 : 0) + (s.key ? 1 : 0) };
     },
   });
 })();
