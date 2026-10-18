@@ -80,7 +80,7 @@ const W20_TEXT = {
       "sub": "Przeczytaj, zanim zaczniesz łamać depesze",
       "s1": [
         "1. Szyfr to zamiana liter na liczby",
-        "Szyfrant miał tajną tabelkę — klucz. Przy każdej literze rosyjskiego alfabetu stała w niej liczba. Pisał wiadomość, zamieniał każdą literę na jej liczbę, a radiotelegrafista nadawał przez radio same liczby, alfabetem Morse’a. Kto nie ma klucza, słyszy tylko liczby."
+        "Szyfrant miał tajną tabelkę — klucz: pomieszany alfabet jak w części 2, tylko z liczbami zamiast liter. Pisał wiadomość, zamieniał każdą literę na jej liczbę, a radiotelegrafista nadawał przez radio same liczby, alfabetem Morse’a. Kto nie ma klucza, słyszy tylko liczby."
       ],
       "keyPiece": "Kawałek klucza",
       "plain": "słowo",
@@ -103,7 +103,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. Prawdziwe szyfry z 1920 roku",
-        "Bywały trudniejsze niż nasz: klucze często zmieniano, a 12 sierpnia 1920 roku bolszewicy wprowadzili nowy szyfr o nazwie „Rewolucja”. Ale szyfranci popełniali błędy — powtarzali te same słowa i podpisy — a polscy kryptolodzy łamali nawet nowe klucze w kilka godzin."
+        "Bywały trudniejsze niż nasz: klucze często zmieniano, a 12 sierpnia 1920 roku bolszewicy wprowadzili nowy szyfr o nazwie „Rewolucja” (złamiesz go w części 4). Ale szyfranci popełniali błędy — powtarzali te same słowa i podpisy — a polscy kryptolodzy łamali nawet nowe klucze w kilka godzin."
       ],
       "s6": [
         "6. A dziś?",
@@ -279,7 +279,7 @@ const W20_TEXT = {
       "sub": "Read this before you start breaking the telegrams",
       "s1": [
         "1. A cipher swaps letters for numbers",
-        "The cipher clerk had a secret table — the key. Next to every letter of the Russian alphabet it had a number. He wrote the message, swapped every letter for its number, and the radio operator sent only the numbers, in Morse code. Without the key you hear nothing but numbers."
+        "The cipher clerk had a secret table — the key: a mixed-up alphabet as in part 2, only with numbers instead of letters. He wrote the message, swapped every letter for its number, and the radio operator sent only the numbers, in Morse code. Without the key you hear nothing but numbers."
       ],
       "keyPiece": "A piece of the key",
       "plain": "word",
@@ -302,7 +302,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. The real ciphers of 1920",
-        "They were often harder than ours: keys were changed often, and on 12 August 1920 the Bolsheviks brought in a new cipher called “Revolution”. But cipher clerks made mistakes — they repeated the same words and signatures — and Polish codebreakers broke even new keys within hours."
+        "They were often harder than ours: keys were changed often, and on 12 August 1920 the Bolsheviks brought in a new cipher called “Revolution” (you will break it in part 4). But cipher clerks made mistakes — they repeated the same words and signatures — and Polish codebreakers broke even new keys within hours."
       ],
       "s6": [
         "6. And today?",
@@ -478,7 +478,7 @@ const W20_TEXT = {
       "sub": "Прочитай, перш ніж зламувати телеграми",
       "s1": [
         "1. Шифр — це заміна літер на числа",
-        "Шифрувальник мав таємну табличку — ключ. Біля кожної літери російської абетки в ній стояло число. Він писав повідомлення, замінював кожну літеру на її число, а радист передавав по радіо лише числа, абеткою Морзе. Хто не має ключа, чує тільки числа."
+        "Шифрувальник мав таємну табличку — ключ: перемішаний алфавіт, як у частині 2, тільки з числами замість літер. Він писав повідомлення, замінював кожну літеру на її число, а радист передавав по радіо лише числа, абеткою Морзе. Хто не має ключа, чує тільки числа."
       ],
       "keyPiece": "Шматочок ключа",
       "plain": "слово",
@@ -501,7 +501,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. Справжні шифри 1920 року",
-        "Вони бували складніші за наш: ключі часто змінювали, а 12 серпня 1920 року більшовики запровадили новий шифр під назвою «Революція». Але шифрувальники помилялися — повторювали ті самі слова й підписи, — і польські криптологи зламували навіть нові ключі за кілька годин."
+        "Вони бували складніші за наш: ключі часто змінювали, а 12 серпня 1920 року більшовики запровадили новий шифр під назвою «Революція» (ти зламаєш його в частині 4). Але шифрувальники помилялися — повторювали ті самі слова й підписи, — і польські криптологи зламували навіть нові ключі за кілька годин."
       ],
       "s6": [
         "6. А сьогодні?",
@@ -677,7 +677,7 @@ const W20_TEXT = {
       "sub": "Hãy đọc trước khi bắt đầu phá các bức điện",
       "s1": [
         "1. Mật mã là đổi chữ thành số",
-        "Nhân viên mật mã có một bảng bí mật — chiếc khóa. Cạnh mỗi chữ cái tiếng Nga có một con số. Anh ta viết tin nhắn, đổi mỗi chữ thành số của nó, rồi điện báo viên chỉ phát các con số qua radio, bằng mã Morse. Ai không có khóa chỉ nghe thấy những con số."
+        "Nhân viên mật mã có một bảng bí mật — chiếc khóa: một bảng chữ cái xáo trộn như ở phần 2, chỉ khác là dùng số thay cho chữ. Anh ta viết tin nhắn, đổi mỗi chữ thành số của nó, rồi điện báo viên chỉ phát các con số qua radio, bằng mã Morse. Ai không có khóa chỉ nghe thấy những con số."
       ],
       "keyPiece": "Một mẩu khóa",
       "plain": "từ",
@@ -700,7 +700,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. Mật mã thật năm 1920",
-        "Chúng thường khó hơn của chúng ta: khóa được đổi thường xuyên, và ngày 12 tháng 8 năm 1920 phía Bolshevik dùng một mật mã mới tên là “Cách mạng”. Nhưng các nhân viên mật mã hay mắc lỗi — lặp lại cùng những từ và chữ ký — và các nhà giải mã Ba Lan phá được cả khóa mới chỉ trong vài giờ."
+        "Chúng thường khó hơn của chúng ta: khóa được đổi thường xuyên, và ngày 12 tháng 8 năm 1920 phía Bolshevik dùng một mật mã mới tên là “Cách mạng” (bạn sẽ phá nó ở phần 4). Nhưng các nhân viên mật mã hay mắc lỗi — lặp lại cùng những từ và chữ ký — và các nhà giải mã Ba Lan phá được cả khóa mới chỉ trong vài giờ."
       ],
       "s6": [
         "6. Còn ngày nay?",
@@ -876,7 +876,7 @@ const W20_TEXT = {
       "sub": "À lire avant de casser les télégrammes",
       "s1": [
         "1. Un chiffre remplace les lettres par des nombres",
-        "Le chiffreur avait un tableau secret : la clé. À côté de chaque lettre de l’alphabet russe, il y avait un nombre. Il écrivait le message, remplaçait chaque lettre par son nombre, et le radiotélégraphiste n’envoyait que des nombres, en morse. Sans la clé, on n’entend que des nombres."
+        "Le chiffreur avait un tableau secret : la clé, un alphabet mélangé comme dans la partie 2, avec des nombres au lieu des lettres. Il écrivait le message, remplaçait chaque lettre par son nombre, et le radiotélégraphiste n’envoyait que des nombres, en morse. Sans la clé, on n’entend que des nombres."
       ],
       "keyPiece": "Un morceau de la clé",
       "plain": "mot",
@@ -899,7 +899,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. Les vrais chiffres de 1920",
-        "Ils étaient souvent plus difficiles que le nôtre : on changeait souvent les clés, et le 12 août 1920 les bolcheviks adoptèrent un nouveau chiffre appelé « Révolution ». Mais les chiffreurs faisaient des erreurs — ils répétaient les mêmes mots et signatures — et les cryptologues polonais cassaient même les nouvelles clés en quelques heures."
+        "Ils étaient souvent plus difficiles que le nôtre : on changeait souvent les clés, et le 12 août 1920 les bolcheviks adoptèrent un nouveau chiffre appelé « Révolution » (tu le casseras dans la partie 4). Mais les chiffreurs faisaient des erreurs — ils répétaient les mêmes mots et signatures — et les cryptologues polonais cassaient même les nouvelles clés en quelques heures."
       ],
       "s6": [
         "6. Et aujourd’hui ?",
@@ -1075,7 +1075,7 @@ const W20_TEXT = {
       "sub": "Leggi prima di forzare i telegrammi",
       "s1": [
         "1. Un cifrario cambia le lettere in numeri",
-        "Il cifratore aveva una tabella segreta: la chiave. Accanto a ogni lettera dell’alfabeto russo c’era un numero. Scriveva il messaggio, cambiava ogni lettera nel suo numero, e il radiotelegrafista trasmetteva solo numeri, in alfabeto Morse. Chi non ha la chiave sente solo numeri."
+        "Il cifratore aveva una tabella segreta: la chiave, un alfabeto mescolato come nella parte 2, ma con numeri al posto delle lettere. Scriveva il messaggio, cambiava ogni lettera nel suo numero, e il radiotelegrafista trasmetteva solo numeri, in alfabeto Morse. Chi non ha la chiave sente solo numeri."
       ],
       "keyPiece": "Un pezzo della chiave",
       "plain": "parola",
@@ -1098,7 +1098,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. I veri cifrari del 1920",
-        "Spesso erano più difficili del nostro: le chiavi cambiavano spesso, e il 12 agosto 1920 i bolscevichi introdussero un nuovo cifrario chiamato «Rivoluzione». Ma i cifratori facevano errori, ripetendo le stesse parole e firme, e i crittologi polacchi forzavano anche le chiavi nuove in poche ore."
+        "Spesso erano più difficili del nostro: le chiavi cambiavano spesso, e il 12 agosto 1920 i bolscevichi introdussero un nuovo cifrario chiamato «Rivoluzione» (lo violerai nella parte 4). Ma i cifratori facevano errori, ripetendo le stesse parole e firme, e i crittologi polacchi forzavano anche le chiavi nuove in poche ore."
       ],
       "s6": [
         "6. E oggi?",
@@ -1274,7 +1274,7 @@ const W20_TEXT = {
       "sub": "Léelo antes de empezar a romper los telegramas",
       "s1": [
         "1. Un cifrado cambia letras por números",
-        "El cifrador tenía una tabla secreta: la clave. Junto a cada letra del alfabeto ruso había un número. Escribía el mensaje, cambiaba cada letra por su número, y el radiotelegrafista solo enviaba números, en código Morse. Quien no tiene la clave solo oye números."
+        "El cifrador tenía una tabla secreta: la clave, un alfabeto desordenado como en la parte 2, pero con números en lugar de letras. Escribía el mensaje, cambiaba cada letra por su número, y el radiotelegrafista solo enviaba números, en código Morse. Quien no tiene la clave solo oye números."
       ],
       "keyPiece": "Un trozo de la clave",
       "plain": "palabra",
@@ -1297,7 +1297,7 @@ const W20_TEXT = {
       ],
       "s5": [
         "5. Los cifrados reales de 1920",
-        "A menudo eran más difíciles que el nuestro: las claves cambiaban con frecuencia, y el 12 de agosto de 1920 los bolcheviques introdujeron un cifrado nuevo llamado «Revolución». Pero los cifradores cometían errores —repetían las mismas palabras y firmas— y los criptólogos polacos rompían incluso las claves nuevas en pocas horas."
+        "A menudo eran más difíciles que el nuestro: las claves cambiaban con frecuencia, y el 12 de agosto de 1920 los bolcheviques introdujeron un cifrado nuevo llamado «Revolución» (lo romperás en la parte 4). Pero los cifradores cometían errores —repetían las mismas palabras y firmas— y los criptólogos polacos rompían incluso las claves nuevas en pocas horas."
       ],
       "s6": [
         "6. ¿Y hoy?",

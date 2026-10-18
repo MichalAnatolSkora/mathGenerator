@@ -1,5 +1,8 @@
 # The "Revolution" cipher, 1920 (Szyfr „Rewolucja” 1920)
 
+Part 4 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js). "How does it work?" (step 2, the key) notes that the Vigenère cipher of part 1 (hard level) also has a
+repeating key.
+
 A paper game for ages 10–14: on 12 August 1920, on the eve of the attack on Warsaw, the Red Army brought in a new
 cipher called "Revolution" (Революция), a cipher of "double transformation". Break two telegrams of the Soviet 16th
 Army the way Polish radio intelligence broke such ciphers, find out where the army will strike, and see a real key

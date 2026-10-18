@@ -1,5 +1,8 @@
 # Secret Telegrams of 1920 (Tajne depesze 1920 — Cud nad Wisłą)
 
+Part 3 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js). "How does the cipher work?" calls the day's key a mixed-up alphabet as in part 2, only with numbers, and
+says the "Revolution" cipher is broken in part 4.
+
 A paper game for ages 9–12: read intercepted Red Army telegrams from August 1920 the way Polish radio
 intelligence did before the Battle of Warsaw, advise the Commander-in-Chief where to strike, and learn why the
 "Miracle on the Vistula" mattered for the whole West. Printable A4 pages only, seven languages

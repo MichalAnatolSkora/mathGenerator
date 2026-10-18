@@ -1,5 +1,8 @@
 # Zygalski Sheets (Płachty Zygalskiego)
 
+Part 5 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js), for ages 10–14. "How did it work?" (step 1) compares the rotors with the wheel of the paper Enigma of
+part 2.
+
 An educational paper game about how the Polish codebreakers found the Enigma settings in 1938 with
 Henryk Zygalski's perforated sheets. Printable A4 pages only (no online game), seven languages
 (pl/en/uk/vi/fr/it/es). Built on the shared [`sheet-kit`](../sheet-kit/kit.js). The full version for teens and
