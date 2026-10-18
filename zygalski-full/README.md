@@ -42,11 +42,15 @@ For readers who have never seen an Enigma. Every letter shown is computed with `
 
 - **Part 1, the machine**: the intro, a drawing of one key press (`ZYG.machine(…).trace`): keys and lamps, plugboard,
   the three rotors with all their wires faint and the window letters, the reflector's 13 pairs; the way there in red,
-  back in blue, the letter after every part written in the gaps. Then the rotor, the reflector (deciphers = enciphers,
+  back in blue, the letter after every part written in the gaps; the caption says the window letters are the
+  rotors' positions (26 each, like the digits on a lock), not letters of the text. Then the rotor, the reflector (deciphers = enciphers,
   no letter to itself), the stepping (A six times from ADT: WUNUCZ, the middle rotor turns at the 3rd press), the
   plugboard and the ring (a picture: ring C, window E, wires at C; core = window − ring).
 - **Part 2, how a message was sent in 1938**: the daily key as a row of a key table, the sender's five steps (ground
-  PKE, message key LKW typed twice → KIJKYL, then the text from LKW), what the radio carried, the receiver, the weak
+  PKE, message key LKW typed twice → KIJKYL, then the text from LKW), what the radio carried, what of the start was
+  secret (only PKE in the clear, and it says nothing without the rotor order, rings and plugboard; KIJKYL is already
+  cipher; why the key was doubled — Morse errors — and that this gave the females; no clear letters before
+  15 September 1938; no doubled key from May 1940), the receiver, the weak
   point (KIJKYL has K in places 1 and 4: a female, with the six presses in a table), 15 September 1938, the count
   of settings (≈ 7 · 10¹⁸).
 - **Part 3, how Rejewski found the wiring (December 1932)**: one ground setting for a whole day (1932), chains of
@@ -85,7 +89,8 @@ printed pack and the game with the same code show the same messages and sheets. 
 pack" opens `worksheet.html?seed=` with it. Progress is kept per code in `localStorage` (`zygalskiFull.play`).
 
 0. **How did Enigma work? Try the machine** (folds; open by default, the choice kept in `zygalskiFull.enigmaOpen`):
-   the example Enigma to type on — window letters with ▲ ▼, the drawing of the last key press (the windows that
+   the example Enigma to type on — window letters with ▲ ▼ and a line on what they are (ring letters A–Z, one of 26
+   positions, not letters of the text; a key press turns the right one: ADT → ADU), the drawing of the last key press (the windows that
    turned are marked), a QWERTZ keyboard (or the computer's own while the card has the focus), what was typed and what
    lit, a suggestion to repeat the sender's example; parts 1 and 2 fold out below. On a phone the drawing scrolls
    sideways and starts at the keys.

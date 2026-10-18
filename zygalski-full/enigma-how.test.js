@@ -12,7 +12,7 @@ for (const l of Object.keys(T)) {
   ok(`${l}: same keys and kinds as pl`, JSON.stringify(shape(T[l])) === JSON.stringify(shape(T.pl)));
   const html = H.partsHtml(T[l], KIT.esc) + H.procHtml(T[l], KIT.esc) + H.diagram([0, 3, 20], 0, T[l].diagram) + H.diagram([0, 3, 19], null, T[l].diagram);
   ok(`${l}: renders without undefined/NaN`, !/undefined|NaN|\[object/.test(html));
-  const P = T[l].play, s = [P.lead('II I III', 'KUM', 'AQ'), P.up('x'), P.down('x'), P.last('ADU', 'A', 'W', 'A → W'), P.idea('PKE', 'LKW', 'KIJKYL')];
+  const P = T[l].play, s = [P.lead('II I III', 'KUM', 'AQ'), P.up('x'), P.down('x'), P.last('ADU', 'A', 'W', 'A → W'), P.idea('PKE', 'LKW', 'KIJKYL'), P.winHint('ADT', 'ADU')];
   ok(`${l}: play texts render`, s.every(x => typeof x === 'string' && x.trim() && !/undefined/.test(x)));
 }
 

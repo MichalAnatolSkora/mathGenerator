@@ -12,7 +12,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma wyglądała jak maszyna do pisania w drewnianej skrzynce, ale niczego nie drukowała. Nad klawiaturą miała 26 lampek z literami. Szyfrant naciskał po kolei litery tekstu, a przy każdym naciśnięciu zapalała się lampka z inną literą; drugi żołnierz zapisywał te litery — tak powstawał szyfrogram. W środku nie było elektroniki, tylko bateria, druty, styki i trzy obracające się kółka: wirniki.',
     diagram: {
       title: '⚡ Jedno naciśnięcie klawisza: którędy płynie prąd',
-      cap: (win, key, lamp, path) => `Okienka pokazują ${win}. Naciskasz ${key}: prąd (czerwony) płynie przez łącznicę i trzy wirniki do bębna odwracającego, zawraca i wraca inną drogą (niebieski). Zapala się lampka ${lamp}. Po drodze litera zmienia się tak: ${path}. Szare kreski to wszystkie pozostałe druty.`,
+      cap: (win, key, lamp, path) => `Okienka pokazują ${win}: to położenia trzech wirników (każdy ma 26, od A do Z, jak cyfry na kłódce), a nie litery tekstu. Naciskasz ${key}: prąd (czerwony) płynie przez łącznicę i trzy wirniki do bębna odwracającego, zawraca i wraca inną drogą (niebieski). Zapala się lampka ${lamp}. Po drodze litera zmienia się tak: ${path}. Szare kreski to wszystkie pozostałe druty.`,
       aria: (win, key, lamp) => `Droga prądu w Enigmie: okienka ${win}, klawisz ${key}, lampka ${lamp}`,
       refl: ['bęben', 'odwracający'], rotors: ['lewy', 'środkowy', 'prawy'], plug: 'łącznica', keys: 'klawisze i lampki',
       window: 'okienko', key: 'klawisz', lamp: 'lampka',
@@ -55,6 +55,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Ustawia ten sam klucz dnia, kręci wirnikami na ${g} i pisze ${ind} — zapalają się ${k}${k} (to działa dzięki bębnowi odwracającemu). Potem kręci na ${k}, pisze szyfrogram i czyta: ${plain} („${meaning}”).`,
     },
     meaning: 'brak szczególnych zdarzeń',
+    start: {
+      title: '🔐 Co z początku depeszy było tajne?',
+      text: (g, ind, k) => `Jawnie szły tylko 3 pierwsze litery: ${g}. Kto je podsłuchał, wiedział tylko, na jakie litery ustawić okienka. Nie wiedział jednak, które wirniki włożyć i w jakiej kolejności, jak przekręcone są pierścienie ani jak wpięte są kable — a bez tego ${g} nic nie mówi, bo litera w okienku jest na pierścieniu i nie zdradza, jak stoją druty. Następne 6 liter, ${ind}, to już szyfr: klucz depeszy ${k}${k} zaszyfrowany od ${g} tajnym kluczem dnia. Odczytać z nich ${k} mógł tylko ktoś, kto miał tabelę kluczy. A treść szyfrowano od ${k}, więc każda depesza zaczynała się od innego, tajnego ustawienia.`,
+      why: 'Po co klucz dwa razy? Alfabet Morse’a przez radio łatwo źle usłyszeć, a odbiorca od razu widział, czy wyszły dwie takie same trójki. Ta ostrożność zgubiła Niemców: dała samiczki i łańcuchy Rejewskiego. Przed 15 września 1938 roku jawnych liter klucza w ogóle nie było: depesza zaczynała się od razu od 6 zaszyfrowanych. W maju 1940 roku Niemcy przestali pisać klucz dwa razy i płachty przestały działać.',
+    },
     weak: {
       title: '🔎 Słaby punkt: samiczki',
       text: (a, ind, c, p) => `Klucz pisany dwa razy to błąd. Litery ${p}. i ${p + 3}. zaszyfrowanego klucza to ta sama litera (${a}), zaszyfrowana w dwóch położeniach odległych o trzy naciśnięcia. Zwykle wychodzą dwie różne litery, ale czasem ta sama — jak tutaj: ${c} na miejscu ${p}. i ${p + 3}. w ${ind}. To samiczka. Czy samiczka może wypaść, zależy tylko od położenia rdzeni wirników, a nie od łącznicy (kable tylko zmieniają nazwy liter). Na płachcie Zygalskiego dziurka jest w każdym położeniu, w którym samiczka jest możliwa.`,
@@ -96,6 +101,7 @@ const ENIGMA_TEXT = {
       title: '🔧 Jak działała Enigma? Wypróbuj maszynę',
       lead: (order, rings, plug) => `To symulacja prawdziwej Enigmy I z przykładowym kluczem dnia: wirniki ${order}, pierścienie ${rings}, łącznica ${plug}. Naciskaj litery i patrz, którędy płynie prąd i jak przy każdym naciśnięciu obraca się prawy wirnik.`,
       windows: 'Okienka (ustawienie wirników)',
+      winHint: (a, b) => `To litery z pierścieni wirników, A–Z. Każda mówi, w którym z 26 położeń stoi wirnik — jak cyfry na kłódce szyfrowej; to nie są litery tekstu. Strzałkami ustawiasz wirniki, a każde naciśnięcie klawisza obraca prawy o jedną literę: ${a} → ${b}.`,
       rotorNames: ['Lewy wirnik', 'Środkowy wirnik', 'Prawy wirnik'],
       up: r => `${r}: następna litera`, down: r => `${r}: poprzednia litera`,
       typed: 'Wpisane', lit: 'Zapalone lampki', clear: 'Wyczyść',
@@ -114,7 +120,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma looked like a typewriter in a wooden box, but it printed nothing. Above the keys it had 26 lamps with letters. The operator pressed the letters of the text one by one, and with every press a lamp with a different letter lit up; a second soldier wrote those letters down — that was the ciphertext. There were no electronics inside, just a battery, wires, contacts and three turning wheels: the rotors.',
     diagram: {
       title: '⚡ One key press: where the current goes',
-      cap: (win, key, lamp, path) => `The windows show ${win}. You press ${key}: the current (red) goes through the plugboard and the three rotors to the reflector, turns round and comes back another way (blue). Lamp ${lamp} lights up. On the way the letter changes like this: ${path}. The grey lines are all the other wires.`,
+      cap: (win, key, lamp, path) => `The windows show ${win}: the positions of the three rotors (26 each, A to Z, like the digits on a lock), not letters of the text. You press ${key}: the current (red) goes through the plugboard and the three rotors to the reflector, turns round and comes back another way (blue). Lamp ${lamp} lights up. On the way the letter changes like this: ${path}. The grey lines are all the other wires.`,
       aria: (win, key, lamp) => `The current’s way through Enigma: windows ${win}, key ${key}, lamp ${lamp}`,
       refl: ['reflector', ''], rotors: ['left', 'middle', 'right'], plug: 'plugboard', keys: 'keys and lamps',
       window: 'window', key: 'key', lamp: 'lamp',
@@ -157,6 +163,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Sets the same daily key, turns the rotors to ${g} and types ${ind} — the lamps give ${k}${k} (that works thanks to the reflector). Then turns to ${k}, types the ciphertext and reads: ${plain} (“${meaning}”).`,
     },
     meaning: 'nothing special to report',
+    start: {
+      title: '🔐 Which part of the start was secret?',
+      text: (g, ind, k) => `Only the first 3 letters went in the clear: ${g}. Anyone listening learned just which letters to set in the windows. But they did not know which rotors to put in and in what order, how the rings were turned or how the cables were plugged — and without that ${g} says nothing, because the letter in a window is on the ring and does not show how the wires stand. The next 6 letters, ${ind}, are already cipher: the message key ${k}${k}, enciphered from ${g} with the secret daily key. Only someone with the key table could read ${k} from them. And the text was enciphered from ${k}, so every message started from a different, secret setting.`,
+      why: 'Why the key twice? Morse code over the radio is easy to mishear, and the receiver could see at once whether two identical triples came out. This precaution undid the Germans: it gave the females and Rejewski’s chains. Before 15 September 1938 there were no key letters in the clear at all: a message began straight away with the 6 enciphered ones. In May 1940 the Germans stopped typing the key twice, and the sheets stopped working.',
+    },
     weak: {
       title: '🔎 The weak point: females',
       text: (a, ind, c, p) => `Typing the key twice was a mistake. Letters ${p} and ${p + 3} of the enciphered key are the same letter (${a}), enciphered at two positions three presses apart. Usually two different letters come out, but sometimes the same one — as here: ${c} in places ${p} and ${p + 3} of ${ind}. That is a female. Whether a female can appear depends only on where the rotor cores stand, not on the plugboard (the cables only rename letters). On a Zygalski sheet there is a hole at every position where a female is possible.`,
@@ -198,6 +209,7 @@ const ENIGMA_TEXT = {
       title: '🔧 How did Enigma work? Try the machine',
       lead: (order, rings, plug) => `This is a simulation of a real Enigma I with an example daily key: rotors ${order}, rings ${rings}, plugboard ${plug}. Press letters and watch where the current goes and how the right rotor turns with every press.`,
       windows: 'Windows (rotor setting)',
+      winHint: (a, b) => `These are letters on the rotors’ rings, A–Z. Each one tells which of 26 positions the rotor stands in — like the digits on a combination lock; they are not letters of the text. The arrows set the rotors, and every key press turns the right one by one letter: ${a} → ${b}.`,
       rotorNames: ['Left rotor', 'Middle rotor', 'Right rotor'],
       up: r => `${r}: next letter`, down: r => `${r}: previous letter`,
       typed: 'Typed', lit: 'Lamps lit', clear: 'Clear',
@@ -216,7 +228,7 @@ const ENIGMA_TEXT = {
     intro: 'Енігма була схожа на друкарську машинку в дерев’яній скриньці, але нічого не друкувала. Над клавішами було 26 лампочок з літерами. Шифрувальник натискав літери тексту одну за одною, і щоразу засвічувалася лампочка з іншою літерою; другий солдат записував ці літери — так виходила шифровка. Електроніки всередині не було: лише батарейка, дроти, контакти й три коліщата, що оберталися, — ротори.',
     diagram: {
       title: '⚡ Одне натискання клавіші: куди тече струм',
-      cap: (win, key, lamp, path) => `Віконця показують ${win}. Ти натискаєш ${key}: струм (червоний) іде через комутаційну панель і три ротори до рефлектора, розвертається й повертається іншим шляхом (синій). Засвічується лампочка ${lamp}. Дорогою літера змінюється так: ${path}. Сірі лінії — усі інші дроти.`,
+      cap: (win, key, lamp, path) => `Віконця показують ${win}: це положення трьох роторів (у кожного 26, від A до Z, як цифри на замку), а не літери тексту. Ти натискаєш ${key}: струм (червоний) іде через комутаційну панель і три ротори до рефлектора, розвертається й повертається іншим шляхом (синій). Засвічується лампочка ${lamp}. Дорогою літера змінюється так: ${path}. Сірі лінії — усі інші дроти.`,
       aria: (win, key, lamp) => `Шлях струму в Енігмі: віконця ${win}, клавіша ${key}, лампочка ${lamp}`,
       refl: ['рефлектор', ''], rotors: ['лівий', 'середній', 'правий'], plug: 'панель', keys: 'клавіші й лампочки',
       window: 'віконце', key: 'клавіша', lamp: 'лампочка',
@@ -259,6 +271,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Встановлює той самий ключ дня, крутить ротори на ${g} і вводить ${ind} — засвічуються ${k}${k} (це працює завдяки рефлектору). Потім крутить на ${k}, вводить шифровку й читає: ${plain} («${meaning}»).`,
     },
     meaning: 'без особливих подій',
+    start: {
+      title: '🔐 Що на початку повідомлення було таємним?',
+      text: (g, ind, k) => `Відкрито йшли лише 3 перші літери: ${g}. Хто їх підслухав, дізнавався тільки, на які літери поставити віконця. Але він не знав, які ротори вставити і в якому порядку, як повернуті кільця і як увімкнені кабелі, — а без цього ${g} нічого не каже, бо літера у віконці стоїть на кільці й не видає, як стоять дроти. Наступні 6 літер, ${ind}, — це вже шифр: ключ повідомлення ${k}${k}, зашифрований від ${g} таємним ключем дня. Прочитати з них ${k} міг лише той, хто мав таблицю ключів. А текст шифрували від ${k}, тож кожне повідомлення починалося з іншого, таємного положення.`,
+      why: 'Навіщо ключ двічі? Азбуку Морзе по радіо легко почути з помилкою, а одержувач одразу бачив, чи вийшли дві однакові трійки. Ця обережність і підвела німців: вона дала самички та ланцюжки Реєвського. До 15 вересня 1938 року відкритих літер ключа не було взагалі: повідомлення починалося одразу з 6 зашифрованих. У травні 1940 року німці перестали вводити ключ двічі, і листи перестали діяти.',
+    },
     weak: {
       title: '🔎 Слабке місце: самички',
       text: (a, ind, c, p) => `Вводити ключ двічі було помилкою. Літери ${p} і ${p + 3} зашифрованого ключа — це та сама літера (${a}), зашифрована у двох положеннях, віддалених на три натискання. Зазвичай виходять дві різні літери, але інколи та сама — як тут: ${c} на місцях ${p} і ${p + 3} у ${ind}. Це самичка. Чи може випасти самичка, залежить лише від положення серцевин роторів, а не від панелі (кабелі тільки перейменовують літери). На листі Зигальського дірка є в кожному положенні, де самичка можлива.`,
@@ -300,6 +317,7 @@ const ENIGMA_TEXT = {
       title: '🔧 Як працювала Енігма? Спробуй машину',
       lead: (order, rings, plug) => `Це симуляція справжньої Енігми I з прикладом ключа дня: ротори ${order}, кільця ${rings}, панель ${plug}. Натискай літери й дивись, куди тече струм і як правий ротор повертається при кожному натисканні.`,
       windows: 'Віконця (положення роторів)',
+      winHint: (a, b) => `Це літери з кілець роторів, A–Z. Кожна показує, в якому з 26 положень стоїть ротор, — як цифри на кодовому замку; це не літери тексту. Стрілками ти встановлюєш ротори, а кожне натискання клавіші повертає правий на одну літеру: ${a} → ${b}.`,
       rotorNames: ['Лівий ротор', 'Середній ротор', 'Правий ротор'],
       up: r => `${r}: наступна літера`, down: r => `${r}: попередня літера`,
       typed: 'Введено', lit: 'Засвічені лампочки', clear: 'Очистити',
@@ -318,7 +336,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma trông như một chiếc máy đánh chữ trong hộp gỗ, nhưng không in ra gì cả. Phía trên bàn phím có 26 bóng đèn có chữ. Người mã hóa gõ lần lượt từng chữ của văn bản, và mỗi lần gõ lại có một bóng đèn mang chữ khác sáng lên; một người lính thứ hai chép lại các chữ đó — đó là bản mã. Bên trong không có linh kiện điện tử nào, chỉ có pin, dây điện, tiếp điểm và ba bánh xe quay: các rôto.',
     diagram: {
       title: '⚡ Một lần gõ phím: dòng điện đi đường nào',
-      cap: (win, key, lamp, path) => `Các cửa sổ chỉ ${win}. Bạn gõ ${key}: dòng điện (đỏ) đi qua bảng cắm và ba rôto tới trống phản xạ, quay đầu và trở về theo đường khác (xanh). Đèn ${lamp} sáng. Trên đường đi, chữ thay đổi như sau: ${path}. Các đường xám là tất cả các dây còn lại.`,
+      cap: (win, key, lamp, path) => `Các cửa sổ chỉ ${win}: đó là vị trí của ba rôto (mỗi rôto có 26, từ A đến Z, như chữ số trên ổ khóa), không phải chữ của văn bản. Bạn gõ ${key}: dòng điện (đỏ) đi qua bảng cắm và ba rôto tới trống phản xạ, quay đầu và trở về theo đường khác (xanh). Đèn ${lamp} sáng. Trên đường đi, chữ thay đổi như sau: ${path}. Các đường xám là tất cả các dây còn lại.`,
       aria: (win, key, lamp) => `Đường đi của dòng điện trong Enigma: cửa sổ ${win}, phím ${key}, đèn ${lamp}`,
       refl: ['trống', 'phản xạ'], rotors: ['trái', 'giữa', 'phải'], plug: 'bảng cắm', keys: 'phím và đèn',
       window: 'cửa sổ', key: 'phím', lamp: 'đèn',
@@ -361,6 +379,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Đặt cùng khóa ngày, xoay rôto về ${g} và gõ ${ind} — đèn sáng ${k}${k} (làm được là nhờ trống phản xạ). Rồi xoay về ${k}, gõ bản mã và đọc: ${plain} (“${meaning}”).`,
     },
     meaning: 'không có gì đặc biệt',
+    start: {
+      title: '🔐 Phần nào ở đầu bức điện là bí mật?',
+      text: (g, ind, k) => `Chỉ 3 chữ đầu được gửi công khai: ${g}. Ai nghe lén được chỉ biết phải đặt cửa sổ về những chữ nào. Nhưng họ không biết lắp rôto nào và theo thứ tự nào, vòng được xoay ra sao, cáp cắm thế nào — mà thiếu những điều đó thì ${g} chẳng nói lên gì, vì chữ trong cửa sổ nằm trên vòng và không cho biết dây nằm ra sao. 6 chữ tiếp theo, ${ind}, đã là mật mã: khóa bức điện ${k}${k}, được mã hóa từ ${g} bằng khóa ngày bí mật. Chỉ người có bảng khóa mới đọc ra được ${k}. Còn nội dung được mã hóa từ ${k}, nên mỗi bức điện bắt đầu từ một vị trí khác, bí mật.`,
+      why: 'Vì sao gõ khóa hai lần? Mã Morse qua radio dễ nghe nhầm, và người nhận thấy ngay hai bộ ba có giống nhau không. Chính sự cẩn thận này làm hại người Đức: nó sinh ra các con mái và chuỗi của Rejewski. Trước ngày 15 tháng 9 năm 1938 hoàn toàn không có chữ khóa công khai: bức điện bắt đầu ngay bằng 6 chữ đã mã hóa. Tháng 5 năm 1940 người Đức thôi gõ khóa hai lần, và các tấm hết tác dụng.',
+    },
     weak: {
       title: '🔎 Điểm yếu: con mái',
       text: (a, ind, c, p) => `Gõ khóa hai lần là một sai lầm. Chữ thứ ${p} và thứ ${p + 3} của khóa đã mã hóa là cùng một chữ (${a}), được mã hóa ở hai vị trí cách nhau ba lần gõ. Thường thì ra hai chữ khác nhau, nhưng đôi khi ra cùng một chữ — như ở đây: ${c} ở vị trí ${p} và ${p + 3} trong ${ind}. Đó là một con mái. Con mái có thể xuất hiện hay không chỉ phụ thuộc vào vị trí lõi các rôto, không phụ thuộc bảng cắm (cáp chỉ đổi tên các chữ). Trên tấm Zygalski có một lỗ ở mọi vị trí mà con mái có thể xuất hiện.`,
@@ -402,6 +425,7 @@ const ENIGMA_TEXT = {
       title: '🔧 Enigma hoạt động thế nào? Thử máy',
       lead: (order, rings, plug) => `Đây là mô phỏng một chiếc Enigma I thật với một khóa ngày ví dụ: rôto ${order}, vòng ${rings}, bảng cắm ${plug}. Hãy gõ chữ và xem dòng điện đi đường nào, và rôto phải quay thế nào mỗi lần gõ.`,
       windows: 'Cửa sổ (vị trí rôto)',
+      winHint: (a, b) => `Đây là các chữ trên vòng của rôto, từ A đến Z. Mỗi chữ cho biết rôto đang ở vị trí nào trong 26 vị trí — giống chữ số trên ổ khóa số; đó không phải chữ của văn bản. Các mũi tên dùng để đặt rôto, và mỗi lần gõ phím rôto phải quay một chữ: ${a} → ${b}.`,
       rotorNames: ['Rôto trái', 'Rôto giữa', 'Rôto phải'],
       up: r => `${r}: chữ tiếp theo`, down: r => `${r}: chữ trước`,
       typed: 'Đã gõ', lit: 'Đèn đã sáng', clear: 'Xóa',
@@ -420,7 +444,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma ressemblait à une machine à écrire dans une boîte en bois, mais elle n’imprimait rien. Au-dessus du clavier, il y avait 26 lampes avec des lettres. L’opérateur tapait les lettres du texte une à une, et à chaque frappe une lampe avec une autre lettre s’allumait ; un second soldat notait ces lettres — c’était le cryptogramme. Aucune électronique à l’intérieur : une pile, des fils, des contacts et trois roues qui tournent, les rotors.',
     diagram: {
       title: '⚡ Une frappe : par où passe le courant',
-      cap: (win, key, lamp, path) => `Les fenêtres montrent ${win}. Tu tapes ${key} : le courant (rouge) traverse le tableau de connexions et les trois rotors jusqu’au réflecteur, fait demi-tour et revient par un autre chemin (bleu). La lampe ${lamp} s’allume. En route, la lettre change ainsi : ${path}. Les traits gris sont tous les autres fils.`,
+      cap: (win, key, lamp, path) => `Les fenêtres montrent ${win} : les positions des trois rotors (26 chacun, de A à Z, comme les chiffres d’un cadenas), pas des lettres du texte. Tu tapes ${key} : le courant (rouge) traverse le tableau de connexions et les trois rotors jusqu’au réflecteur, fait demi-tour et revient par un autre chemin (bleu). La lampe ${lamp} s’allume. En route, la lettre change ainsi : ${path}. Les traits gris sont tous les autres fils.`,
       aria: (win, key, lamp) => `Le chemin du courant dans Enigma : fenêtres ${win}, touche ${key}, lampe ${lamp}`,
       refl: ['réflecteur', ''], rotors: ['gauche', 'milieu', 'droite'], plug: 'connexions', keys: 'touches et lampes',
       window: 'fenêtre', key: 'touche', lamp: 'lampe',
@@ -463,6 +487,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Règle la même clé du jour, tourne les rotors sur ${g} et tape ${ind} — les lampes donnent ${k}${k} (grâce au réflecteur). Puis il tourne sur ${k}, tape le cryptogramme et lit : ${plain} (« ${meaning} »).`,
     },
     meaning: 'rien de particulier à signaler',
+    start: {
+      title: '🔐 Qu’est-ce qui était secret au début du message ?',
+      text: (g, ind, k) => `Seules les 3 premières lettres partaient en clair : ${g}. Celui qui les entendait savait seulement sur quelles lettres mettre les fenêtres. Mais il ne savait pas quels rotors mettre ni dans quel ordre, comment les anneaux étaient tournés ni comment les câbles étaient branchés — et sans cela ${g} ne dit rien, car la lettre de la fenêtre est sur l’anneau et ne montre pas où sont les fils. Les 6 lettres suivantes, ${ind}, sont déjà chiffrées : c’est la clé de message ${k}${k}, chiffrée depuis ${g} avec la clé du jour secrète. Seul quelqu’un qui avait la table de clés pouvait en tirer ${k}. Et le texte était chiffré depuis ${k}, donc chaque message partait d’un réglage différent et secret.`,
+      why: 'Pourquoi la clé deux fois ? Le morse à la radio s’entend facilement de travers, et le destinataire voyait tout de suite si deux triplets identiques sortaient. Cette prudence a perdu les Allemands : elle a donné les femelles et les chaînes de Rejewski. Avant le 15 septembre 1938, il n’y avait aucune lettre de clé en clair : le message commençait directement par les 6 lettres chiffrées. En mai 1940, les Allemands ont cessé de taper la clé deux fois, et les feuilles ne marchaient plus.',
+    },
     weak: {
       title: '🔎 Le point faible : les femelles',
       text: (a, ind, c, p) => `Taper la clé deux fois était une erreur. Les lettres ${p} et ${p + 3} de la clé chiffrée sont la même lettre (${a}), chiffrée à deux positions séparées de trois frappes. D’habitude, deux lettres différentes sortent, mais parfois la même — comme ici : ${c} aux places ${p} et ${p + 3} de ${ind}. C’est une femelle. Qu’une femelle puisse apparaître dépend seulement de la position des cœurs des rotors, pas du tableau de connexions (les câbles ne font que renommer les lettres). Sur une feuille de Zygalski, il y a un trou à chaque position où une femelle est possible.`,
@@ -504,6 +533,7 @@ const ENIGMA_TEXT = {
       title: '🔧 Comment marchait Enigma ? Essaie la machine',
       lead: (order, rings, plug) => `C’est une simulation d’une vraie Enigma I avec une clé du jour d’exemple : rotors ${order}, anneaux ${rings}, connexions ${plug}. Tape des lettres et regarde par où passe le courant et comment le rotor de droite tourne à chaque frappe.`,
       windows: 'Fenêtres (réglage des rotors)',
+      winHint: (a, b) => `Ce sont les lettres des anneaux des rotors, de A à Z. Chacune dit dans laquelle des 26 positions se trouve le rotor — comme les chiffres d’un cadenas à code ; ce ne sont pas des lettres du texte. Les flèches règlent les rotors, et chaque frappe fait tourner celui de droite d’une lettre : ${a} → ${b}.`,
       rotorNames: ['Rotor de gauche', 'Rotor du milieu', 'Rotor de droite'],
       up: r => `${r} : lettre suivante`, down: r => `${r} : lettre précédente`,
       typed: 'Tapé', lit: 'Lampes allumées', clear: 'Effacer',
@@ -522,7 +552,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma sembrava una macchina da scrivere in una cassetta di legno, ma non stampava niente. Sopra la tastiera aveva 26 lampadine con le lettere. L’operatore batteva le lettere del testo una alla volta e a ogni tasto si accendeva una lampadina con un’altra lettera; un secondo soldato annotava quelle lettere: era il crittogramma. Dentro non c’era elettronica, solo una pila, fili, contatti e tre ruote che giravano: i rotori.',
     diagram: {
       title: '⚡ Un tasto premuto: dove passa la corrente',
-      cap: (win, key, lamp, path) => `Le finestrelle mostrano ${win}. Premi ${key}: la corrente (rossa) passa per il pannello dei collegamenti e i tre rotori fino al riflettore, fa inversione e torna per un’altra strada (blu). Si accende la lampadina ${lamp}. Lungo la strada la lettera cambia così: ${path}. Le linee grigie sono tutti gli altri fili.`,
+      cap: (win, key, lamp, path) => `Le finestrelle mostrano ${win}: le posizioni dei tre rotori (26 ciascuno, dalla A alla Z, come le cifre di un lucchetto), non lettere del testo. Premi ${key}: la corrente (rossa) passa per il pannello dei collegamenti e i tre rotori fino al riflettore, fa inversione e torna per un’altra strada (blu). Si accende la lampadina ${lamp}. Lungo la strada la lettera cambia così: ${path}. Le linee grigie sono tutti gli altri fili.`,
       aria: (win, key, lamp) => `La strada della corrente in Enigma: finestrelle ${win}, tasto ${key}, lampadina ${lamp}`,
       refl: ['riflettore', ''], rotors: ['sinistro', 'centrale', 'destro'], plug: 'pannello', keys: 'tasti e lampadine',
       window: 'finestrella', key: 'tasto', lamp: 'lampadina',
@@ -565,6 +595,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Regola la stessa chiave del giorno, gira i rotori su ${g} e batte ${ind}: si accendono ${k}${k} (funziona grazie al riflettore). Poi gira su ${k}, batte il crittogramma e legge: ${plain} («${meaning}»).`,
     },
     meaning: 'nessun evento particolare',
+    start: {
+      title: '🔐 Che cosa era segreto all’inizio del messaggio?',
+      text: (g, ind, k) => `In chiaro andavano solo le prime 3 lettere: ${g}. Chi le ascoltava sapeva soltanto su quali lettere mettere le finestrelle. Ma non sapeva quali rotori inserire e in che ordine, come erano girati gli anelli né come erano inseriti i cavi, e senza questo ${g} non dice niente, perché la lettera nella finestrella è sull’anello e non mostra dove stanno i fili. Le 6 lettere seguenti, ${ind}, sono già cifrate: la chiave del messaggio ${k}${k}, cifrata da ${g} con la chiave del giorno segreta. Solo chi aveva la tabella delle chiavi poteva ricavarne ${k}. E il testo era cifrato da ${k}, quindi ogni messaggio partiva da una posizione diversa e segreta.`,
+      why: 'Perché la chiave due volte? Il Morse alla radio si sente facilmente male, e chi riceveva vedeva subito se uscivano due terne uguali. Questa prudenza rovinò i tedeschi: diede le femmine e le catene di Rejewski. Prima del 15 settembre 1938 non c’erano lettere della chiave in chiaro: il messaggio cominciava subito con le 6 lettere cifrate. Nel maggio 1940 i tedeschi smisero di battere la chiave due volte, e i fogli smisero di funzionare.',
+    },
     weak: {
       title: '🔎 Il punto debole: le femmine',
       text: (a, ind, c, p) => `Battere la chiave due volte era un errore. Le lettere ${p} e ${p + 3} della chiave cifrata sono la stessa lettera (${a}), cifrata in due posizioni distanti tre battute. Di solito escono due lettere diverse, ma a volte la stessa, come qui: ${c} ai posti ${p} e ${p + 3} di ${ind}. È una femmina. Che una femmina possa comparire dipende solo dalla posizione dei nuclei dei rotori, non dal pannello (i cavi rinominano soltanto le lettere). Su un foglio di Zygalski c’è un buco in ogni posizione in cui una femmina è possibile.`,
@@ -606,6 +641,7 @@ const ENIGMA_TEXT = {
       title: '🔧 Come funzionava Enigma? Prova la macchina',
       lead: (order, rings, plug) => `È una simulazione di una vera Enigma I con una chiave del giorno di esempio: rotori ${order}, anelli ${rings}, pannello ${plug}. Premi le lettere e guarda dove passa la corrente e come il rotore destro gira a ogni tasto.`,
       windows: 'Finestrelle (posizione dei rotori)',
+      winHint: (a, b) => `Sono le lettere sugli anelli dei rotori, dalla A alla Z. Ognuna dice in quale delle 26 posizioni sta il rotore, come le cifre di un lucchetto a combinazione: non sono lettere del testo. Con le frecce regoli i rotori, e ogni battuta fa girare quello di destra di una lettera: ${a} → ${b}.`,
       rotorNames: ['Rotore sinistro', 'Rotore centrale', 'Rotore destro'],
       up: r => `${r}: lettera successiva`, down: r => `${r}: lettera precedente`,
       typed: 'Battuto', lit: 'Lampadine accese', clear: 'Cancella',
@@ -624,7 +660,7 @@ const ENIGMA_TEXT = {
     intro: 'Enigma parecía una máquina de escribir en una caja de madera, pero no imprimía nada. Encima del teclado tenía 26 lámparas con letras. El operador pulsaba las letras del texto una a una y con cada pulsación se encendía una lámpara con otra letra; un segundo soldado apuntaba esas letras: era el criptograma. Dentro no había electrónica, solo una pila, cables, contactos y tres ruedas que giraban: los rotores.',
     diagram: {
       title: '⚡ Una pulsación: por dónde va la corriente',
-      cap: (win, key, lamp, path) => `Las ventanillas muestran ${win}. Pulsas ${key}: la corriente (rojo) pasa por el panel de conexiones y los tres rotores hasta el reflector, da la vuelta y regresa por otro camino (azul). Se enciende la lámpara ${lamp}. Por el camino la letra cambia así: ${path}. Las líneas grises son todos los demás cables.`,
+      cap: (win, key, lamp, path) => `Las ventanillas muestran ${win}: las posiciones de los tres rotores (26 cada uno, de la A a la Z, como las cifras de un candado), no letras del texto. Pulsas ${key}: la corriente (rojo) pasa por el panel de conexiones y los tres rotores hasta el reflector, da la vuelta y regresa por otro camino (azul). Se enciende la lámpara ${lamp}. Por el camino la letra cambia así: ${path}. Las líneas grises son todos los demás cables.`,
       aria: (win, key, lamp) => `El camino de la corriente en Enigma: ventanillas ${win}, tecla ${key}, lámpara ${lamp}`,
       refl: ['reflector', ''], rotors: ['izquierdo', 'central', 'derecho'], plug: 'panel', keys: 'teclas y lámparas',
       window: 'ventanilla', key: 'tecla', lamp: 'lámpara',
@@ -667,6 +703,11 @@ const ENIGMA_TEXT = {
       text: (g, ind, k, plain, meaning) => `Ajusta la misma clave del día, gira los rotores a ${g} y teclea ${ind}: se encienden ${k}${k} (funciona gracias al reflector). Luego gira a ${k}, teclea el criptograma y lee: ${plain} («${meaning}»).`,
     },
     meaning: 'nada especial que informar',
+    start: {
+      title: '🔐 ¿Qué era secreto al principio del mensaje?',
+      text: (g, ind, k) => `En claro iban solo las 3 primeras letras: ${g}. Quien las escuchaba sabía solo en qué letras poner las ventanillas. Pero no sabía qué rotores poner ni en qué orden, cómo estaban girados los anillos ni cómo estaban conectados los cables, y sin eso ${g} no dice nada, porque la letra de la ventanilla está en el anillo y no muestra cómo están los cables de dentro. Las 6 letras siguientes, ${ind}, ya son cifra: la clave del mensaje ${k}${k}, cifrada desde ${g} con la clave del día secreta. Solo quien tenía la tabla de claves podía sacar de ellas ${k}. Y el texto se cifraba desde ${k}, así que cada mensaje empezaba desde una posición distinta y secreta.`,
+      why: '¿Por qué la clave dos veces? El morse por radio se oye mal con facilidad, y el receptor veía enseguida si salían dos tríos iguales. Esa prudencia perdió a los alemanes: dio las hembras y las cadenas de Rejewski. Antes del 15 de septiembre de 1938 no había letras de la clave en claro: el mensaje empezaba directamente con las 6 letras cifradas. En mayo de 1940 los alemanes dejaron de teclear la clave dos veces, y las hojas dejaron de funcionar.',
+    },
     weak: {
       title: '🔎 El punto débil: las hembras',
       text: (a, ind, c, p) => `Teclear la clave dos veces fue un error. Las letras ${p} y ${p + 3} de la clave cifrada son la misma letra (${a}), cifrada en dos posiciones separadas por tres pulsaciones. Normalmente salen dos letras distintas, pero a veces la misma, como aquí: ${c} en los lugares ${p} y ${p + 3} de ${ind}. Es una hembra. Que pueda salir una hembra depende solo de la posición de los núcleos de los rotores, no del panel (los cables solo cambian el nombre de las letras). En una hoja de Zygalski hay un agujero en cada posición donde una hembra es posible.`,
@@ -708,6 +749,7 @@ const ENIGMA_TEXT = {
       title: '🔧 ¿Cómo funcionaba Enigma? Prueba la máquina',
       lead: (order, rings, plug) => `Es una simulación de una Enigma I real con una clave del día de ejemplo: rotores ${order}, anillos ${rings}, panel ${plug}. Pulsa letras y mira por dónde va la corriente y cómo gira el rotor derecho con cada pulsación.`,
       windows: 'Ventanillas (posición de los rotores)',
+      winHint: (a, b) => `Son las letras de los anillos de los rotores, de la A a la Z. Cada una dice en cuál de las 26 posiciones está el rotor, como las cifras de un candado de combinación: no son letras del texto. Con las flechas pones los rotores, y cada pulsación hace girar el derecho una letra: ${a} → ${b}.`,
       rotorNames: ['Rotor izquierdo', 'Rotor central', 'Rotor derecho'],
       up: r => `${r}: letra siguiente`, down: r => `${r}: letra anterior`,
       typed: 'Tecleado', lit: 'Lámparas encendidas', clear: 'Borrar',
