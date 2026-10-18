@@ -99,6 +99,7 @@
   .whyblock svg{width:100%;height:auto;}
   .whyblock h3{margin:0 0 2mm;font-size:15px;}
   .whyblock p{margin:0;font-size:13px;line-height:1.5;}
+  .whyblock p+p{margin-top:1.5mm;}
   .ladders{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;}
   .lad{display:flex;flex-direction:column;align-items:center;gap:0.5mm;}
   .lad b{font-size:12.5px;white-space:nowrap;}
@@ -477,13 +478,15 @@
         <div class="task"><h3>2. ${esc(t('factT2Title'))}</h3><p>${esc(t('factT2'))}</p>${blankSky}</div>
       </div></div>`;
   }
-  /** "Why does it work?": the Earth and the Pole Star (latitude), the turning Earth and the sun (longitude). */
+  /** "Why does it work?": the Earth and the Pole Star (latitude), the turning Earth and the sun (longitude).
+   *  Each drawing with its three paragraphs fills a page of its own, so "both" gives two pages. Returns the pages. */
   function renderWhy(s) {
     const c = C(), L = mapLetters(s);
     const blocks = [];
-    if (s.axis !== 'lon') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyTitle)}</h3><p>${esc(c.whyText)}</p></div></div>`);
-    if (s.axis !== 'lat') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyLonTitle)}</h3><p>${esc(c.whyLonText)}</p></div></div>`);
-    return `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}${blocks.join('')}</div>`;
+    const paras = x => [].concat(x).map(p => `<p>${esc(p)}</p>`).join('');   // a text or a list of paragraphs
+    if (s.axis !== 'lon') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyTitle)}</h3>${paras(c.whyText)}</div></div>`);
+    if (s.axis !== 'lat') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyLonTitle)}</h3>${paras(c.whyLonText)}</div></div>`);
+    return blocks.map(b => `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}${b}</div>`);
   }
 
   function regenerate() {
@@ -495,7 +498,7 @@
       const d = generate(s);
       let html = '', pages = 0;
       if (s.secs.length) { html += renderSheet(d, s); pages++; }
-      if (s.why) { html += renderWhy(s); pages++; }
+      if (s.why) { const w = renderWhy(s); html += w.join(''); pages += w.length; }
       if (s.fact) { html += renderFact(s); pages++; }
       if (s.key && s.secs.length) { html += renderKey(d, s); pages++; }
       $('out').innerHTML = html;

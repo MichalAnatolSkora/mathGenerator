@@ -50,8 +50,9 @@ URL: `?mode=read|set|diff|star&axis=lat|lon|both&level=l30|l10|l5|city&story=1`.
 One A4 page (checked by measuring every coordinate choice, level and language): the map with points (answers beside it,
 or below it for both coordinates), marking (six latitude scales / six longitude scales / four points to draw on the
 same map), three skies or noon clocks (mixed for both), "further north / east?" and "how many degrees?". Each task can
-be switched off. Extra pages: "Why does it work?" (the two Earth drawings with explanations), the Titanic story with
-three small tasks, the answer key.
+be switched off. Extra pages: "Why does it work?" (an Earth drawing with three paragraphs each: the equal angles, why the
+Pole Star stays put and the 26 000-year wobble of the axis; the turning Earth, how a sailor takes the noon sight and the
+chronometer; one page per drawing, so "both" gives two), the Titanic story with three small tasks, the answer key.
 URL: `?seed=&axis=&level=&tasks=map,ladder,stars,compare,diff&lines=1&why=1&fact=1&key=1`.
 
 ## Letters in each language

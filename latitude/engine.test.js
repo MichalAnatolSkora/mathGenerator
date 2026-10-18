@@ -133,6 +133,8 @@ for (const l of Object.keys(T)) {
     c.noonLook, c.morseGame, c.factMorse(c.morseGame),
   ];
   ok(`${l} story names the Morse game`, c.factMorse(c.morseGame).includes(c.morseGame));
+  ok(`${l} "why the clock works" has three paragraphs with the worked example`, Array.isArray(c.whyLonText) && c.whyLonText.length === 3 && c.whyLonText.every(p => p.length > 200) && c.whyLonText[1].includes('14:00') && c.whyLonText[1].includes('30°'));
+  ok(`${l} "why the angle works" has three paragraphs, with the 26 000-year wobble`, Array.isArray(c.whyText) && c.whyText.length === 3 && c.whyText.every(p => p.length > 200) && /26[  .,]?000/.test(c.whyText[2]) && /Thuban|Тубан/.test(c.whyText[2]));
   ok(`${l} texts`, texts.every(s => typeof s === 'string' && s.length > 2 && !/undefined|NaN/.test(s)), texts.find(s => /undefined|NaN/.test(s)));
   eq(`${l} story has seven paragraphs (with the chronometer)`, g.fact.length, 7);
 }

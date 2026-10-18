@@ -91,6 +91,7 @@
   .why .whyfig{max-width:440px;margin:8px auto;}
   .why .whyfig svg{display:block;width:100%;height:auto;}
   .why p{margin:0;font-size:15px;}
+  .why p+p{margin-top:8px;}
   .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
   .primary:hover{background:var(--accent-d);}
   .primary:disabled{opacity:.5;cursor:default;}
@@ -197,7 +198,7 @@
     <details class="why" id="why" hidden>
       <summary>🌍 <span id="whyTitle"></span></summary>
       <div class="whyfig" id="whyFig"></div>
-      <p id="whyText"></p>
+      <div id="whyText"></div>
     </details>
     <button type="button" class="primary" id="nextBtn" data-i18n="next"></button>
   </section>
@@ -520,7 +521,9 @@
     $('whyFig').innerHTML = task.ax === 'lon'
       ? LAT.whyLonSvg({ lon: task.lon, letters: letters(), names: c.whyNames })
       : LAT.whySvg({ lat: task.lat, letters: letters(), names: c.whyNames });
-    $('whyText').textContent = t(task.ax === 'lon' ? 'whyLonText' : 'whyText');
+    // one paragraph (latitude) or several (longitude: the rule, how a sailor does it, the chronometer)
+    $('whyText').innerHTML = '';
+    for (const para of [].concat(t(task.ax === 'lon' ? 'whyLonText' : 'whyText'))) { const p = document.createElement('p'); p.textContent = para; $('whyText').appendChild(p); }
   }
 
   function finish(ok, stars, shown) {
