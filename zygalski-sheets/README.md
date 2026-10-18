@@ -36,15 +36,19 @@ adults is [`../zygalski-full/`](../zygalski-full/README.md); it uses this folder
    left, and its two letters are the answer ("middle C, right E"), as in 1938.
    Levels: mixed ★ ★★ ★★★ (default), easy 4×4 with 3 sheets, medium 6×6 with 4 sheets, hard 6×6 with 4 sheets
    and shifts: a sheet marked "→1 ↓2" moves 1 right and 2 down first, and a hole over the edge comes back on
-   the other side (Zygalski drew the grid twice, 51 × 51, for the same reason).
+   the other side (Zygalski drew the grid twice, 51 × 51, for the same reason). In ★★★ rounds each sheet also shows
+   the open letters of its message (grey): its middle letter is sheet 1's plus the shift down, its right letter sheet 1's
+   plus the shift right, so the arrows are the letter differences, as with the real sheets (the direction is our
+   convention).
 2b. **Decipher the message** (option, on by default), right after the game: the full path for kids. The last round's
-   answer (middle, right) is the rotor setting of an intercepted German message (`ZYG.message`: Enigma I, rotors
+   answer (middle, right) is the rotor setting of an intercepted German message — the table already has the middle
+   rotor set (its letter is not printed, so the page does not give away round 3), the right one gives the start row (`ZYG.message`: Enigma I, rotors
    II I III, rings at A, no plugboard, left window A; words split by X as in 1938; one of 8 harmless messages). The
    page is a paper Enigma: one row per right rotor letter B … (n − 1 + length), each row the machine's 26-letter swap
    at windows A, middle, that letter. Letter i is read in row right + i + 1 (the rotor turns before each letter);
    a wrong start gives nonsense. Boxes for row and letter under each cipher letter, four steps, a glossary of the 19
    German words in the page language and a line for the translation; the answer key gives the start row, the
-   message and its meaning. Rotors chosen so no other rotor turns inside the table (I turns at Q, III at V).
+   message and its meaning. The note at the bottom says what is simplified: no message key step, no plugs, rings at A. Rotors chosen so no other rotor turns inside the table (I turns at Q, III at V).
    Before it, a worked example on a page of its own (`ZYG.paper`): HALLO from middle B, right C → BYMWJ — the
    windows before each letter (ABC → ABD … ABH), the five rows D–H of the paper Enigma with each letter's square
    marked, the five lookups, the filled boxes, and why the two Ls became M and W (the rotor turned).

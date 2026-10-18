@@ -17,6 +17,9 @@
   .sheets{display:grid;grid-template-columns:repeat(2,23mm);gap:1mm 3mm;}
   .sh .cap,.tbl .cap{font-size:9.5px;font-weight:600;color:#444;text-align:center;white-space:nowrap;}
   .sh .cap small{color:#c0252b;font-weight:800;}
+  .sheets.wide{grid-template-columns:repeat(2,34mm);}
+  .sh .open{display:inline-flex;gap:0.4mm;margin:0 0.8mm;vertical-align:middle;}
+  .sh .open b{width:3.8mm;height:4mm;border:0.25mm solid #999;border-radius:0.6mm;background:#e9e9e9;color:#444;font:700 8.5px/4mm ui-monospace,Menlo,Consolas,monospace;text-align:center;}
   .arrow{font-size:26px;color:#999;}
   .ans{flex:1 1 30mm;font-size:12.5px;line-height:2.4;}
   .ans span{display:inline-block;border-bottom:0.3mm solid #333;width:16mm;margin-left:1mm;}
@@ -384,7 +387,7 @@
       <h3 class="etitle">📡 ${esc(M.box)}</h3>
       <div class="mwrap">${box}</div>
       <ol class="msteps">${steps}</ol>
-      <p class="etitle">⚙️ ${esc(M.table(L(g.left), L(g.middle)))}</p>
+      <p class="etitle">⚙️ ${esc(M.table(L(g.left)))}</p>
       <div class="ewrap"><table class="etab">${head}${body}</table></div>
       <p class="mnote">⚠️ ${esc(M.check)}</p>
       <h3 class="etitle" style="margin-top:2mm">${esc(M.gloss)}</h3>
@@ -406,16 +409,20 @@
 
       const roundHtml = (r, i) => {
         const sheetW = r.n === 4 ? 20 : 22, tableW = r.n === 4 ? 42 : 48;
+        // ★★★: the open letters of each sheet's message — the middle letter differs from sheet 1's by the shift down, the
+        // right letter by the shift right (sheet 1's middle and right letters stop at U, so nothing passes Z)
+        const ro = api.rnd(`open|${s.level}|${i}`), base = [Math.floor(ro() * 26), Math.floor(ro() * 21), Math.floor(ro() * 21)];
         const sheets = r.sheets.map((sh, j) => {
           const cells = Array.from({ length: r.n * r.n }, (_, c) => ({ hole: sh.holes.has(c) }));
           const shift = r.shift ? ` <small>${esc(C.shift(sh.dx, sh.dy))}</small>` : '';
-          return `<div class="sh"><div class="cap">${esc(C.sheet(j + 1))}${shift}</div>${ZYG.svg(r.n, cells, { w: sheetW, coords: true })}</div>`;
+          const open = r.shift ? `<span class="open">${[base[0], base[1] + sh.dy, base[2] + sh.dx].map(x => `<b>${L(x)}</b>`).join('')}</span>` : '';
+          return `<div class="sh"><div class="cap">${esc(C.sheet(j + 1))}${open}${shift}</div>${ZYG.svg(r.n, cells, { w: sheetW, coords: true })}</div>`;
         }).join('');
         const table = ZYG.svg(r.n, Array.from({ length: r.n * r.n }, () => ({})), { w: tableW, coords: true });
         return `<div class="round">
           <div class="rhead">${esc(C.round(i + 1))} <span class="stars">${STARS[r.level]}</span></div>
           <div class="rbody">
-            <div class="sheets">${sheets}</div>
+            <div class="sheets${r.shift ? ' wide' : ''}">${sheets}</div>
             <div class="arrow">➜</div>
             <div class="tbl"><div class="cap">💡 ${esc(t('table'))}</div>${table}</div>
             <div class="ans">${esc(t('middle'))}<span></span><br>${esc(t('right'))}<span></span></div>
