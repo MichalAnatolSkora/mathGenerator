@@ -387,7 +387,7 @@ const DW2 = (() => {
     kolomyja: [7, 48.53, 25.04, 'e', 4.5, 1.6],
   };
   const PL_NEIGHBOURS = { germany: [51.3, 16.3], prussia: [54.15, 21.2], lithuania: [55.35, 24.0], latvia: [56.05, 26.0], ussr: [52.0, 28.2],
-    czechoslovakia: [48.65, 23.1], romania: [47.95, 27.2], baltic: [55.2, 18.4] };
+    czechoslovakia: [48.7, 23.6], romania: [47.95, 27.2], baltic: [55.2, 18.4] };
   /** km between two stations along the ground (for the answer key) */
   function stationKm(a, b) {
     const [, la1, lo1] = LISTEN[a], [, la2, lo2] = LISTEN[b], r = Math.PI / 180;

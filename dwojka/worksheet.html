@@ -26,9 +26,12 @@
   /* mission 1 */
   .train{display:grid;grid-template-columns:26mm 1fr;align-items:center;gap:2mm;margin:0 0 1.2mm;}
   .train .d{font-weight:700;font-size:11.5px;}
+  .train svg{display:block;max-width:100%;height:auto;}
   .legend{display:flex;flex-wrap:wrap;gap:1mm 6mm;align-items:center;font-size:11px;margin:0 0 2mm;}
   .legend div{display:flex;align-items:center;gap:1.5mm;}
   .duo{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
+  /* the two stations' tables: side by side on A4, one under the other when the screen is too narrow for both */
+  .duo.tables{grid-template-columns:repeat(auto-fit,minmax(min(100%,84mm),1fr));}
   /* mission 2 */
   .msg{font:700 13px/1.4 Georgia,serif;border:0.3mm solid #333;background:#fff;padding:2mm 3mm;margin:0 0 2.5mm;}
   .msg u{text-decoration:none;border-bottom:0.5mm solid #1f4fbf;color:#1f4fbf;}
@@ -41,7 +44,7 @@
   .codes b{font:700 12px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;margin-right:2mm;}
   /* mission 3 */
   .map svg{display:block;width:100%;height:auto;}
-  .m3{display:grid;grid-template-columns:150mm 1fr;gap:4mm;align-items:start;}
+  .m3{display:grid;grid-template-columns:minmax(0,150mm) minmax(34mm,1fr);gap:4mm;align-items:start;}
   .bear{font-size:12px;}
   .bear div{border:0.3mm solid #1f4fbf;border-radius:1.5mm;padding:1.5mm 2mm;margin:0 0 2mm;background:#f3f6ff;}
   .bear b{display:block;color:#1f4fbf;}
@@ -78,7 +81,8 @@
   .real .tip .q{margin:0 0 0.6mm;font-size:10.5px;}
   .real .tip .q .ln{height:4.2mm;}
   .real .src{font-size:9px;line-height:1.3;color:#666;margin:0;}
-  @media (max-width:600px){ .real .top,.real .row2,.real .row3{grid-template-columns:1fr;} }
+  @media (max-width:600px){ .real .top,.real .row2,.real .row3{grid-template-columns:1fr;} .real .row3 figure.portrait{max-width:120px;} }
+  @media (max-width:600px){ table.t{font-size:10px;} table.t th,table.t td{padding:.8mm 1mm;} table.t td.blank{min-width:8mm;} }
   @media (max-width:600px){ .duo,.docs,.m3{grid-template-columns:1fr;} .cols,.codes{columns:1;} .train{grid-template-columns:1fr;} }
   @media print{ .dw{font-size:11.5px;} }
 </style>
@@ -151,7 +155,7 @@
       } else {
         const QS = lv === 'mid' ? M1.qMid : M1.qHard(R.normal);
         m1 = `<p>${esc(M1.intro)} ${esc(M1.introMid)}</p>${legend}
-          <div class="duo">${R.stations.map(st => `<table class="t" style="width:100%"><tr><th class="l" colspan="5">${esc(stName(st.id))}</th></tr>
+          <div class="duo tables">${R.stations.map(st => `<table class="t" style="width:100%"><tr><th class="l" colspan="5">${esc(stName(st.id))}</th></tr>
             <tr><th class="l">${esc(M1.th.day)}</th><th>${esc(M1.th.p)}</th><th>${esc(M1.th.h)}</th><th>${esc(M1.th.g)}</th><th>${esc(M1.th.all)}</th></tr>
             ${st.days.map((d, i) => `<tr><td class="l">${esc(M1.days[i])}</td><td>${d.p}</td><td>${d.h}</td><td>${d.g}</td><td class="blank"></td></tr>`).join('')}
             <tr class="sum"><td class="l">${esc(M1.total)}</td>${blank(4)}</tr></table>`).join('')}</div>
@@ -218,7 +222,7 @@
             <div><h3>${esc(Rl.stepsT)}</h3><ol>${Rl.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
           </div>
           <div class="row3">
-            <figure><img src="gwido-langer.jpg" width="245" height="400" alt="Gwido Langer"></figure>
+            <figure class="portrait"><img src="gwido-langer.jpg" width="245" height="400" alt="Gwido Langer"></figure>
             <div><p class="cap" style="margin:0 0 2mm">${esc(Rl.langerCap)}</p>
               <div class="box tip"><h3>✏️ ${esc(Rl.qT)}</h3>${Rl.q.map((t, i) => q(i + 1, t, 1)).join('')}</div></div>
             <figure><img src="palac-saski.jpg" width="1200" height="630" alt="${esc(Rl.palaceCap)}"><figcaption class="cap">${esc(Rl.palaceCap)}</figcaption></figure>
