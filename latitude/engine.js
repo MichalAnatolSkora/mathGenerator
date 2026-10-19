@@ -452,7 +452,8 @@ const LAT = (() => {
     const dir = rad(h + 90 + (south ? 10 : 0));   // the constellation lies on the zenith side of the pole
     const ux = Math.cos(dir), uy = -Math.sin(dir), vx = -uy, vy = ux;
     const P = (a, b) => [px + a * ux + b * vx, py + a * uy + b * vy];
-    const label = txt => { const left = px > W * 0.62; return `<text x="${f(px + (left ? -7 : 7))}" y="${f(py + (left ? 10 : -6))}" ${FONT} font-size="7.5" font-weight="700" text-anchor="${left ? 'end' : 'start'}" fill="${col.text}" stroke="${col.halo}" stroke-width="2" paint-order="stroke">${esc(txt)}</text>`; };
+    const label = txt => { const left = px > W * 0.62, low = h < 20;   // a low star: the name goes above it, off the horizon and the sight line
+      return `<text x="${f(px + (left ? -7 : 7))}" y="${f(py + (left && !low ? 10 : -9))}" ${FONT} font-size="7.5" font-weight="700" text-anchor="${left ? 'end' : 'start'}" fill="${col.text}" stroke="${col.halo}" stroke-width="2" paint-order="stroke">${esc(txt)}</text>`; };
     if (!blank) {
     s += `<g clip-path="url(#skyc${lat})">`;
     s += `<line x1="${ox}" y1="${oy}" x2="${f(px)}" y2="${f(py)}" stroke="${col.line}" stroke-width=".8" stroke-dasharray="3 2.5"/>`;
@@ -598,14 +599,70 @@ const LAT = (() => {
       return `<path d="M${f(x1)} ${f(y1)}A${r} ${r} 0 0 ${sg > 0 ? 0 : 1} ${f(x2)} ${f(y2)}" fill="none" stroke="${col.ang}" stroke-width="2"/>`;
     };
     if (a > 0) {
+      // a thin angle (under 30°) has no room for its number inside: it goes just outside the arc, off the lines
+      const thin = a < 30;
+      const num = (x, y, anchor) => `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="10" font-weight="800" fill="${col.ang}" text-anchor="${anchor}" dominant-baseline="central" stroke="${col.bg}" stroke-width="2.4" paint-order="stroke">${a}°</text>`;
       s += arc(cx, cy, 22, 0, a);
-      const [lx, ly] = [cx + 30 * Math.cos(rad(a / 2)), cy - sg * 30 * Math.sin(rad(a / 2))];
-      s += `<text x="${f(lx)}" y="${f(ly)}" ${FONT} font-size="10" font-weight="800" fill="${col.ang}" dominant-baseline="central">${a}°</text>`;
+      s += thin ? num(cx + 24, cy + sg * 9, 'start')   // on the other side of the equator line
+        : num(cx + 30 * Math.cos(rad(a / 2)), cy - sg * 30 * Math.sin(rad(a / 2)), 'start');
       s += arc(px, py, 18, 90 + a, 90);   // from the horizon towards the pole round to the sight line
-      const m = 90 + a / 2, [qx, qy] = [px + 27 * Math.cos(rad(m)), py - sg * 27 * Math.sin(rad(m))];
-      s += `<text x="${f(qx)}" y="${f(qy)}" ${FONT} font-size="10" font-weight="800" fill="${col.ang}" text-anchor="middle" dominant-baseline="central">${a}°</text>`;
+      const m = 90 + a / 2;
+      s += thin ? num(px + 5, py - sg * 17, 'start')   // beside the end of the arc, right of the sight line
+        : num(px + 27 * Math.cos(rad(m)), py - sg * 27 * Math.sin(rad(m)), 'middle');
     }
     if (names.same) s += T(W - 6, sg > 0 ? Hh - 10 : 14, `${names.same}: ${a}° = ${a}°`, 'text-anchor="end" fill="' + col.ang + '"');
+    return s + '</svg>';
+  }
+
+  /**
+   * Why the Pole Star stays put: the Earth at four places on its orbit round the sun (seen a little from above),
+   * its axis leaning the same way all year, so every axis points at the Pole Star — so far away that the lines towards
+   * it are parallel. The orbit runs anticlockwise seen from above the North Pole: December on the right, March at the
+   * back, June on the left (the north end leans towards the sun), September at the front.
+   * opts: { names: { sun, star, months: [March, June, September, December] }, print }
+   */
+  function orbitSvg(o) {
+    const { names = {}, print = false } = o;
+    const rad = d => d * Math.PI / 180;
+    const W = 300, Hh = 180, cx = 150, cy = 101, rx = 104, ry = 44;   // ry: the front Earth clears the sun's rays
+    const col = print ? { bg: '#fff', orbit: '#666', sun: '#fff', sunLine: '#111', earth: '#eee', line: '#222', eq: '#888', axis: '#000', text: '#111', star: '#000' }
+      : { bg: '#fff', orbit: '#8fa3d9', sun: '#ffd23f', sunLine: '#e09a00', earth: '#d7e9fb', line: '#1e2436', eq: '#d6455a', axis: '#c48a00', text: '#1e2436', star: '#e0a800' };
+    const T = (x, y, txt, opt = '') => `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="10" font-weight="700" fill="${col.text}" stroke="${col.bg}" stroke-width="2.6" paint-order="stroke" dominant-baseline="central" ${opt}>${esc(txt)}</text>`;
+    const at = t => [cx + rx * Math.cos(rad(t)), cy - ry * Math.sin(rad(t))];
+    let s = `<svg class="why orbit" viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" role="img"><rect width="${W}" height="${Hh}" fill="${col.bg}"/>`;
+    // the Pole Star, far away in the direction all the axes point
+    const tilt = 23.4, ux = Math.sin(rad(tilt)), uy = -Math.cos(rad(tilt));
+    let d = ''; for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.6 : 6, t = rad(i * 36 - 90); d += (i ? 'L' : 'M') + f(W - 14 + r * Math.cos(t)) + ' ' + f(15 + r * Math.sin(t)); }
+    s += `<path d="${d}Z" fill="${col.star}"/>`;
+    if (names.star) s += T(W - 24, 15, names.star, 'text-anchor="end"');
+    // the orbit and which way the Earth travels on it
+    s += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${col.orbit}" stroke-width="1.1" stroke-dasharray="4 3"/>`;
+    const [ax0, ay0] = at(318), tl = Math.hypot(rx * Math.sin(rad(318)), ry * Math.cos(rad(318)));
+    const tx = -rx * Math.sin(rad(318)) / tl, ty = -ry * Math.cos(rad(318)) / tl;   // the way round, anticlockwise
+    s += `<path d="M${f(ax0 - 7 * tx - 4 * ty)} ${f(ay0 - 7 * ty + 4 * tx)}L${f(ax0)} ${f(ay0)}L${f(ax0 - 7 * tx + 4 * ty)} ${f(ay0 - 7 * ty - 4 * tx)}" fill="none" stroke="${col.orbit}" stroke-width="1.4"/>`;
+    // one Earth: a disc, its equator across the axis, the axis with an arrow at the north end
+    const earth = (x, y, r) => {
+      const px = -uy, py = ux;   // across the axis
+      let e = `<circle cx="${f(x)}" cy="${f(y)}" r="${r}" fill="${col.earth}" stroke="${col.line}" stroke-width="1"/>`;
+      e += `<line x1="${f(x - r * px)}" y1="${f(y - r * py)}" x2="${f(x + r * px)}" y2="${f(y + r * py)}" stroke="${col.eq}" stroke-width=".8" stroke-dasharray="2 1.6"/>`;
+      const [nx, ny] = [x + (r + 16) * ux, y + (r + 16) * uy];
+      e += `<line x1="${f(x - (r + 4) * ux)}" y1="${f(y - (r + 4) * uy)}" x2="${f(nx)}" y2="${f(ny)}" stroke="${col.axis}" stroke-width="1.6"/>`;
+      e += `<path d="M${f(nx - 5 * ux - 3 * px)} ${f(ny - 5 * uy - 3 * py)}L${f(nx)} ${f(ny)}L${f(nx - 5 * ux + 3 * px)} ${f(ny - 5 * uy + 3 * py)}" fill="none" stroke="${col.axis}" stroke-width="1.6"/>`;
+      return e;
+    };
+    const m = names.months || [];
+    // back first (behind the sun), then the sun, then the three in front
+    const [bx, by] = at(90);
+    s += earth(bx, by, 8);
+    if (m[0]) s += T(bx - 13, by + 2, m[0], 'text-anchor="end"');
+    for (let i = 0; i < 12; i++) { const t = i * Math.PI / 6; s += `<line x1="${f(cx + 16 * Math.cos(t))}" y1="${f(cy + 16 * Math.sin(t))}" x2="${f(cx + 21 * Math.cos(t))}" y2="${f(cy + 21 * Math.sin(t))}" stroke="${col.sunLine}" stroke-width="1.3" stroke-linecap="round"/>`; }
+    s += `<circle cx="${cx}" cy="${cy}" r="13" fill="${col.sun}" stroke="${col.sunLine}" stroke-width="1.2"/>`;
+    if (names.sun) s += T(cx + 25, cy + 3, names.sun, 'text-anchor="start"');
+    for (const [t, r, mi] of [[180, 11, 1], [270, 12.5, 2], [0, 11, 3]]) {
+      const [x, y] = at(t);
+      s += earth(x, y, r);
+      if (m[mi]) s += T(x, y + r + 12, m[mi], 'text-anchor="middle"');
+    }
     return s + '</svg>';
   }
 
@@ -667,6 +724,6 @@ const LAT = (() => {
   }
 
   return { LEVELS, LEVEL_IDS, rng, pick, shuffle, hemi, fmt, diff, randomLat, randomLats, CITIES, city, LINES, readDistractors, diffDistractors, mapSvg, ladderSvg, skySvg, LAND, LAKES,
-    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg };
+    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg, orbitSvg };
 })();
 if (typeof module !== 'undefined') module.exports = LAT;

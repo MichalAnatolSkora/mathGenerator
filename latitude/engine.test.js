@@ -105,6 +105,8 @@ const svgs = [
   ...[-165, -30, 0, 21, 120].map(lon => L.noonSvg({ lon, answer: 'x', names: { sun: 's', chrono: 'c', look: 'l' } })),
   ...[-90, -34, 0, 50, 90].map(lat => L.whySvg({ lat, names: T.pl.common.whyNames })),
   ...[-120, -30, 0, 21, 150].map(lon => L.whyLonSvg({ lon, names: T.pl.common.whyNames })),
+  ...[10, -8, 29, 30].map(lat => L.whySvg({ lat, names: T.pl.common.whyNames })),   // thin angles: the numbers go outside
+  L.orbitSvg({ names: T.pl.common.whyNames }), L.orbitSvg({ names: T.vi.common.whyNames, print: true }),
 ];
 ok('drawings have no NaN', svgs.every(s => s.startsWith('<svg') && !s.includes('NaN')));
 
@@ -133,8 +135,12 @@ for (const l of Object.keys(T)) {
     c.noonLook, c.morseGame, c.factMorse(c.morseGame),
   ];
   ok(`${l} story names the Morse game`, c.factMorse(c.morseGame).includes(c.morseGame));
-  ok(`${l} "why the clock works" has three paragraphs with the worked example`, Array.isArray(c.whyLonText) && c.whyLonText.length === 3 && c.whyLonText.every(p => p.length > 200) && c.whyLonText[1].includes('14:00') && c.whyLonText[1].includes('30°'));
-  ok(`${l} "why the angle works" has three paragraphs, with the 26 000-year wobble`, Array.isArray(c.whyText) && c.whyText.length === 3 && c.whyText.every(p => p.length > 200) && /26[  .,]?000/.test(c.whyText[2]) && /Thuban|Тубан/.test(c.whyText[2]));
+  // "why" texts: the rule (no heading), then two sections whose heading is a question
+  const secs = x => Array.isArray(x) && x.length === 3 && x.every((sec, i) => sec.p.length > 150 && (i === 0 ? !sec.h : /\?\s*$/.test(sec.h)));
+  ok(`${l} "why the clock works": three sections with the worked example`, secs(c.whyLonText) && c.whyLonText[1].p.includes('14:00') && c.whyLonText[1].p.includes('30°'));
+  ok(`${l} "why the angle works": three sections, with the 26 000-year wobble`, secs(c.whyText) && /26[\u00a0 .,]?000/.test(c.whyText[2].p) && /Thuban|Тубан/.test(c.whyText[2].p));
+  ok(`${l} no thousands split over two lines`, [...c.whyText, ...c.whyLonText].every(sec => !/\d \d{3}(?!\d)/.test(sec.p)));
+  ok(`${l} four months for the orbit drawing`, c.whyNames.months.length === 4 && c.whyNames.months.every(m => m.length > 2));
   ok(`${l} texts`, texts.every(s => typeof s === 'string' && s.length > 2 && !/undefined|NaN/.test(s)), texts.find(s => /undefined|NaN/.test(s)));
   eq(`${l} story has seven paragraphs (with the chronometer)`, g.fact.length, 7);
 }

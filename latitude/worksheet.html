@@ -95,11 +95,17 @@
   .lsc small{font-size:10px;color:#333;}
   .lsc svg{width:100%;height:auto;}
   .cmp i,.dif i{font-style:normal;font-weight:800;}
-  .whyblock{display:grid;grid-template-columns:88mm 1fr;gap:6mm;align-items:center;margin:0 0 6mm;}
-  .whyblock svg{width:100%;height:auto;}
-  .whyblock h3{margin:0 0 2mm;font-size:15px;}
+  /* "why" page: the drawing beside the rule, then two sections with a heading (the first with a second drawing) */
+  .whyblock{display:grid;grid-template-columns:88mm 1fr;gap:6mm;align-items:center;margin:0 0 2mm;}
+  .whyblock svg,.whysec svg{width:100%;height:auto;display:block;}
+  .whyblock h3{margin:0 0 2mm;font-size:16px;}
   .whyblock p{margin:0;font-size:13px;line-height:1.5;}
-  .whyblock p+p{margin-top:1.5mm;}
+  .whysec{border-top:0.3mm solid #bbb;padding-top:3mm;margin-top:4mm;}
+  .whysec h4{margin:0 0 2mm;font-size:14.5px;}
+  .whysec p{margin:0;font-size:12.5px;line-height:1.5;}
+  .whysec.fig{display:grid;grid-template-columns:1fr 80mm;gap:0 6mm;align-items:center;}
+  .whysec.fig h4{grid-column:1/-1;}
+  .whysec.cols p{column-count:2;column-gap:7mm;}
   .ladders{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;}
   .lad{display:flex;flex-direction:column;align-items:center;gap:0.5mm;}
   .lad b{font-size:12.5px;white-space:nowrap;}
@@ -148,7 +154,9 @@
     .skies{grid-template-columns:1fr 1fr;}
     .pairs{grid-template-columns:1fr;}
     .fact .figs,.fact .tasks{grid-template-columns:1fr;}
-    .whyblock,.bothrow{grid-template-columns:1fr;}
+    .whyblock,.bothrow,.whysec.fig{grid-template-columns:1fr;}
+    .whysec.cols p{column-count:1;}
+    .whysec.fig .secfig{max-width:320px;margin:0 auto 2mm;order:-1;grid-row:2;}
     .lonscales{grid-template-columns:1fr 1fr;}
   }
 
@@ -478,15 +486,21 @@
         <div class="task"><h3>2. ${esc(t('factT2Title'))}</h3><p>${esc(t('factT2'))}</p>${blankSky}</div>
       </div></div>`;
   }
-  /** "Why does it work?": the Earth and the Pole Star (latitude), the turning Earth and the sun (longitude).
-   *  Each drawing with its three paragraphs fills a page of its own, so "both" gives two pages. Returns the pages. */
+  /** "Why does it work?": one page per drawing — the Earth and the Pole Star (latitude), the turning Earth and the sun
+   *  (longitude). Each page: the drawing beside the rule, then two sections with a heading; the first gets a second
+   *  drawing (the orbit, or the noon sight 14:00 ⇒ 30° W), the second runs in two columns. Returns the pages. */
   function renderWhy(s) {
     const c = C(), L = mapLetters(s);
-    const blocks = [];
-    const paras = x => [].concat(x).map(p => `<p>${esc(p)}</p>`).join('');   // a text or a list of paragraphs
-    if (s.axis !== 'lon') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyTitle)}</h3>${paras(c.whyText)}</div></div>`);
-    if (s.axis !== 'lat') blocks.push(`<div class="whyblock"><div class="whyfig">${LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true })}</div><div><h3>${esc(c.whyLonTitle)}</h3>${paras(c.whyLonText)}</div></div>`);
-    return blocks.map(b => `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}${b}</div>`);
+    const page = (fig, title, secs, fig2, icons) => `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}
+      <div class="whyblock"><div class="whyfig">${fig}</div><div><h3>${esc(title)}</h3><p>${esc(secs[0].p)}</p></div></div>
+      <div class="whysec fig"><h4>${icons[0]} ${esc(secs[1].h)}</h4><p>${esc(secs[1].p)}</p><div class="secfig">${fig2}</div></div>
+      <div class="whysec cols"><h4>${icons[1]} ${esc(secs[2].h)}</h4><p>${esc(secs[2].p)}</p></div></div>`;
+    const pages = [];
+    if (s.axis !== 'lon') pages.push(page(LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true }), c.whyTitle, c.whyText,
+      LAT.orbitSvg({ names: c.whyNames, print: true }), ['⭐', '⏳']));
+    if (s.axis !== 'lat') pages.push(page(LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true }), c.whyLonTitle, c.whyLonText,
+      LAT.noonSvg({ lon: -30, print: true, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } }), ['⛵', '⏱️']));
+    return pages;
   }
 
   function regenerate() {

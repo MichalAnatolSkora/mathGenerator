@@ -37,7 +37,10 @@ The folder is still called `latitude/` (it started as N/S only).
   After the answer, **"Why does it work?"** opens a drawing for that very task: the Earth cut through the poles, the
   star's light parallel to the axis, the horizon touching the Earth, and the two equal angles (latitude); or the Earth
   seen from above the North Pole turning 15° an hour, the ship's meridian facing the sun and Greenwich's meridian
-  turned by the longitude (longitude).
+  turned by the longitude (longitude). Below it, two cards with a question as the heading: the Earth's orbit with its axis
+  always pointing at the Pole Star (`orbitSvg`: March at the back, June on the left with the north end towards the sun),
+  and the slow wobble of the axis; or the noon sight worked through (14:00 ⇒ 30°W), and why it needed Harrison's chronometer.
+  On a thin angle (under 30°) the two numbers sit just outside the arcs, clear of the lines.
 - **🚢 Did you know?** — how the Titanic knew where it was: star sights at about 19:30 on 14 April 1912, dead reckoning
   through the night, a chronometer for the longitude, Boxhall's distress position 41°46′ N, 50°14′ W (the same telegram
   as in the Morse game, with a link to it), the wreck found in 1985 about 24 km away; the sky as seen there (Pole Star ≈ 42°), the sextant drawing.
@@ -50,9 +53,10 @@ URL: `?mode=read|set|diff|star&axis=lat|lon|both&level=l30|l10|l5|city&story=1`.
 One A4 page (checked by measuring every coordinate choice, level and language): the map with points (answers beside it,
 or below it for both coordinates), marking (six latitude scales / six longitude scales / four points to draw on the
 same map), three skies or noon clocks (mixed for both), "further north / east?" and "how many degrees?". Each task can
-be switched off. Extra pages: "Why does it work?" (an Earth drawing with three paragraphs each: the equal angles, why the
-Pole Star stays put and the 26 000-year wobble of the axis; the turning Earth, how a sailor takes the noon sight and the
-chronometer; one page per drawing, so "both" gives two), the Titanic story with three small tasks, the answer key.
+be switched off. Extra pages: "Why does it work?" (one page per drawing, so "both" gives two: the drawing beside the rule,
+then two sections headed by a question — for latitude "why does the Pole Star stay put?" with the orbit drawing and "does
+the axis never move?" (the 26 000-year wobble); for longitude "how does a sailor do it?" with the noon sight 14:00 ⇒ 30°W
+and "why was it so hard?" (Harrison's chronometer, time zones)), the Titanic story with three small tasks, the answer key.
 URL: `?seed=&axis=&level=&tasks=map,ladder,stars,compare,diff&lines=1&why=1&fact=1&key=1`.
 
 ## Letters in each language

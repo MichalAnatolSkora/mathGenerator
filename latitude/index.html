@@ -88,10 +88,17 @@
   .explain{margin:0;font-size:15.5px;}
   .why{margin:12px 0 0;background:var(--accent-soft);border-radius:12px;padding:10px 14px;}
   .why summary{cursor:pointer;font-weight:800;min-height:32px;display:flex;align-items:center;gap:6px;}
-  .why .whyfig{max-width:440px;margin:8px auto;}
-  .why .whyfig svg{display:block;width:100%;height:auto;}
-  .why p{margin:0;font-size:15px;}
-  .why p+p{margin-top:8px;}
+  /* "why": the drawing beside the rule, then two cards with a heading (the first one with a second drawing above its text) */
+  .why .whymain{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,10fr);gap:16px;align-items:center;margin:10px 0 2px;}
+  .why .whyfig svg,.why .secfig svg{display:block;width:100%;height:auto;border-radius:8px;}
+  .why p{margin:0;font-size:15px;line-height:1.55;}
+  .why .whysec{background:#fff;border-radius:10px;padding:12px 14px;margin-top:10px;}
+  .why .whysec h3{margin:0 0 6px;font-size:16px;line-height:1.35;color:var(--accent-d);}
+  .why .secfig{max-width:440px;margin:4px auto 10px;}
+  @media (max-width:600px){
+    .why .whymain{grid-template-columns:minmax(0,1fr);}
+    .why .whymain .whyfig{max-width:360px;width:100%;margin:0 auto;}
+  }
   .primary{font-weight:700;padding:12px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;cursor:pointer;min-height:46px;margin-top:12px;font-size:16px;}
   .primary:hover{background:var(--accent-d);}
   .primary:disabled{opacity:.5;cursor:default;}
@@ -197,8 +204,8 @@
     <p class="explain" id="explain"></p>
     <details class="why" id="why" hidden>
       <summary>🌍 <span id="whyTitle"></span></summary>
-      <div class="whyfig" id="whyFig"></div>
-      <div id="whyText"></div>
+      <div class="whymain"><div class="whyfig" id="whyFig"></div><p id="whyLead"></p></div>
+      <div id="whyMore"></div>
     </details>
     <button type="button" class="primary" id="nextBtn" data-i18n="next"></button>
   </section>
@@ -516,14 +523,26 @@
     const show = task.mode === 'star' && !!task.result && typeof LAT.whySvg === 'function';
     box.hidden = !show;
     if (!show) return;
-    const c = C();
-    $('whyTitle').textContent = t(task.ax === 'lon' ? 'whyLonTitle' : 'whyTitle');
-    $('whyFig').innerHTML = task.ax === 'lon'
+    const c = C(), lon = task.ax === 'lon', secs = lon ? c.whyLonText : c.whyText;
+    $('whyTitle').textContent = t(lon ? 'whyLonTitle' : 'whyTitle');
+    $('whyFig').innerHTML = lon
       ? LAT.whyLonSvg({ lon: task.lon, letters: letters(), names: c.whyNames })
       : LAT.whySvg({ lat: task.lat, letters: letters(), names: c.whyNames });
-    // one paragraph (latitude) or several (longitude: the rule, how a sailor does it, the chronometer)
-    $('whyText').innerHTML = '';
-    for (const para of [].concat(t(task.ax === 'lon' ? 'whyLonText' : 'whyText'))) { const p = document.createElement('p'); p.textContent = para; $('whyText').appendChild(p); }
+    $('whyLead').textContent = secs[0].p;
+    // the next sections as cards; the first one gets its own drawing: the orbit (latitude) or the noon sight 14:00 ⇒ 30° W (longitude)
+    const icons = lon ? ['⛵', '⏱️'] : ['⭐', '⏳'];
+    const figs = [lon ? LAT.noonSvg({ lon: -30, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } })
+      : LAT.orbitSvg({ names: c.whyNames }), ''];
+    $('whyMore').innerHTML = '';
+    secs.slice(1).forEach((sec, i) => {
+      const box = document.createElement('section'); box.className = 'whysec';
+      const h = document.createElement('h3'); h.textContent = `${icons[i]} ${sec.h}`;
+      box.appendChild(h);
+      if (figs[i]) { const fig = document.createElement('div'); fig.className = 'secfig'; fig.innerHTML = figs[i]; box.appendChild(fig); }
+      const p = document.createElement('p'); p.textContent = sec.p;
+      box.appendChild(p);
+      $('whyMore').appendChild(box);
+    });
   }
 
   function finish(ok, stars, shown) {
