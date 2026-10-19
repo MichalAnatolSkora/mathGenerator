@@ -106,6 +106,7 @@
   .whysec.fig{display:grid;grid-template-columns:1fr 80mm;gap:0 6mm;align-items:center;}
   .whysec.fig h4{grid-column:1/-1;}
   .whysec.cols p{column-count:2;column-gap:7mm;}
+  .whysec.first{border-top:0;padding-top:0;margin-top:0;}
   .ladders{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;}
   .lad{display:flex;flex-direction:column;align-items:center;gap:0.5mm;}
   .lad b{font-size:12.5px;white-space:nowrap;}
@@ -486,20 +487,30 @@
         <div class="task"><h3>2. ${esc(t('factT2Title'))}</h3><p>${esc(t('factT2'))}</p>${blankSky}</div>
       </div></div>`;
   }
-  /** "Why does it work?": one page per drawing — the Earth and the Pole Star (latitude), the turning Earth and the sun
-   *  (longitude). Each page: the drawing beside the rule, then two sections with a heading; the first gets a second
-   *  drawing (the orbit, or the noon sight 14:00 ⇒ 30° W), the second runs in two columns. Returns the pages. */
+  /** "Why does it work?": the Earth and the Pole Star (latitude, two pages: the angle and why the Pole Star stays put;
+   *  then the slow wobble, how to recognise the Southern Cross and why it is not on the pole), the turning Earth and the
+   *  sun (longitude, one page). A section with a drawing has it beside the text; one without runs in two columns. */
   function renderWhy(s) {
     const c = C(), L = mapLetters(s);
-    const page = (fig, title, secs, fig2, icons) => `<div class="sheet whypage">${headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false)}
-      <div class="whyblock"><div class="whyfig">${fig}</div><div><h3>${esc(title)}</h3><p>${esc(secs[0].p)}</p></div></div>
-      <div class="whysec fig"><h4>${icons[0]} ${esc(secs[1].h)}</h4><p>${esc(secs[1].p)}</p><div class="secfig">${fig2}</div></div>
-      <div class="whysec cols"><h4>${icons[1]} ${esc(secs[2].h)}</h4><p>${esc(secs[2].p)}</p></div></div>`;
+    const head = () => headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false);
+    const lead = (fig, title, sec) => `<div class="whyblock"><div class="whyfig">${fig}</div><div><h3>${esc(title)}</h3><p>${esc(sec.p)}</p></div></div>`;
+    const part = (icon, sec, fig, first) => `<div class="whysec ${fig ? 'fig' : 'cols'}${first ? ' first' : ''}"><h4>${icon} ${esc(sec.h)}</h4><p>${esc(sec.p)}</p>${fig ? `<div class="secfig">${fig}</div>` : ''}</div>`;
+    const sheet = body => `<div class="sheet whypage">${head()}${body}</div>`;
     const pages = [];
-    if (s.axis !== 'lon') pages.push(page(LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true }), c.whyTitle, c.whyText,
-      LAT.orbitSvg({ names: c.whyNames, print: true }), ['⭐', '⏳']));
-    if (s.axis !== 'lat') pages.push(page(LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true }), c.whyLonTitle, c.whyLonText,
-      LAT.noonSvg({ lon: -30, print: true, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } }), ['⛵', '⏱️']));
+    if (s.axis !== 'lon') {
+      const w = c.whyText;
+      pages.push(sheet(lead(LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true }), c.whyTitle, w[0])
+        + part('⭐', w[1], LAT.orbitSvg({ names: c.whyNames, print: true }))));
+      pages.push(sheet(part('⏳', w[2], '', true)
+        + part('🌌', w[3], LAT.crossSvg({ names: { cross: c.cross, pole: c.skyPole, pointers: c.whyNames.pointers, times: c.whyNames.times, circles: c.whyNames.circles }, print: true }))
+        + part('🧭', w[4], '')));
+    }
+    if (s.axis !== 'lat') {
+      const w = c.whyLonText;
+      pages.push(sheet(lead(LAT.whyLonSvg({ lon: -30, letters: L, names: c.whyNames, print: true }), c.whyLonTitle, w[0])
+        + part('⛵', w[1], LAT.noonSvg({ lon: -30, print: true, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } }))
+        + part('⏱️', w[2], '')));
+    }
     return pages;
   }
 

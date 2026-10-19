@@ -517,6 +517,7 @@
     $('explain').textContent = explainText();
     renderWhy();
   }
+  const crossNames = c => ({ cross: c.cross, pole: c.skyPole, pointers: c.whyNames.pointers, times: c.whyNames.times, circles: c.whyNames.circles });
   /** "Why does it work?": the Earth and the star (latitude) or the turning Earth (longitude), after a sky/clock task. */
   function renderWhy() {
     const task = state.task, box = $('why');
@@ -530,9 +531,10 @@
       : LAT.whySvg({ lat: task.lat, letters: letters(), names: c.whyNames });
     $('whyLead').textContent = secs[0].p;
     // the next sections as cards; the first one gets its own drawing: the orbit (latitude) or the noon sight 14:00 ⇒ 30° W (longitude)
-    const icons = lon ? ['⛵', '⏱️'] : ['⭐', '⏳'];
-    const figs = [lon ? LAT.noonSvg({ lon: -30, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } })
-      : LAT.orbitSvg({ names: c.whyNames }), ''];
+    // latitude also gets the southern sky: how to recognise the Southern Cross (with a sky chart) and why it is not on the pole
+    const icons = lon ? ['⛵', '⏱️'] : ['⭐', '⏳', '🌌', '🧭'];
+    const figs = lon ? [LAT.noonSvg({ lon: -30, answer: fmtLon(-30), names: { sun: c.sunName, chrono: c.chronoName, look: c.noonLook } }), '']
+      : [LAT.orbitSvg({ names: c.whyNames }), '', LAT.crossSvg({ names: crossNames(c) }), ''];
     $('whyMore').innerHTML = '';
     secs.slice(1).forEach((sec, i) => {
       const box = document.createElement('section'); box.className = 'whysec';

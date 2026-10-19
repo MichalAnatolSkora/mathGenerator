@@ -39,7 +39,10 @@ The folder is still called `latitude/` (it started as N/S only).
   seen from above the North Pole turning 15° an hour, the ship's meridian facing the sun and Greenwich's meridian
   turned by the longitude (longitude). Below it, two cards with a question as the heading: the Earth's orbit with its axis
   always pointing at the Pole Star (`orbitSvg`: March at the back, June on the left with the north end towards the sun),
-  and the slow wobble of the axis; or the noon sight worked through (14:00 ⇒ 30°W), and why it needed Harrison's chronometer.
+  and the slow wobble of the axis, then the southern sky: how to recognise the Southern Cross (the orange top star, the
+  faint fifth star, the Pointers Alpha and Beta Centauri, the False Cross) and why it is not on the pole (about 30° away,
+  circling it clockwise; `crossSvg`: true distances from the pole, the long bar followed 4½ times with a tick per bar length);
+  or the noon sight worked through (14:00 ⇒ 30°W), and why it needed Harrison's chronometer.
   On a thin angle (under 30°) the two numbers sit just outside the arcs, clear of the lines.
 - **🚢 Did you know?** — how the Titanic knew where it was: star sights at about 19:30 on 14 April 1912, dead reckoning
   through the night, a chronometer for the longitude, Boxhall's distress position 41°46′ N, 50°14′ W (the same telegram
@@ -53,10 +56,11 @@ URL: `?mode=read|set|diff|star&axis=lat|lon|both&level=l30|l10|l5|city&story=1`.
 One A4 page (checked by measuring every coordinate choice, level and language): the map with points (answers beside it,
 or below it for both coordinates), marking (six latitude scales / six longitude scales / four points to draw on the
 same map), three skies or noon clocks (mixed for both), "further north / east?" and "how many degrees?". Each task can
-be switched off. Extra pages: "Why does it work?" (one page per drawing, so "both" gives two: the drawing beside the rule,
-then two sections headed by a question — for latitude "why does the Pole Star stay put?" with the orbit drawing and "does
-the axis never move?" (the 26 000-year wobble); for longitude "how does a sailor do it?" with the noon sight 14:00 ⇒ 30°W
-and "why was it so hard?" (Harrison's chronometer, time zones)), the Titanic story with three small tasks, the answer key.
+be switched off. Extra pages: "Why does it work?" (the drawing beside the rule, then sections headed by a question. Latitude
+takes two pages: "why does the Pole Star stay put?" with the orbit drawing; then "does the axis never move?" (the 26 000-year
+wobble), "how do you recognise the Southern Cross?" with the sky chart and "is the Southern Cross on the pole?". Longitude
+takes one: "how does a sailor do it?" with the noon sight 14:00 ⇒ 30°W and "why was it so hard?" (Harrison's chronometer,
+time zones). So "both" gives three), the Titanic story with three small tasks, the answer key.
 URL: `?seed=&axis=&level=&tasks=map,ladder,stars,compare,diff&lines=1&why=1&fact=1&key=1`.
 
 ## Letters in each language

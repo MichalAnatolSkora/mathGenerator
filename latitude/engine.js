@@ -667,6 +667,57 @@ const LAT = (() => {
   }
 
   /**
+   * How to find the sky's south pole: the Southern Cross and the Pointers (Alpha and Beta Centauri) as seen looking
+   * south, the cross standing upright above the pole (east on the left). Distances from the pole are true (degrees
+   * from the pole: Gacrux 33°, Acrux 27°, Mimosa 30°, δ 31°, ε 30°, β Cen 30°, α Cen 29°), only the cross is set
+   * straight above the pole so that its long bar, followed 4½ times, lands exactly on it. Stars circle the south
+   * pole clockwise, so above it the cross moves to the right (west).
+   * opts: { names: { cross, pole, pointers, times, circles }, print }
+   */
+  function crossSvg(o) {
+    const { names = {}, print = false } = o;
+    const rad = d => d * Math.PI / 180;
+    const W = 300, Hh = 184, Px = 165, Py = 166, u = 4;   // the pole, and 4 units to a degree
+    const col = print ? { sky: '#fff', line: '#555', star: '#000', orange: '#000', dim: '#777', text: '#111', halo: '#fff' }
+      : { sky: '#14214a', line: '#cbd5f5', star: '#fff7c2', orange: '#ffb066', dim: '#9fb0e0', text: '#e8edff', halo: '#14214a' };
+    const at = (d, a) => [Px + d * u * Math.sin(rad(a)), Py - d * u * Math.cos(rad(a))];   // d degrees from the pole, a degrees round (right = west)
+    const T = (x, y, txt, opt = '') => `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="9.5" font-weight="700" fill="${col.text}" stroke="${col.halo}" stroke-width="2.6" paint-order="stroke" dominant-baseline="central" ${opt}>${esc(txt)}</text>`;
+    const star = (x, y, r, c = col.star) => {
+      let d = '';
+      for (let i = 0; i < 10; i++) { const a = rad(i * 36 - 90), rr = i % 2 ? r * 0.45 : r; d += (i ? 'L' : 'M') + f(x + rr * Math.cos(a)) + ' ' + f(y + rr * Math.sin(a)); }
+      return `<path d="${d}Z" fill="${c}"/>`;
+    };
+    let s = `<svg class="why crosschart" viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+    s += `<rect width="${W}" height="${Hh}" fill="${col.sky}" ${print ? 'stroke="#222" stroke-width=".8"' : ''}/>`;
+    if (!print) for (const [x, y, r] of [[18, 22, .7], [60, 140, .5], [250, 30, .6], [282, 150, .7], [30, 92, .5], [222, 160, .6], [96, 172, .5], [270, 176, .5], [120, 20, .4]]) s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${col.dim}"/>`;
+    const G = at(32.9, 0), A = at(26.9, 0), M = at(30.3, -4.9), D = at(31.25, 3.2), E = at(29.6, 1.65), bC = at(29.6, -24), aC = at(29.2, -32.9);
+    // the cross's two bars, faint
+    s += `<path d="M${f(G[0])} ${f(G[1])}L${f(A[0])} ${f(A[1])}M${f(M[0])} ${f(M[1])}L${f(D[0])} ${f(D[1])}" stroke="${col.dim}" stroke-width=".7"/>`;
+    // the long bar followed on: a tick every bar length (6°), 4½ of them to the pole
+    s += `<line x1="${f(A[0])}" y1="${f(A[1])}" x2="${Px}" y2="${Py}" stroke="${col.line}" stroke-width="1" stroke-dasharray="3 2.5"/>`;
+    for (let i = 1; i <= 4; i++) { const y = A[1] + i * 6 * u; s += `<line x1="${Px - 3.5}" y1="${f(y)}" x2="${Px + 3.5}" y2="${f(y)}" stroke="${col.line}" stroke-width="1"/>`; }
+    if (names.times) s += T(Px - 8, (A[1] + Py) / 2, names.times, 'text-anchor="end"');
+    // the Pointers, and where they point
+    s += `<line x1="${f(aC[0])}" y1="${f(aC[1])}" x2="${f(bC[0] + 0.85 * (bC[0] - aC[0]))}" y2="${f(bC[1] + 0.85 * (bC[1] - aC[1]))}" stroke="${col.dim}" stroke-width=".8" stroke-dasharray="1.6 1.8"/>`;
+    s += star(aC[0], aC[1], 5) + star(bC[0], bC[1], 4.4);
+    if (names.pointers) s += T((aC[0] + bC[0]) / 2, Math.max(aC[1], bC[1]) + 13, names.pointers, 'text-anchor="middle"');
+    // the cross: Acrux the brightest at the foot, Gacrux orange at the head, Mimosa, δ, and the faint ε
+    s += star(G[0], G[1], 3.8, col.orange) + star(A[0], A[1], 4.6) + star(M[0], M[1], 4) + star(D[0], D[1], 3) + star(E[0], E[1], 2);
+    if (names.cross) s += T(D[0] + 9, D[1] - 1, names.cross, 'text-anchor="start"');
+    // it circles the pole: an arc through the cross's foot, clockwise (to the right above the pole)
+    const R = 26.9 * u, a1 = 13, a2 = 42;
+    const [x1, y1] = [Px + R * Math.sin(rad(a1)), Py - R * Math.cos(rad(a1))], [x2, y2] = [Px + R * Math.sin(rad(a2)), Py - R * Math.cos(rad(a2))];
+    s += `<path d="M${f(x1)} ${f(y1)}A${f(R)} ${f(R)} 0 0 1 ${f(x2)} ${f(y2)}" fill="none" stroke="${col.line}" stroke-width="1.1" stroke-dasharray="4 3"/>`;
+    const tx = Math.cos(rad(a2)), ty = Math.sin(rad(a2));   // the way round at the arrow's tip
+    s += `<path d="M${f(x2 - 7 * tx - 4 * ty)} ${f(y2 - 7 * ty + 4 * tx)}L${f(x2)} ${f(y2)}L${f(x2 - 7 * tx + 4 * ty)} ${f(y2 - 7 * ty - 4 * tx)}" fill="none" stroke="${col.line}" stroke-width="1.3"/>`;
+    if (names.circles) s += T(W - 6, y2 + 16, names.circles, 'text-anchor="end"');   // under the arrow, clear of the dashed bar
+    // the pole: an empty spot
+    s += `<circle cx="${Px}" cy="${Py}" r="3.4" fill="none" stroke="${col.star}" stroke-width="1"/><path d="M${Px - 6} ${Py}h12M${Px} ${Py - 6}v12" stroke="${col.star}" stroke-width=".9"/>`;
+    if (names.pole) s += T(Px + 10, Py, names.pole, 'text-anchor="start"');
+    return s + '</svg>';
+  }
+
+  /**
    * Why the clock works (longitude): the Earth seen from above the North Pole, turning 15° an hour towards the east;
    * the sun far to the left. It is noon on the meridian facing the sun (the ship); Greenwich passed the sun
    * (|lon| / 15) hours earlier (ship in the west) or will pass it later (ship in the east).
@@ -724,6 +775,6 @@ const LAT = (() => {
   }
 
   return { LEVELS, LEVEL_IDS, rng, pick, shuffle, hemi, fmt, diff, randomLat, randomLats, CITIES, city, LINES, readDistractors, diffDistractors, mapSvg, ladderSvg, skySvg, LAND, LAKES,
-    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg, orbitSvg };
+    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg, orbitSvg, crossSvg };
 })();
 if (typeof module !== 'undefined') module.exports = LAT;
