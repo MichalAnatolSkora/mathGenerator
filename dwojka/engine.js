@@ -10,6 +10,7 @@
  *   DW2.mole(rnd, level)          → mission 2: 4/8/16 suspects, each given his own version of 2/3/4 details; the mole
  *   DW2.df(rnd, level)            → mission 3: listening posts in Warsaw and the bearings of a hidden transmitter; its cell
  *   DW2.mapSvg(opts)              → the schematic map of 1930s Warsaw with a lettered grid, labels from strings.js
+ *   DW2.exampleSvg(level)         → the worked example of mission 3 on a small grid (posts A, B; answer D4)
  *   DW2.legend(rnd, level)        → mission 4: an agent's cover papers with 1–2 mistakes (and a false trail on ★★★)
  *   DW2.age(birth, at)            → full years between two dates
  *   DW2.LISTEN, DW2.polandSvg(L)  → the seven listening stations of the Cipher Bureau and a small map of Poland with them
@@ -360,6 +361,46 @@ const DW2 = (() => {
     return { level, birth, trip, issued: docs.issued, route, name, trains, ticket, arriveDay, docs, truth, errs, herring };
   }
 
+  /**
+   * The worked example under the Mission 3 map: a small grid A–F × 1–5 (not the real map, so it gives nothing away)
+   * with listening posts A in B2 and B in F2 whose lines meet in D4: SE / SW and 2 squares on ★, 135° / 225° on ★★
+   * and ★★★ (with the protractor arcs). Its answer is fixed: D4.
+   */
+  const EXAMPLE = { cols: 6, rows: 5, a: [1, 1], b: [5, 1], target: [3, 3], degA: 135, degB: 225, name: 'D4' };
+  function exampleSvg(level) {
+    const C = 9, M = 6, { cols, rows } = EXAMPLE, W = cols * C, H = rows * C;
+    const at = ([c, r]) => [(c + 0.5) * C, (r + 0.5) * C], A = at(EXAMPLE.a), B = at(EXAMPLE.b), T = at(EXAMPLE.target);
+    let s = `<svg viewBox="${-M} ${-M} ${W + M + 2} ${H + M + 2}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,Segoe UI,Roboto,Arial,sans-serif">`
+      + `<rect x="0" y="0" width="${W}" height="${H}" fill="#fbfaf4"/>`
+      + `<rect x="${T[0] - C / 2}" y="${T[1] - C / 2}" width="${C}" height="${C}" fill="#ffe36b"/>`;
+    for (let i = 0; i <= cols; i++) s += `<path d="M${i * C} 0V${H}" stroke="#9aa4b4" stroke-width="${i % cols ? .25 : .5}"/>`;
+    for (let i = 0; i <= rows; i++) s += `<path d="M0 ${i * C}H${W}" stroke="#9aa4b4" stroke-width="${i % rows ? .25 : .5}"/>`;
+    for (let c = 0; c < cols; c++) s += label((c + 0.5) * C, -1.8, LETTERS[c], { size: 3.4, bold: true, anchor: 'middle', halo: 0 });
+    for (let r = 0; r < rows; r++) s += label(-1.8, (r + 0.5) * C + 1.2, String(r + 1), { size: 3.4, bold: true, anchor: 'end', halo: 0 });
+    const line = (P0, P1) => `<path d="M${P0[0]} ${P0[1]}L${P1[0]} ${P1[1]}" stroke="#c0252b" stroke-width=".6" stroke-dasharray="1.6 1"/>`;
+    if (level === 'easy') {
+      // the steps square by square, as small dots in the middle of each square passed
+      s += line(A, T) + line(B, T);
+      for (const [c, r] of [[2, 2], [4, 2]]) { const [x, y] = at([c, r]); s += `<circle cx="${x}" cy="${y}" r="1" fill="#c0252b"/>`; }
+    } else {
+      // lines run on past the crossing, as drawn with a ruler; the protractor arcs from north, clockwise
+      const far = (P0, deg, t) => [+(P0[0] + Math.sin(deg * Math.PI / 180) * t).toFixed(1), +(P0[1] - Math.cos(deg * Math.PI / 180) * t).toFixed(1)];
+      s += line(A, far(A, EXAMPLE.degA, 36)) + line(B, far(B, EXAMPLE.degB, 36));
+      const arc = (P0, deg) => { const r = 5, e = far(P0, deg, r); return `<path d="M${P0[0]} ${P0[1] - r}A${r} ${r} 0 ${deg > 180 ? 1 : 0} 1 ${e[0]} ${e[1]}" fill="none" stroke="#1f4fbf" stroke-width=".45"/>`; };
+      s += arc(A, EXAMPLE.degA) + arc(B, EXAMPLE.degB)
+        + label(A[0] + 6, A[1] - 1.5, EXAMPLE.degA + '°', { size: 3.2, bold: true, color: '#1f4fbf', halo: .8 })
+        + label(B[0] - 6, B[1] - 1.5, EXAMPLE.degB + '°', { size: 3.2, bold: true, color: '#1f4fbf', anchor: 'end', halo: .8 });
+    }
+    for (const [P0, n] of [[A, 'A'], [B, 'B']]) {
+      s += `<path d="M${P0[0]} ${P0[1] - 2.2}V${P0[1] - 5}" stroke="#1f4fbf" stroke-width=".45"/>`
+        + `<circle cx="${P0[0]}" cy="${P0[1]}" r="2.2" fill="#fff" stroke="#1f4fbf" stroke-width=".7"/>`
+        + `<text x="${P0[0]}" y="${P0[1] + 1.2}" font-size="3.2" font-weight="800" text-anchor="middle" fill="#1f4fbf">${n}</text>`;
+    }
+    s += `<circle cx="${T[0]}" cy="${T[1]}" r="1.4" fill="#c0252b"/>`
+      + `<rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#333" stroke-width=".5"/>`;
+    return s + '</svg>';
+  }
+
   /* ============ "how it really was": the listening stations of the Cipher Bureau ============ */
   // A small schematic map of Poland (borders of 1923–1938, rough) with the seven fixed listening stations.
   // Kołakowski, Dzieje Najnowsze 53 (2021) 1, p. 79: nos. 3–5 listened to Germany, nos. 1, 2, 6, 7 to the USSR.
@@ -422,6 +463,6 @@ const DW2 = (() => {
     return s + '</svg>';
   }
 
-  return { RATES, STATIONS, rail, trainSvg, wagonSvg, DETAILS, PAIRS, NAMES, mole, df, mapSvg, cellName, legend, age, addDays, DIM, PLACES, STATION_IDS, LETTERS, COLS, ROWS, inside, P, bearing, LISTEN, stationKm, polandSvg };
+  return { RATES, STATIONS, rail, trainSvg, wagonSvg, DETAILS, PAIRS, NAMES, mole, df, mapSvg, cellName, legend, age, addDays, DIM, PLACES, STATION_IDS, LETTERS, COLS, ROWS, inside, P, bearing, LISTEN, stationKm, polandSvg, EXAMPLE, exampleSvg };
 })();
 if (typeof module !== 'undefined') module.exports = DW2;

@@ -47,6 +47,13 @@ for (const lv of LEVELS) for (let i = 0; i < 150; i++) {
   if (l.herring === 'birthday') ok(`legend hard #${i}: birthday after the trip`, l.birth.m === l.trip.m && l.birth.d > l.trip.d && l.truth.age === l.trip.y - l.birth.y - 1);
   if (l.herring === 'night') ok(`legend hard #${i}: night train`, tr.next);
 }
+// the worked example of mission 3: A (B2) and B (F2) really meet in D4 with SE / SW and 135° / 225°
+{
+  const E = D.EXAMPLE, cen = ([c, r]) => [c + 0.5, r + 0.5], [A, B, X] = [E.a, E.b, E.target].map(cen);
+  ok('example: names', D.cellName({ c: E.a[0], r: E.a[1] }) === 'B2' && D.cellName({ c: E.b[0], r: E.b[1] }) === 'F2' && D.cellName({ c: E.target[0], r: E.target[1] }) === E.name);
+  ok('example: bearings', Math.abs(D.bearing(...A, ...X) - E.degA) < 1e-9 && Math.abs(D.bearing(...B, ...X) - E.degB) < 1e-9);
+  for (const l of Object.keys(T)) ok(`example ${l}: texts name the answer`, T[l].m3.ex.easy[2].includes(E.name) && T[l].m3.ex.mid[3].includes(E.name) && T[l].m3.ex.mid.join().includes(String(E.degB)));
+}
 // the measuring task: Starogard–Poznań is about 200 km, inside the range the answer accepts
 ok('real: Starogard–Poznań km', D.stationKm('starogard', 'poznan') >= 180 && D.stationKm('starogard', 'poznan') <= 230, D.stationKm('starogard', 'poznan'));
 ok('real: 3 west, 4 east', Object.values(D.LISTEN).filter(v => v[3] === 'w').length === 3 && Object.values(D.LISTEN).filter(v => v[3] === 'e').length === 4);

@@ -49,6 +49,11 @@
   .bear div{border:0.3mm solid #1f4fbf;border-radius:1.5mm;padding:1.5mm 2mm;margin:0 0 2mm;background:#f3f6ff;}
   .bear b{display:block;color:#1f4fbf;}
   .bear .deg{font:800 18px/1.1 ui-monospace,Menlo,Consolas,monospace;}
+  /* the worked example under the map */
+  .ex{display:grid;grid-template-columns:40mm 1fr;gap:4mm;align-items:start;margin-top:2mm;font-size:10.5px;line-height:1.32;padding:1.6mm 3mm;}
+  .ex .exmap svg{display:block;width:100%;height:auto;}
+  .ex ol{margin:0;padding-left:5mm;}
+  .ex li{margin:0 0 0.8mm;}
   /* mission 4 */
   .docs{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin:0 0 3mm;}
   .doc{border:0.3mm solid #8a8070;background:#fdfbf3;padding:2mm 3mm;font-size:11.5px;line-height:1.45;box-shadow:0.6mm 0.6mm 0 #ddd;break-inside:avoid;}
@@ -83,6 +88,7 @@
   .real .src{font-size:9px;line-height:1.3;color:#666;margin:0;}
   @media (max-width:600px){ .real .top,.real .row2,.real .row3{grid-template-columns:1fr;} .real .row3 figure.portrait{max-width:120px;} }
   @media (max-width:600px){ table.t{font-size:10px;} table.t th,table.t td{padding:.8mm 1mm;} table.t td.blank{min-width:8mm;} }
+  @media (max-width:600px){ .ex{grid-template-columns:1fr;} .ex .exmap{max-width:200px;} }
   @media (max-width:600px){ .duo,.docs,.m3{grid-template-columns:1fr;} .cols,.codes{columns:1;} .train{grid-template-columns:1fr;} }
   @media print{ .dw{font-size:11.5px;} }
 </style>
@@ -206,6 +212,9 @@
             <p style="margin-top:4mm"><b>${esc(M3.answer)}</b></p><span class="q"><span class="ln" style="display:block;height:9mm"></span></span></div>
         </div>
         <p class="small" style="margin-top:2mm">${esc(M3.mapCap)}</p>
+        <div class="box ex"><div class="exmap">${DW2.exampleSvg(lv)}</div>
+          <div><h3>🧭 ${esc(M3.ex.title)}</h3><p class="small" style="margin:0 0 1mm">${esc(M3.ex.note)}</p>
+            <ol>${(lv === 'easy' ? M3.ex.easy : M3.ex.mid).map(x => `<li>${esc(x)}</li>`).join('')}</ol></div></div>
       </div>`);
 
       /* ---- how it really was: the listening stations, the mobile groups, three photos ---- */

@@ -33,6 +33,8 @@ Sztabu Głównego, "the Dwójka"): maths and logic, not ciphers (those are the
    and ruler; ★★★ three bearings each 1.5–2° off, the lines make a small triangle in the answer square (the
    generator checks that). The transmitter always stands among houses: never in the river, a park, the cemetery or
    the Citadel.
+   Under the map, a worked example on a small practice grid A–F × 1–5 (so it gives nothing away): posts A in B2 and
+   B in F2 meet in D4; ★ walks SE / SW two squares, ★★ and ★★★ measure 135° / 225° with the protractor (arcs drawn).
    **How it really was** (option, on; right after mission 3): the seven fixed listening stations of the Cipher Bureau
    on a small map of Poland (nos. 3–5 Krzesławice, Poznań, Starogard listened to Germany; nos. 1, 2, 6, 7 Warsaw,
    Lida, Równe, Kołomyja to the USSR), couriers by train, direction finding of foreign stations, Langer's duty of

@@ -74,6 +74,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'STARE MIASTO', srodmiescie: 'ŚRÓDMIEŚCIE', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Wisła',
       mapCap: 'Mapa schematyczna Warszawy z lat 30.: Wisła, mosty, główne ulice i znane miejsca; jedna kratka to kilka ulic kamienic. Punkty nasłuchu: niebieskie kółka z masztem; kreska nad punktem pokazuje północ.',
+      ex: {
+        title: 'Przykład krok po kroku', note: 'To tylko ćwiczebna mapka z punktami A i B, nie Twoje zadanie.',
+        easy: ['Punkt A podaje: SE, 2 kratki. Idź od A na ukos w prawo w dół: B2 → C3 → D4.', 'Punkt B podaje: SW, 2 kratki. Idź od B na ukos w lewo w dół: F2 → E3 → D4.', 'Obie drogi kończą się w tej samej kratce, więc nadajnik jest w D4.'],
+        mid: ['Połóż środek kątomierza na punkcie A, a zero na kresce, która pokazuje północ.', 'Odmierz 135° w prawo, tak jak kręcą się wskazówki zegara, i postaw kropkę. Narysuj linijką długą linię z A przez tę kropkę.', 'To samo zrób w punkcie B z kątem 225°. Ten kąt jest większy niż 180°, więc odmierz od południa (180°) jeszcze 45° dalej w prawo.', 'Linie przecinają się w kratce D4: tam jest nadajnik.'],
+      },
     },
     m4: {
       title: 'Sprawdź legendę agenta', sub: 'Kontrwywiad, podejrzany gość hotelu',
@@ -182,6 +187,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'OLD TOWN', srodmiescie: 'CITY CENTRE', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Vistula',
       mapCap: 'Schematic map of Warsaw in the 1930s: the Vistula, bridges, main streets and well-known places; one square is a few streets of houses. Listening posts: blue circles with a mast; the tick above a post shows north.',
+      ex: {
+        title: 'Worked example, step by step', note: 'This is only a practice map with posts A and B, not your task.',
+        easy: ['Post A says: SE, 2 squares. Go from A diagonally right and down: B2 → C3 → D4.', 'Post B says: SW, 2 squares. Go from B diagonally left and down: F2 → E3 → D4.', 'Both paths end in the same square, so the transmitter is in D4.'],
+        mid: ['Put the centre of the protractor on post A, with zero on the tick that shows north.', 'Measure 135° to the right, the way clock hands turn, and make a dot. Draw a long line with a ruler from A through the dot.', 'Do the same at post B with 225°. That angle is more than 180°, so from south (180°) measure another 45° to the right.', 'The lines cross in square D4: that is where the transmitter is.'],
+      },
     },
     m4: {
       title: 'Check the agent\'s cover story', sub: 'Counterintelligence, a suspicious hotel guest',
@@ -290,6 +300,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'СТАРЕ МІСТО', srodmiescie: 'ЦЕНТР', praga: 'ПРАГА', mokotow: 'МОКОТУВ', wola: 'ВОЛЯ', zoliborz: 'ЖОЛІБОЖ', ochota: 'ОХОТА', saskaKepa: 'САСКА КЕМПА', powisle: 'ПОВИСЛЕ' },
       river: 'Вісла',
       mapCap: 'Схематична мапа Варшави 1930-х років: Вісла, мости, головні вулиці й відомі місця; одна клітинка — це кілька вулиць кам’яниць. Пункти прослуховування: сині кружечки зі щоглою; риска над пунктом показує північ.',
+      ex: {
+        title: 'Приклад крок за кроком', note: 'Це лише тренувальна мапка з пунктами A і B, не твоє завдання.',
+        easy: ['Пункт A повідомляє: SE, 2 клітинки. Іди від A навскіс праворуч униз: B2 → C3 → D4.', 'Пункт B повідомляє: SW, 2 клітинки. Іди від B навскіс ліворуч униз: F2 → E3 → D4.', 'Обидва шляхи закінчуються в тій самій клітинці, тож передавач у D4.'],
+        mid: ['Поклади центр транспортира на пункт A, а нуль — на риску, що показує північ.', 'Відміряй 135° праворуч, як крутяться стрілки годинника, і постав крапку. Проведи лінійкою довгу лінію від A через цю крапку.', 'Те саме зроби в пункті B з кутом 225°. Цей кут більший за 180°, тож від півдня (180°) відміряй ще 45° праворуч.', 'Лінії перетинаються в клітинці D4: там і є передавач.'],
+      },
     },
     m4: {
       title: 'Перевір легенду агента', sub: 'Контррозвідка, підозрілий гість готелю',
@@ -398,6 +413,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'PHỐ CỔ', srodmiescie: 'TRUNG TÂM', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Sông Wisła',
       mapCap: 'Bản đồ sơ lược Warszawa những năm 1930: sông Wisła, các cây cầu, phố chính và những nơi nổi tiếng; một ô là vài dãy phố. Điểm nghe: vòng tròn xanh có cột ăng-ten; vạch phía trên điểm nghe chỉ hướng bắc.',
+      ex: {
+        title: 'Ví dụ từng bước', note: 'Đây chỉ là bản đồ tập với điểm A và B, không phải bài của em.',
+        easy: ['Điểm A báo: SE, 2 ô. Đi từ A chéo sang phải xuống dưới: B2 → C3 → D4.', 'Điểm B báo: SW, 2 ô. Đi từ B chéo sang trái xuống dưới: F2 → E3 → D4.', 'Cả hai đường đều dừng ở cùng một ô, vậy đài phát ở D4.'],
+        mid: ['Đặt tâm thước đo góc lên điểm A, số 0 trùng với vạch chỉ hướng bắc.', 'Đo 135° sang phải, theo chiều kim đồng hồ, rồi chấm một chấm. Dùng thước kẻ một đường dài từ A qua chấm đó.', 'Làm tương tự ở điểm B với góc 225°. Góc này lớn hơn 180°, nên từ hướng nam (180°) đo thêm 45° nữa sang phải.', 'Hai đường cắt nhau ở ô D4: đài phát ở đó.'],
+      },
     },
     m4: {
       title: 'Kiểm tra vỏ bọc của điệp viên', sub: 'Phản gián, một vị khách đáng ngờ ở khách sạn',
@@ -506,6 +526,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'VIEILLE VILLE', srodmiescie: 'CENTRE', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Vistule',
       mapCap: 'Carte schématique de Varsovie dans les années 1930 : la Vistule, les ponts, les grandes rues et les lieux connus ; une case, c’est quelques rues d’immeubles. Postes d’écoute : cercles bleus avec un mât ; le trait au-dessus du poste indique le nord.',
+      ex: {
+        title: 'Exemple pas à pas', note: 'Ce n’est qu’une carte d’entraînement avec les postes A et B, pas ton exercice.',
+        easy: ['Le poste A indique : SE, 2 cases. Va de A en diagonale vers la droite et vers le bas : B2 → C3 → D4.', 'Le poste B indique : SW, 2 cases. Va de B en diagonale vers la gauche et vers le bas : F2 → E3 → D4.', 'Les deux chemins finissent dans la même case : l’émetteur est en D4.'],
+        mid: ['Pose le centre du rapporteur sur le poste A, le zéro sur le trait qui indique le nord.', 'Mesure 135° vers la droite, dans le sens des aiguilles d’une montre, et fais un point. Trace à la règle une longue ligne de A par ce point.', 'Fais pareil au poste B avec 225°. Cet angle dépasse 180° : à partir du sud (180°), mesure encore 45° vers la droite.', 'Les lignes se croisent dans la case D4 : c’est là qu’est l’émetteur.'],
+      },
     },
     m4: {
       title: 'Vérifie la légende de l’agent', sub: 'Contre-espionnage, un client d’hôtel suspect',
@@ -614,6 +639,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'CITTÀ VECCHIA', srodmiescie: 'CENTRO', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Vistola',
       mapCap: 'Mappa schematica di Varsavia negli anni Trenta: la Vistola, i ponti, le vie principali e i luoghi noti; una casella sono poche vie di palazzi. Punti d’ascolto: cerchi blu con un’antenna; il trattino sopra il punto indica il nord.',
+      ex: {
+        title: 'Esempio passo per passo', note: 'È solo una mappa di prova con i punti A e B, non il tuo esercizio.',
+        easy: ['Il punto A dice: SE, 2 caselle. Vai da A in diagonale verso destra e in basso: B2 → C3 → D4.', 'Il punto B dice: SW, 2 caselle. Vai da B in diagonale verso sinistra e in basso: F2 → E3 → D4.', 'Le due strade finiscono nella stessa casella, quindi il trasmettitore è in D4.'],
+        mid: ['Metti il centro del goniometro sul punto A, con lo zero sul trattino che indica il nord.', 'Misura 135° verso destra, come girano le lancette dell’orologio, e fai un puntino. Traccia con il righello una linea lunga da A attraverso il puntino.', 'Fai lo stesso nel punto B con 225°. Questo angolo supera 180°, quindi dal sud (180°) misura altri 45° verso destra.', 'Le linee si incrociano nella casella D4: lì c’è il trasmettitore.'],
+      },
     },
     m4: {
       title: 'Controlla la copertura dell’agente', sub: 'Controspionaggio, un ospite d’albergo sospetto',
@@ -722,6 +752,11 @@ const DW2_TEXT = {
       districts: { stareMiasto: 'CIUDAD VIEJA', srodmiescie: 'CENTRO', praga: 'PRAGA', mokotow: 'MOKOTÓW', wola: 'WOLA', zoliborz: 'ŻOLIBORZ', ochota: 'OCHOTA', saskaKepa: 'SASKA KĘPA', powisle: 'POWIŚLE' },
       river: 'Vístula',
       mapCap: 'Mapa esquemático de Varsovia en los años treinta: el Vístula, los puentes, las calles principales y los lugares conocidos; una casilla son unas pocas calles de casas. Puntos de escucha: círculos azules con un mástil; la rayita sobre el punto señala el norte.',
+      ex: {
+        title: 'Ejemplo paso a paso', note: 'Es solo un mapa de práctica con los puntos A y B, no tu ejercicio.',
+        easy: ['El punto A dice: SE, 2 casillas. Ve desde A en diagonal hacia la derecha y abajo: B2 → C3 → D4.', 'El punto B dice: SW, 2 casillas. Ve desde B en diagonal hacia la izquierda y abajo: F2 → E3 → D4.', 'Los dos caminos terminan en la misma casilla, así que el transmisor está en D4.'],
+        mid: ['Pon el centro del transportador sobre el punto A, con el cero en la rayita que señala el norte.', 'Mide 135° hacia la derecha, como giran las agujas del reloj, y marca un punto. Traza con la regla una línea larga desde A pasando por ese punto.', 'Haz lo mismo en el punto B con 225°. Ese ángulo es mayor que 180°, así que desde el sur (180°) mide otros 45° hacia la derecha.', 'Las líneas se cruzan en la casilla D4: ahí está el transmisor.'],
+      },
     },
     m4: {
       title: 'Revisa la leyenda del agente', sub: 'Contraespionaje, un huésped de hotel sospechoso',
