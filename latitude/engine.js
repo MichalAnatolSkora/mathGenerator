@@ -458,7 +458,8 @@ const LAT = (() => {
     s += `<g clip-path="url(#skyc${lat})">`;
     s += `<line x1="${ox}" y1="${oy}" x2="${f(px)}" y2="${f(py)}" stroke="${col.line}" stroke-width=".8" stroke-dasharray="3 2.5"/>`;
     if (!south) {
-      const D = [[24, 0], [32, 0], [33.5, 8], [25.5, 9], [24, 16], [23.5, 23], [26.5, 30]].map(([a, b]) => P(a, b));
+      // Dubhe 26.7 from the pole, Merak 5.3 further: the pointers' gap fits about 5 times into the way to the Pole Star, as in the text
+      const D = [[26.7, 0], [32, 0], [33.5, 8], [25.5, 9], [24, 16], [23.5, 23], [26.5, 30]].map(([a, b]) => P(a, b));
       s += `<line x1="${f(D[1][0])}" y1="${f(D[1][1])}" x2="${f(px)}" y2="${f(py)}" stroke="${col.dim}" stroke-width=".7" stroke-dasharray="1.6 1.8"/>`;
       s += `<path d="M${D.map(([x, y]) => f(x) + ' ' + f(y)).join('L')}M${f(D[0][0])} ${f(D[0][1])}L${f(D[3][0])} ${f(D[3][1])}" fill="none" stroke="${col.dim}" stroke-width=".6"/>`;
       D.forEach(([x, y]) => { s += star(x, y, 2.3); });
@@ -466,10 +467,11 @@ const LAT = (() => {
       if (names.dipper) { const [x, y] = P(36, 32); s += `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="7" fill="${col.text}" text-anchor="middle" stroke="${col.halo}" stroke-width="2" paint-order="stroke">${esc(names.dipper)}</text>`; }
       if (names.star) s += label(names.star);
     } else {
-      const C = [[26, 0], [40, 0], [33, -6], [33, 5.5]].map(([a, b]) => P(a, b));   // Acrux, Gacrux, Mimosa, δ Crucis
+      // Acrux 32.7 from the pole, Gacrux 7.3 further: the long bar fits 4½ times into the way to the pole, as in the text
+      const C = [[32.7, 0], [40, 0], [36.4, -4], [36.4, 3.6]].map(([a, b]) => P(a, b));   // Acrux, Gacrux, Mimosa, δ Crucis
       s += `<line x1="${f(C[1][0])}" y1="${f(C[1][1])}" x2="${f(px)}" y2="${f(py)}" stroke="${col.dim}" stroke-width=".7" stroke-dasharray="1.6 1.8"/>`;
       s += `<path d="M${f(C[0][0])} ${f(C[0][1])}L${f(C[1][0])} ${f(C[1][1])}M${f(C[2][0])} ${f(C[2][1])}L${f(C[3][0])} ${f(C[3][1])}" stroke="${col.dim}" stroke-width=".6"/>`;
-      C.forEach(([x, y], i) => { s += star(x, y, i === 3 ? 1.8 : 2.6); });
+      C.forEach(([x, y], i) => { s += star(x, y, i === 3 ? 1.5 : 2.2); });   // smaller: the cross is drawn to scale
       s += `<circle cx="${f(px)}" cy="${f(py)}" r="3.2" fill="none" stroke="${col.star}" stroke-width="1"/><path d="M${f(px - 5.5)} ${f(py)}h11M${f(px)} ${f(py - 5.5)}v11" stroke="${col.star}" stroke-width=".8"/>`;
       if (names.cross) { const [x, y] = P(47, 0); s += `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="7" fill="${col.text}" text-anchor="middle" stroke="${col.halo}" stroke-width="2" paint-order="stroke">${esc(names.cross)}</text>`; }
       if (names.pole) s += label(names.pole);
@@ -667,6 +669,57 @@ const LAT = (() => {
   }
 
   /**
+   * How to find the Pole Star: the northern sky looking north, the Big Dipper on the right and Cassiopeia on the left
+   * (as on a winter evening), the Little Dipper ending in the Pole Star. Stars sit at their true places (right
+   * ascension and declination, sidereal time 6h20m); only the two pointers are put on one line through the pole,
+   * and the Pole Star (0.7° off) on the pole itself, so the line followed 5 times lands on it.
+   * opts: { names: { star, dipper, littleDipper, cassiopeia, times }, print }
+   */
+  function dipperSvg(o) {
+    const { names = {}, print = false } = o;
+    const rad = d => d * Math.PI / 180;
+    const W = 300, Hh = 146, Px = 142, Py = 72, u = 3.6, LST = 6.333;
+    const col = print ? { sky: '#fff', line: '#555', star: '#000', dim: '#777', faint: '#999', text: '#111', halo: '#fff' }
+      : { sky: '#14214a', line: '#cbd5f5', star: '#fff7c2', dim: '#9fb0e0', faint: '#7f8fc4', text: '#e8edff', halo: '#14214a' };
+    // [right ascension in hours, declination, magnitude]
+    const pos = ([ra, dec], theta) => { const t = rad(theta === undefined ? (ra - LST) * 15 : theta), d = 90 - dec; return [Px + d * u * Math.sin(t), Py - d * u * Math.cos(t)]; };
+    const BIG = [[11.062, 61.75, 1.8], [11.031, 56.38, 2.4], [11.897, 53.69, 2.4], [12.257, 57.03, 3.3], [12.900, 55.96, 1.8], [13.399, 54.93, 2.2], [13.792, 49.31, 1.9]];
+    const CAS = [[0.153, 59.15, 2.3], [0.675, 56.54, 2.2], [0.945, 60.72, 2.5], [1.430, 60.24, 2.7], [1.907, 63.67, 3.4]];
+    const UMI = [[17.537, 86.59, 4.4], [16.766, 82.04, 4.2], [15.734, 77.79, 4.3], [14.845, 74.16, 2.1], [15.345, 71.83, 3.0], [16.292, 75.76, 5.0]];   // δ ε ζ β γ η
+    const pointer = (BIG[0][0] + BIG[1][0]) / 2 * 15 - LST * 15;   // Dubhe and Merak on one line through the pole
+    const big = BIG.map((s, i) => pos(s, i < 2 ? pointer : undefined)), cas = CAS.map(s => pos(s)), umi = UMI.map(s => pos(s));
+    const T = (x, y, txt, opt = '') => `<text x="${f(x)}" y="${f(y)}" ${FONT} font-size="9.5" font-weight="700" fill="${col.text}" stroke="${col.halo}" stroke-width="2.6" paint-order="stroke" dominant-baseline="central" ${opt}>${esc(txt)}</text>`;
+    const star = ([x, y], r, c = col.star) => {
+      let d = '';
+      for (let i = 0; i < 10; i++) { const a = rad(i * 36 - 90), rr = i % 2 ? r * 0.45 : r; d += (i ? 'L' : 'M') + f(x + rr * Math.cos(a)) + ' ' + f(y + rr * Math.sin(a)); }
+      return `<path d="${d}Z" fill="${c}"/>`;
+    };
+    const size = m => Math.max(1.3, 4.4 - 0.62 * m);
+    const path = (pts, c, w) => `<path d="${pts.map(([x, y], i) => (i ? 'L' : 'M') + f(x) + ' ' + f(y)).join('')}" fill="none" stroke="${c}" stroke-width="${w}"/>`;
+    let s = `<svg class="why dipperchart" viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+    s += `<rect width="${W}" height="${Hh}" fill="${col.sky}" ${print ? 'stroke="#222" stroke-width=".8"' : ''}/>`;
+    if (!print) for (const [x, y, r] of [[16, 14, .6], [96, 20, .5], [200, 12, .6], [288, 84, .6], [70, 128, .5], [230, 138, .5], [118, 110, .4], [20, 110, .5]]) s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${col.dim}"/>`;
+    // the shapes: the Big Dipper's wagon and shaft, Cassiopeia's W, the Little Dipper (faint) from the Pole Star
+    s += path([big[0], big[1], big[2], big[3], big[0]], col.dim, .7) + path([big[3], big[4], big[5], big[6]], col.dim, .7) + path(cas, col.dim, .7);
+    s += path([[Px, Py], umi[0], umi[1], umi[2], umi[3], umi[4], umi[5], umi[2]], col.faint, .5);
+    // the pointers' line followed on to the Pole Star, a tick every gap between them
+    const [dx, dy] = [big[0][0] - big[1][0], big[0][1] - big[1][1]];
+    s += `<line x1="${f(big[0][0])}" y1="${f(big[0][1])}" x2="${Px}" y2="${Py}" stroke="${col.line}" stroke-width="1" stroke-dasharray="3 2.5"/>`;
+    const len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+    for (let i = 1; i <= 4; i++) { const x = big[0][0] + i * dx, y = big[0][1] + i * dy; s += `<line x1="${f(x - 3.2 * nx)}" y1="${f(y - 3.2 * ny)}" x2="${f(x + 3.2 * nx)}" y2="${f(y + 3.2 * ny)}" stroke="${col.line}" stroke-width="1"/>`; }
+    if (names.times) s += T((big[0][0] + Px) / 2 + 2, (big[0][1] + Py) / 2 - 10, names.times, 'text-anchor="middle"');
+    BIG.forEach((b, i) => { s += star(big[i], size(b[2])); });
+    CAS.forEach((c, i) => { s += star(cas[i], size(c[2])); });
+    UMI.forEach((m, i) => { s += star(umi[i], size(m[2]) * 0.85, col.faint); });
+    s += star([Px, Py], 4.6);   // the Pole Star
+    if (names.star) s += T(Px - 9, Py, names.star, 'text-anchor="end"');
+    if (names.dipper) s += T(big[1][0] + 4, big[1][1] - 12, names.dipper, 'text-anchor="middle"');
+    if (names.cassiopeia) s += T(cas[2][0], Math.max(...cas.map(c => c[1])) + 13, names.cassiopeia, 'text-anchor="middle"');
+    if (names.littleDipper) s += T(umi[4][0] - 6, umi[4][1] + 14, names.littleDipper, 'text-anchor="middle"');
+    return s + '</svg>';
+  }
+
+  /**
    * How to find the sky's south pole: the Southern Cross and the Pointers (Alpha and Beta Centauri) as seen looking
    * south, the cross standing upright above the pole (east on the left). Distances from the pole are true (degrees
    * from the pole: Gacrux 33°, Acrux 27°, Mimosa 30°, δ 31°, ε 30°, β Cen 30°, α Cen 29°), only the cross is set
@@ -775,6 +828,6 @@ const LAT = (() => {
   }
 
   return { LEVELS, LEVEL_IDS, rng, pick, shuffle, hemi, fmt, diff, randomLat, randomLats, CITIES, city, LINES, readDistractors, diffDistractors, mapSvg, ladderSvg, skySvg, LAND, LAKES,
-    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg, orbitSvg, crossSvg };
+    normLon, hemiLon, fmtLon, randomLon, randomLons, noonAt, hhmm, lonDistractors, pointDistractors, lonScaleSvg, noonSvg, whySvg, whyLonSvg, orbitSvg, crossSvg, dipperSvg };
 })();
 if (typeof module !== 'undefined') module.exports = LAT;

@@ -32,12 +32,14 @@ The folder is still called `latitude/` (it started as N/S only).
   also in km (1° ≈ 111 km). With "both" the task picks latitude or longitude.
 - **⭐ From the stars / ☀️ Sun and clock** — latitude: the night sky with a 0–90° arc; the Pole Star (found with the Big
   Dipper) is as high as the latitude N; in the south the long bar of the Southern Cross, followed about 4½ times, gives
-  the sky's pole and the latitude S. Longitude: noon on the ship (the sun at its highest) and a chronometer keeping
+  the sky's pole and the latitude S. Both are drawn in those true proportions (pointer gap 5 times into the way to the
+  Pole Star, the cross's bar 4½ times into the way to the pole), so the drawing matches the text. Longitude: noon on the ship (the sun at its highest) and a chronometer keeping
   Greenwich time; 15° an hour, 1° in 4 minutes, later than 12:00 ⇒ W, earlier ⇒ E.
   After the answer, **"Why does it work?"** opens a drawing for that very task: the Earth cut through the poles, the
   star's light parallel to the axis, the horizon touching the Earth, and the two equal angles (latitude); or the Earth
   seen from above the North Pole turning 15° an hour, the ship's meridian facing the sun and Greenwich's meridian
-  turned by the longitude (longitude). Below it, two cards with a question as the heading: the Earth's orbit with its axis
+  turned by the longitude (longitude). Below it, cards with a question as the heading: how to find the Pole Star
+  (`dipperSvg`: the Big Dipper's pointers followed 5 times, the Little Dipper, Cassiopeia opposite; true star places), the Earth's orbit with its axis
   always pointing at the Pole Star (`orbitSvg`: March at the back, June on the left with the north end towards the sun),
   and the slow wobble of the axis, then the southern sky: how to recognise the Southern Cross (the orange top star, the
   faint fifth star, the Pointers Alpha and Beta Centauri, the False Cross) and why it is not on the pole (about 30° away,
@@ -57,8 +59,9 @@ One A4 page (checked by measuring every coordinate choice, level and language): 
 or below it for both coordinates), marking (six latitude scales / six longitude scales / four points to draw on the
 same map), three skies or noon clocks (mixed for both), "further north / east?" and "how many degrees?". Each task can
 be switched off. Extra pages: "Why does it work?" (the drawing beside the rule, then sections headed by a question. Latitude
-takes two pages: "why does the Pole Star stay put?" with the orbit drawing; then "does the axis never move?" (the 26 000-year
-wobble), "how do you recognise the Southern Cross?" with the sky chart and "is the Southern Cross on the pole?". Longitude
+takes two pages: "how do you find the Pole Star?" with the northern sky chart and "why does the Pole Star stay put?" with
+the orbit drawing; then "does the axis never move?" (the 26 000-year wobble), "how do you recognise the Southern Cross?"
+with the southern sky chart and "is the Southern Cross on the pole?". Longitude
 takes one: "how does a sailor do it?" with the noon sight 14:00 ⇒ 30°W and "why was it so hard?" (Harrison's chronometer,
 time zones). So "both" gives three), the Titanic story with three small tasks, the answer key.
 URL: `?seed=&axis=&level=&tasks=map,ladder,stars,compare,diff&lines=1&why=1&fact=1&key=1`.

@@ -108,6 +108,7 @@ const svgs = [
   ...[10, -8, 29, 30].map(lat => L.whySvg({ lat, names: T.pl.common.whyNames })),   // thin angles: the numbers go outside
   L.orbitSvg({ names: T.pl.common.whyNames }), L.orbitSvg({ names: T.vi.common.whyNames, print: true }),
   L.crossSvg({ names: { cross: 'K', pole: 'p', pointers: 'W', times: '× 4,5', circles: 'c' } }), L.crossSvg({ names: {}, print: true }),
+  L.dipperSvg({ names: { star: 'P', dipper: 'D', littleDipper: 'd', cassiopeia: 'C', times: '× 5' } }), L.dipperSvg({ names: {}, print: true }),
 ];
 ok('drawings have no NaN', svgs.every(s => s.startsWith('<svg') && !s.includes('NaN')));
 
@@ -139,8 +140,11 @@ for (const l of Object.keys(T)) {
   // "why" texts: the rule (no heading), then two sections whose heading is a question
   const secs = (x, n) => Array.isArray(x) && x.length === n && x.every((sec, i) => sec.p.length > 150 && (i === 0 ? !sec.h : /\?\s*$/.test(sec.h)));
   ok(`${l} "why the clock works": three sections with the worked example`, secs(c.whyLonText, 3) && c.whyLonText[1].p.includes('14:00') && c.whyLonText[1].p.includes('30°'));
-  ok(`${l} "why the angle works": five sections, with the 26 000-year wobble`, secs(c.whyText, 5) && /26[\u00a0 .,]?000/.test(c.whyText[2].p) && /Thuban|Тубан/.test(c.whyText[2].p));
-  ok(`${l} the Southern Cross is about 30° from the pole, found by following its long bar 4½ times`, c.whyText[4].p.includes('30°') && /4[,½]|4 (fois|volte|veces)/.test(c.whyText[4].p) && c.whyText[3].h.includes(c.cross.split(' ')[0]));   // the heading names the cross (the text may decline it)
+  ok(`${l} "why the angle works": six sections, with the 26 000-year wobble`, secs(c.whyText, 6) && /26[\u00a0 .,]?000/.test(c.whyText[3].p) && /Thuban|Тубан/.test(c.whyText[3].p));
+  ok(`${l} how to find the Pole Star: the pointers followed about 5 times, Cassiopeia on the other side`, /\b5\b/.test(c.whyText[1].p) && c.whyText[1].p.includes(c.whyNames.cassiopeia.slice(0, 5)) && /W\b/.test(c.whyText[1].p));
+  ok(`${l} the southern sky is told once: no bridge sentence at the end of the wobble`, !c.whyText[3].p.includes(c.cross));
+  ok(`${l} the Southern Cross is about 30° from the pole, found by following its long bar 4½ times`, c.whyText[5].p.includes('30°') && /4[,½]|4 (fois|volte|veces)/.test(c.whyText[5].p) && c.whyText[4].h.includes(c.cross.split(' ')[0]));   // the heading names the cross (the text may decline it)
+  ok(`${l} labels for the northern sky chart`, ['cassiopeia', 'littleDipper', 'times5'].every(k => c.whyNames[k] && c.whyNames[k].length > 2));
   ok(`${l} labels for the sky chart`, ['pointers', 'times', 'circles'].every(k => c.whyNames[k] && c.whyNames[k].length > 2));
   ok(`${l} no thousands split over two lines`, [...c.whyText, ...c.whyLonText].every(sec => !/\d \d{3}(?!\d)/.test(sec.p)));
   ok(`${l} four months for the orbit drawing`, c.whyNames.months.length === 4 && c.whyNames.months.every(m => m.length > 2));

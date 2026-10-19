@@ -487,9 +487,9 @@
         <div class="task"><h3>2. ${esc(t('factT2Title'))}</h3><p>${esc(t('factT2'))}</p>${blankSky}</div>
       </div></div>`;
   }
-  /** "Why does it work?": the Earth and the Pole Star (latitude, two pages: the angle and why the Pole Star stays put;
-   *  then the slow wobble, how to recognise the Southern Cross and why it is not on the pole), the turning Earth and the
-   *  sun (longitude, one page). A section with a drawing has it beside the text; one without runs in two columns. */
+  /** "Why does it work?": the Earth and the Pole Star (latitude, two pages: the angle, how to find the Pole Star and why
+   *  it stays put; then the slow wobble, how to recognise the Southern Cross and why it is not on the pole), the turning
+   *  Earth and the sun (longitude, one page). A section with a drawing has it beside the text; one without runs in two columns. */
   function renderWhy(s) {
     const c = C(), L = mapLetters(s);
     const head = () => headHTML(`🌍 ${t('whyPageTitle')}`, '', s.seed, false);
@@ -500,10 +500,11 @@
     if (s.axis !== 'lon') {
       const w = c.whyText;
       pages.push(sheet(lead(LAT.whySvg({ lat: 50, letters: L, names: c.whyNames, print: true }), c.whyTitle, w[0])
-        + part('⭐', w[1], LAT.orbitSvg({ names: c.whyNames, print: true }))));
-      pages.push(sheet(part('⏳', w[2], '', true)
-        + part('🌌', w[3], LAT.crossSvg({ names: { cross: c.cross, pole: c.skyPole, pointers: c.whyNames.pointers, times: c.whyNames.times, circles: c.whyNames.circles }, print: true }))
-        + part('🧭', w[4], '')));
+        + part('🔭', w[1], LAT.dipperSvg({ names: { star: c.starName, dipper: c.dipper, littleDipper: c.whyNames.littleDipper, cassiopeia: c.whyNames.cassiopeia, times: c.whyNames.times5 }, print: true }))
+        + part('⭐', w[2], LAT.orbitSvg({ names: c.whyNames, print: true }))));
+      pages.push(sheet(part('⏳', w[3], '', true)
+        + part('🌌', w[4], LAT.crossSvg({ names: { cross: c.cross, pole: c.skyPole, pointers: c.whyNames.pointers, times: c.whyNames.times, circles: c.whyNames.circles }, print: true }))
+        + part('🧭', w[5], '')));
     }
     if (s.axis !== 'lat') {
       const w = c.whyLonText;
