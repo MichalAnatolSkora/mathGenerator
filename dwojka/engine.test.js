@@ -2,6 +2,8 @@
 const D = require('./engine.js');
 const K = require('../sheet-kit/kit.js');
 const T = require('./strings.js');
+const R = require('./strings-real.js');
+for (const l of Object.keys(R)) Object.assign(T[l], R[l]);
 let fails = 0;
 const ok = (name, cond, extra) => { if (!cond) { fails++; console.log('FAIL', name, extra || ''); } };
 const LEVELS = ['easy', 'mid', 'hard'];
@@ -45,12 +47,16 @@ for (const lv of LEVELS) for (let i = 0; i < 150; i++) {
   if (l.herring === 'birthday') ok(`legend hard #${i}: birthday after the trip`, l.birth.m === l.trip.m && l.birth.d > l.trip.d && l.truth.age === l.trip.y - l.birth.y - 1);
   if (l.herring === 'night') ok(`legend hard #${i}: night train`, tr.next);
 }
-// strings: both languages have the same keys
+// the measuring task: Starogard–Poznań is about 200 km, inside the range the answer accepts
+ok('real: Starogard–Poznań km', D.stationKm('starogard', 'poznan') >= 180 && D.stationKm('starogard', 'poznan') <= 230, D.stationKm('starogard', 'poznan'));
+ok('real: 3 west, 4 east', Object.values(D.LISTEN).filter(v => v[3] === 'w').length === 3 && Object.values(D.LISTEN).filter(v => v[3] === 'e').length === 4);
+// strings: every language has the same keys
 const keys = (o, p = '') => Object.entries(o).flatMap(([k, v]) => v && typeof v === 'object' && !Array.isArray(v) ? keys(v, p + k + '.') : [p + k]);
 for (const l of Object.keys(T)) ok(`strings ${l}: same keys as pl`, keys(T[l]).join() === keys(T.pl).join());
 for (const l of Object.keys(T)) {
   ok(`strings ${l}: suspect names`, T[l].m2.names.length === D.NAMES && T[l].m4.names.length === 8);
   ok(`strings ${l}: version pairs`, D.DETAILS.every(id => T[l].m2.details[id].pairs.length === D.PAIRS));
+  ok(`strings ${l}: real page`, T[l].real.steps.length === 5 && T[l].real.q.length === 3 && T[l].real.answers.length === 3 && Object.keys(T[l].real.stations).join() === Object.keys(D.LISTEN).join());
 }
 
 console.log(fails ? `${fails} failure(s)` : 'all ok');

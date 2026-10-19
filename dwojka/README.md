@@ -11,6 +11,8 @@ Sztabu Głównego, "the Dwójka"): maths and logic, not ciphers (those are the
 | [`worksheet.html`](worksheet.html) | The sheet: "How did the Dwójka work?", four missions, the answers |
 | [`engine.js`](engine.js) | The four missions' generators, the drawn trains, the schematic map of 1930s Warsaw |
 | [`strings.js`](strings.js) | Texts in seven languages |
+| [`strings-real.js`](strings-real.js) | Texts of the page "How it really was" in seven languages (added to `DW2_TEXT`) |
+| [`df-truck-1927.jpg`](df-truck-1927.jpg), [`gwido-langer.jpg`](gwido-langer.jpg), [`palac-saski.jpg`](palac-saski.jpg) | Photos on that page, all public domain (see below) |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js`: every mission solvable and its answer right, 150 seeds × 3 levels; the same keys in every language |
 
 ## Pages
@@ -31,6 +33,12 @@ Sztabu Głównego, "the Dwójka"): maths and logic, not ciphers (those are the
    and ruler; ★★★ three bearings each 1.5–2° off, the lines make a small triangle in the answer square (the
    generator checks that). The transmitter always stands among houses: never in the river, a park, the cemetery or
    the Citadel.
+   **How it really was** (option, on; right after mission 3): the seven fixed listening stations of the Cipher Bureau
+   on a small map of Poland (nos. 3–5 Krzesławice, Poznań, Starogard listened to Germany; nos. 1, 2, 6, 7 Warsaw,
+   Lida, Równe, Kołomyja to the USSR), couriers by train, direction finding of foreign stations, Langer's duty of
+   tracking spy transmitters in Poland and the mobile listening groups (four in 1939), five steps of a hunt (including
+   why a loop aerial hears direction: loudest edge-on, almost silent face-on), three photos and three tasks (count the
+   stations, measure Starogard–Poznań with the scale ≈ 200 km, measurements in 3 minutes).
 4. **Mission 4 · Check the agent's cover story** (dates, time): counterintelligence checks a hotel guest who may be
    a German spy: passport, ticket, timetable, hotel card and an intercepted letter.
    ★ one mistake (age / passport issued after the trip / the letter's "yesterday"); ★★ one mistake found with the
@@ -38,11 +46,22 @@ Sztabu Głównego, "the Dwójka"): maths and logic, not ciphers (those are the
    trip, or a night train arriving the next day).
 5. **Answers** (option, on).
 
-Same code + same settings ⇒ the same sheet. URL: `?seed=&level=easy|mid|hard&how=1|0&key=1|0`.
+Same code + same settings ⇒ the same sheet. URL: `?seed=&level=easy|mid|hard&how=1|0&real=1|0&key=1|0`.
 
 ## Sources and care
 
 The methods are real: train watching by the Bydgoszcz station (Ekspozytura nr 3) of Section II in East Prussia
 and Pomerania, canary-trap style leak tests in counterintelligence, radio direction finding of clandestine
 transmitters, and the checking of agents' cover papers. Names, numbers and places in the missions are made up and
-the sheet says so. The Warsaw map is schematic (coordinates of real places, streets simplified); no archive document yet.
+the sheet says so. The Warsaw map is schematic (coordinates of real places, streets simplified).
+
+"How it really was": P. Kołakowski, "Z działalności polskiego radiowywiadu na kierunku niemieckim w latach
+trzydziestych XX w.", Dzieje Najnowsze 53 (2021) no. 1, pp. 77–94 (stations and their numbers, couriers, mobile
+groups "do wykrywania szpiegowskich radiostacji", Pyry 1937); Wikipedia: Gwido Langer (tracking clandestine
+transmitters), Biuro Szyfrów, Pałac Saski. Some sources put station no. 1 in the Warsaw Citadel; that is not
+confirmed, so the sheet does not say it. Photos, via Wikimedia Commons:
+- `df-truck-1927.jpg`: British Post Office interference-finding van, *Radio News* 9 (1), July 1927, p. 37; anonymous,
+  public domain (published before 1931 in the US; anonymous and over 70 years old in the EU). No photo of the Polish
+  mobile groups is known to us, and the caption says so.
+- `gwido-langer.jpg`: Gwido Langer before 1939, Centralne Archiwum Wojskowe; PD-Poland / anonymous.
+- `palac-saski.jpg`: the Saxon Palace, 1920–1925, from A. Jankowski, *Warszawa* (Wydawnictwo Polskie, Poznań), p. 81; PD-Poland.

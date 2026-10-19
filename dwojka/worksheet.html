@@ -63,6 +63,22 @@
   .ans ol{margin:0 0 2mm;padding-left:5mm;}
   .ans li{margin:0 0 1mm;}
   .ans .map{width:90mm;}
+  /* how it really was */
+  .real .top{display:grid;grid-template-columns:1fr 84mm;gap:5mm;align-items:start;}
+  .real .map svg{display:block;width:100%;height:auto;}
+  .real .cap{font-size:9.5px;line-height:1.28;color:#444;margin:1mm 0 0;}
+  .real figure{margin:0;}
+  .real figure img{display:block;width:100%;height:auto;border:0.3mm solid #bbb;}
+  .real .row2{display:grid;grid-template-columns:60mm 1fr;gap:5mm;align-items:start;margin:0 0 3mm;}
+  .real .row3{display:grid;grid-template-columns:22mm 1fr 56mm;gap:4mm;align-items:start;margin:0 0 3mm;}
+  .real ol{margin:0;padding-left:5mm;font-size:10.2px;line-height:1.3;}
+  .real ol li{margin:0 0 1.2mm;}
+  .real .sec p{font-size:10.2px;line-height:1.32;margin:0 0 1.6mm;}
+  .real .sec h3{margin:0 0 0.6mm;}
+  .real .tip .q{margin:0 0 0.6mm;font-size:10.5px;}
+  .real .tip .q .ln{height:4.2mm;}
+  .real .src{font-size:9px;line-height:1.3;color:#666;margin:0;}
+  @media (max-width:600px){ .real .top,.real .row2,.real .row3{grid-template-columns:1fr;} }
   @media (max-width:600px){ .duo,.docs,.m3{grid-template-columns:1fr;} .cols,.codes{columns:1;} .train{grid-template-columns:1fr;} }
   @media print{ .dw{font-size:11.5px;} }
 </style>
@@ -87,6 +103,7 @@
 <script src="../sheet-kit/kit.js"></script>
 <script src="engine.js"></script>
 <script src="strings.js"></script>
+<script src="strings-real.js"></script>
 <script>
 (() => {
   const STARS = { easy: '★', mid: '★★', hard: '★★★' };
@@ -97,7 +114,7 @@
     store: 'dwojka.sheet',
     text: DW2_TEXT,
     groups: [{ id: 'level', values: ['easy', 'mid', 'hard'], def: 'easy', label: (v, C) => C.levels[v] }],
-    checks: [{ id: 'how', def: true, label: 'optHow' }],
+    checks: [{ id: 'how', def: true, label: 'optHow' }, { id: 'real', def: true, label: 'optReal' }],
     render(s, api) {
       const { C, esc } = api, lv = s.level, star = STARS[lv];
       const pages = [], mhead = (m, T) => api.head(`${C.m[m]} · ${T.title}`, `${T.sub} · ${star}`, true);
@@ -187,6 +204,29 @@
         <p class="small" style="margin-top:2mm">${esc(M3.mapCap)}</p>
       </div>`);
 
+      /* ---- how it really was: the listening stations, the mobile groups, three photos ---- */
+      if (s.real) {
+        const Rl = C.real, sec = ([h, p]) => `<div class="sec"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`;
+        pages.push(`<div class="sheet dw real">
+          ${api.head(Rl.title, Rl.sub, true)}
+          <div class="top">
+            <div>${sec(Rl.s1)}${sec(Rl.s2)}${sec(Rl.s3)}</div>
+            <div class="map"><h3>📻 ${esc(Rl.mapT)}</h3>${DW2.polandSvg(Rl)}</div>
+          </div>
+          <div class="row2">
+            <figure><img src="df-truck-1927.jpg" width="582" height="441" alt="${esc(Rl.truckCap)}"><figcaption class="cap">${esc(Rl.truckCap)}</figcaption></figure>
+            <div><h3>${esc(Rl.stepsT)}</h3><ol>${Rl.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
+          </div>
+          <div class="row3">
+            <figure><img src="gwido-langer.jpg" width="245" height="400" alt="Gwido Langer"></figure>
+            <div><p class="cap" style="margin:0 0 2mm">${esc(Rl.langerCap)}</p>
+              <div class="box tip"><h3>✏️ ${esc(Rl.qT)}</h3>${Rl.q.map((t, i) => q(i + 1, t, 1)).join('')}</div></div>
+            <figure><img src="palac-saski.jpg" width="1200" height="630" alt="${esc(Rl.palaceCap)}"><figcaption class="cap">${esc(Rl.palaceCap)}</figcaption></figure>
+          </div>
+          <p class="src">${esc(Rl.sourcesT)} ${esc(Rl.sources)}</p>
+        </div>`);
+      }
+
       /* ---- mission 4: the cover story ---- */
       const Lg = DW2.legend(api.rnd('legend'), lv), M4 = C.m4, date = d => M4.date(d, M4.months);
       const [agent, gender] = M4.names[Lg.name], [from, to] = Lg.route.map(id => M4.cities[id]);
@@ -226,6 +266,7 @@
           <div class="duo"><div class="map">${DW2.mapSvg({ L: M3, stations: D.stations, solved: true, target: D.target })}</div>
             <p>${esc(A.m3.cell(D.name))} ${lv === 'hard' ? esc(A.m3.triangle) : ''}</p></div>
           <h3>${esc(C.m.m4)} · ${esc(M4.title)}</h3><ol>${a4.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+          ${s.real ? `<h3>${esc(C.real.title)}</h3><ol>${C.real.answers.map(a => `<li>${esc(typeof a === 'function' ? a(Math.round(DW2.stationKm('starogard', 'poznan') / 10) * 10) : a)}</li>`).join('')}</ol>` : ''}
         </div>`);
       }
       return { html: pages.join(''), tasks: 4, pages: pages.length };

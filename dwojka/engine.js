@@ -12,6 +12,8 @@
  *   DW2.mapSvg(opts)              → the schematic map of 1930s Warsaw with a lettered grid, labels from strings.js
  *   DW2.legend(rnd, level)        → mission 4: an agent's cover papers with 1–2 mistakes (and a false trail on ★★★)
  *   DW2.age(birth, at)            → full years between two dates
+ *   DW2.LISTEN, DW2.polandSvg(L)  → the seven listening stations of the Cipher Bureau and a small map of Poland with them
+ *   DW2.stationKm(a, b)           → km between two of them (the answer to the measuring task)
  *
  * Levels: 'easy' ★, 'mid' ★★, 'hard' ★★★. The same rnd ⇒ the same mission.
  */
@@ -358,6 +360,68 @@ const DW2 = (() => {
     return { level, birth, trip, issued: docs.issued, route, name, trains, ticket, arriveDay, docs, truth, errs, herring };
   }
 
-  return { RATES, STATIONS, rail, trainSvg, wagonSvg, DETAILS, PAIRS, NAMES, mole, df, mapSvg, cellName, legend, age, addDays, DIM, PLACES, STATION_IDS, LETTERS, COLS, ROWS, inside, P, bearing };
+  /* ============ "how it really was": the listening stations of the Cipher Bureau ============ */
+  // A small schematic map of Poland (borders of 1923–1938, rough) with the seven fixed listening stations.
+  // Kołakowski, Dzieje Najnowsze 53 (2021) 1, p. 79: nos. 3–5 listened to Germany, nos. 1, 2, 6, 7 to the USSR.
+  const PL = { LAT0: 56.15, LON0: 15.5, KY: 150 / 8.3 };
+  PL.KX = PL.KY * 0.616;
+  const Pp = (lat, lon) => [+((lon - PL.LON0) * PL.KX).toFixed(1), +((PL.LAT0 - lat) * PL.KY).toFixed(1)];
+  const PL_BORDER = [
+    [54.80, 18.05], [54.65, 18.35], [54.55, 18.55], [54.45, 18.57], [54.3, 18.42], [54.1, 18.5], [53.98, 18.75], [53.92, 19.05],
+    [53.75, 19.3], [53.5, 19.55], [53.35, 19.95], [53.33, 20.3], [53.2, 21.0], [53.38, 21.6], [53.45, 22.3], [53.65, 22.75],
+    [53.95, 22.9], [54.2, 22.9], [54.35, 23.0], [54.4, 23.5], [54.6, 24.2], [54.9, 24.6], [55.1, 25.3], [55.3, 25.9], [55.55, 26.5],
+    [55.85, 26.7], [56.0, 27.3], [55.8, 27.65], [55.6, 28.0], [55.2, 27.9], [54.8, 27.5], [54.4, 27.2], [54.0, 27.0], [53.6, 26.9],
+    [53.2, 27.1], [52.8, 27.4], [52.4, 27.7], [52.1, 27.9], [51.8, 27.5], [51.5, 27.1], [51.2, 26.8], [50.8, 26.6], [50.4, 26.2],
+    [49.95, 26.3], [49.5, 26.2], [49.1, 26.3], [48.75, 26.4], [48.5, 26.1], [48.45, 25.6], [48.3, 25.3], [48.25, 24.95],
+    [48.35, 24.6], [48.55, 24.2], [48.7, 23.6], [48.95, 23.1], [49.1, 22.8], [49.35, 22.3], [49.4, 21.7], [49.45, 21.0], [49.3, 20.5],
+    [49.2, 20.1], [49.45, 19.8], [49.6, 19.4], [49.55, 19.0], [49.75, 18.65], [49.9, 18.45], [50.0, 18.3], [50.25, 18.5],
+    [50.55, 18.45], [50.85, 18.55], [51.1, 18.35], [51.4, 18.1], [51.6, 17.6], [51.7, 17.0], [51.85, 16.4], [52.1, 15.85],
+    [52.45, 15.75], [52.7, 16.0], [52.95, 16.05], [53.2, 16.35], [53.45, 16.85], [53.65, 17.25], [53.95, 17.4], [54.25, 17.6], [54.55, 17.85],
+  ].map(p => Pp(...p));
+  const PL_VISTULA = [[49.95, 19.6], [50.06, 19.94], [50.3, 20.5], [50.6, 21.2], [50.9, 21.7], [51.3, 21.8], [51.6, 21.8], [52.0, 21.2],
+    [52.23, 21.03], [52.43, 20.71], [52.4, 20.3], [52.55, 19.7], [52.65, 19.07], [53.01, 18.6], [53.3, 18.75], [53.7, 18.8], [54.1, 18.9], [54.33, 18.95]].map(p => Pp(...p));
+  /** id: [number, lat, lon, 'w' (Germany) | 'e' (USSR), label dx, dy, anchor] */
+  const LISTEN = {
+    warszawa: [1, 52.23, 21.01, 'e', 4.5, 1.6], lida: [2, 53.89, 25.30, 'e', -4.5, 1.6, 'end'], krzeslawice: [3, 50.10, 20.03, 'w', 4.5, 1.6],
+    poznan: [4, 52.41, 16.93, 'w', 4.5, 1.6], starogard: [5, 53.97, 18.53, 'w', 4.5, 1.6], rowne: [6, 50.62, 26.25, 'e', -4.5, 1.6, 'end'],
+    kolomyja: [7, 48.53, 25.04, 'e', 4.5, 1.6],
+  };
+  const PL_NEIGHBOURS = { germany: [51.3, 16.3], prussia: [54.15, 21.2], lithuania: [55.35, 24.0], latvia: [56.05, 26.0], ussr: [52.0, 28.2],
+    czechoslovakia: [48.65, 23.1], romania: [47.95, 27.2], baltic: [55.2, 18.4] };
+  /** km between two stations along the ground (for the answer key) */
+  function stationKm(a, b) {
+    const [, la1, lo1] = LISTEN[a], [, la2, lo2] = LISTEN[b], r = Math.PI / 180;
+    const x = (lo2 - lo1) * r * Math.cos((la1 + la2) / 2 * r), y = (la2 - la1) * r;
+    return Math.round(Math.hypot(x, y) * 6371);
+  }
+  /** opts: { L: labels { stations, neighbours, west, east } } — 145 × 150 units, scale bar 100 km */
+  function polandSvg(L) {
+    const W = 145, H = 150;
+    let s = `<svg viewBox="-2 -2 ${W + 4} ${H + 4}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,Segoe UI,Roboto,Arial,sans-serif">`
+      + `<rect x="0" y="0" width="${W}" height="${H}" fill="#eef3f7"/>`
+      + `<path d="M${PL_BORDER.map(p => p.join(' ')).join('L')}Z" fill="#fbf7ea" stroke="#6b665a" stroke-width="1" stroke-linejoin="round"/>`
+      + `<path d="${path(PL_VISTULA)}" stroke="#7fb2e0" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
+    for (const [id, [lat, lon]] of Object.entries(PL_NEIGHBOURS)) {
+      const [x, y] = Pp(lat, lon);
+      s += label(x, y, L.neighbours[id], { size: 4.6, color: '#7a7466', anchor: 'middle', italic: true, halo: 0 });
+    }
+    for (const [id, [n, lat, lon, dir, dx, dy, anchor]] of Object.entries(LISTEN)) {
+      const [x, y] = Pp(lat, lon), c = dir === 'w' ? '#b9382f' : '#1f4fbf';
+      s += `<circle cx="${x}" cy="${y}" r="3.6" fill="${c}"/><text x="${x}" y="${y + 1.7}" font-size="4.6" font-weight="800" text-anchor="middle" fill="#fff">${n}</text>`
+        + label(x + dx, y + dy, L.stations[id], { size: 5.2, bold: true, color: c, anchor, halo: 1.4 });
+    }
+    // legend and a 100 km scale bar
+    const km = PL.KY * 100 / 111, lx = 4, ly = H - 22;   // legend in the bottom left corner
+    s += `<rect x="${lx - 2}" y="${ly - 6}" width="60" height="26" rx="2" fill="#fff" fill-opacity=".92" stroke="#bbb" stroke-width=".5"/>`
+      + `<circle cx="${lx + 3}" cy="${ly}" r="2.6" fill="#b9382f"/>` + label(lx + 8, ly + 1.8, L.west, { size: 4.6, halo: 0 })
+      + `<circle cx="${lx + 3}" cy="${ly + 8}" r="2.6" fill="#1f4fbf"/>` + label(lx + 8, ly + 9.8, L.east, { size: 4.6, halo: 0 })
+      + `<path d="M${lx} ${ly + 16}h${km.toFixed(1)}" stroke="#333" stroke-width="1.2"/><path d="M${lx} ${ly + 13.5}v5M${(lx + km).toFixed(1)} ${ly + 13.5}v5" stroke="#333" stroke-width="1"/>`
+      + label(lx + km + 2, ly + 17.6, '100 km', { size: 4.4, halo: 0 })
+      + `<g transform="translate(${W - 7} 10)"><path d="M0 -6L2.6 3L0 1.2L-2.6 3Z" fill="#333"/><text y="-7.5" font-size="4.6" font-weight="700" text-anchor="middle" fill="#333">N</text></g>`
+      + `<rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#888" stroke-width=".6"/>`;
+    return s + '</svg>';
+  }
+
+  return { RATES, STATIONS, rail, trainSvg, wagonSvg, DETAILS, PAIRS, NAMES, mole, df, mapSvg, cellName, legend, age, addDays, DIM, PLACES, STATION_IDS, LETTERS, COLS, ROWS, inside, P, bearing, LISTEN, stationKm, polandSvg };
 })();
 if (typeof module !== 'undefined') module.exports = DW2;
