@@ -23,8 +23,9 @@ Sztabu Głównego, "the Dwójka"): maths and logic, not ciphers (those are the
    ★ four drawn trains to count, sums; ★★ two stations' tables, multiplication; ★★★ comparison with a usual week,
    how many days to move a regiment of 3,000, which station to report.
 2. **Mission 2 · Hunting the mole** (binary): every suspect got his own version of the planted message (two versions
-   of each detail); the intercepted report shows the mole. ★ 4 suspects × 2 details, ★★ 8 × 3, ★★★ 16 × 4 with
-   the table written as 0/1 codes, plus turning the code into a number.
+   of each detail); the intercepted report shows the mole. ★ 4 suspects × 2 details, ★★ 8 × 3, ★★★ 16 × 4: the suspects
+   have only numbers 0–15, so the digits of the leaked versions (0/1) must be turned into a number with the
+   place values 8, 4, 2, 1 to find the mole.
 3. **Mission 3 · Locate the transmitter** (geometry): a 12 × 12 lettered grid (one square ≈ 650 m) over a
    schematic map of 1930s Warsaw (the Vistula in its real course, the Kierbedź and Poniatowski bridges and two railway
    bridges, built-up areas, parks, the Powązki cemetery, the Citadel, main streets, districts, well-known places);

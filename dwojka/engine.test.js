@@ -21,6 +21,7 @@ for (const lv of LEVELS) for (let i = 0; i < 150; i++) {
   const m = D.mole(rnd, lv);
   ok(`mole ${lv} #${i}: codes differ`, new Set(Array.from({ length: m.n }, (_, j) => m.code(j))).size === m.n);
   ok(`mole ${lv} #${i}: mole code`, parseInt(m.code(m.moleAt), 2) === m.moleAt);
+  ok(`mole ${lv} #${i}: place values add up to the number`, m.weights.reduce((t, w, j) => t + w * m.moleBits[j], 0) === m.moleAt && (lv !== 'hard' || m.weights.join() === '8,4,2,1'));
   // mission 3: the stations' bearings or compass steps really lead to the cell
   const d = D.df(rnd, lv);
   for (const st of d.stations) {
@@ -62,6 +63,8 @@ const keys = (o, p = '') => Object.entries(o).flatMap(([k, v]) => v && typeof v 
 for (const l of Object.keys(T)) ok(`strings ${l}: same keys as pl`, keys(T[l]).join() === keys(T.pl).join());
 for (const l of Object.keys(T)) {
   ok(`strings ${l}: suspect names`, T[l].m2.names.length === D.NAMES && T[l].m4.names.length === 8);
+  ok(`strings ${l}: mole hard questions`, T[l].m2.qHard.length === 2 && T[l].m2.qHard[1].includes('1000') && T[l].m2.hardList && T[l].m2.digitT && T[l].m2.worthT);
+  ok(`strings ${l}: mole answers`, T[l].answers.m2.mole('X', 11).includes('11') && !T[l].answers.m2.mole('X').includes('undefined') && T[l].answers.m2.decimal('1011', '8 + 2 + 1 = 11').includes('1011'));
   ok(`strings ${l}: version pairs`, D.DETAILS.every(id => T[l].m2.details[id].pairs.length === D.PAIRS));
   ok(`strings ${l}: real page`, T[l].real.steps.length === 5 && T[l].real.q.length === 3 && T[l].real.answers.length === 3 && Object.keys(T[l].real.stations).join() === Object.keys(D.LISTEN).join());
 }

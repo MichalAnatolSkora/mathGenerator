@@ -85,7 +85,8 @@ const DW2 = (() => {
     const suspects = shuffle(rnd, range(NAMES)).slice(0, n);
     const moleAt = int(rnd, 0, n - 1);
     const bits = i => details.map((_, j) => (i >> (k - 1 - j)) & 1);
-    return { level, k, n, details, suspects, moleAt, bits, moleBits: bits(moleAt), code: i => bits(i).join('') };
+    const weights = details.map((_, j) => 1 << (k - 1 - j));   // what a 1 is worth in each place: 8, 4, 2, 1
+    return { level, k, n, details, suspects, moleAt, bits, moleBits: bits(moleAt), code: i => bits(i).join(''), weights };
   }
 
   /* ============ mission 3: direction finding ============ */

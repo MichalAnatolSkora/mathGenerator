@@ -33,15 +33,15 @@
   /* the two stations' tables: side by side on A4, one under the other when the screen is too narrow for both */
   .duo.tables{grid-template-columns:repeat(auto-fit,minmax(min(100%,84mm),1fr));}
   /* mission 2 */
-  .msg{font:700 13px/1.4 Georgia,serif;border:0.3mm solid #333;background:#fff;padding:2mm 3mm;margin:0 0 2.5mm;}
-  .msg u{text-decoration:none;border-bottom:0.5mm solid #1f4fbf;color:#1f4fbf;}
+  .planted{font:700 13px/1.4 Georgia,serif;border:0.3mm solid #333;background:#fff;padding:2mm 3mm;margin:0 0 2.5mm;}
+  .planted u{text-decoration:none;border-bottom:0.5mm solid #1f4fbf;color:#1f4fbf;}
   .cable{font:11.5px/1.45 "Courier New",Courier,monospace;border:0.4mm solid #7a6a4f;background:#fbf7ec;padding:2mm 3mm;margin:0 0 2.5mm;}
   .cable b{font-weight:700;}
   table.sus td.v{font-size:10.5px;}
   table.sus td.code{font:700 13px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;}
   .codes{columns:2;column-gap:6mm;font-size:11px;line-height:1.4;}
   .codes div{break-inside:avoid;}
-  .codes b{font:700 12px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;margin-right:2mm;}
+  .codes b{display:inline-block;min-width:6mm;text-align:right;font:700 12px ui-monospace,Menlo,Consolas,monospace;margin-right:2mm;}
   /* mission 3 */
   .map svg{display:block;width:100%;height:auto;}
   .m3{display:grid;grid-template-columns:minmax(0,150mm) minmax(34mm,1fr);gap:4mm;align-items:start;}
@@ -179,10 +179,12 @@
       const nameOf = i => M2.names[Mo.suspects[i]];
       let table;
       if (lv === 'hard') {
-        table = `<h3>${esc(M2.hardList)} <small class="small">(${esc(M2.versions)}: 0 / 1)</small></h3>
-          <table class="t sus"><tr><th>${esc(M2.codeT)}</th>${Mo.details.map(d => `<th>${esc(M2.details[d.id].label)}</th>`).join('')}</tr>
-            <tr><td></td>${Mo.details.map(d => `<td class="v">0 = ${esc(ver(d, 0))}<br>1 = ${esc(ver(d, 1))}</td>`).join('')}</tr></table>
-          <div class="codes">${Array.from({ length: Mo.n }, (_, i) => `<div><b>${Mo.code(i)}</b>${esc(nameOf(i))}</div>`).join('')}</div>`;
+        table = `<table class="t sus" style="width:100%"><tr><th></th>${Mo.details.map(d => `<th>${esc(M2.details[d.id].label)}</th>`).join('')}</tr>
+            <tr><td class="l">0 / 1</td>${Mo.details.map(d => `<td class="v">0 = ${esc(ver(d, 0))}<br>1 = ${esc(ver(d, 1))}</td>`).join('')}</tr>
+            <tr><td class="l">${esc(M2.digitT)}</td>${blank(Mo.k)}</tr>
+            <tr><td class="l">${esc(M2.worthT)}</td>${Mo.weights.map(w => `<td class="code">${w}</td>`).join('')}</tr></table>
+          <h3>${esc(M2.hardList)}</h3>
+          <div class="codes">${Array.from({ length: Mo.n }, (_, i) => `<div><b>${i}</b>${esc(nameOf(i))}</div>`).join('')}</div>`;
       } else {
         table = `<h3>${esc(M2.tableT)}</h3><table class="t sus" style="width:100%"><tr><th class="l">${esc(M2.who)}</th>${Mo.details.map(d => `<th>${esc(M2.details[d.id].label)}</th>`).join('')}</tr>
           ${Array.from({ length: Mo.n }, (_, i) => `<tr><td class="l">${esc(nameOf(i))}</td>${Mo.bits(i).map((b, j) => `<td class="v">${esc(ver(Mo.details[j], b))}</td>`).join('')}</tr>`).join('')}</table>`;
@@ -190,11 +192,11 @@
       pages.push(`<div class="sheet dw">${mhead('m2', M2)}
         <p>${esc(M2.intro)} ${lv === 'hard' ? esc(M2.introHard) : ''}</p>
         <p class="small" style="margin-bottom:1mm">${esc(M2.msgT)}</p>
-        <div class="msg">${planted}</div>
+        <div class="planted">${planted}</div>
         ${table}
         <p class="small" style="margin:2mm 0 1mm">${esc(M2.interceptT)}</p>
         <div class="cable">${esc(M2.intercept(M2.msg(fill(Mo.moleBits))))}</div>
-        ${q(1, M2.q[0], 1)}${q(2, M2.q[1], 1)}${lv === 'hard' ? q(3, M2.qHard, 1) : ''}
+        ${(lv === 'hard' ? [...M2.qHard, M2.q[1]] : M2.q).map((t, i) => q(i + 1, t, 1)).join('')}
       </div>`);
 
       /* ---- mission 3: direction finding ---- */
@@ -267,7 +269,10 @@
             ...(lv === 'hard' ? [R.stations.map(st => A.m1.more(stName(st.id), st.soldiers - R.normal)).join('; ') + '.'] : []),
             A.m1.spike(stName(spikeSt.id), M1.days[R.spike.day], R.peakSoldiers),
             ...(lv === 'hard' ? [A.m1.days(R.daysToMove, R.peakSoldiers), A.m1.alarm(stName(spikeSt.id))] : [])];
-        const a2 = [A.m2.mole(nameOf(Mo.moleAt), lv === 'hard' ? Mo.code(Mo.moleAt) : ''), A.m2.more(Mo.n * 2), ...(lv === 'hard' ? [A.m2.decimal(Mo.code(Mo.moleAt), Mo.moleAt)] : [])];
+        const ones = Mo.weights.filter((_, j) => Mo.moleBits[j]);
+        const a2 = lv === 'hard'
+          ? [A.m2.decimal(Mo.code(Mo.moleAt), ones.length > 1 ? `${ones.join(' + ')} = ${Mo.moleAt}` : `${Mo.moleAt}`), A.m2.mole(nameOf(Mo.moleAt), Mo.moleAt), A.m2.more(Mo.n * 2)]
+          : [A.m2.mole(nameOf(Mo.moleAt)), A.m2.more(Mo.n * 2)];
         const tr = Lg.trains[Lg.ticket];
         const a4 = Lg.errs.map(e => e === 'age' ? A.m4.age(Lg.docs.hotelAge, Lg.truth.age) : e === 'hour' ? A.m4.hour(Lg.docs.hotelArr, tr.arr) : A.m4[e]);
         if (Lg.herring) a4.push(A.m4.herring[Lg.herring]);
