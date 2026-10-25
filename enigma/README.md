@@ -2,7 +2,7 @@
 
 Part 2 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js).
 The cover names the series and the part; Mission 1 ends with the Polish codebreakers' "ANX" crib (German *an* "to" + X for a space),
-the certificate on page 10 sends the child on to part 3 (Secret Telegrams 1920) and Mission 7 points to part 5 (Zygalski Sheets).
+the certificate on page 10 sends the child on to part 3 (Secret Telegrams 1920) and Mission 7 points to part 5 (The Real Enigma 1932, where the child builds the real machine) and part 6 (Zygalski Sheets).
 
 A set of **13 printable A4 pages** for kids aged 8–10 that explain, step by step, how the Enigma
 machine worked: Caesar cipher → mixed-up alphabet (a permutation) → counting permutations (n!) →

@@ -2,7 +2,7 @@
  * The cipher series "Akademia Młodych Szyfrantów": one strip under the app bar of every game in it.
  * Classic script, loaded after ../i18n.js:  <script src="../series.js" data-part="3"></script>
  *
- * The strip names the series, shows the six parts as numbered chips (the current one with its name),
+ * The strip names the series, shows the seven parts as numbered chips (the current one with its name),
  * links to the next part and to the Morse code game (Latarnik), which stays outside the series.
  * Screen only: it is never printed. Part links go to each part's worksheet page and keep ?lang=.
  */
@@ -11,14 +11,15 @@
   const part = Number(me && me.dataset.part);
   const root = new URL('.', me ? me.src : location.href);
 
-  /** The parts in order: two for training (how ciphers work), four real operations (1920, 1938). */
+  /** The parts in order: two for training (how ciphers work), five real operations (1920, 1932, 1938). */
   const PARTS = [
     { href: 'cipher-detective/worksheet.html', key: 'p1' },
     { href: 'enigma/index.html', key: 'p2' },
     { href: 'wisla-1920/worksheet.html', key: 'p3' },
     { href: 'rewolucja-1920/worksheet.html', key: 'p4' },
-    { href: 'zygalski-sheets/worksheet.html', key: 'p5' },
-    { href: 'zygalski-full/worksheet.html', key: 'p6' },
+    { href: 'enigma-1932/worksheet.html', key: 'p5' },
+    { href: 'zygalski-sheets/worksheet.html', key: 'p6' },
+    { href: 'zygalski-full/worksheet.html', key: 'p7' },
   ];
   const MORSE = 'morse/worksheet.html';
 
@@ -28,49 +29,49 @@
       of: (n, all) => `część ${n} z ${all}`, next: name => `Dalej: ${name} →`, last: 'To ostatnia część serii',
       morse: '📡 Alfabet Morse’a: Latarnik', morseTitle: 'Depesze szły przez radio alfabetem Morse’a. Naucz się go w osobnej grze.',
       p1: 'Detektyw szyfrów', p2: 'Papierowa Enigma', p3: 'Tajne depesze 1920', p4: 'Szyfr „Rewolucja” 1920',
-      p5: 'Płachty Zygalskiego', p6: 'Płachty Zygalskiego: pełna wersja',
+      p5: 'Prawdziwa Enigma 1932', p6: 'Płachty Zygalskiego', p7: 'Płachty Zygalskiego: pełna wersja',
     },
     en: {
       series: 'Young Codebreakers Academy', label: 'A series of cipher games',
       of: (n, all) => `part ${n} of ${all}`, next: name => `Next: ${name} →`, last: 'This is the last part of the series',
       morse: '📡 Morse code: Lighthouse Keeper', morseTitle: 'Telegrams went by radio in Morse code. Learn it in a separate game.',
       p1: 'Cipher Detective', p2: 'The Paper Enigma', p3: 'Secret telegrams 1920', p4: 'The “Revolution” cipher 1920',
-      p5: 'Zygalski Sheets', p6: 'Zygalski Sheets: full version',
+      p5: 'The Real Enigma 1932', p6: 'Zygalski Sheets', p7: 'Zygalski Sheets: full version',
     },
     uk: {
       series: 'Академія юних шифрувальників', label: 'Серія ігор про шифри',
       of: (n, all) => `частина ${n} з ${all}`, next: name => `Далі: ${name} →`, last: 'Це остання частина серії',
       morse: '📡 Азбука Морзе: Доглядач маяка', morseTitle: 'Телеграми йшли радіо азбукою Морзе. Вивчи її в окремій грі.',
       p1: 'Детектив шифрів', p2: 'Паперова Енігма', p3: 'Таємні телеграми 1920', p4: 'Шифр «Революція» 1920',
-      p5: 'Листи Зигальського', p6: 'Листи Зигальського: повна версія',
+      p5: 'Справжня Енігма 1932', p6: 'Листи Зигальського', p7: 'Листи Зигальського: повна версія',
     },
     vi: {
       series: 'Học viện Mật mã nhí', label: 'Loạt trò chơi về mật mã',
       of: (n, all) => `phần ${n}/${all}`, next: name => `Tiếp theo: ${name} →`, last: 'Đây là phần cuối của loạt trò chơi',
       morse: '📡 Mã Morse: Người gác hải đăng', morseTitle: 'Các bức điện được gửi qua radio bằng mã Morse. Hãy học nó trong một trò chơi riêng.',
       p1: 'Thám tử mật mã', p2: 'Enigma bằng giấy', p3: 'Điện mật 1920', p4: 'Mật mã “Cách mạng” 1920',
-      p5: 'Tấm Zygalski', p6: 'Tấm Zygalski: bản đầy đủ',
+      p5: 'Enigma thật 1932', p6: 'Tấm Zygalski', p7: 'Tấm Zygalski: bản đầy đủ',
     },
     fr: {
       series: 'L’Académie des jeunes décodeurs', label: 'Une série de jeux sur les codes secrets',
       of: (n, all) => `partie ${n} sur ${all}`, next: name => `Suite : ${name} →`, last: 'C’est la dernière partie de la série',
       morse: '📡 Code Morse : le gardien du phare', morseTitle: 'Les télégrammes passaient par radio en code Morse. Apprends-le dans un jeu à part.',
       p1: 'Détective des codes secrets', p2: 'L’Enigma en papier', p3: 'Télégrammes secrets 1920', p4: 'Le chiffre « Révolution » 1920',
-      p5: 'Feuilles de Zygalski', p6: 'Feuilles de Zygalski : version complète',
+      p5: 'La vraie Enigma 1932', p6: 'Feuilles de Zygalski', p7: 'Feuilles de Zygalski : version complète',
     },
     it: {
       series: 'Accademia dei giovani crittografi', label: 'Una serie di giochi sui cifrari',
       of: (n, all) => `parte ${n} di ${all}`, next: name => `Avanti: ${name} →`, last: 'È l’ultima parte della serie',
       morse: '📡 Codice Morse: il guardiano del faro', morseTitle: 'I telegrammi viaggiavano via radio in codice Morse. Imparalo in un gioco a parte.',
       p1: 'Detective dei cifrari', p2: 'L’Enigma di carta', p3: 'Telegrammi segreti 1920', p4: 'Il cifrario «Rivoluzione» 1920',
-      p5: 'Fogli di Zygalski', p6: 'Fogli di Zygalski: versione completa',
+      p5: 'La vera Enigma 1932', p6: 'Fogli di Zygalski', p7: 'Fogli di Zygalski: versione completa',
     },
     es: {
       series: 'Academia de jóvenes criptógrafos', label: 'Una serie de juegos sobre cifrados',
       of: (n, all) => `parte ${n} de ${all}`, next: name => `Siguiente: ${name} →`, last: 'Es la última parte de la serie',
       morse: '📡 Código Morse: el farero', morseTitle: 'Los telegramas iban por radio en código Morse. Apréndelo en un juego aparte.',
       p1: 'Detective de cifrados', p2: 'La Enigma de papel', p3: 'Telegramas secretos 1920', p4: 'La cifra «Revolución» 1920',
-      p5: 'Hojas de Zygalski', p6: 'Hojas de Zygalski: versión completa',
+      p5: 'La Enigma de verdad 1932', p6: 'Hojas de Zygalski', p7: 'Hojas de Zygalski: versión completa',
     },
   };
 

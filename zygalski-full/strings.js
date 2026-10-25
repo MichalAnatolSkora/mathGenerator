@@ -17,7 +17,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Co masz', 'Przechwycone depesze z jednego dnia. Przy każdej jawne ustawienie początkowe (trzy litery okienek L M R) i sześć liter: klucz depeszy wpisany dwa razy i zaszyfrowany od tego ustawienia. Do tego płachty: dla każdej pozycji lewego wirnika jedna płachta 51 × 51. Wiersz to pozycja środkowego wirnika, kolumna — prawego, liczone bez pierścieni (rdzeń wirnika). Dziurka: przy tym położeniu może wypaść samiczka.'],
         ['Czego szukasz', 'Klucza dnia: kolejności wirników i ustawienia pierścieni (Ringstellung). Łącznicy płachty nie zdradzają — i nie muszą, bo samiczki od niej nie zależą.'],
-        ['Pierwszy raz?', 'Zacznij od części 5 serii, Płacht Zygalskiego w wersji dla dzieci: te same płachty na małej kracie 4 × 4 i 6 × 6.'],
+        ['Pierwszy raz?', 'Zacznij od części 6 serii, Płacht Zygalskiego w wersji dla dzieci: te same płachty na małej kracie 4 × 4 i 6 × 6.'],
       ],
       steps: [
         ['1. Znajdź samiczki', 'W sześciu literach szukaj tej samej litery na miejscach 1 i 4, 2 i 5 albo 3 i 6. Typ samiczki to para miejsc: 1/4, 2/5 albo 3/6.'],
@@ -75,7 +75,7 @@ const ZYGF_TEXT = {
       lead: [
         ['What you have', 'One day of intercepted messages. Each has its ground setting in the clear (three window letters L M R) and six letters: the message key typed twice and enciphered from that setting. Plus the sheets: one 51 × 51 sheet for each position of the left rotor. The row is the middle rotor’s position, the column the right rotor’s, counted without rings (the rotor’s core). A hole: with this position a female can appear.'],
         ['What you look for', 'The daily key: the rotor order and the ring settings (Ringstellung). The sheets do not reveal the plugboard — and do not need to, because females do not depend on it.'],
-        ['First time?', 'Start with part 5 of the series, the children’s Zygalski Sheets: the same sheets on a small 4 × 4 and 6 × 6 grid.'],
+        ['First time?', 'Start with part 6 of the series, the children’s Zygalski Sheets: the same sheets on a small 4 × 4 and 6 × 6 grid.'],
       ],
       steps: [
         ['1. Find the females', 'In the six letters look for the same letter in places 1 and 4, 2 and 5, or 3 and 6. The female’s type is the pair of places: 1/4, 2/5 or 3/6.'],
@@ -133,7 +133,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Що в тебе є', 'Перехоплені повідомлення за один день. При кожному — відкрите початкове положення (три літери віконець L M R) і шість літер: ключ повідомлення, введений двічі й зашифрований від цього положення. А ще листи: для кожного положення лівого ротора один лист 51 × 51. Рядок — це положення середнього ротора, стовпчик — правого, без урахування кілець (серцевина ротора). Дірочка: за такого положення може випасти самичка.'],
         ['Що ти шукаєш', 'Ключ дня: порядок роторів і положення кілець (Ringstellung). Комутаційної панелі листи не видають — і не мусять, бо самички від неї не залежать.'],
-        ['Уперше?', 'Почни з частини 5 серії, «Листів Зигальського» для дітей: ті самі листи на маленькій сітці 4 × 4 і 6 × 6.'],
+        ['Уперше?', 'Почни з частини 6 серії, «Листів Зигальського» для дітей: ті самі листи на маленькій сітці 4 × 4 і 6 × 6.'],
       ],
       steps: [
         ['1. Знайди самички', 'У шести літерах шукай ту саму літеру на місцях 1 і 4, 2 і 5 або 3 і 6. Тип самички — це пара місць: 1/4, 2/5 або 3/6.'],
@@ -191,7 +191,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Bạn có gì', 'Các bức điện chặn được trong một ngày. Mỗi bức có vị trí ban đầu gửi công khai (ba chữ ở cửa sổ L M R) và sáu chữ: khóa bức điện gõ hai lần và mã hóa từ vị trí đó. Thêm các tấm: mỗi vị trí của rôto trái có một tấm 51 × 51. Hàng là vị trí rôto giữa, cột là vị trí rôto phải, tính không kể vòng (lõi rôto). Lỗ: ở vị trí này có thể xuất hiện con mái.'],
         ['Bạn tìm gì', 'Khóa ngày: thứ tự rôto và vị trí các vòng (Ringstellung). Các tấm không cho biết bảng cắm — và không cần, vì con mái không phụ thuộc vào nó.'],
-        ['Lần đầu?', 'Hãy bắt đầu từ phần 5 của loạt trò chơi, Tấm Zygalski cho trẻ em: cùng những tấm ấy trên lưới nhỏ 4 × 4 và 6 × 6.'],
+        ['Lần đầu?', 'Hãy bắt đầu từ phần 6 của loạt trò chơi, Tấm Zygalski cho trẻ em: cùng những tấm ấy trên lưới nhỏ 4 × 4 và 6 × 6.'],
       ],
       steps: [
         ['1. Tìm con mái', 'Trong sáu chữ, tìm cùng một chữ ở vị trí 1 và 4, 2 và 5, hoặc 3 và 6. Loại con mái là cặp vị trí: 1/4, 2/5 hoặc 3/6.'],
@@ -249,7 +249,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Ce que tu as', 'Les messages interceptés d’une journée. Chacun a son réglage de départ en clair (trois lettres des fenêtres L M R) et six lettres : la clé du message tapée deux fois et chiffrée depuis ce réglage. Et les feuilles : une feuille 51 × 51 pour chaque position du rotor de gauche. La ligne donne la position du rotor du milieu, la colonne celle du rotor de droite, comptées sans les anneaux (le cœur du rotor). Un trou : à cette position, une femelle peut apparaître.'],
         ['Ce que tu cherches', 'La clé du jour : l’ordre des rotors et la position des anneaux (Ringstellung). Les feuilles ne révèlent pas le tableau de connexions — et n’en ont pas besoin, car les femelles n’en dépendent pas.'],
-        ['Première fois ?', 'Commence par la partie 5 de la série, les feuilles de Zygalski pour enfants : les mêmes feuilles sur une petite grille de 4 × 4 et 6 × 6.'],
+        ['Première fois ?', 'Commence par la partie 6 de la série, les feuilles de Zygalski pour enfants : les mêmes feuilles sur une petite grille de 4 × 4 et 6 × 6.'],
       ],
       steps: [
         ['1. Trouve les femelles', 'Dans les six lettres, cherche la même lettre aux places 1 et 4, 2 et 5, ou 3 et 6. Le type de la femelle est la paire de places : 1/4, 2/5 ou 3/6.'],
@@ -307,7 +307,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Che cosa hai', 'I messaggi intercettati in un giorno. Ognuno ha la posizione iniziale in chiaro (tre lettere delle finestrelle L M R) e sei lettere: la chiave del messaggio battuta due volte e cifrata da quella posizione. Poi i fogli: uno da 51 × 51 per ogni posizione del rotore sinistro. La riga è la posizione del rotore centrale, la colonna quella del rotore destro, contate senza gli anelli (il nucleo del rotore). Un buco: in questa posizione può comparire una femmina.'],
         ['Che cosa cerchi', 'La chiave del giorno: l’ordine dei rotori e la posizione degli anelli (Ringstellung). I fogli non rivelano il pannello dei collegamenti — e non serve, perché le femmine non ne dipendono.'],
-        ['Prima volta?', 'Comincia dalla parte 5 della serie, i fogli di Zygalski per bambini: gli stessi fogli su una piccola griglia 4 × 4 e 6 × 6.'],
+        ['Prima volta?', 'Comincia dalla parte 6 della serie, i fogli di Zygalski per bambini: gli stessi fogli su una piccola griglia 4 × 4 e 6 × 6.'],
       ],
       steps: [
         ['1. Trova le femmine', 'Nelle sei lettere cerca la stessa lettera ai posti 1 e 4, 2 e 5 oppure 3 e 6. Il tipo della femmina è la coppia di posti: 1/4, 2/5 o 3/6.'],
@@ -365,7 +365,7 @@ const ZYGF_TEXT = {
       lead: [
         ['Qué tienes', 'Los mensajes interceptados en un día. Cada uno lleva su posición inicial en claro (tres letras de las ventanillas L M R) y seis letras: la clave del mensaje tecleada dos veces y cifrada desde esa posición. Además, las hojas: una de 51 × 51 por cada posición del rotor izquierdo. La fila es la posición del rotor central y la columna la del rotor derecho, contadas sin anillos (el núcleo del rotor). Un agujero: en esa posición puede aparecer una hembra.'],
         ['Qué buscas', 'La clave del día: el orden de los rotores y la posición de los anillos (Ringstellung). Las hojas no revelan el panel de conexiones, y no hace falta, porque las hembras no dependen de él.'],
-        ['¿Primera vez?', 'Empieza por la parte 5 de la serie, las hojas de Zygalski para niños: las mismas hojas en una cuadrícula pequeña de 4 × 4 y 6 × 6.'],
+        ['¿Primera vez?', 'Empieza por la parte 6 de la serie, las hojas de Zygalski para niños: las mismas hojas en una cuadrícula pequeña de 4 × 4 y 6 × 6.'],
       ],
       steps: [
         ['1. Encuentra las hembras', 'En las seis letras busca la misma letra en los lugares 1 y 4, 2 y 5, o 3 y 6. El tipo de hembra es el par de lugares: 1/4, 2/5 o 3/6.'],

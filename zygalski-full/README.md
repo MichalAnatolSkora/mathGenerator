@@ -1,6 +1,6 @@
 # Zygalski Sheets, full version (Płachty Zygalskiego — pełna wersja)
 
-Part 6 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js). The instructions page has a "First time?" box that sends beginners to part 5, the children's version.
+Part 7 of the cipher series **Young Codebreakers Academy (Akademia Młodych Szyfrantów)**, see [`../series.js`](../series.js). The instructions page has a "First time?" box that sends beginners to part 6, the children's version.
 
 For the ambitious (teens and adults): find a day's Enigma key the way the Polish Cipher Bureau did in autumn
 1938, with Henryk Zygalski's perforated sheets. Printable A4 pages only, seven languages (pl/en/uk/vi/fr/it/es),
