@@ -24,11 +24,11 @@ eq('paper wheels = Enigma I (2000 random days, 60 letters each)', bad, 0);
 // The day of the worksheet
 const { KEY, CODE, WINS, TRACES } = E;
 eq('the code deciphers to the message on paper', E.paper(KEY.order, KEY.start, KEY.plug, CODE), KEY.plain);
-eq('the code', CODE, 'UCVNTGNF');
+eq('the code', CODE, 'FGHUCWAN');
 eq('no letter becomes itself', [...CODE].some((c, i) => c === KEY.plain[i]), false);
-eq('windows', WINS.join(' '), 'KOU KOV KPW KPX KPY KPZ KPA KPB');
+eq('windows', WINS.join(' '), 'SSR SSS SST SSU SSV STW STX STY');
 eq('the lamps of the traces spell the message', TRACES.map(t => A[t[9]]).join(''), KEY.plain);
-eq('the first letter: no cable in, cable M–R out', TRACES[0].map(x => A[x]).join(''), 'UUELYARIMR');
+eq('the first letter: no cable in, cable J–R out', TRACES[0].map(x => A[x]).join(''), 'FFDGKNLKJR');
 // What the child reads, found again by walking the printed wheels: the coloured letter read on the way in, the black
 // letter read on the way out (each is the letter then looked for on the same wheel).
 const mod = x => ((x % 26) + 26) % 26;
@@ -42,10 +42,21 @@ function kidWay(win, ch) {
   out.push(A[spot]); out.push(sw[A[spot]] || A[spot]);
   return out.join('');
 }
-eq('the example shows what the child reads', E.STEPS[0].join(''), 'UUYZIAKFCMR');
+eq('the example shows what the child reads', E.STEPS[0].join(''), 'FFUYCNFDBJR');
+// The drawn way of the first letter stays readable: short steps on every wheel, and on no wheel do the way to the mirror
+// and the way back pass the same place.
+{
+  const t = TRACES[0], sd = (a, b) => { const d = mod(b - a); return d > 13 ? d - 26 : d; };
+  const arcs = [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8]].map(([a, b]) => sd(t[a], t[b]));
+  const span = (a, d) => Array.from({ length: Math.abs(d) + 1 }, (_, i) => mod(a + Math.sign(d) * i));
+  const shared = [[0, 6], [1, 5], [2, 4]].reduce((n, [i, o]) => n + span(t[i + 1], arcs[i]).filter(x => span(t[o + 1], arcs[o]).includes(x)).length, 0);
+  eq('first letter: every step at most 4 places', Math.max(...arcs.map(Math.abs)) <= 4, true);
+  eq('first letter: no step of 0 (the letter is never right there)', arcs.includes(0), false);
+  eq('first letter: way in and way back never share a place', shared, 0);
+}
 eq('the key table shows what the child reads', E.STEPS.map(s => s.join('')).join(' '), [...CODE].map((c, i) => kidWay(WINS[i], c)).join(' '));
 const v = E.values();
-eq('middle rotor turns at letter 3', `${v.midTurn} ${v.midFrom} ${v.midTo}`, '3 KOV KPW');
+eq('middle rotor turns at letter 6', `${v.midTurn} ${v.midFrom} ${v.midTo}`, '6 SSV STW');
 eq('notches left → right', v.notches.join(''), 'QEV');
 eq('ways with 6 cables', String(E.ways(6)), '100391791500');
 eq('ways with 10 cables', String(E.ways(10)), '150738274937250');

@@ -25,8 +25,12 @@ const E32 = (() => {
   const TOTAL = 7, DEFAULT_PAGES = [1, 2, 3, 4, 5, 6, 7];
 
   // ---------- the day's key and the message ----------
-  /** Rotors left → right, the window letters to start from, the plugboard cables, the message to decipher. */
-  const KEY = { order: ['I', 'II', 'III'], start: 'KOT', plug: 'RM EJ KS PW BX CZ', plain: 'REJEWSKI' };
+  /**
+   * Rotors left → right, the window letters to start from, the plugboard cables, the message to decipher. The start
+   * and the cables are chosen so that the first letter, drawn on page 2, takes short steps on every wheel and its way to
+   * the mirror and back never shares a place on a wheel (the path stays readable); its last step uses the first cable.
+   */
+  const KEY = { order: ['I', 'II', 'III'], start: 'SSQ', plug: 'JR EM KS PW BX CZ', plain: 'REJEWSKI' };
   const M = Z.machine(KEY.order, 'AAA', KEY.plug);
   const CODE = M.encrypt(KEY.start, KEY.plain);
   /** The window after each key press, and the way of every code letter typed (deciphering). */

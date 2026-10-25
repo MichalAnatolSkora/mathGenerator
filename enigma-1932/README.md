@@ -24,11 +24,11 @@ middle one turns if the right one, or the middle one itself, shows its notch let
 | Page | What |
 |---|---|
 | 1 | Cover: December 1932 (Rejewski, the wiring guessed from intercepts, maths and French documents; reading from January 1933 with Różycki and Zygalski, AVA's copies), what is inside, what you need, the order of the pages, a small picture of the machine put together |
-| 2 | How it works: the machine put together at window KOU with the way of the first letter (red to the mirror, blue back, the letters read ringed, drawn under the letters) and the letters the child reads and looks for, in boxes: key U, black U, right Y, middle Z, left I, mirror A, left K, middle F, right C, black M, lamp R (`E32.STEPS`) |
+| 2 | How it works: the machine put together at window SSR with the way of the first letter (red to the mirror, blue back, the letters read ringed, drawn under the letters) and the letters the child reads and looks for, in boxes: key F, black F, right U, middle Y, left C, mirror N, left F, middle D, right B, black J, lamp R (`E32.STEPS`). The day's key is chosen so that this way is short (at most 4 places on any wheel) and the way back never runs over the way in; the tests keep it so |
 | 3 | Cut-out 1 of 2: black wheel, left rotor, mirror |
 | 4 | Cut-out 2 of 2: right and middle rotor, how to build it, how to read the window |
 | 5 | The plugboard: the panel with today's cables, the strip, "through the plugboard twice", an empty panel to draw on, how many ways (6 cables: 100 391 791 500) |
-| 6 | Mission, the cipher clerk's exam: today's key (rotors I II III, window KOT, plugboard RM EJ KS PW BX CZ, mirror B), the turning rules, the way of the current; A decode UCVNTGNF → REJEWSKI (first letter given; the middle rotor turns at letter 3), B encode your name, C how many settings (6 × 17 576 × 100 391 791 500) |
+| 6 | Mission, the cipher clerk's exam: today's key (rotors I II III, window SSQ, plugboard JR EM KS PW BX CZ, mirror B), the turning rules, the way of the current; A decode FGHUCWAN → REJEWSKI (first letter given; the middle rotor turns at letter 6), B encode your name, C how many settings (6 × 17 576 × 100 391 791 500) |
 | 7 | Answer key: the name, every letter step by step (the window and the same letters as in the example on page 2, so a parent can find where it went wrong), how to check B, C, common mistakes, paper vs the real machine (rings at A, fixed rotor order) |
 
 - **`worksheet.html`**: settings (presets *For the child* 1–6, *Cut-outs* 3–5, *Answer key* 7, *Everything*, or single
