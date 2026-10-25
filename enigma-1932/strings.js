@@ -49,7 +49,7 @@
     legendIn: 'prąd do lustra', legendOut: 'prąd z lustra', legendWin: v => `okienko (żółte): {{${v.win1}}}, czytaj od środka`,
     exTitle: v => `Przykład: naciskasz {{${v.exKey}}}, zapala się lampka {{${v.exLamp}}}`,
     chainNames: ['klawisz', 'czarne koło', 'prawy', 'środkowy', 'lewy', 'lustro', 'lewy', 'środkowy', 'prawy', 'czarne koło', 'lampka'],
-    exText: v => `Najpierw prawy wirnik przekręca się o jedną literę: w okienku było {{${v.start}}}, jest {{${v.win1}}}. ${v.inCable ? `Kabel ${v.exKey}–${v.exPlug} zamienia ${v.exKey} na ${v.exPlug}, więc` : `Litera ${v.exKey} nie ma kabla, więc`} ołówek kładziesz przy czarnym {{${v.exPlug}}}. Na prawym wirniku jest tam kolorowe {{${v.exRead}}}: znajdź czarne {{${v.exRead}}} na tym samym wirniku i przesuń tam ołówek. Tak samo dalej: w kratkach są litery, które po kolei czytasz i szukasz (na rysunku w kółkach: czerwone w drodze do lustra, niebieskie z powrotem). Na końcu ołówek stoi przy czarnym {{${v.exBack}}}${v.outCable ? `, a kabel ${v.exBack}–${v.exLamp} zamienia je na {{${v.exLamp}}}` : ''}.`,
+    exText: v => `Najpierw prawy wirnik przekręca się o jedną literę: w okienku było {{${v.start}}}, jest {{${v.win1}}}. ${v.inCable ? `Kabel ${v.exKey}–${v.exPlug} zamienia ${v.exKey} na ${v.exPlug}, więc` : `Litera ${v.exKey} nie ma kabla, więc`} ołówek kładziesz przy czarnym {{${v.exPlug}}}. Na prawym wirniku jest tam kolorowe {{${v.exRead}}}: znajdź czarne {{${v.exRead}}} na tym samym wirniku i przesuń tam ołówek. Teraz przejdź na środkowy wirnik, ale w tym samym miejscu, przy ołówku: jest tam kolorowe {{${v.exRead2}}}, więc szukasz czarnego {{${v.exRead2}}} na środkowym wirniku. I tak dalej, koło po kole: w kratkach są litery, które po kolei czytasz i szukasz (na rysunku w kółkach: czerwone w drodze do lustra, niebieskie z powrotem). Na końcu ołówek stoi przy czarnym {{${v.exBack}}}${v.outCable ? `, a kabel ${v.exBack}–${v.exLamp} zamienia je na {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'WYCINANKA · 1 Z 2', cut1Title: 'Czarne koło, lewy wirnik i lustro',
     frameLabels: ['CZARNE KOŁO', 'klawiatura i lampki', 'nie kręci się', '▲ okienko u góry'],
@@ -87,7 +87,7 @@
     pathSteps: [
       'Łącznica: jeśli litera ma kabel, zamień ją na drugi koniec kabla.',
       'Znajdź tę literę na czarnym kole. Od niej do środka biegnie Twoje miejsce: klin między szarymi kreskami. Połóż na nim ołówek.',
-      '**Do środka**: na prawym, środkowym i lewym wirniku, a na końcu na lustrze przeczytaj kolorową literę przy ołówku → znajdź taką samą czarną literę na tym samym kole → przesuń tam ołówek.',
+      '**Do środka**: na prawym, środkowym i lewym wirniku, a na końcu na lustrze przeczytaj kolorową literę przy ołówku → znajdź taką samą czarną literę na tym samym kole → przesuń tam ołówek. Na następne koło przechodzisz w tym samym miejscu, przy ołówku.',
       '**Na zewnątrz**: na lewym, środkowym i prawym wirniku przeczytaj czarną literę przy ołówku → znajdź taką samą kolorową na tym kole → przesuń ołówek.',
       'Litera czarnego koła przy ołówku → przez łącznicę → to lampka, czyli wynik.',
     ],
@@ -109,7 +109,7 @@
     ansB: v => `**B:** sprawdź tak: ustaw znowu {{${v.start}}} i wpisz szyfr. Musi wyjść imię.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, czyli ponad 10 biliardów.`,
     mistakesTitle: 'Najczęstsze błędy',
-    mistakes: ['Kręcenie po literze zamiast przed nią.', 'Do środka czyta się kolorową literę i szuka czarnej, na zewnątrz odwrotnie.', 'Lustro albo czarne koło się przekręciło: strzałka lustra i żółte pole muszą być u góry.', 'Zapomniany kabel na łącznicy, na początku albo na końcu.'],
+    mistakes: ['Kręcenie po literze zamiast przed nią.', 'Do środka czyta się kolorową literę i szuka czarnej, na zewnątrz odwrotnie.', 'Szukanie litery na następnym kole zamiast na tym samym: na następne koło przechodzi się w tym samym miejscu.', 'Lustro albo czarne koło się przekręciło: strzałka lustra i żółte pole muszą być u góry.', 'Zapomniany kabel na łącznicy, na początku albo na końcu.'],
     diffTitle: 'Papier a prawdziwa maszyna',
     diffs: v => [
       ['Druty', `Kolorowe litery to prawdziwe połączenia wirników ${v.order.join(', ')} i lustra B z wojskowej Enigmy I.`],
@@ -159,7 +159,7 @@
     legendIn: 'current to the mirror', legendOut: 'current back from the mirror', legendWin: v => `window (yellow): {{${v.win1}}}, read from the centre`,
     exTitle: v => `Example: you press {{${v.exKey}}}, lamp {{${v.exLamp}}} lights up`,
     chainNames: ['key', 'black wheel', 'right', 'middle', 'left', 'mirror', 'left', 'middle', 'right', 'black wheel', 'lamp'],
-    exText: v => `First the right rotor turns by one letter: the window showed {{${v.start}}}, now it shows {{${v.win1}}}. ${v.inCable ? `The ${v.exKey}–${v.exPlug} cable turns ${v.exKey} into ${v.exPlug}, so` : `${v.exKey} has no cable, so`} you lay the pencil at the black {{${v.exPlug}}}. On the right rotor there is a coloured {{${v.exRead}}} there: find the black {{${v.exRead}}} on the same rotor and move the pencil to it. Carry on the same way: the boxes show the letters you read and look for, one after another (circled in the drawing: red on the way to the mirror, blue on the way back). At the end the pencil is at the black {{${v.exBack}}}${v.outCable ? `, and the ${v.exBack}–${v.exLamp} cable turns it into {{${v.exLamp}}}` : ''}.`,
+    exText: v => `First the right rotor turns by one letter: the window showed {{${v.start}}}, now it shows {{${v.win1}}}. ${v.inCable ? `The ${v.exKey}–${v.exPlug} cable turns ${v.exKey} into ${v.exPlug}, so` : `${v.exKey} has no cable, so`} you lay the pencil at the black {{${v.exPlug}}}. On the right rotor there is a coloured {{${v.exRead}}} there: find the black {{${v.exRead}}} on the same rotor and move the pencil to it. Now go on to the middle rotor, but at the same place, by the pencil: there is a coloured {{${v.exRead2}}} there, so you look for the black {{${v.exRead2}}} on the middle rotor. And so on, wheel by wheel: the boxes show the letters you read and look for, one after another (circled in the drawing: red on the way to the mirror, blue on the way back). At the end the pencil is at the black {{${v.exBack}}}${v.outCable ? `, and the ${v.exBack}–${v.exLamp} cable turns it into {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'CUT-OUT · 1 OF 2', cut1Title: 'Black wheel, left rotor and mirror',
     frameLabels: ['BLACK WHEEL', 'keyboard and lamps', 'does not turn', '▲ window at the top'],
@@ -197,7 +197,7 @@
     pathSteps: [
       'Plugboard: if the letter has a cable, swap it for the other end of the cable.',
       'Find that letter on the black wheel. From it your place runs to the centre: the wedge between two grey lines. Lay a pencil on it.',
-      '**Inwards**: on the right, middle and left rotor, and last on the mirror, read the coloured letter by the pencil → find the same black letter on the same wheel → move the pencil there.',
+      '**Inwards**: on the right, middle and left rotor, and last on the mirror, read the coloured letter by the pencil → find the same black letter on the same wheel → move the pencil there. You go on to the next wheel at the same place, by the pencil.',
       '**Outwards**: on the left, middle and right rotor, read the black letter by the pencil → find the same coloured letter on that wheel → move the pencil.',
       'The black wheel’s letter by the pencil → through the plugboard → that is the lamp, the answer.',
     ],
@@ -219,7 +219,7 @@
     ansB: v => `**B:** check it like this: set {{${v.start}}} again and type in the code. The name must come out.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, more than 10 quadrillion.`,
     mistakesTitle: 'Common mistakes',
-    mistakes: ['Turning after the letter instead of before it.', 'Inwards you read the coloured letter and look for the black one; outwards the other way round.', 'The mirror or the black wheel has moved: the mirror’s arrow and the yellow field must be at the top.', 'A forgotten plugboard cable, at the start or at the end.'],
+    mistakes: ['Turning after the letter instead of before it.', 'Inwards you read the coloured letter and look for the black one; outwards the other way round.', 'Looking for the letter on the next wheel instead of the same one: you go on to the next wheel at the same place.', 'The mirror or the black wheel has moved: the mirror’s arrow and the yellow field must be at the top.', 'A forgotten plugboard cable, at the start or at the end.'],
     diffTitle: 'Paper and the real machine',
     diffs: v => [
       ['Wires', `The coloured letters are the real wiring of rotors ${v.order.join(', ')} and mirror B of the army Enigma I.`],
@@ -269,7 +269,7 @@
     legendIn: 'струм до дзеркала', legendOut: 'струм від дзеркала', legendWin: v => `віконце (жовте): {{${v.win1}}}, читай від центру`,
     exTitle: v => `Приклад: натискаєш {{${v.exKey}}}, загоряється лампочка {{${v.exLamp}}}`,
     chainNames: ['клавіша', 'чорне коло', 'правий', 'середній', 'лівий', 'дзеркало', 'лівий', 'середній', 'правий', 'чорне коло', 'лампочка'],
-    exText: v => `Спершу правий ротор повертається на одну літеру: у віконці було {{${v.start}}}, стало {{${v.win1}}}. ${v.inCable ? `Кабель ${v.exKey}–${v.exPlug} міняє ${v.exKey} на ${v.exPlug}, тож` : `Літера ${v.exKey} не має кабелю, тож`} олівець кладеш біля чорної {{${v.exPlug}}}. На правому роторі там кольорова {{${v.exRead}}}: знайди чорну {{${v.exRead}}} на тому самому роторі й пересунь туди олівець. Далі так само: у клітинках — літери, які ти по черзі читаєш і шукаєш (на малюнку в кружечках: червоні дорогою до дзеркала, сині назад). Наприкінці олівець стоїть біля чорної {{${v.exBack}}}${v.outCable ? `, а кабель ${v.exBack}–${v.exLamp} міняє її на {{${v.exLamp}}}` : ''}.`,
+    exText: v => `Спершу правий ротор повертається на одну літеру: у віконці було {{${v.start}}}, стало {{${v.win1}}}. ${v.inCable ? `Кабель ${v.exKey}–${v.exPlug} міняє ${v.exKey} на ${v.exPlug}, тож` : `Літера ${v.exKey} не має кабелю, тож`} олівець кладеш біля чорної {{${v.exPlug}}}. На правому роторі там кольорова {{${v.exRead}}}: знайди чорну {{${v.exRead}}} на тому самому роторі й пересунь туди олівець. Тепер перейди на середній ротор, але в тому самому місці, біля олівця: там кольорова {{${v.exRead2}}}, тож шукаєш чорну {{${v.exRead2}}} на середньому роторі. І так далі, коло за колом: у клітинках — літери, які ти по черзі читаєш і шукаєш (на малюнку в кружечках: червоні дорогою до дзеркала, сині назад). Наприкінці олівець стоїть біля чорної {{${v.exBack}}}${v.outCable ? `, а кабель ${v.exBack}–${v.exLamp} міняє її на {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'ВИРІЗАНКА · 1 З 2', cut1Title: 'Чорне коло, лівий ротор і дзеркало',
     frameLabels: ['ЧОРНЕ КОЛО', 'клавіатура й лампочки', 'не обертається', '▲ віконце вгорі'],
@@ -307,7 +307,7 @@
     pathSteps: [
       'Комутатор: якщо літера має кабель, заміни її на другий кінець кабелю.',
       'Знайди цю літеру на чорному колі. Від неї до центру йде твоє місце: клин між сірими лініями. Поклади на нього олівець.',
-      '**До центру**: на правому, середньому й лівому роторі, а наприкінці на дзеркалі прочитай кольорову літеру біля олівця → знайди таку саму чорну літеру на тому самому колі → пересунь туди олівець.',
+      '**До центру**: на правому, середньому й лівому роторі, а наприкінці на дзеркалі прочитай кольорову літеру біля олівця → знайди таку саму чорну літеру на тому самому колі → пересунь туди олівець. На наступне коло переходиш у тому самому місці, біля олівця.',
       '**Назовні**: на лівому, середньому й правому роторі прочитай чорну літеру біля олівця → знайди таку саму кольорову на цьому колі → пересунь олівець.',
       'Літера чорного кола біля олівця → через комутатор → це лампочка, тобто відповідь.',
     ],
@@ -329,7 +329,7 @@
     ansB: v => `**B:** перевір так: знову постав {{${v.start}}} і введи шифр. Має вийти ім’я.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, тобто понад 10 квадрильйонів.`,
     mistakesTitle: 'Найчастіші помилки',
-    mistakes: ['Оберт після літери замість перед нею.', 'До центру читають кольорову літеру й шукають чорну, назовні навпаки.', 'Дзеркало або чорне коло зсунулося: стрілка дзеркала й жовте поле мають бути вгорі.', 'Забутий кабель комутатора на початку або наприкінці.'],
+    mistakes: ['Оберт після літери замість перед нею.', 'До центру читають кольорову літеру й шукають чорну, назовні навпаки.', 'Пошук літери на наступному колі замість того самого: на наступне коло переходять у тому самому місці.', 'Дзеркало або чорне коло зсунулося: стрілка дзеркала й жовте поле мають бути вгорі.', 'Забутий кабель комутатора на початку або наприкінці.'],
     diffTitle: 'Папір і справжня машина',
     diffs: v => [
       ['Дроти', `Кольорові літери — це справжні з’єднання роторів ${v.order.join(', ')} і дзеркала B армійської Енігми I.`],
@@ -379,7 +379,7 @@
     legendIn: 'dòng điện tới gương', legendOut: 'dòng điện từ gương về', legendWin: v => `ô cửa sổ (màu vàng): {{${v.win1}}}, đọc từ tâm ra`,
     exTitle: v => `Ví dụ: bạn bấm {{${v.exKey}}}, đèn {{${v.exLamp}}} sáng`,
     chainNames: ['phím', 'vòng đen', 'rôto phải', 'rôto giữa', 'rôto trái', 'gương', 'rôto trái', 'rôto giữa', 'rôto phải', 'vòng đen', 'đèn'],
-    exText: v => `Trước tiên rôto phải quay một chữ: ô cửa sổ đang là {{${v.start}}}, giờ là {{${v.win1}}}. ${v.inCable ? `Dây ${v.exKey}–${v.exPlug} đổi ${v.exKey} thành ${v.exPlug}, nên` : `Chữ ${v.exKey} không có dây cáp, nên`} bạn đặt bút chì ở chữ đen {{${v.exPlug}}}. Ở đó, trên rôto phải là chữ màu {{${v.exRead}}}: tìm chữ đen {{${v.exRead}}} trên cùng rôto ấy và dời bút chì tới đó. Cứ thế tiếp tục: trong các ô là những chữ bạn lần lượt đọc và tìm (trên hình được khoanh tròn: đỏ trên đường tới gương, xanh trên đường về). Cuối cùng bút chì ở chữ đen {{${v.exBack}}}${v.outCable ? `, và dây ${v.exBack}–${v.exLamp} đổi nó thành {{${v.exLamp}}}` : ''}.`,
+    exText: v => `Trước tiên rôto phải quay một chữ: ô cửa sổ đang là {{${v.start}}}, giờ là {{${v.win1}}}. ${v.inCable ? `Dây ${v.exKey}–${v.exPlug} đổi ${v.exKey} thành ${v.exPlug}, nên` : `Chữ ${v.exKey} không có dây cáp, nên`} bạn đặt bút chì ở chữ đen {{${v.exPlug}}}. Ở đó, trên rôto phải là chữ màu {{${v.exRead}}}: tìm chữ đen {{${v.exRead}}} trên cùng rôto ấy và dời bút chì tới đó. Giờ chuyển sang rôto giữa, nhưng vẫn ở chỗ đó, cạnh bút chì: ở đó là chữ màu {{${v.exRead2}}}, nên bạn tìm chữ đen {{${v.exRead2}}} trên rôto giữa. Cứ thế, từng vòng một: trong các ô là những chữ bạn lần lượt đọc và tìm (trên hình được khoanh tròn: đỏ trên đường tới gương, xanh trên đường về). Cuối cùng bút chì ở chữ đen {{${v.exBack}}}${v.outCable ? `, và dây ${v.exBack}–${v.exLamp} đổi nó thành {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'PHẦN CẮT · 1/2', cut1Title: 'Vòng đen, rôto trái và gương',
     frameLabels: ['VÒNG ĐEN', 'bàn phím và đèn', 'không quay', '▲ ô cửa sổ ở trên'],
@@ -417,7 +417,7 @@
     pathSteps: [
       'Bảng cắm: nếu chữ có dây cáp, đổi nó thành đầu kia của dây.',
       'Tìm chữ đó trên vòng đen. Từ chữ ấy vào tới tâm là chỗ của bạn: hình nêm giữa hai vạch xám. Đặt bút chì lên đó.',
-      '**Vào trong**: trên rôto phải, rôto giữa, rôto trái và cuối cùng là gương, đọc chữ màu cạnh bút chì → tìm chữ đen giống hệt trên cùng vòng đó → dời bút chì tới đó.',
+      '**Vào trong**: trên rôto phải, rôto giữa, rôto trái và cuối cùng là gương, đọc chữ màu cạnh bút chì → tìm chữ đen giống hệt trên cùng vòng đó → dời bút chì tới đó. Sang vòng tiếp theo, bạn vẫn ở đúng chỗ đó, cạnh bút chì.',
       '**Ra ngoài**: trên rôto trái, rôto giữa và rôto phải, đọc chữ đen cạnh bút chì → tìm chữ màu giống hệt trên vòng đó → dời bút chì.',
       'Chữ của vòng đen cạnh bút chì → qua bảng cắm → đó là đèn, tức là đáp án.',
     ],
@@ -439,7 +439,7 @@
     ansB: v => `**B:** kiểm tra thế này: đặt lại {{${v.start}}} và gõ mật mã vào. Phải ra lại tên.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, tức là hơn 10 triệu tỷ.`,
     mistakesTitle: 'Lỗi thường gặp',
-    mistakes: ['Quay rôto sau chữ thay vì trước chữ.', 'Khi vào trong, đọc chữ màu rồi tìm chữ đen; khi ra ngoài thì ngược lại.', 'Gương hoặc vòng đen bị xoay: mũi tên của gương và ô vàng phải ở trên cùng.', 'Quên một dây cáp ở bảng cắm, lúc đầu hoặc lúc cuối.'],
+    mistakes: ['Quay rôto sau chữ thay vì trước chữ.', 'Khi vào trong, đọc chữ màu rồi tìm chữ đen; khi ra ngoài thì ngược lại.', 'Tìm chữ trên vòng tiếp theo thay vì trên cùng vòng: sang vòng tiếp theo phải ở đúng chỗ cũ.', 'Gương hoặc vòng đen bị xoay: mũi tên của gương và ô vàng phải ở trên cùng.', 'Quên một dây cáp ở bảng cắm, lúc đầu hoặc lúc cuối.'],
     diffTitle: 'Máy giấy và máy thật',
     diffs: v => [
       ['Dây điện', `Chữ màu là cách nối dây thật của các rôto ${v.order.join(', ')} và gương B trong Enigma I quân sự.`],
@@ -489,7 +489,7 @@
     legendIn: 'courant vers le miroir', legendOut: 'courant qui revient du miroir', legendWin: v => `fenêtre (jaune) : {{${v.win1}}}, à lire depuis le centre`,
     exTitle: v => `Exemple : tu appuies sur {{${v.exKey}}}, la lampe {{${v.exLamp}}} s’allume`,
     chainNames: ['touche', 'roue noire', 'droit', 'milieu', 'gauche', 'miroir', 'gauche', 'milieu', 'droit', 'roue noire', 'lampe'],
-    exText: v => `D’abord le rotor droit tourne d’une lettre : la fenêtre montrait {{${v.start}}}, elle montre {{${v.win1}}}. ${v.inCable ? `Le câble ${v.exKey}–${v.exPlug} change ${v.exKey} en ${v.exPlug}, donc` : `La lettre ${v.exKey} n’a pas de câble, donc`} tu poses le crayon près du {{${v.exPlug}}} noir. Sur le rotor droit, il y a là un {{${v.exRead}}} de couleur : trouve le {{${v.exRead}}} noir sur le même rotor et déplace le crayon. Continue de la même façon : les cases montrent les lettres que tu lis et cherches l’une après l’autre (entourées sur le dessin : en rouge vers le miroir, en bleu au retour). À la fin, le crayon est près du {{${v.exBack}}} noir${v.outCable ? `, et le câble ${v.exBack}–${v.exLamp} le change en {{${v.exLamp}}}` : ''}.`,
+    exText: v => `D’abord le rotor droit tourne d’une lettre : la fenêtre montrait {{${v.start}}}, elle montre {{${v.win1}}}. ${v.inCable ? `Le câble ${v.exKey}–${v.exPlug} change ${v.exKey} en ${v.exPlug}, donc` : `La lettre ${v.exKey} n’a pas de câble, donc`} tu poses le crayon près du {{${v.exPlug}}} noir. Sur le rotor droit, il y a là un {{${v.exRead}}} de couleur : trouve le {{${v.exRead}}} noir sur le même rotor et déplace le crayon. Passe ensuite au rotor du milieu, mais au même endroit, près du crayon : il y a là un {{${v.exRead2}}} de couleur, donc tu cherches le {{${v.exRead2}}} noir sur le rotor du milieu. Et ainsi de suite, roue par roue : les cases montrent les lettres que tu lis et cherches l’une après l’autre (entourées sur le dessin : en rouge vers le miroir, en bleu au retour). À la fin, le crayon est près du {{${v.exBack}}} noir${v.outCable ? `, et le câble ${v.exBack}–${v.exLamp} le change en {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'À DÉCOUPER · 1 SUR 2', cut1Title: 'Roue noire, rotor gauche et miroir',
     frameLabels: ['ROUE NOIRE', 'clavier et lampes', 'ne tourne pas', '▲ fenêtre en haut'],
@@ -527,7 +527,7 @@
     pathSteps: [
       'Câbles : si la lettre a un câble, remplace-la par l’autre bout du câble.',
       'Trouve cette lettre sur la roue noire. De là jusqu’au centre va ta place : le coin entre deux traits gris. Pose un crayon dessus.',
-      '**Vers le centre** : sur les rotors droit, du milieu et gauche, puis sur le miroir, lis la lettre de couleur près du crayon → trouve la même lettre noire sur la même roue → déplace le crayon.',
+      '**Vers le centre** : sur les rotors droit, du milieu et gauche, puis sur le miroir, lis la lettre de couleur près du crayon → trouve la même lettre noire sur la même roue → déplace le crayon. Tu passes à la roue suivante au même endroit, près du crayon.',
       '**Vers l’extérieur** : sur les rotors gauche, du milieu et droit, lis la lettre noire près du crayon → trouve la même lettre de couleur sur cette roue → déplace le crayon.',
       'La lettre de la roue noire près du crayon → par les câbles → c’est la lampe, la réponse.',
     ],
@@ -549,7 +549,7 @@
     ansB: v => `**B :** vérifie ainsi : règle de nouveau {{${v.start}}} et tape le code. Le prénom doit ressortir.`,
     ansC: v => `**C :** 6 × ${v.n3} × ${v.ways} = **${v.total}**, plus de 10 billiards.`,
     mistakesTitle: 'Erreurs fréquentes',
-    mistakes: ['Tourner après la lettre au lieu d’avant.', 'Vers le centre, on lit la lettre de couleur et on cherche la noire ; vers l’extérieur, l’inverse.', 'Le miroir ou la roue noire a bougé : la flèche du miroir et le champ jaune doivent être en haut.', 'Un câble oublié, au début ou à la fin.'],
+    mistakes: ['Tourner après la lettre au lieu d’avant.', 'Vers le centre, on lit la lettre de couleur et on cherche la noire ; vers l’extérieur, l’inverse.', 'Chercher la lettre sur la roue suivante au lieu de la même : on passe à la roue suivante au même endroit.', 'Le miroir ou la roue noire a bougé : la flèche du miroir et le champ jaune doivent être en haut.', 'Un câble oublié, au début ou à la fin.'],
     diffTitle: 'Le papier et la vraie machine',
     diffs: v => [
       ['Fils', `Les lettres de couleur sont le vrai câblage des rotors ${v.order.join(', ')} et du miroir B de l’Enigma I de l’armée.`],
@@ -599,7 +599,7 @@
     legendIn: 'corrente verso lo specchio', legendOut: 'corrente di ritorno', legendWin: v => `finestrella (gialla): {{${v.win1}}}, si legge dal centro`,
     exTitle: v => `Esempio: premi {{${v.exKey}}}, si accende la lampadina {{${v.exLamp}}}`,
     chainNames: ['tasto', 'ruota nera', 'destro', 'centrale', 'sinistro', 'specchio', 'sinistro', 'centrale', 'destro', 'ruota nera', 'lampadina'],
-    exText: v => `Prima il rotore destro gira di una lettera: la finestrella mostrava {{${v.start}}}, ora mostra {{${v.win1}}}. ${v.inCable ? `Il cavo ${v.exKey}–${v.exPlug} cambia ${v.exKey} in ${v.exPlug}, quindi` : `La lettera ${v.exKey} non ha un cavo, quindi`} appoggi la matita alla {{${v.exPlug}}} nera. Lì, sul rotore destro, c’è una {{${v.exRead}}} colorata: trova la {{${v.exRead}}} nera sullo stesso rotore e sposta lì la matita. Continua così: nelle caselle ci sono le lettere che leggi e cerchi una dopo l’altra (cerchiate nel disegno: in rosso verso lo specchio, in blu al ritorno). Alla fine la matita è alla {{${v.exBack}}} nera${v.outCable ? `, e il cavo ${v.exBack}–${v.exLamp} la cambia in {{${v.exLamp}}}` : ''}.`,
+    exText: v => `Prima il rotore destro gira di una lettera: la finestrella mostrava {{${v.start}}}, ora mostra {{${v.win1}}}. ${v.inCable ? `Il cavo ${v.exKey}–${v.exPlug} cambia ${v.exKey} in ${v.exPlug}, quindi` : `La lettera ${v.exKey} non ha un cavo, quindi`} appoggi la matita alla {{${v.exPlug}}} nera. Lì, sul rotore destro, c’è una {{${v.exRead}}} colorata: trova la {{${v.exRead}}} nera sullo stesso rotore e sposta lì la matita. Ora passa al rotore centrale, ma nello stesso punto, vicino alla matita: lì c’è una {{${v.exRead2}}} colorata, quindi cerchi la {{${v.exRead2}}} nera sul rotore centrale. E così via, ruota dopo ruota: nelle caselle ci sono le lettere che leggi e cerchi una dopo l’altra (cerchiate nel disegno: in rosso verso lo specchio, in blu al ritorno). Alla fine la matita è alla {{${v.exBack}}} nera${v.outCable ? `, e il cavo ${v.exBack}–${v.exLamp} la cambia in {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'DA RITAGLIARE · 1 DI 2', cut1Title: 'Ruota nera, rotore sinistro e specchio',
     frameLabels: ['RUOTA NERA', 'tastiera e lampadine', 'non gira', '▲ finestrella in alto'],
@@ -637,7 +637,7 @@
     pathSteps: [
       'Spinotti: se la lettera ha un cavo, sostituiscila con l’altro capo del cavo.',
       'Trova quella lettera sulla ruota nera. Da lì fino al centro va il tuo posto: lo spicchio tra due righe grigie. Appoggiaci una matita.',
-      '**Verso il centro**: sui rotori destro, centrale e sinistro, e alla fine sullo specchio, leggi la lettera colorata vicino alla matita → trova la stessa lettera nera sulla stessa ruota → sposta lì la matita.',
+      '**Verso il centro**: sui rotori destro, centrale e sinistro, e alla fine sullo specchio, leggi la lettera colorata vicino alla matita → trova la stessa lettera nera sulla stessa ruota → sposta lì la matita. Passi alla ruota successiva nello stesso punto, vicino alla matita.',
       '**Verso l’esterno**: sui rotori sinistro, centrale e destro, leggi la lettera nera vicino alla matita → trova la stessa lettera colorata su quella ruota → sposta la matita.',
       'La lettera della ruota nera vicino alla matita → attraverso gli spinotti → è la lampadina, cioè la risposta.',
     ],
@@ -659,7 +659,7 @@
     ansB: v => `**B:** controlla così: imposta di nuovo {{${v.start}}} e scrivi il cifrato. Deve uscire il nome.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, più di 10 biliardi.`,
     mistakesTitle: 'Errori frequenti',
-    mistakes: ['Girare dopo la lettera invece che prima.', 'Verso il centro si legge la lettera colorata e si cerca quella nera; verso l’esterno il contrario.', 'Lo specchio o la ruota nera si sono spostati: la freccia dello specchio e il campo giallo devono stare in alto.', 'Un cavo dimenticato, all’inizio o alla fine.'],
+    mistakes: ['Girare dopo la lettera invece che prima.', 'Verso il centro si legge la lettera colorata e si cerca quella nera; verso l’esterno il contrario.', 'Cercare la lettera sulla ruota successiva invece che sulla stessa: si passa alla ruota successiva nello stesso punto.', 'Lo specchio o la ruota nera si sono spostati: la freccia dello specchio e il campo giallo devono stare in alto.', 'Un cavo dimenticato, all’inizio o alla fine.'],
     diffTitle: 'La carta e la macchina vera',
     diffs: v => [
       ['Fili', `Le lettere colorate sono i veri collegamenti dei rotori ${v.order.join(', ')} e dello specchio B dell’Enigma I dell’esercito.`],
@@ -709,7 +709,7 @@
     legendIn: 'corriente hacia el espejo', legendOut: 'corriente de vuelta', legendWin: v => `ventanilla (amarilla): {{${v.win1}}}, se lee desde el centro`,
     exTitle: v => `Ejemplo: pulsas {{${v.exKey}}} y se enciende la lámpara {{${v.exLamp}}}`,
     chainNames: ['tecla', 'rueda negra', 'derecho', 'central', 'izquierdo', 'espejo', 'izquierdo', 'central', 'derecho', 'rueda negra', 'lámpara'],
-    exText: v => `Primero el rotor derecho gira una letra: la ventanilla mostraba {{${v.start}}}, ahora muestra {{${v.win1}}}. ${v.inCable ? `El cable ${v.exKey}–${v.exPlug} cambia la ${v.exKey} por la ${v.exPlug}, así que` : `La ${v.exKey} no tiene cable, así que`} pones el lápiz junto a la {{${v.exPlug}}} negra. Ahí, en el rotor derecho, hay una {{${v.exRead}}} de color: busca la {{${v.exRead}}} negra en el mismo rotor y mueve el lápiz. Sigue igual: en las casillas están las letras que lees y buscas una tras otra (en círculos en el dibujo: rojos hacia el espejo, azules de vuelta). Al final el lápiz está junto a la {{${v.exBack}}} negra${v.outCable ? `, y el cable ${v.exBack}–${v.exLamp} la cambia por la {{${v.exLamp}}}` : ''}.`,
+    exText: v => `Primero el rotor derecho gira una letra: la ventanilla mostraba {{${v.start}}}, ahora muestra {{${v.win1}}}. ${v.inCable ? `El cable ${v.exKey}–${v.exPlug} cambia la ${v.exKey} por la ${v.exPlug}, así que` : `La ${v.exKey} no tiene cable, así que`} pones el lápiz junto a la {{${v.exPlug}}} negra. Ahí, en el rotor derecho, hay una {{${v.exRead}}} de color: busca la {{${v.exRead}}} negra en el mismo rotor y mueve el lápiz. Ahora pasa al rotor central, pero en el mismo sitio, junto al lápiz: ahí hay una {{${v.exRead2}}} de color, así que buscas la {{${v.exRead2}}} negra en el rotor central. Y así, rueda a rueda: en las casillas están las letras que lees y buscas una tras otra (en círculos en el dibujo: rojos hacia el espejo, azules de vuelta). Al final el lápiz está junto a la {{${v.exBack}}} negra${v.outCable ? `, y el cable ${v.exBack}–${v.exLamp} la cambia por la {{${v.exLamp}}}` : ''}.`,
 
     cut1Over: 'RECORTABLE · 1 DE 2', cut1Title: 'Rueda negra, rotor izquierdo y espejo',
     frameLabels: ['RUEDA NEGRA', 'teclado y lámparas', 'no gira', '▲ ventanilla arriba'],
@@ -747,7 +747,7 @@
     pathSteps: [
       'Cables: si la letra tiene cable, cámbiala por el otro extremo del cable.',
       'Busca esa letra en la rueda negra. Desde ella hasta el centro va tu sitio: la cuña entre dos rayas grises. Pon un lápiz encima.',
-      '**Hacia el centro**: en los rotores derecho, central e izquierdo, y al final en el espejo, lee la letra de color junto al lápiz → busca la misma letra negra en la misma rueda → mueve allí el lápiz.',
+      '**Hacia el centro**: en los rotores derecho, central e izquierdo, y al final en el espejo, lee la letra de color junto al lápiz → busca la misma letra negra en la misma rueda → mueve allí el lápiz. Pasas a la rueda siguiente en el mismo sitio, junto al lápiz.',
       '**Hacia fuera**: en los rotores izquierdo, central y derecho, lee la letra negra junto al lápiz → busca la misma letra de color en esa rueda → mueve el lápiz.',
       'La letra de la rueda negra junto al lápiz → por los cables → es la lámpara, la respuesta.',
     ],
@@ -769,7 +769,7 @@
     ansB: v => `**B:** compruébalo así: pon otra vez {{${v.start}}} y escribe el cifrado. Tiene que salir el nombre.`,
     ansC: v => `**C:** 6 × ${v.n3} × ${v.ways} = **${v.total}**, más de diez mil billones.`,
     mistakesTitle: 'Errores frecuentes',
-    mistakes: ['Girar después de la letra en vez de antes.', 'Hacia el centro se lee la letra de color y se busca la negra; hacia fuera, al revés.', 'El espejo o la rueda negra se movieron: la flecha del espejo y el campo amarillo deben estar arriba.', 'Un cable olvidado, al principio o al final.'],
+    mistakes: ['Girar después de la letra en vez de antes.', 'Hacia el centro se lee la letra de color y se busca la negra; hacia fuera, al revés.', 'Buscar la letra en la rueda siguiente en vez de en la misma: se pasa a la rueda siguiente en el mismo sitio.', 'El espejo o la rueda negra se movieron: la flecha del espejo y el campo amarillo deben estar arriba.', 'Un cable olvidado, al principio o al final.'],
     diffTitle: 'El papel y la máquina de verdad',
     diffs: v => [
       ['Cables', `Las letras de color son las conexiones reales de los rotores ${v.order.join(', ')} y del espejo B de la Enigma I del ejército.`],

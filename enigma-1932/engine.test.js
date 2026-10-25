@@ -82,6 +82,8 @@ for (const lang of LANGS) {
   eq(`${lang}: 7 page titles`, T.ui.pageTitles.length, E.TOTAL);
   eq(`${lang}: example names the key and the lamp`, T.exTitle(v).includes(`{{${v.exKey}}}`) && T.exTitle(v).includes(`{{${v.exLamp}}}`), true);
   eq(`${lang}: example names the cable at the end`, T.exText(v).includes(`${v.exBack}–${v.exLamp}`), true);
+  eq(`${lang}: example spells out the step onto the middle rotor`, T.exText(v).split(`{{${v.exRead2}}}`).length, 3);
+  eq(`${lang}: rules say: next wheel at the same place`, T.pathSteps[2].split('. ').length >= 2, true);
   eq(`${lang}: turning example`, T.pathNote(v).includes(`{{${v.midFrom}}} → {{${v.midTo}}}`), true);
   eq(`${lang}: settings answer`, T.ansC(v).includes(v.total), true);
   eq(`${lang}: plugboard`, T.plugIntro(v).includes(`{{${v.plug}}}`), true);

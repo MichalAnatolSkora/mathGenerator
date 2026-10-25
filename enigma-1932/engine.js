@@ -96,7 +96,7 @@ const E32 = (() => {
     const t = TRACES[0], st = STEPS[0], mid = WINS.findIndex(w => w[1] !== KEY.start[1]);
     return {
       order: KEY.order, start: KEY.start, plug: KEY.plug, plain: KEY.plain, code: CODE, nCables: CABLES.length, cable0: CABLES[0],
-      win1: WINS[0], exKey: st[0], exPlug: st[1], exRead: st[2], exBack: st[9], exLamp: st[10], inCable: t[0] !== t[1], outCable: t[8] !== t[9],
+      win1: WINS[0], exKey: st[0], exPlug: st[1], exRead: st[2], exRead2: st[3], exBack: st[9], exLamp: st[10], inCable: t[0] !== t[1], outCable: t[8] !== t[9],
       midTurn: mid + 1, midFrom: mid > 0 ? WINS[mid - 1] : KEY.start, midTo: WINS[mid],
       notches: KEY.order.map(n => Z.ROTORS[n][1]),   // left, middle, right
       ways: groupDigits(ways(CABLES.length)), n3: groupDigits(26 ** 3), total: groupDigits(6n * 26n ** 3n * ways(CABLES.length)),
