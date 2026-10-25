@@ -29,6 +29,21 @@ eq('no letter becomes itself', [...CODE].some((c, i) => c === KEY.plain[i]), fal
 eq('windows', WINS.join(' '), 'KOU KOV KPW KPX KPY KPZ KPA KPB');
 eq('the lamps of the traces spell the message', TRACES.map(t => A[t[9]]).join(''), KEY.plain);
 eq('the first letter: no cable in, cable M–R out', TRACES[0].map(x => A[x]).join(''), 'UUELYARIMR');
+// What the child reads, found again by walking the printed wheels: the coloured letter read on the way in, the black
+// letter read on the way out (each is the letter then looked for on the same wheel).
+const mod = x => ((x % 26) + 26) % 26;
+function kidWay(win, ch) {
+  const sw = {}; for (const [a, b] of KEY.plug.split(' ')) { sw[a] = b; sw[b] = a; }
+  const k = [...win].map(c => A.indexOf(c)), W = KEY.order.map(n => Z.ROTORS[n][0]);   // left, middle, right
+  const out = [ch]; let spot = A.indexOf(sw[ch] || ch); out.push(A[spot]);
+  for (const i of [2, 1, 0]) { const c = W[i][mod(spot + k[i])]; out.push(c); spot = mod(A.indexOf(c) - k[i]); }
+  const m = Z.REFLECTOR_B[spot]; out.push(m); spot = A.indexOf(m);
+  for (const i of [0, 1, 2]) { const c = A[mod(spot + k[i])]; out.push(c); spot = mod(W[i].indexOf(c) - k[i]); }
+  out.push(A[spot]); out.push(sw[A[spot]] || A[spot]);
+  return out.join('');
+}
+eq('the example shows what the child reads', E.STEPS[0].join(''), 'UUYZIAKFCMR');
+eq('the key table shows what the child reads', E.STEPS.map(s => s.join('')).join(' '), [...CODE].map((c, i) => kidWay(WINS[i], c)).join(' '));
 const v = E.values();
 eq('middle rotor turns at letter 3', `${v.midTurn} ${v.midFrom} ${v.midTo}`, '3 KOV KPW');
 eq('notches left → right', v.notches.join(''), 'QEV');

@@ -74,12 +74,25 @@ const E32 = (() => {
     return f;
   }
 
+  /**
+   * What the child reads and looks for at one key press, as letters: the key, the black letter after the plugboard,
+   * on the way in the letter of each rotor and of the mirror (the coloured letter read is the black one looked for),
+   * on the way out the letter of each rotor (the black letter read is the coloured one looked for), the black letter at
+   * the end and the lamp. win = window letters [left, middle, right] (numbers), t = ZYG machine.trace.
+   * A rotor at window k has black letter p + k at spot p; the mirror does not turn.
+   */
+  function kidSteps(win, t) {
+    const [kL, kM, kR] = win;
+    return [t[0], t[1], t[2] + kR, t[3] + kM, t[4] + kL, t[5], t[5] + kL, t[6] + kM, t[7] + kR, t[8], t[9]].map(L);
+  }
+  const STEPS = TRACES.map((t, i) => kidSteps([...WINS[i]].map(C), t));
+
   /** Every letter, word and number the texts need. */
   function values() {
-    const t = TRACES[0], mid = WINS.findIndex(w => w[1] !== KEY.start[1]);
+    const t = TRACES[0], st = STEPS[0], mid = WINS.findIndex(w => w[1] !== KEY.start[1]);
     return {
       order: KEY.order, start: KEY.start, plug: KEY.plug, plain: KEY.plain, code: CODE, nCables: CABLES.length, cable0: CABLES[0],
-      win1: WINS[0], exKey: L(t[0]), exPlug: L(t[1]), exBack: L(t[8]), exLamp: L(t[9]), inCable: t[0] !== t[1], outCable: t[8] !== t[9],
+      win1: WINS[0], exKey: st[0], exPlug: st[1], exRead: st[2], exBack: st[9], exLamp: st[10], inCable: t[0] !== t[1], outCable: t[8] !== t[9],
       midTurn: mid + 1, midFrom: mid > 0 ? WINS[mid - 1] : KEY.start, midTo: WINS[mid],
       notches: KEY.order.map(n => Z.ROTORS[n][1]),   // left, middle, right
       ways: groupDigits(ways(CABLES.length)), n3: groupDigits(26 ** 3), total: groupDigits(6n * 26n ** 3n * ways(CABLES.length)),
@@ -312,10 +325,11 @@ const E32 = (() => {
         h('div', { class: 'ams-cell' }, h('span', { class: 'ams-cl ams-red' }, ch), h('span', { class: 'ams-box' }, prefill[i] || '')))));
     }
     const box = (cls, title, ...kids) => h('section', { class: cls }, h('h3', null, title), kids);
-    function chain(tr) {
+    /** The letters of kidSteps in boxes: the key, red on the way to the mirror, blue on the way back, the lamp. */
+    function chain(steps) {
       const names = t('chainNames');
-      return h('div', { class: 're-chain' }, tr.map((x, i) => h('div', null,
-        h('b', { class: `${i === 0 ? '' : i <= 5 ? 're-in' : 're-out'}${i === 9 ? ' re-end' : ''}` }, L(x)), h('span', null, names[i]))));
+      return h('div', { class: 're-chain' }, steps.map((x, i) => h('div', null,
+        h('b', { class: `${i === 0 ? '' : i <= 5 ? 're-in' : 're-out'}${i === 10 ? ' re-end' : ''}` }, x), h('span', null, names[i]))));
     }
     function strip(filled) {
       return h('table', { class: 're-strip' },
@@ -361,8 +375,7 @@ const E32 = (() => {
         h('div', { class: 're-legend' },
           h('span', null, h('i', { style: `border-color:${RED}` }), t('legendIn')), h('span', null, h('i', { style: `border-color:${BLUE}` }), t('legendOut')),
           h('span', null, r('legendWin'))),
-        h('section', { class: 'ams-sec' }, h('h3', { class: 'ams-h3' }, r('exTitle')), K.chain(tr), h('p', { class: 'ams-small' }, r('exText'))),
-        h('p', { class: 'ams-small' }, r('m4Note')),
+        h('section', { class: 'ams-sec' }, h('h3', { class: 'ams-h3' }, r('exTitle')), K.chain(STEPS[0]), h('p', { class: 'ams-small' }, r('exText'))),
       ];
     },
     3(K) {   // cut-out 1 of 2
@@ -423,8 +436,8 @@ const E32 = (() => {
       const head = t('traceHead');
       const table = h('table', { class: 're-trace' },
         h('tr', null, head.map(x => h('th', null, x))),
-        TRACES.map((tr, i) => h('tr', null, h('td', null, String(i + 1)), h('td', { class: 'ams-l' }, WINS[i]),
-          tr.map((x, j) => h('td', { class: j === 0 ? 're-tin' : j === 9 ? 're-tout' : null }, L(x))))));
+        STEPS.map((st, i) => h('tr', null, h('td', null, String(i + 1)), h('td', { class: 'ams-l' }, WINS[i]),
+          st.map((x, j) => h('td', { class: j === 0 ? 're-tin' : j === 10 ? 're-tout' : null }, x)))));
       return [
         h('div', { class: 'ams-keyhead', 'data-qr': '' }, h('h1', { class: 'ams-h1' }, t('keyPageTitle')), h('span', { class: 'ams-secret' }, t('parentOnly'))),
         h('p', null, r('ansA')),
@@ -459,6 +472,6 @@ const E32 = (() => {
     return fs;
   }
 
-  return { TOTAL, DEFAULT_PAGES, KEY, CODE, WINS, TRACES, TEXT, textFor, values, paper, ways, parsePages, formatPages, renderPage, fitPage };
+  return { TOTAL, DEFAULT_PAGES, KEY, CODE, WINS, TRACES, STEPS, TEXT, textFor, values, paper, ways, parsePages, formatPages, renderPage, fitPage };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = E32;
