@@ -22,12 +22,12 @@ const E32 = (() => {
   const mod = x => ((x % 26) + 26) % 26, TH = 360 / 26;
   const groupDigits = x => String(x).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-  const TOTAL = 7, DEFAULT_PAGES = [1, 2, 3, 4, 5, 6, 7];
+  const TOTAL = 8, DEFAULT_PAGES = [1, 2, 3, 4, 5, 6, 7, 8];
 
   // ---------- the day's key and the message ----------
   /**
    * Rotors left → right, the window letters to start from, the plugboard cables, the message to decipher. The start
-   * and the cables are chosen so that the first letter, drawn on page 2, takes short steps on every wheel and its way to
+   * and the cables are chosen so that the first letter, drawn on pages 2 and 3, takes short steps on every wheel and its way to
    * the mirror and back never shares a place on a wheel (the path stays readable); its last step uses the first cable.
    */
   const KEY = { order: ['I', 'II', 'III'], start: 'SSQ', plug: 'JR EM KS PW BX CZ', plain: 'REJEWSKI' };
@@ -96,7 +96,7 @@ const E32 = (() => {
     const t = TRACES[0], st = STEPS[0], mid = WINS.findIndex(w => w[1] !== KEY.start[1]);
     return {
       order: KEY.order, start: KEY.start, plug: KEY.plug, plain: KEY.plain, code: CODE, nCables: CABLES.length, cable0: CABLES[0],
-      win1: WINS[0], exKey: st[0], exPlug: st[1], exRead: st[2], exRead2: st[3], exBack: st[9], exLamp: st[10], inCable: t[0] !== t[1], outCable: t[8] !== t[9],
+      win1: WINS[0], exKey: st[0], exPlug: st[1], exWire: L(t[1] + C(WINS[0][2])), exRead: st[2], exRead2: st[3], exBack: st[9], exLamp: st[10], inCable: t[0] !== t[1], outCable: t[8] !== t[9],
       midTurn: mid + 1, midFrom: mid > 0 ? WINS[mid - 1] : KEY.start, midTo: WINS[mid],
       notches: KEY.order.map(n => Z.ROTORS[n][1]),   // left, middle, right
       ways: groupDigits(ways(CABLES.length)), n3: groupDigits(26 ** 3), total: groupDigits(6n * 26n ** 3n * ways(CABLES.length)),
@@ -279,6 +279,118 @@ const E32 = (() => {
       s('circle', { r: 2.2, fill: '#C9A227', stroke: '#7A6418', 'stroke-width': 0.4 }));   // the split pin
   }
 
+  /** A letter centred on (x, y) for the straightened wheels; M and W are underlined, as on the round ones. */
+  function flatLetter(out, ch, x, y, size, fill) {
+    out.push(s('text', { x: f2(x), y: f2(y), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': size, class: 're-wl', fill }, ch));
+    if (ch === 'M' || ch === 'W') out.push(s('path', { d: `M${f2(x - size * 0.3)} ${f2(y + size * 0.5)}H${f2(x + size * 0.3)}`, stroke: fill, 'stroke-width': 0.35 }));
+  }
+  const arrowDefs = id => s('defs', null, [['r', RED], ['b', BLUE]].map(([c, col]) => s('marker', { id: `${id}-${c}`, viewBox: '0 0 6 6', refX: 4, refY: 3, markerWidth: 3, markerHeight: 3, orient: 'auto-start-reverse', markerUnits: 'strokeWidth' },
+    s('path', { d: 'M0 0L6 3L0 6Z', fill: col }))));
+
+  /**
+   * Page 2: the wheels cut open next to the window and straightened, one band under another. A column is a place,
+   * named by the black wheel; a rotor at window k has black letter p + k in column p and its coloured letter under
+   * it, so the window is column A. With a trace t it draws the way of the current as on the assembled machine: down a
+   * column onto the next wheel, along a wheel from the coloured letter read to the same black letter (red), and from
+   * the mirror back up (blue). The way of the example never crosses the cut (the tests check it), so steps are straight.
+   * names: the five wheels, outer to inner.
+   */
+  function ladder(win, t, names, label) {
+    const k = { frame: 0, left: win[0], middle: win[1], right: win[2], mirror: 0 };
+    const Wd = 180, x0 = 21, cw = (Wd - x0 - 0.4) / 26, rh = 5, gap = 2.2, band = {};
+    let y = 0.4;
+    for (const p of ORDER_OUT_IN) { band[p] = y; y += (p === 'frame' ? 1 : 2) * rh + gap; }
+    const Hd = y - gap + 0.4, cx = c => x0 + (c + 0.5) * cw, edge = p => band[p] + rh, bg = [], way = [], fg = [];
+    const rowY = (p, ring) => band[p] + (ring === 'big' ? 0.5 : 1.5) * rh;
+    const marks = [];
+    if (t) {
+      ['right', 'middle', 'left', 'mirror'].forEach((p, i) => marks.push([p, 'small', t[i + 1], RED], [p, 'big', t[i + 2], RED]));
+      ['left', 'middle', 'right'].forEach((p, i) => marks.push([p, 'big', t[i + 5], BLUE], [p, 'small', t[i + 6], BLUE]));
+      marks.push(['frame', 'big', t[1], RED], ['frame', 'big', t[8], BLUE]);
+    }
+    ORDER_OUT_IN.forEach((p, i) => {
+      const P = PARTS[p], rows = p === 'frame' ? 1 : 2, wires = p === 'frame' ? null : wiring(p);
+      bg.push(s('rect', { x: x0, y: band[p], width: f2(26 * cw), height: rows * rh, fill: '#fff' }));
+      if (wires) bg.push(s('rect', { x: x0, y: edge(p), width: f2(26 * cw), height: rh, fill: P.tint }));
+      for (let c = 1; c < 26; c++) bg.push(s('line', { x1: f2(x0 + c * cw), y1: band[p], x2: f2(x0 + c * cw), y2: f2(band[p] + rows * rh), stroke: '#B8B2A6', 'stroke-width': 0.25 }));
+      if (wires) bg.push(s('line', { x1: x0, y1: edge(p), x2: f2(x0 + 26 * cw), y2: edge(p), stroke: P.color, 'stroke-width': 0.2, 'stroke-opacity': 0.5 }));
+      bg.push(s('rect', { x: x0, y: band[p], width: f2(26 * cw), height: rows * rh, fill: 'none', stroke: INK, 'stroke-width': 0.35 }));
+      fg.push(s('text', { x: 0.3, y: f2(band[p] + rows * rh / 2), 'dominant-baseline': 'central', 'font-size': 2.9, class: 'ams-wt', fill: P.color || INK }, names[i]));
+      for (let c = 0; c < 26; c++) {
+        flatLetter(fg, L(c + k[p]), cx(c), rowY(p, 'big'), 3.4, INK);
+        if (wires) flatLetter(fg, wires[mod(c + k[p])], cx(c), rowY(p, 'small'), 3.1, P.color);
+      }
+    });
+    for (const [p, ring, c, color] of marks) {
+      bg.push(s('circle', { cx: f2(cx(c)), cy: f2(rowY(p, ring)), r: 1.95, fill: color === RED ? '#FADAD6' : '#D8E6F8', stroke: color, 'stroke-width': 0.5 }));
+    }
+    if (t) {
+      const seg = (x1, y1, x2, y2, color, arrow) => way.push(s('path', { d: `M${f2(x1)} ${f2(y1)}L${f2(x2)} ${f2(y2)}`, stroke: color, 'stroke-width': arrow ? 0.8 : 0.55, fill: 'none', 'stroke-linecap': 'round', 'marker-end': arrow ? `url(#e32-flat-${color === RED ? 'r' : 'b'})` : null }));
+      // in: just above the line between black and coloured letters; back: just under it
+      let yPrev = rowY('frame', 'big');
+      ['right', 'middle', 'left', 'mirror'].forEach((p, i) => {
+        const yy = edge(p) - 0.55;
+        seg(cx(t[i + 1]), yPrev, cx(t[i + 1]), yy, RED); seg(cx(t[i + 1]), yy, cx(t[i + 2]), yy, RED, true); yPrev = yy;
+      });
+      yPrev = edge('mirror') + 0.55;
+      ['left', 'middle', 'right'].forEach((p, i) => {
+        const yy = edge(p) + 0.55;
+        seg(cx(t[i + 5]), yPrev, cx(t[i + 5]), yy, BLUE); seg(cx(t[i + 5]), yy, cx(t[i + 6]), yy, BLUE, true); yPrev = yy;
+      });
+      seg(cx(t[8]), yPrev, cx(t[8]), rowY('frame', 'big'), BLUE);
+    }
+    const win0 = s('rect', { x: x0, y: band.frame, width: f2(cw), height: f2(Hd - 0.8), fill: '#FFD34D', 'fill-opacity': 0.28, stroke: RED, 'stroke-width': 0.4 });
+    return s('svg', { class: 're-ladder', width: `${Wd}mm`, height: `${f2(Hd)}mm`, viewBox: `0 0 ${Wd} ${f2(Hd)}`, role: 'img', 'aria-label': label },
+      arrowDefs('e32-flat'), bg, win0, way, fg);
+  }
+
+  /**
+   * Page 2, inside a rotor: six places of the right rotor at window k around the first letter's step on it (place p,
+   * where the current comes in, to place q). First the real rotor from the side: the same letters on both faces and
+   * the wires between them (the wire from p red, the others grey and cut off at the edge of the piece). Then the same
+   * piece on paper: under each black letter the coloured one, the letter its wire leads to.
+   */
+  function wireFigs(k, p, q) {
+    const lo = Math.min(p, q) - 1, n = 6, cw = 8.6, Wd = n * cw + 1, cx = c => 0.5 + (c - lo + 0.5) * cw, P = PARTS.right, wires = wiring('right');
+    const cols = Array.from({ length: n }, (_, i) => lo + i);
+    // the real rotor: letters, contacts, the body with its wires
+    const real = [], top = 6, bot = 19, realFg = [];
+    real.push(s('clipPath', { id: 'e32-body' }, s('rect', { x: 0.5, y: top, width: n * cw, height: bot - top })));
+    real.push(s('rect', { x: 0.5, y: top, width: n * cw, height: bot - top, rx: 1.2, fill: P.tint, stroke: P.color, 'stroke-width': 0.35 }));
+    const wire = (c, color, w) => {
+      let d = mod(C(wires[mod(c + k)]) - k - c); if (d > 13) d -= 26;
+      const [x1, x2] = [cx(c), cx(c + d)], mid = (top + bot) / 2;
+      real.push(s('path', { d: `M${f2(x1)} ${top}C${f2(x1)} ${mid} ${f2(x2)} ${mid} ${f2(x2)} ${bot}`, fill: 'none', stroke: color, 'stroke-width': w, 'clip-path': 'url(#e32-body)' }));
+    };
+    cols.filter(c => c !== p).forEach(c => wire(c, '#9A9488', 0.4));
+    wire(p, RED, 0.8);
+    for (const c of cols) {
+      for (const yy of [top, bot]) real.push(s('circle', { cx: f2(cx(c)), cy: yy, r: 0.7, fill: INK }));
+      flatLetter(realFg, L(c + k), cx(c), top - 2.6, 3.6, INK);
+      flatLetter(realFg, L(c + k), cx(c), bot + 2.6, 3.6, INK);
+    }
+    const H1 = bot + 5;
+    // the same piece on paper, read as on the wheel: coloured letter at p → the same black letter at q
+    const rh = 5.6, y0 = 3, paper = [], paperFg = [], edge = y0 + rh;
+    paper.push(s('rect', { x: 0.5, y: y0, width: n * cw, height: 2 * rh, fill: '#fff' }));
+    paper.push(s('rect', { x: 0.5, y: edge, width: n * cw, height: rh, fill: P.tint }));
+    for (let i = 1; i < n; i++) paper.push(s('line', { x1: f2(0.5 + i * cw), y1: y0, x2: f2(0.5 + i * cw), y2: y0 + 2 * rh, stroke: '#B8B2A6', 'stroke-width': 0.25 }));
+    paper.push(s('rect', { x: 0.5, y: y0, width: n * cw, height: 2 * rh, fill: 'none', stroke: INK, 'stroke-width': 0.35 }));
+    paper.push(s('circle', { cx: f2(cx(p)), cy: f2(edge + rh / 2), r: 2.1, fill: '#FADAD6', stroke: RED, 'stroke-width': 0.5 }));
+    paper.push(s('circle', { cx: f2(cx(q)), cy: f2(y0 + rh / 2), r: 2.1, fill: '#FADAD6', stroke: RED, 'stroke-width': 0.5 }));
+    const yy = edge - 0.55;
+    paper.push(s('path', { d: `M${f2(cx(p))} 0L${f2(cx(p))} ${f2(yy)}`, stroke: RED, 'stroke-width': 0.55, fill: 'none' }));
+    paper.push(s('path', { d: `M${f2(cx(p))} ${f2(yy)}L${f2(cx(q))} ${f2(yy)}`, stroke: RED, 'stroke-width': 0.8, fill: 'none', 'stroke-linecap': 'round', 'marker-end': 'url(#e32-fig-r)' }));
+    paper.push(s('path', { d: `M${f2(cx(q))} ${f2(yy)}L${f2(cx(q))} ${f2(y0 + 2 * rh + 3)}`, stroke: RED, 'stroke-width': 0.55, fill: 'none' }));
+    for (const c of cols) {
+      flatLetter(paperFg, L(c + k), cx(c), y0 + rh / 2, 3.6, INK);
+      flatLetter(paperFg, wires[mod(c + k)], cx(c), edge + rh / 2, 3.3, P.color);
+    }
+    const H2 = y0 + 2 * rh + 3;
+    const svg = (H, kids) => s('svg', { class: 're-fig', width: `${f2(Wd)}mm`, height: `${f2(H)}mm`, viewBox: `0 0 ${f2(Wd)} ${f2(H)}` }, kids);
+    return [svg(H1, [real, realFg]), svg(H2, [arrowDefs('e32-fig'), paper, paperFg])];
+  }
+
   // ---------- the plugboard ----------
   const KEYBOARD = ['QWERTZUIO', 'ASDFGHJK', 'PYXCVBNML'];
   /** The front panel in mm: 26 sockets in the German keyboard order, two holes each, and the cables (none: empty). */
@@ -344,6 +456,10 @@ const E32 = (() => {
           return h('td', c < 0 ? null : { class: 're-sw', style: `background:${CABLE_COLORS[c]}` }, L(swap[i]));
         })));
     }
+    /** The colours of the drawn way of the current, and what the yellow window shows. */
+    const legend = win => h('div', { class: 're-legend' },
+      h('span', null, h('i', { style: `border-color:${RED}` }), t('legendIn')), h('span', null, h('i', { style: `border-color:${BLUE}` }), t('legendOut')),
+      h('span', { class: 're-lw' }, rich(win)));   // inline: a flex gap would split the text round the letters
     const cutWheel = (part, labels) => {
       const R = PARTS[part].R + 0.6, { bg, fg } = wheelLayers(part, null, labels);
       return s('svg', { class: 'ams-wheel', width: `${2 * R}mm`, height: `${2 * R}mm`, viewBox: `${-R} ${-R} ${2 * R} ${2 * R}` }, bg, fg);
@@ -352,7 +468,7 @@ const E32 = (() => {
       const name = KEY.order[PARTS[part].rotor];
       return [`${t('rotorNames')[ROT.indexOf(part)]} ${name}`, t('rotorRoles')[ROT.indexOf(part)], t('notchAt', Z.ROTORS[name][1])];
     };
-    return { T, v, t, r, list, olist, pageHead, taskTitle, emptyBoxes, cipherRow, box, chain, strip, cutWheel, rotorLabels };
+    return { T, v, t, r, list, olist, pageHead, taskTitle, emptyBoxes, cipherRow, box, chain, strip, legend, cutWheel, rotorLabels };
   }
 
   const PAGES = {
@@ -370,19 +486,30 @@ const E32 = (() => {
         h('p', { class: 'ams-disc' }, r('planNote')),
       ];
     },
-    2(K) {   // how it works: the assembled machine and one letter's way
+    2(K) {   // step by step: what each wheel is for, the wires in a rotor, the wheels cut open and straightened
+      const { t, r, v } = K, tr = TRACES[0], win = [...v.win1].map(C);
+      const figs = wireFigs(win[2], tr[1], tr[2]).map((svg, i) => h('figure', null, svg, h('figcaption', null, r(i ? 'figPaper' : 'figReal'))));
+      const sec = (title, ...kids) => h('section', { class: 'ams-sec' }, h('h3', { class: 'ams-h3' }, t(title)), kids);
+      return [
+        K.pageHead(t('inOver'), t('inTitle')),
+        sec('in1Title', h('p', null, r('in1Text'))),
+        h('div', { class: 're-in2' }, sec('in2Title', h('p', null, r('in2Text')), h('p', null, r('in2Rule'))), h('div', { class: 're-figs' }, figs)),
+        sec('in3Title', h('p', null, r('in3Text')), ladder(win, tr, t('chainNames').slice(1, 6), t('ladderAria')), K.legend(t('ladderWin'))),
+        sec('in4Title', h('p', null, r('in4Text'))),
+        h('section', { class: 'ams-disc' }, h('h3', null, t('newTitle')), K.list('newList', 'ams-small')),
+      ];
+    },
+    3(K) {   // how it works: the assembled machine and one letter's way
       const { t, r, v } = K, tr = TRACES[0];
       return [
         K.pageHead(t('howOver'), t('howTitle')),
         h('p', null, r('howIntro')),
         assembled([...v.win1].map(C), tr, 146, t('bigAria')),
-        h('div', { class: 're-legend' },
-          h('span', null, h('i', { style: `border-color:${RED}` }), t('legendIn')), h('span', null, h('i', { style: `border-color:${BLUE}` }), t('legendOut')),
-          h('span', null, r('legendWin'))),
+        K.legend(t('legendWin')),
         h('section', { class: 'ams-sec' }, h('h3', { class: 'ams-h3' }, r('exTitle')), K.chain(STEPS[0]), h('p', { class: 'ams-small' }, r('exText'))),
       ];
     },
-    3(K) {   // cut-out 1 of 2
+    4(K) {   // cut-out 1 of 2
       const { t, r } = K;
       return [
         K.pageHead(t('cut1Over'), t('cut1Title')),
@@ -394,7 +521,7 @@ const E32 = (() => {
           h('section', { class: 'ams-howto', style: 'left:80mm;bottom:2mm;width:44mm' }, h('h3', null, t('colorTitle')), h('p', { class: 'ams-small' }, r('colorNote')))),
       ];
     },
-    4(K) {   // cut-out 2 of 2, how to build it, the window
+    5(K) {   // cut-out 2 of 2, how to build it, the window
       const { t, r } = K;
       return [
         K.pageHead(t('cut2Over'), t('cut2Title')),
@@ -405,7 +532,7 @@ const E32 = (() => {
           h('section', { class: 'ams-howto', style: 'left:0;bottom:0;width:72mm' }, h('h3', null, t('windowTitle')), h('p', { class: 'ams-small' }, r('windowText')))),
       ];
     },
-    5(K) {   // the plugboard
+    6(K) {   // the plugboard
       const { t, r } = K;
       return [
         K.pageHead(t('plugOver'), t('plugTitle')),
@@ -417,7 +544,7 @@ const E32 = (() => {
         h('p', { class: 'ams-small' }, r('plugNote')),
       ];
     },
-    6(K) {   // the mission
+    7(K) {   // the mission
       const { t, r, v } = K, rows = t('keyRows');
       const keyVals = [t('keyRotors'), `{{${v.start}}}`, `{{${v.plug}}}`, t('keyMirror')];
       return [
@@ -435,7 +562,7 @@ const E32 = (() => {
         h('section', { class: 'ams-disc' }, h('h3', null, t('discTitle')), h('p', { class: 'ams-small' }, r('discText'))),
       ];
     },
-    7(K) {   // answer key for the parent
+    8(K) {   // answer key for the parent
       const { t, r } = K;
       const head = t('traceHead');
       const table = h('table', { class: 're-trace' },

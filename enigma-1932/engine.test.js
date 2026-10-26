@@ -53,9 +53,17 @@ eq('the example shows what the child reads', E.STEPS[0].join(''), 'FFUYCNFDBJR')
   eq('first letter: every step at most 4 places', Math.max(...arcs.map(Math.abs)) <= 4, true);
   eq('first letter: no step of 0 (the letter is never right there)', arcs.includes(0), false);
   eq('first letter: way in and way back never share a place', shared, 0);
+  // page 2 draws the wheels cut open next to the window (between Z and A): no step may cross the cut
+  eq('first letter: no step crosses the cut at the window', [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8]].every(([a, b], i) => t[b] - t[a] === arcs[i]), true);
 }
 eq('the key table shows what the child reads', E.STEPS.map(s => s.join('')).join(' '), [...CODE].map((c, i) => kidWay(WINS[i], c)).join(' '));
 const v = E.values();
+// Page 2, inside the right rotor: at the place of the first letter its black letter is wired to the coloured one read
+{
+  const kR = A.indexOf(WINS[0][2]), W3 = Z.ROTORS[KEY.order[2]][0], p = TRACES[0][1];
+  eq('page 2: the wire of the first letter', `${v.exWire}→${v.exRead}`, `${A[mod(p + kR)]}→${W3[mod(p + kR)]}`);
+  eq('page 2: the wire leads to the next place', mod(A.indexOf(v.exRead) - kR), TRACES[0][2]);
+}
 eq('middle rotor turns at letter 6', `${v.midTurn} ${v.midFrom} ${v.midTo}`, '6 SSV STW');
 eq('notches left → right', v.notches.join(''), 'QEV');
 eq('ways with 6 cables', String(E.ways(6)), '100391791500');
@@ -79,13 +87,17 @@ for (const lang of LANGS) {
   }
   eq(`${lang}: list lengths`, badLen, 0);
   eq(`${lang}: templates fill in`, badFill, 0);
-  eq(`${lang}: 7 page titles`, T.ui.pageTitles.length, E.TOTAL);
+  eq(`${lang}: page titles`, T.ui.pageTitles.length, E.TOTAL);
   eq(`${lang}: example names the key and the lamp`, T.exTitle(v).includes(`{{${v.exKey}}}`) && T.exTitle(v).includes(`{{${v.exLamp}}}`), true);
   eq(`${lang}: example names the cable at the end`, T.exText(v).includes(`${v.exBack}–${v.exLamp}`), true);
   eq(`${lang}: example spells out the step onto the middle rotor`, T.exText(v).split(`{{${v.exRead2}}}`).length, 3);
   eq(`${lang}: rules say: next wheel at the same place`, T.pathSteps[2].split('. ').length >= 2, true);
   eq(`${lang}: turning example`, T.pathNote(v).includes(`{{${v.midFrom}}} → {{${v.midTo}}}`), true);
   eq(`${lang}: settings answer`, T.ansC(v).includes(v.total), true);
+  eq(`${lang}: page 2 names the wire`, T.in2Text(v).includes(`{{${v.exWire}}}`) && T.in2Text(v).includes(`{{${v.exRead}}}`), true);
+  eq(`${lang}: page 2: turn before the letter, the first one at the next window`, T.newList(v)[0].includes(`{{${v.start}}}`) && T.newList(v)[0].includes(`{{${v.win1}}}`), true);
+  eq(`${lang}: page 2: the way back ends with the cable`, T.in4Text(v).includes(`${v.exBack}–${v.exLamp}`), true);
+  eq(`${lang}: the cover points to page 2`, /2/.test(T.planNote), true);
   eq(`${lang}: plugboard`, T.plugIntro(v).includes(`{{${v.plug}}}`), true);
 }
 

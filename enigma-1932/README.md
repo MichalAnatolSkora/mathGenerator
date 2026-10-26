@@ -24,15 +24,16 @@ middle one turns if the right one, or the middle one itself, shows its notch let
 | Page | What |
 |---|---|
 | 1 | Cover: December 1932 (Rejewski, the wiring guessed from intercepts, maths and French documents; reading from January 1933 with Różycki and Zygalski, AVA's copies), what is inside, what you need, the order of the pages, a small picture of the machine put together |
-| 2 | How it works: the machine put together at window SSR with the way of the first letter (red to the mirror, blue back, the letters read ringed, drawn under the letters) and the letters the child reads and looks for, in boxes: key F, black F, right U, middle Y, left C, mirror N, left F, middle D, right B, black J, lamp R (`E32.STEPS`). The day's key is chosen so that this way is short (at most 4 places on any wheel) and the way back never runs over the way in; the tests keep it so |
-| 3 | Cut-out 1 of 2: black wheel, left rotor, mirror |
-| 4 | Cut-out 2 of 2: right and middle rotor, how to build it, how to read the window |
-| 5 | The plugboard: the panel with today's cables, the strip, "through the plugboard twice", an empty panel to draw on, how many ways (6 cables: 100 391 791 500) |
-| 6 | Mission, the cipher clerk's exam: today's key (rotors I II III, window SSQ, plugboard JR EM KS PW BX CZ, mirror B), the turning rules, the way of the current; A decode FGHUCWAN → REJEWSKI (first letter given; the middle rotor turns at letter 6), B encode your name, C how many settings (6 × 17 576 × 100 391 791 500) |
-| 7 | Answer key: the name, every letter step by step (the window and the same letters as in the example on page 2, so a parent can find where it went wrong), how to check B, C, common mistakes, paper vs the real machine (rings at A, fixed rotor order) |
+| 2 | Step by step, what each wheel is for: the black wheel is the keyboard and lamps of part 2, does not turn or change letters (A leads to A; Rejewski had to guess this) and names the places; a rotor has wires inside, drawn as a real rotor from the side next to the same piece on paper (the coloured letter is where the wire ends, so "find the same black letter" is going along the wire); the wheels cut open at the window and straightened, one band under another, with the same first letter (a place is a column, the current goes along a wire, then straight down onto the next wheel); the way back; what is different from part 2 (turn before the letter, not after; the place counts, not the letter's name) |
+| 3 | How it works: the machine put together at window SSR with the way of the first letter (red to the mirror, blue back, the letters read ringed, drawn under the letters) and the letters the child reads and looks for, in boxes: key F, black F, right U, middle Y, left C, mirror N, left F, middle D, right B, black J, lamp R (`E32.STEPS`). The day's key is chosen so that this way is short (at most 4 places on any wheel) and the way back never runs over the way in; the tests keep it so |
+| 4 | Cut-out 1 of 2: black wheel, left rotor, mirror |
+| 5 | Cut-out 2 of 2: right and middle rotor, how to build it, how to read the window |
+| 6 | The plugboard: the panel with today's cables, the strip, "through the plugboard twice", an empty panel to draw on, how many ways (6 cables: 100 391 791 500) |
+| 7 | Mission, the cipher clerk's exam: today's key (rotors I II III, window SSQ, plugboard JR EM KS PW BX CZ, mirror B), the turning rules, the way of the current; A decode FGHUCWAN → REJEWSKI (first letter given; the middle rotor turns at letter 6), B encode your name, C how many settings (6 × 17 576 × 100 391 791 500) |
+| 8 | Answer key: the name, every letter step by step (the window and the same letters as in the example on page 3, so a parent can find where it went wrong), how to check B, C, common mistakes, paper vs the real machine (rings at A, fixed rotor order) |
 
-- **`worksheet.html`**: settings (presets *For the child* 1–6, *Cut-outs* 3–5, *Answer key* 7, *Everything*, or single
-  pages), preview, **Print**. The choice is saved in `localStorage` (`enigma1932.pages`); `?pages=1-6` in the URL wins.
+- **`worksheet.html`**: settings (presets *For the child* 1–7, *Cut-outs* 4–6, *Answer key* 8, *Everything*, or single
+  pages), preview, **Print**. The choice is saved in `localStorage` (`enigma1932.pages2`; the 7-page set was `.pages`); `?pages=1-7` in the URL wins.
 - **`engine.js`**: the day's key, the paper procedure, the drawings (wheels to cut out, the machine put together, the
   plugboard) and the page builders (DOM only, no `innerHTML`). Needs [`../zygalski-sheets/engine.js`](../zygalski-sheets/engine.js)
   for the machine; every letter on the pages comes from it.

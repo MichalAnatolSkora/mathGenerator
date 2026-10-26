@@ -114,7 +114,8 @@
   .re-story > div{flex:1;display:flex;flex-direction:column;gap:1.4mm;}
   .re-story svg{flex:none;}
   .re-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:1mm 6mm;font-size:.9em;}
-  .re-legend span{display:inline-flex;align-items:center;gap:1.5mm;}
+  .re-legend > span{display:inline-flex;align-items:center;gap:1.5mm;}
+  .re-legend > .re-lw{display:inline;}
   .re-legend i{display:inline-block;width:8mm;height:0;border-top:0.7mm solid;}
   .re-chain{display:grid;grid-template-columns:repeat(11,1fr);gap:1mm;text-align:center;}
   .re-chain b{display:flex;align-items:center;justify-content:center;height:10mm;border:0.5mm solid #1E3A5F;border-radius:1mm;font:700 15pt/1 "Courier New",Courier,monospace;}
@@ -137,9 +138,15 @@
   .re-trace th:nth-child(n+4):nth-child(-n+8),.re-trace td:nth-child(n+4):nth-child(-n+8){color:#B3261E;}
   .re-trace th:nth-child(n+9):nth-child(-n+12),.re-trace td:nth-child(n+9):nth-child(-n+12){color:#1E5AA8;}
   .re-trace td.re-tin,.re-trace td.re-tout{background:#F3EFE6;}
+  .re-ladder,.re-fig{display:block;margin:0 auto;}
+  .re-in2{display:grid;grid-template-columns:1fr 54mm;gap:4mm;align-items:start;}
+  .re-figs{display:flex;flex-direction:column;gap:2mm;}
+  .re-figs figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:.8mm;}
+  .re-figs figcaption{font-size:max(9pt,.76em);color:#4A4A55;text-align:center;line-height:1.2;}
   .e32-p1{gap:4mm;}
-  .e32-p6{gap:2.4mm;}
-  .e32-p7{gap:3mm;}
+  .e32-p2{gap:2.2mm;}
+  .e32-p7{gap:2.4mm;}
+  .e32-p8{gap:3mm;}
 
   /* ---- phone ---- */
   @media (max-width:600px){
@@ -202,8 +209,8 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const STORE = 'enigma1932.pages';
-  const PRESETS = { kid: [1, 2, 3, 4, 5, 6], cut: [3, 4, 5], key: [7], all: [1, 2, 3, 4, 5, 6, 7] };
+  const STORE = 'enigma1932.pages2';   // .pages held the 7-page set
+  const PRESETS = { kid: [1, 2, 3, 4, 5, 6, 7], cut: [4, 5, 6], key: [8], all: [1, 2, 3, 4, 5, 6, 7, 8] };
   const UI = {};
   for (const l of Object.keys(E32.TEXT)) UI[l] = E32.TEXT[l].ui;
   const t = (k, ...a) => I18N.t(UI, k, ...a);
