@@ -58,6 +58,20 @@ eq('the example shows what the child reads', E.STEPS[0].join(''), 'FFUYCNFDBJR')
 }
 eq('the key table shows what the child reads', E.STEPS.map(s => s.join('')).join(' '), [...CODE].map((c, i) => kidWay(WINS[i], c)).join(' '));
 const v = E.values();
+// The wheels: on a rotor the coloured row is outside, the white path between, the black row inside (so the current never
+// turns back on a wheel), and nothing is drawn over a letter; the mirror's 13 wires join each letter to its partner in B.
+{
+  const cap = size => 0.75 * size / 2;   // half the height of a capital letter
+  const ok = ['right', 'middle', 'left'].every(p => {
+    const P = E.PARTS[p];
+    return P.R - 1.4 >= P.col + cap(P.fsc) && P.col - cap(P.fsc) >= P.lane + E.LANE_W / 2 && P.lane - E.LANE_W / 2 >= P.blk + cap(P.fs) && P.blk - cap(P.fs) >= P.rIn;
+  });
+  eq('rotors: coloured row outside, white path, black row inside, nothing overlaps', ok, true);
+  eq('each wheel lies under the next one', ['right', 'middle', 'left', 'mirror'].every((p, i, a) => E.PARTS[p].R === E.PARTS[['frame', ...a][i]].rIn), true);
+  const ends = E.MIRROR_PAIRS.flat().sort((x, y) => x - y).join(',');
+  eq('mirror: 13 wires, every letter once', `${E.MIRROR_PAIRS.length} ${ends}`, `13 ${Array.from({ length: 26 }, (_, i) => i).join(',')}`);
+  eq('mirror: the wires are reflector B', E.MIRROR_PAIRS.every(([a, b]) => Z.REFLECTOR_B[a] === A[b] && Z.REFLECTOR_B[b] === A[a]), true);
+}
 // Page 2, inside the right rotor: at the place of the first letter its black letter is wired to the coloured one read
 {
   const kR = A.indexOf(WINS[0][2]), W3 = Z.ROTORS[KEY.order[2]][0], p = TRACES[0][1];
@@ -92,6 +106,8 @@ for (const lang of LANGS) {
   eq(`${lang}: example names the cable at the end`, T.exText(v).includes(`${v.exBack}–${v.exLamp}`), true);
   eq(`${lang}: example spells out the step onto the middle rotor`, T.exText(v).split(`{{${v.exRead2}}}`).length, 3);
   eq(`${lang}: rules say: next wheel at the same place`, T.pathSteps[2].split('. ').length >= 2, true);
+  eq(`${lang}: rules: in, the mirror, out (six steps)`, T.pathSteps.length, 6);
+  eq(`${lang}: page 2 explains the coloured row outside (part 2 is the other way round)`, /2/.test(T.newList(v)[2]), true);
   eq(`${lang}: turning example`, T.pathNote(v).includes(`{{${v.midFrom}}} → {{${v.midTo}}}`), true);
   eq(`${lang}: settings answer`, T.ansC(v).includes(v.total), true);
   eq(`${lang}: page 2 names the wire`, T.in2Text(v).includes(`{{${v.exWire}}}`) && T.in2Text(v).includes(`{{${v.exRead}}}`), true);
