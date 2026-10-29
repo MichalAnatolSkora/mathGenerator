@@ -161,7 +161,7 @@ const ENIGMA_HOW = (() => {
     const k = pr.findIndex((p, i) => i && p.win[1] !== pr[i - 1].win[1]);
     const tbl = pressTable(pr, T.stepping, esc, { moved: k });
     const cap = T.stepping.cap('AAAAAA', pr.map(p => p.lamp).join(''), k + 1, `${pr[k - 1].win[1]} → ${pr[k].win[1]}`, `${pr[k - 1].win[2]} → ${pr[k].win[2]}`);
-    const block = ([h, p], extra = '') => `<div class="eh-block"><h3>${esc(h)}</h3><p>${esc(p)}</p>${extra}</div>`;
+    const block = ([h, p], extra = '', cls = '') => `<div class="eh-block${cls}"><h3>${esc(h)}</h3><p>${esc(p)}</p>${extra}</div>`;
     return `${o.intro === false ? '' : `<p class="eh-intro">${esc(T.intro)}</p>`}
       ${o.figure === false ? '' : `<div class="eh-figure"><h3>${esc(T.diagram.title)}</h3>
         <div class="eh-svg">${diagram(win0, 0, T.diagram)}</div>
@@ -170,8 +170,8 @@ const ENIGMA_HOW = (() => {
         ${block(P.rotor)}
         ${block(P.refl)}
         <div class="eh-block eh-wide"><div><h3>${esc(P.step[0])}</h3><p>${esc(P.step[1])}</p></div><div>${tbl}<p class="eh-small">${esc(cap)}</p></div></div>
-        ${block(P.plug)}
-        ${block(P.ring, `<div class="eh-ring">${ringSvg(T.diagram)}</div><p class="eh-small">${esc(T.diagram.ringCap)}</p>`)}
+        ${block(P.plug, '', ' eh-full')}
+        <div class="eh-block eh-wide"><div><h3>${esc(P.ring[0])}</h3><p>${esc(P.ring[1])}</p></div><div><div class="eh-ring">${ringSvg(T.diagram)}</div><p class="eh-small">${esc(T.diagram.ringCap)}</p></div></div>
       </div>`;
   }
 

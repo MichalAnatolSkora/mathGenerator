@@ -207,7 +207,8 @@ const W20 = (() => {
       + label(P(53.55, 20.85)[0], P(53.55, 20.85)[1], L.prussia, { size: 9.5 * (story ? 1 : 1.2), color: '#5d574a', anchor: 'middle', italic: true, bold: true });
     // the country name, faint, under everything
     if (story) {
-      const [qx, qy] = P(50.72, 19.2);
+      // kept inside the map: POLOGNE and POLONIA are a letter longer than POLSKA (a heavy capital ≈ 0.75 em + spacing)
+      const [x, qy] = P(50.72, 19.2), qx = +Math.max(x, [...L.poland].length * (26 * 0.75 + 7) / 2 + 4).toFixed(1);
       s += `<text x="${qx}" y="${qy}" font-size="26" font-weight="800" letter-spacing="7" text-anchor="middle" fill="#e2dccb">${esc(L.poland)}</text>`;
     }
     // rivers

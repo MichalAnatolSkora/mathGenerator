@@ -8,6 +8,10 @@
  * A checkbox "QR code on the printout" appears right before the #printBtn button; the choice is remembered
  * (localStorage "printQr") and shared by all pages.
  *
+ * It also works around a Chrome bug, since every printable page loads it: Chrome on macOS cannot print a document
+ * whose colour emoji come in too many sizes (the print preview fails and nothing is printed). Right before printing,
+ * a page with many emoji sizes gets them drawn at one size and scaled (see fitEmoji); after printing it is put back.
+ *
  *   PRINTQR.stamp(root)   → put the codes in now (pages that measure their layout right after rendering)
  *   PRINTQR.onChange(fn)  → called after the checkbox was switched
  *   PRINTQR.matrix(text)  → QR modules, rows of booleans (byte mode, error correction level M, versions 1–10)
@@ -281,6 +285,98 @@ const PRINTQR = (() => {
     observer.observe(document.body, { childList: true, subtree: true });
   });
   I18N.onChange(() => { renderToggle(); refresh(); });
+
+  /* ---------- emoji sizes (Chrome may print nothing with too many) ---------- */
+  // Chrome on macOS fails to print ("Printing failed", an empty print preview) a document whose colour emoji come in
+  // too many sizes: 12 in a plain page, already 9 in a page full of drawings; in a drawing the size is the font size
+  // times the drawing's scale. A size made with a CSS transform does not count. So before printing a page with more
+  // than MAX_EMOJI_SIZES sizes, every emoji of the text is drawn at EMOJI_BASE px and scaled to its size, over the
+  // original made invisible, so the layout stays exactly the same (and drawings get fewer sizes, see fitEmoji).
+  const MAX_EMOJI_SIZES = 4, EMOJI_BASE = 16;
+  const EMOJI = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*\uFE0F?/gu;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  /** Every text node with emoji (also those shown only on paper) and its font size; `chrome` is the size Chrome prints
+   *  it at: in a drawing it is the font size times the drawing's scale (without CSS transforms around the drawing:
+   *  the Enigma pages are scaled on screen only), unless the text has text-rendering: geometricPrecision. */
+  function emojiRuns() {
+    const runs = [], walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      EMOJI.lastIndex = 0;
+      const el = n.parentElement;
+      if (!EMOJI.test(n.nodeValue) || !el || el.closest('script,style,title,option,textarea,emoji-copy,[data-emoji]')) continue;
+      const svg = el instanceof SVGElement, cs = getComputedStyle(el), size = parseFloat(cs.fontSize);
+      let scale = 1;
+      if (svg && el.ownerSVGElement && cs.textRendering !== 'geometricprecision') {
+        let top = el.ownerSVGElement; while (top.ownerSVGElement) top = top.ownerSVGElement;
+        const m = el.getScreenCTM(), box = top.getBoundingClientRect();
+        if (m && box.width) scale = Math.hypot(m.a, m.b) / (box.width / (top.clientWidth || box.width));
+      }
+      runs.push({ n, el, svg, size, chrome: +(size * scale).toFixed(4) });
+    }
+    return runs;
+  }
+  /** An emoji of the text drawn at EMOJI_BASE px and scaled to `size`. The original stays, invisible, and keeps its
+   *  place; the copy hangs from the middle of the original's line box (top: 50%) and with line-height 0 its baseline
+   *  sits half the font's ascent − descent below that, which scaled lands on the original baseline. Own element
+   *  names (inline, like a span), so that page styles such as `.heard span { margin-right }` do not touch them. */
+  function emojiCopy(part, size) {
+    const w = document.createElement('emoji-copy'), keep = document.createElement('emoji-keep'), draw = document.createElement('emoji-draw');
+    w.style.position = 'relative';
+    keep.style.visibility = 'hidden';
+    keep.textContent = part;
+    draw.setAttribute('aria-hidden', 'true');
+    draw.style.cssText = `position:absolute;left:0;top:50%;font-size:${EMOJI_BASE}px;line-height:0;white-space:nowrap;`
+      + `transform-origin:0 0;transform:scale(${size / EMOJI_BASE})`;
+    draw.textContent = part;
+    w.append(keep, draw);
+    return w;
+  }
+  /** Before printing, with too many emoji sizes: every emoji of the text becomes a scaled copy, all printed at one
+   *  size. In a drawing a copy cannot go into the SVG text; there an emoji gets text-rendering: geometricPrecision, so
+   *  Chrome prints it at its font size instead of the font size times the drawing's scale (fewer different sizes),
+   *  but only in a drawing shown at about its own size: at other scales that moves and resizes the emoji. */
+  function fitEmoji() {
+    const runs = emojiRuns();
+    if (new Set(runs.map(r => r.chrome)).size <= MAX_EMOJI_SIZES) return;
+    const split = new RegExp(`(${EMOJI.source})`, 'u');
+    for (const r of runs) {
+      const scale = r.chrome / r.size;
+      if (r.svg && (r.size < 12 || scale < 0.67 || scale > 1.5)) continue;
+      const frag = document.createDocumentFragment();
+      r.n.nodeValue.split(split).forEach((part, i) => {
+        if (!part) return;
+        if (i % 2 === 0) frag.append(part);
+        else if (!r.svg) frag.append(emojiCopy(part, r.size));
+        else {
+          const t = document.createElementNS(SVG_NS, 'tspan');
+          t.setAttribute('text-rendering', 'geometricPrecision');
+          t.setAttribute('data-emoji', '');
+          t.textContent = part;
+          frag.append(t);
+        }
+      });
+      // a text right inside a flex or grid box must stay one item: wrapped whole, its gaps do not change
+      if (!r.svg && /flex|grid/.test(getComputedStyle(r.el).display)) {
+        const whole = document.createElement('emoji-text');
+        whole.append(frag);
+        r.n.replaceWith(whole);
+      } else r.n.replaceWith(frag);
+    }
+  }
+  /** After printing: every wrapped piece back to its original text. */
+  function unfitEmoji() {
+    const text = w => (w.localName === 'emoji-copy' ? w.firstChild.textContent
+      : [...w.childNodes].map(c => (c.nodeType === 1 ? text(c) : c.textContent)).join(''));
+    for (const w of document.querySelectorAll('emoji-copy, emoji-text, tspan[data-emoji]')) {
+      if (!w.isConnected || w.parentElement.closest('emoji-copy, emoji-text, tspan[data-emoji]')) continue;
+      const p = w.parentNode;
+      w.replaceWith(text(w));
+      p.normalize();
+    }
+  }
+  addEventListener('beforeprint', fitEmoji);
+  addEventListener('afterprint', unfitEmoji);
 
   return { matrix, svg, stamp, refresh, link, onChange: f => listeners.push(f), isOn: () => on, SITE };
 })();

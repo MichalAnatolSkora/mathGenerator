@@ -428,7 +428,8 @@ const DW2 = (() => {
     poznan: [4, 52.41, 16.93, 'w', 4.5, 1.6], starogard: [5, 53.97, 18.53, 'w', 4.5, 1.6], rowne: [6, 50.62, 26.25, 'e', -4.5, 1.6, 'end'],
     kolomyja: [7, 48.53, 25.04, 'e', 4.5, 1.6],
   };
-  const PL_NEIGHBOURS = { germany: [51.3, 16.3], prussia: [54.15, 21.2], lithuania: [55.35, 24.0], latvia: [56.05, 26.0], ussr: [52.0, 28.2],
+  // Germany and the USSR sit where those countries are widest on the map, so the longer names (НІМЕЧЧИНА, LIÊN XÔ) fit
+  const PL_NEIGHBOURS = { germany: [50.95, 16.9], prussia: [54.15, 21.2], lithuania: [55.35, 24.0], latvia: [56.05, 26.0], ussr: [49.95, 27.5],
     czechoslovakia: [48.7, 23.6], romania: [47.95, 27.2], baltic: [55.2, 18.4] };
   /** km between two stations along the ground (for the answer key) */
   function stationKm(a, b) {
@@ -444,8 +445,9 @@ const DW2 = (() => {
       + `<path d="M${PL_BORDER.map(p => p.join(' ')).join('L')}Z" fill="#fbf7ea" stroke="#6b665a" stroke-width="1" stroke-linejoin="round"/>`
       + `<path d="${path(PL_VISTULA)}" stroke="#7fb2e0" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
     for (const [id, [lat, lon]] of Object.entries(PL_NEIGHBOURS)) {
-      const [x, y] = Pp(lat, lon);
-      s += label(x, y, L.neighbours[id], { size: 4.6, color: '#7a7466', anchor: 'middle', italic: true, halo: 0 });
+      // kept inside the frame: a capital of size 4.6 is at most ~0.75 × 4.6 wide
+      const [x, y] = Pp(lat, lon), half = L.neighbours[id].length * 4.6 * 0.75 / 2;
+      s += label(+Math.min(Math.max(x, half + 1), W - half - 1).toFixed(1), y, L.neighbours[id], { size: 4.6, color: '#7a7466', anchor: 'middle', italic: true, halo: 0 });
     }
     for (const [id, [n, lat, lon, dir, dx, dy, anchor]] of Object.entries(LISTEN)) {
       const [x, y] = Pp(lat, lon), c = dir === 'w' ? '#b9382f' : '#1f4fbf';

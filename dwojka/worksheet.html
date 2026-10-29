@@ -32,6 +32,10 @@
   .duo{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
   /* the two stations' tables: side by side on A4, one under the other when the screen is too narrow for both */
   .duo.tables{grid-template-columns:repeat(auto-fit,minmax(min(100%,84mm),1fr));}
+  /* two stations side by side, ~91 mm each: tighter cells, so long headings (Пасажирські, Plateformes) still fit */
+  .duo.tables table.t{font-size:10.5px;}
+  .duo.tables table.t th,.duo.tables table.t td{padding:1mm 1.2mm;}
+  .duo.tables table.t td.blank{min-width:11mm;}
   /* mission 2 */
   .planted{font:700 13px/1.4 Georgia,serif;border:0.3mm solid #333;background:#fff;padding:2mm 3mm;margin:0 0 2.5mm;}
   .planted u{text-decoration:none;border-bottom:0.5mm solid #1f4fbf;color:#1f4fbf;}

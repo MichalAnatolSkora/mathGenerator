@@ -86,9 +86,10 @@
   .fcs{display:inline-flex;gap:3mm;font-size:5.2mm;line-height:1;white-space:nowrap;}
   .fcs span{display:inline-flex;flex:none;align-items:center;justify-content:center;width:8mm;height:8mm;border-radius:50%;}
   .fcs span.circ{box-shadow:0 0 0 0.6mm var(--ans);}
-  .dishgrid{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm 6mm;}
-  .dish{display:flex;align-items:center;gap:2.5mm;border:0.3mm solid #e1e5ee;border-radius:2.5mm;padding:1.8mm 2.5mm;}
-  .dish .grow{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:3mm;white-space:nowrap;}
+  /* two equal halves; a card whose sum does not fit (the answer key, Vietnamese "điểm") wraps instead of widening the page */
+  .dishgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.5mm 6mm;}
+  .dish{display:flex;flex-wrap:wrap;align-items:center;gap:1.5mm 2.5mm;border:0.3mm solid #e1e5ee;border-radius:2.5mm;padding:1.8mm 2.5mm;}
+  .dish .grow{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:1.5mm 3mm;white-space:nowrap;}
   .dishgrid.one{grid-template-columns:1fr;gap:2mm;}
   .plates3{display:flex;gap:6mm;flex-wrap:wrap;align-items:flex-end;}
   .plates3 > div{display:flex;flex-direction:column;align-items:center;gap:1.5mm;}

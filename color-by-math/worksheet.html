@@ -47,8 +47,9 @@
 <script src="strings.js"></script>
 <script>
 (() => {
-  // A4 inside the margins is 186 × 273 mm; the head, the instruction, the legend and "What is it?" take ~75 mm.
-  const BOX = [186, 190], MAX_SQ = 15.5;
+  // A4 inside the margins is 186 × 273 mm; the head, the instruction, the legend and "What is it?" take 70–87 mm
+  // (in French both the head and the instruction take two lines), so the picture gets at most 182 mm.
+  const BOX = [186, 182], MAX_SQ = 15.5;
   const KEY_W = { 1: 110, 2: 88, 3: 58 };   // width (mm) of a picture in the answer key
 
   KIT.app({
