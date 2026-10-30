@@ -29,6 +29,19 @@ eq('no letter becomes itself', [...CODE].some((c, i) => c === KEY.plain[i]), fal
 eq('windows', WINS.join(' '), 'SSR SSS SST SSU SSV STW STX STY');
 eq('the lamps of the traces spell the message', TRACES.map(t => A[t[9]]).join(''), KEY.plain);
 eq('the first letter: no cable in, cable J–R out', TRACES[0].map(x => A[x]).join(''), 'FFDGKNLKJR');
+// The plugboard ring: its coloured letters are the other ends of today's cables (the same letter would be an empty slot),
+// read like a rotor that does not turn; the cables never use the colours of the current.
+{
+  const sw = {}; for (const [a, b] of E.KEY.plug.split(' ')) { sw[a] = b; sw[b] = a; }
+  const ring = A.split('').map(c => sw[c] || '·').join('');
+  eq('plugboard ring: over each black letter the other end of its cable', ring, '·XZ·M····RS·E··W·JK···PB·C');
+  eq('plugboard ring: 6 cables, 14 empty slots', `${E.KEY.plug.split(' ').length} ${[...ring].filter(c => c === '·').length}`, '6 14');
+  eq('cable colours: one per cable, all different', new Set(E.CABLE_COLORS).size >= E.KEY.plug.split(' ').length, true);
+  eq('cable colours: no red or blue (the current)', E.CABLE_COLORS.some(c => ['#B3261E', '#1E5AA8'].includes(c.toUpperCase())), false);
+  // the first letter on the ring: no cable on the way in (straight on), cable J–R on the way out
+  const t = TRACES[0];
+  eq('first letter: plugboard ring straight on, then J → R on the way out', `${A[t[0]]}${A[t[1]]} ${A[t[8]]}${A[t[9]]}`, 'FF JR');
+}
 // What the child reads, found again by walking the printed wheels: the coloured letter read on the way in, the black
 // letter read on the way out (each is the letter then looked for on the same wheel).
 const mod = x => ((x % 26) + 26) % 26;
@@ -62,12 +75,12 @@ const v = E.values();
 // turns back on a wheel), and nothing is drawn over a letter; the mirror's 13 wires join each letter to its partner in B.
 {
   const cap = size => 0.75 * size / 2;   // half the height of a capital letter
-  const ok = ['right', 'middle', 'left'].every(p => {
+  const ok = ['plug', 'right', 'middle', 'left'].every(p => {
     const P = E.PARTS[p];
     return P.R - 1.4 >= P.col + cap(P.fsc) && P.col - cap(P.fsc) >= P.lane + E.LANE_W / 2 && P.lane - E.LANE_W / 2 >= P.blk + cap(P.fs) && P.blk - cap(P.fs) >= P.rIn;
   });
-  eq('rotors: coloured row outside, white path, black row inside, nothing overlaps', ok, true);
-  eq('each wheel lies under the next one', ['right', 'middle', 'left', 'mirror'].every((p, i, a) => E.PARTS[p].R === E.PARTS[['frame', ...a][i]].rIn), true);
+  eq('plugboard ring and rotors: coloured row outside, white path, black row inside, nothing overlaps', ok, true);
+  eq('each wheel lies under the next one', ['plug', 'right', 'middle', 'left', 'mirror'].every((p, i, a) => E.PARTS[p].R === E.PARTS[['frame', ...a][i]].rIn), true);
   const ends = E.MIRROR_PAIRS.flat().sort((x, y) => x - y).join(',');
   eq('mirror: 13 wires, every letter once', `${E.MIRROR_PAIRS.length} ${ends}`, `13 ${Array.from({ length: 26 }, (_, i) => i).join(',')}`);
   eq('mirror: the wires are reflector B', E.MIRROR_PAIRS.every(([a, b]) => Z.REFLECTOR_B[a] === A[b] && Z.REFLECTOR_B[b] === A[a]), true);
@@ -102,11 +115,14 @@ for (const lang of LANGS) {
   eq(`${lang}: list lengths`, badLen, 0);
   eq(`${lang}: templates fill in`, badFill, 0);
   eq(`${lang}: page titles`, T.ui.pageTitles.length, E.TOTAL);
+  eq(`${lang}: the chain and the key table name the plugboard twice`, T.chainNames[1] === T.chainNames[9] && T.traceHead[3] === T.traceHead[11], true);
   eq(`${lang}: example names the key and the lamp`, T.exTitle(v).includes(`{{${v.exKey}}}`) && T.exTitle(v).includes(`{{${v.exLamp}}}`), true);
   eq(`${lang}: example names the cable at the end`, T.exText(v).includes(`${v.exBack}–${v.exLamp}`), true);
   eq(`${lang}: example spells out the step onto the middle rotor`, T.exText(v).split(`{{${v.exRead2}}}`).length, 3);
   eq(`${lang}: rules say: next wheel at the same place`, T.pathSteps[2].split('. ').length >= 2, true);
-  eq(`${lang}: rules: in, the mirror, out (six steps)`, T.pathSteps.length, 6);
+  eq(`${lang}: rules: the black wheel, the plugboard, in, the mirror, out, the lamp (six steps)`, T.pathSteps.length, 6);
+  eq(`${lang}: the example and the way back end on the plugboard ring with the cable`, T.in4Text(v).includes(`{{${v.exLamp}}}`) && T.exText(v).includes(`{{${v.exKey}}}`), true);
+  eq(`${lang}: ten page titles, the plugboard ring labels name today's cables`, T.ui.pageTitles.length === 10 && T.plugLabels(v).includes(v.plug), true);
   eq(`${lang}: page 2 explains the coloured row outside (part 2 is the other way round)`, /2/.test(T.newList(v)[2]), true);
   eq(`${lang}: turning example`, T.pathNote(v).includes(`{{${v.midFrom}}} → {{${v.midTo}}}`), true);
   eq(`${lang}: settings answer`, T.ansC(v).includes(v.total), true);
