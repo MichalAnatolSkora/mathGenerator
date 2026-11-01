@@ -34,16 +34,27 @@ can see in the numbers. Every level starts from it.
 - **★★** half the key: half of the other letters the telegrams use are given (`W20.halfKey`, seeded); with
   ДИВИЗИЯ and the glossary the rest follows (tested);
 - **★★★** the key table is empty: from ДИВИЗИЯ, guess glossary words that fit (tested: always reads to the end);
-- **★★★★** like a real telegram: no gaps between words, numbers in groups of five. The ДИВИЗИЯ pattern may
-  also fit one overlapping false place (ВИЗИЯИД); tested: the false place leads to no reading, the true one to
-  exactly one.
+- **★★★★** like a real telegram: no gaps between words, numbers in groups of five, in rows of 25 (`W20.stream`)
+  with equal cells: groups are split by a thin line, not a gap, so the comb fits anywhere in a row. The
+  ДИВИЗИЯ pattern may also fit one overlapping false place (ВИЗИЯИД); tested: the false place leads to no
+  reading, the true one to exactly one, and ДИВИЗИЯ never crosses a row.
+
+### The comb
+
+Legend (as told by Prof. Grzegorz Nowik, PAP 2020; Kowalewski's own memoir only names Poe) has it that
+Kowalewski broke teeth out of a comb and slid it along the telegram until the gaps fell on three equal groups
+of digits. The hint box on the mission page has that comb to cut out (`W20.combSvg`), 1:1 with the cells:
+seven teeth 6.1 mm apart (5.5 mm cell + 0.6 mm gap, tested against the CSS), teeth 2, 4 and 6 grey, to cut
+off. Laid on the telegram, the teeth cover numbers 1, 3, 5, 7 and the slots show 2, 4, 6: three equal numbers
+→ maybe ДИВИЗИЯ. It works on every level (in a word of 7 numbers on ★–★★★, anywhere in a row on ★★★★).
+Part 4 (`rewolucja-1920`) says why the comb stops working there.
 
 ## Pages
 
 1. **How does the cipher work?** (option, on): substitution with a piece of a key, the receiver, the
    "fingerprint" of a word, five steps of breaking a cipher without the key, the real 1920 ciphers ("Revolution"
    of 12 August), today's encryption, a warm-up (decode АРМИЯ; which numbers can be МАМА).
-2. **The mission**: three telegrams with boxes under the numbers, the key table, the glossary (all 23 words),
+2. **The mission**: the hint with the comb to cut out, three telegrams with boxes under the numbers, the key table, the glossary (all 23 words),
    a report: where the 4th Army goes, what telegram 2 says, which arrow A/B/C to strike (on a small map),
    how to stop the 4th Army hearing its order.
 3. **The story** (option, on): 1920, the ears of the Polish Army (Kowalewski, Sierpiński, Mazurkiewicz,

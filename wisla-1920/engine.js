@@ -11,6 +11,8 @@
  *   W20.halfKey(day, rnd)   → ★★: the letters given in the key table (half of the used ones, not ДИВИЗИЯ's)
  *   W20.findPattern(day)    → index of the one word in telegram 1 shaped like ДИВИЗИЯ (same number at 2, 4, 6)
  *   W20.patternHits(day)    → ★★★ (no gaps): where a ДИВИЗИЯ-shaped run starts in telegram 1 (can be twice)
+ *   W20.stream(telegram)    → ★★★★ (no gaps): rows of ROW numbers, each row in groups of five
+ *   W20.combSvg(label)      → Kowalewski's comb to cut out, 1:1 with the telegram cells (teeth 2, 4, 6 grey: cut off)
  *   W20.countStreamSolutions(day, known) → ★★★: ways to split the gapless telegrams into glossary words (0, 1 or 2)
  *   W20.solve(day, known)   → what a child can read, starting from `known` (number → letter) and guessing
  *                             glossary words that fit; returns the final map
@@ -83,6 +85,36 @@ const W20 = (() => {
     const st = d.telegrams[0].words.flat(), want = shape([...PATTERN_WORD]), hits = [];
     for (let i = 0; i + 7 <= st.length; i++) if (shape(st.slice(i, i + 7)) === want) hits.push(i);
     return hits;
+  }
+
+  /** ★★★★: the gapless telegram as rows of ROW numbers in groups of five; rows keep the comb on one line. */
+  const ROW = 25;
+  function stream(t) {
+    const st = t.words.flat(), rows = [];
+    for (let i = 0; i < st.length; i += ROW) {
+      const r = st.slice(i, i + ROW), g = [];
+      for (let j = 0; j < r.length; j += 5) g.push(r.slice(j, j + 5));
+      rows.push(g);
+    }
+    return rows;
+  }
+
+  /**
+   * The comb, in mm at 1:1: seven teeth as wide as a telegram cell (5.5 mm, 0.6 mm apart, as on the sheet).
+   * Legend says Kowalewski broke teeth out of a comb and slid it along the telegram; here teeth 2, 4 and 6 are grey,
+   * to cut off, so only the numbers in places 2, 4 and 6 show. Same number three times → maybe ДИВИЗИЯ.
+   */
+  const CELL = 5.5, PITCH = 6.1;
+  function combSvg(label) {
+    const w = 6 * PITCH + CELL, sp = 4, h = 11, cut = 'fill="none" stroke="#555" stroke-width="0.3" stroke-dasharray="1.2 0.8"';
+    const notch = k => { const x = k * PITCH; return `<path d="M${x.toFixed(2)} ${sp}V${h}H${(x + CELL).toFixed(2)}V${sp}"`; };
+    return `<svg class="comb" viewBox="-0.4 -0.4 ${(w + 0.8).toFixed(1)} ${h + 0.8}" width="${(w + 0.8).toFixed(1)}mm" height="${h + 0.8}mm" xmlns="http://www.w3.org/2000/svg">`
+      + `<rect width="${w.toFixed(2)}" height="${h}" rx="0.8" fill="#f3e3bf"/>`
+      + [1, 3, 5].map(k => `<rect x="${(k * PITCH).toFixed(2)}" y="${sp}" width="${CELL}" height="${h - sp}" fill="#b9b9b9"/>`).join('')
+      + `<rect width="${w.toFixed(2)}" height="${h}" rx="0.8" ${cut}/>`
+      + [1, 3, 5].map(k => `${notch(k)} ${cut}/>`).join('')
+      + `<text x="${(w / 2).toFixed(2)}" y="2.95" text-anchor="middle" font-size="2.5" font-family="system-ui,sans-serif" font-weight="700" fill="#5a4b30">${label}</text>`
+      + `</svg>`;
   }
 
   /** ★★★: how many ways the three gapless telegrams split into glossary words with one key, from `known` (stops at 2). */
@@ -293,6 +325,6 @@ const W20 = (() => {
     source: 'Archiwum Instytutu Józefa Piłsudskiego w Ameryce, Kolekcja nr 3, t. 1, s. 29 · poznajhistorie.org',
   };
 
-  return { ALPHABET, PATTERN_WORD, SLOTS, VOCAB, REAL, key, day, lettersUsed, halfKey, findPattern, patternHits, countStreamSolutions, solve, mapSvg, CHOICE_ANSWER: 'A' };
+  return { ALPHABET, PATTERN_WORD, SLOTS, VOCAB, REAL, key, day, lettersUsed, halfKey, findPattern, patternHits, ROW, stream, PITCH, combSvg, countStreamSolutions, solve, mapSvg, CHOICE_ANSWER: 'A' };
 })();
 if (typeof module !== 'undefined') module.exports = W20;

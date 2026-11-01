@@ -162,3 +162,22 @@ const I18N = (() => {
   const valid_ = valid;
   return { LANGS, DEFAULT, get, set, onChange, t, apply, plural, withLang, renderPicker, isValid: valid_ };
 })();
+
+/**
+ * Visit statistics: GoatCounter (dashboard: https://mathgenerator.goatcounter.com). No cookies and no personal data,
+ * so no consent banner. Every page loads this file, so the counter lives here. count.js itself does not count
+ * localhost, file:// or headless browsers (the A4 check with Puppeteer). The page is counted without `?lang=…`,
+ * so one game is one row; printing is counted as the event "print:/path" — which sheets really end up on paper.
+ */
+(() => {
+  if (!/^https?:$/.test(location.protocol)) return;
+  window.goatcounter = { path: location.pathname };
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://gc.zgo.at/count.js';
+  s.dataset.goatcounter = 'https://mathgenerator.goatcounter.com/count';
+  document.head.appendChild(s);
+  addEventListener('beforeprint', () => {
+    if (window.goatcounter.count) window.goatcounter.count({ path: 'print:' + location.pathname, title: document.title, event: true });
+  });
+})();

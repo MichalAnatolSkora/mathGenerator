@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorium Marii Skłodowskiej-Curie</title>
+<meta name="description" content="Gra na kartkę o tym, jak Maria Skłodowska-Curie odkryła polon i rad: pomiary elektrometrem, rozdzielanie rudy krok po kroku i połowy polonu. Dzielenie, porównywanie i wykres, do druku, z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .cu{font-size:12px;line-height:1.42;color:#222;}
+  .cu p{margin:0 0 2mm;}
+  .cu h3{font-size:13px;margin:0 0 1mm;}
+  .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 3mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;font-size:11.5px;line-height:1.35;padding:1.6mm 3mm;}
+  .small{font-size:10.5px;color:#555;}
+  .q{margin:0 0 1.2mm;font-size:11.5px;line-height:1.3;}
+  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5.6mm;}
+  table.t{border-collapse:collapse;font-size:11.5px;margin:0 0 2.5mm;}
+  table.t th,table.t td{border:0.3mm solid #555;padding:1mm 2mm;text-align:center;}
+  table.t th{background:#f0f2f6;font-weight:700;font-size:10.5px;line-height:1.2;}
+  table.t td.l,table.t th.l{text-align:left;}
+  table.t td.blank{min-width:13mm;height:6.5mm;}
+  table.t td.none{background:#eee;color:#999;}
+  table.t td.ans{color:#b4321f;font-weight:700;}
+  .tree svg,.graph svg,.bars svg{display:block;max-width:100%;height:auto;}
+  .m1{display:grid;grid-template-columns:1fr 70mm;gap:4mm;align-items:start;}
+  .fins{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,80mm),1fr));gap:3mm;margin:2mm 0 3mm;}
+  .fin{border:0.5mm solid #f0a020;background:#fffaf0;border-radius:2mm;padding:2mm 3mm;font-size:11.5px;}
+  .fin .nm{font:800 16px/1.3 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;}
+  .fin .row{display:flex;justify-content:space-between;gap:3mm;align-items:baseline;margin-top:1mm;}
+  .fin .row b{flex:0 0 18mm;border-bottom:0.3mm solid #333;height:5mm;}
+  .m3{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
+  .how .sec{break-inside:avoid;margin:0 0 2.2mm;}
+  .how .sec p{margin:0;}
+  .cols{columns:2;column-gap:5mm;}
+  .ex ol{margin:0;padding-left:5mm;}
+  .ans ol{margin:0 0 2mm;padding-left:5mm;}
+  .ans li{margin:0 0 0.8mm;}
+  .ans .tree svg{width:128mm;margin:0 auto 1mm;}
+  .ans .graph svg{width:72mm;}
+  .ans .duo{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
+  .real .top{display:grid;grid-template-columns:1fr 64mm;gap:5mm;align-items:start;}
+  .real table.t{font-size:10.5px;width:100%;}
+  .real table.t td,.real table.t th{padding:0.8mm 1.5mm;}
+  .real table.t td.fr{font-style:italic;color:#555;font-size:9.5px;}
+  .real .quote{border-left:1mm solid #f0a020;padding:1mm 3mm;margin:0 0 3mm;background:#fffaf0;}
+  .real .quote .fr{font:italic 12px/1.4 Georgia,serif;margin:0 0 1mm;}
+  .real .sec p{font-size:10.8px;line-height:1.35;margin:0 0 2mm;}
+  .real .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;align-items:start;margin:1mm 0 0;}
+  .real figure{margin:0;}
+  .real figure img{display:block;width:100%;height:auto;border:0.3mm solid #bbb;}
+  .real .cap{font-size:9.5px;line-height:1.28;color:#444;margin:1mm 0 0;}
+  .real .src{font-size:9px;line-height:1.3;color:#666;margin:2mm 0 0;}
+  @media (max-width:600px){
+    .m1,.m3,.real .top,.real .photos,.ans .duo{grid-template-columns:1fr;} .cols{columns:1;}
+    table.t{font-size:10px;} table.t th,table.t td{padding:.8mm 1mm;} table.t td.blank{min-width:8mm;}
+    .wide{overflow-x:auto;}
+  }
+  @media print{ .cu{font-size:11.5px;} }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🧪 Laboratorium Marii Skłodowskiej-Curie</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const STARS = { easy: '★', mid: '★★', hard: '★★★' };
+  const lines = n => '<span class="ln"></span>'.repeat(n);
+  const q = (i, text, n = 1) => `<div class="q">${i}. ${KIT.esc(text)}${lines(n)}</div>`;
+  const YEAR = new Date().getFullYear();
+
+  KIT.app({
+    store: 'curie.sheet',
+    text: CU_TEXT,
+    groups: [{ id: 'level', values: ['easy', 'mid', 'hard'], def: 'easy', label: (v, C) => C.levels[v] }],
+    checks: [{ id: 'how', def: true, label: 'optHow' }, { id: 'real', def: true, label: 'optReal' }],
+    render(s, api) {
+      const { C, esc } = api, lv = s.level, star = STARS[lv];
+      const pages = [], mhead = (m, T) => api.head(`${C.m[m]} · ${T.title}`, `${T.sub} · ${star}`, true);
+      const td = (v, cls = '') => `<td${cls ? ` class="${cls}"` : ''}>${v}</td>`;
+
+      // 0. how Marie worked
+      if (s.how) {
+        const H = C.how;
+        pages.push(`<div class="sheet cu how">
+          ${api.head(H.title, H.sub, false)}
+          <p>${esc(H.intro)}</p>
+          <div class="cols">${H.sections.map(([h, p]) => `<div class="sec"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div>
+          <div class="box tip ex"><h3>🧪 ${esc(H.exT)}</h3><ol>${H.ex.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
+          <div class="box"><h3>${esc(H.simplT)}</h3><p style="margin:0">${esc(H.simpl)}</p></div>
+          <h3>${esc(H.levelsT)}</h3>
+          <p class="small" style="margin:0">${H.levels.map(esc).join('<br>')}</p>
+        </div>`);
+      }
+
+      /* ---- mission 1: the electrometer ---- */
+      const S = CU.samples(api.rnd('samples'), lv), M1 = C.m1, nm = id => M1.names[id], th = M1.th;
+      const timesCell = sm => (sm.id === 'ore' || sm.id === 'chalNat') ? td('', 'blank') : td('—', 'none');
+      let table1;
+      if (lv === 'easy') {
+        table1 = `<table class="t" style="width:100%"><tr><th>${esc(th.n)}</th><th class="l">${esc(th.sample)}</th><th>${esc(th.read)}<br>(1 g)</th><th>${esc(th.more)}</th></tr>
+          ${S.list.map((sm, i) => `<tr><td>${i + 1}</td><td class="l">${esc(nm(sm.id))}</td><td><b>${sm.read}</b></td>${sm.id === 'uran' ? td('—', 'none') : td('', 'blank')}</tr>`).join('')}</table>`;
+      } else if (lv === 'mid') {
+        table1 = `<div class="wide"><table class="t" style="width:100%"><tr><th>${esc(th.n)}</th><th class="l">${esc(th.sample)}</th><th>${esc(th.mass)}</th><th>${esc(th.read)}</th><th>${esc(th.perG)}</th><th>${esc(th.times)}</th></tr>
+          ${S.list.map((sm, i) => `<tr><td>${i + 1}</td><td class="l">${esc(nm(sm.id))}</td><td>${sm.m} ${esc(C.gram)}</td><td><b>${sm.read}</b></td>${td('', 'blank')}${timesCell(sm)}</tr>`).join('')}</table></div>`;
+      } else {
+        table1 = `<div class="wide"><table class="t" style="width:100%"><tr><th>${esc(th.n)}</th><th class="l">${esc(th.sample)}</th><th>${esc(th.mass)}</th><th>${esc(th.uran)}</th><th>${esc(th.read)}</th><th>${esc(th.expected)}</th><th>${esc(th.extra)}</th><th>${esc(th.extraG)}</th></tr>
+          ${S.list.map((sm, i) => `<tr><td>${i + 1}</td><td class="l">${esc(nm(sm.id))}</td><td>${sm.m} ${esc(C.gram)}</td><td>${sm.u} ${esc(C.gram)}</td><td><b>${sm.read}</b></td>${td('', 'blank').repeat(3)}</tr>`).join('')}</table></div>`;
+      }
+      const intro1 = { easy: M1.introEasy, mid: M1.introMid, hard: M1.introHard }[lv];
+      const q1 = M1.q[lv].map((t, i) => q(i + 1, t, lv === 'easy' && i === 2 ? 2 : (i === 0 && lv !== 'easy' ? 0 : 2))).join('');
+      pages.push(`<div class="sheet cu">${mhead('m1', M1)}
+        <p>${esc(M1.intro)} <b>${esc(intro1)}</b></p>
+        ${table1}
+        ${lv === 'easy'
+          ? `<div class="m1"><div>${q1}</div><div class="bars"><p class="small">${esc(M1.barsT)}</p>${CU.barsSvg(S.list, 14, false)}</div></div>`
+          : q1}
+      </div>`);
+
+      /* ---- mission 2: the separation ---- */
+      const T = CU.tree(api.rnd('tree'), lv), M2 = C.m2, L2 = { ...M2, gram: C.gram, unitShort: C.unitShort, perG: lv === 'hard' ? `${C.unitShort}/${C.gram}` : C.perG };
+      const finals = lv === 'easy' ? ['po'] : ['po', 'ra'];
+      const finBox = id => `<div class="fin"><div class="small">${esc(M2.finT)} · ${esc(M2.hints[id])}</div>
+        <div class="nm">${esc(CU.blanks(M2.names[id]))}</div>
+        <div class="row"><span>${esc(M2.timesT)}</span><b></b></div><div class="row"><span>${esc(M2.oreT)}</span><b></b></div></div>`;
+      pages.push(`<div class="sheet cu">${mhead('m2', M2)}
+        <p>${esc(M2.intro)} ${lv === 'hard' ? `<b>${esc(M2.introHard)}</b>` : esc(M2.introPerG)}</p>
+        <div class="box tip">${esc(M2.rule[lv])}</div>
+        <div class="tree">${CU.treeSvg(T, { L: L2 })}</div>
+        <div class="fins">${finals.map(finBox).join('')}</div>
+        ${M2.q[lv].map((t, i) => q(i + 1, t, i === 0 ? 0 : 2)).join('')}
+      </div>`);
+
+      /* ---- mission 3: polonium grows weaker ---- */
+      const D = CU.decay(api.rnd('decay'), lv), M3 = C.m3;
+      const table3 = `<table class="t" style="width:100%"><tr><th class="l">${esc(M3.th.day)}</th>${D.days.map(d => `<th>${d}</th>`).join('')}</tr>
+        <tr><td class="l"><b>${esc(M3.th.units)}</b></td><td><b>${D.start}</b></td>${td('', 'blank').repeat(D.steps)}</tr></table>`;
+      const q3 = lv === 'hard' ? M3.q.hard(D.back, YEAR) : M3.q[lv](D.below);
+      pages.push(`<div class="sheet cu">${mhead('m3', M3)}
+        <p>${esc(M3.intro)}</p>
+        ${table3}
+        ${lv === 'easy'
+          ? q3.map((t, i) => q(i + 1, t, i === 0 ? 0 : 2)).join('')
+          : `<div class="m3"><div class="graph"><p class="small">${esc(M3.graphT)}</p>${CU.decaySvg(D, { L: M3 })}</div>
+              <div>${q3.map((t, i) => q(i + 1, t, i === 0 ? 0 : 3)).join('')}</div></div>`}
+      </div>`);
+
+      /* ---- how it really was: Marie's own table, the naming of polonium ---- */
+      if (s.real) {
+        const R = C.real;
+        pages.push(`<div class="sheet cu real">
+          ${api.head(R.title, R.sub, true)}
+          <div class="top">
+            <div><h3>📋 ${esc(R.tableT)}</h3>
+              <table class="t"><tr><th class="l">${esc(R.th.name)}</th><th class="l">${esc(R.th.fr)}</th><th>${esc(R.th.val)}</th></tr>
+                ${R.rows.map(([fr, name, v]) => `<tr><td class="l">${esc(name)}</td><td class="l fr">${esc(fr)}</td><td><b>${v}</b></td></tr>`).join('')}</table>
+              <p class="small">${esc(R.tableCap)}</p></div>
+            <div class="box tip"><h3>✏️ ${esc(R.qT)}</h3>${R.q.map((t, i) => q(i + 1, t, 2)).join('')}</div>
+          </div>
+          <h3>🇵🇱 ${esc(R.quoteT)}</h3>
+          <div class="quote"><p class="fr">${esc(R.quoteFr)}</p><p style="margin:0">${esc(R.quote)}</p></div>
+          ${R.facts.map(([h, p]) => `<div class="sec"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}
+          <div class="photos">${[['lab', 900, 628], ['room', 900, 663], ['shed', 900, 659]].map(([k, w, h]) => `<figure><img src="curie-${k}.jpg" width="${w}" height="${h}" alt="${esc(R.photos[k])}"><figcaption class="cap">${esc(R.photos[k])}</figcaption></figure>`).join('')}</div>
+          <p class="src">${esc(R.sourcesT)} ${esc(R.sources)} ${esc(R.photosSrc)}</p>
+        </div>`);
+      }
+
+      /* ---- answers ---- */
+      if (s.key) {
+        const A = C.answers, N = T.N, nn = id => M2.nodes[id][0];
+        // mission 1
+        const a1 = [];
+        if (lv === 'easy') {
+          a1.push(A.m1.stronger(S.list.filter(x => x.a > CU.U).map(x => nm(x.id)).join(', ')), A.m1.times(nm('ore'), S.times.ore), A.m1.chal);
+        } else if (lv === 'mid') {
+          const big = S.list.reduce((b, x) => (x.read > b.read ? x : b));
+          a1.push(A.m1.perG(S.list.map(x => `${nm(x.id)} ${x.a}`).join(', ')), A.m1.times(nm('ore'), S.times.ore), A.m1.times(nm('chalNat'), S.times.chalNat), A.m1.biggest(nm(big.id)), A.m1.chal);
+        } else {
+          const best = S.list.filter(x => x.id === 'ore' || x.id === 'chalNat').reduce((b, x) => (x.extra / x.m > b.extra / b.m ? x : b));
+          a1.push(A.m1.extra(S.list.filter(x => x.extra > 0).map(x => `${nm(x.id)} ${x.read} − ${x.expected} = ${x.extra} (${x.extra / x.m})`).join('; ')), A.m1.most(nm(best.id)), A.m1.thor, A.m1.art);
+        }
+        // mission 2
+        const pathTo = id => { const p = []; for (let x = id; x; x = CU.NODES[x][0]) p.unshift(nn(x)); return p.join(' → '); };
+        const a2 = finals.map(id => A.m2.path(pathTo(id)));
+        for (const id of finals) a2.push(A.m2.fin(M2.names[id], N[id].a, N[id].a / CU.U, N[id].a / N.ore.a));
+        if (lv === 'easy') a2.push(A.m2.easyLater);
+        else a2.push(A.m2.stronger(CU.RA - CU.PO));
+        if (lv === 'hard') {
+          const W = { sulf: 'sand', sol: 'sand', bi: 'pbcu', po: 'bires', ba: 'salts', ra: 'liq' };
+          a2.push(A.m2.trap(T.trap.map(p => `${nn(W[p])} ${N[W[p]].r} > ${nn(p)} ${N[p].r}`).join('; ')));
+          a2.push(A.m2.sum(N.sulf.r + N.sol.r + N.sand.r, N.ore.r));
+        }
+        // mission 3
+        const a3 = [A.m3.table(D.days.map((d, i) => `${d}: ${D.values[i]}`).join(', '))];
+        if (lv === 'hard') a3.push(A.m3.back(D.back), A.m3.radium, A.m3.halvings(Math.round((YEAR - 1902) * 365.25 / CU.HALF), YEAR));
+        else a3.push(A.m3.below(D.belowDay), lv === 'easy' ? A.m3.year : A.m3.sixteenth);
+        const solvedTable = lv === 'easy' ? '' : `<div class="graph">${CU.decaySvg(D, { L: M3, solved: true })}</div>`;
+        pages.push(`<div class="sheet cu ans">
+          ${api.head(api.t('keyTitle'), `${C.title} · ${star}`, false)}
+          <h3>${esc(C.m.m1)} · ${esc(M1.title)}</h3>
+          ${lv === 'easy' ? `<div class="duo"><ol>${a1.map(x => `<li>${esc(x)}</li>`).join('')}</ol><div class="bars" style="max-width:60mm">${CU.barsSvg(S.list, 14, true)}</div></div>` : `<ol>${a1.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`}
+          <h3>${esc(C.m.m2)} · ${esc(M2.title)}</h3>
+          <div class="tree">${CU.treeSvg(T, { L: L2, solved: true })}</div>
+          <ol>${a2.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+          <h3>${esc(C.m.m3)} · ${esc(M3.title)}</h3>
+          <div class="duo"><ol>${a3.map(x => `<li>${esc(x)}</li>`).join('')}</ol>${solvedTable}</div>
+          ${s.real ? `<h3>${esc(C.real.title)}</h3><ol>${A.real.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
+        </div>`);
+      }
+      return { html: pages.join(''), tasks: 3, pages: pages.length };
+    },
+  });
+})();
+</script>
+</body>
+</html>

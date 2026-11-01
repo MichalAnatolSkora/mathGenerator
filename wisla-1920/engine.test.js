@@ -36,9 +36,24 @@ for (let s = 0; s < 300; s++) {
   const from = i => Object.fromEntries([...W20.PATTERN_WORD].map((ch, k) => [st[i + k], ch]));
   const real = hits.filter(i => d.telegrams[0].plain.join('').slice(i, i + 7) === W20.PATTERN_WORD);
   ok(`${s}: expert: the real ДИВИЗИЯ is among the hits`, real.length === 1 && hits.length <= 2);
+  // ★★★★ rows: every number once, in order; the comb (7 numbers) never has to cross a row to find ДИВИЗИЯ
+  const rows = W20.stream(d.telegrams[0]);
+  ok(`${s}: expert rows keep the numbers`, d.telegrams.every(t => W20.stream(t).flat(2).join() === t.words.flat().join()));
+  ok(`${s}: expert rows of ${W20.ROW} in groups of five`, rows.every((r, i) => r.flat().length === (i < rows.length - 1 ? W20.ROW : r.flat().length) && r.every(g => g.length <= 5)));
+  ok(`${s}: expert: ДИВИЗИЯ inside one row`, real.every(i => i % W20.ROW <= W20.ROW - 7));
   if (s < 40) ok(`${s}: expert: one answer from ДИВИЗИЯ, none from the false hit`,
     hits.every(i => W20.countStreamSolutions(d, from(i)) === (real.includes(i) ? 1 : 0)));
 }
+// the comb is 1:1 with the telegram cells: tooth pitch = cell width + gap between cells, in words and in ★★★★ rows
+const css = require('fs').readFileSync(__dirname + '/worksheet.html', 'utf8');
+const cellW = +css.match(/\.c\{width:([\d.]+)mm/)[1], wordGap = +css.match(/\.wd\{display:flex;gap:([\d.]+)mm/)[1];
+const rowGap = +css.match(/\.trow\{[^}]*gap:[\d.]+mm ([\d.]+)mm/)[1];
+ok('comb pitch = cell + gap in a word', Math.abs(cellW + wordGap - W20.PITCH) < 1e-9);
+ok('comb pitch = cell + gap in a ★★★★ row', Math.abs(cellW + rowGap - W20.PITCH) < 1e-9);
+const comb = W20.combSvg('x');
+ok('comb width 1:1 in mm', comb.includes(`width="${(6 * W20.PITCH + cellW + 0.8).toFixed(1)}mm"`));
+ok('comb: three grey teeth to cut off (2, 4, 6)', (comb.match(/fill="#b9b9b9"/g) || []).length === 3
+  && [1, 3, 5].every(k => comb.includes(`x="${(k * W20.PITCH).toFixed(2)}" y="4" width="${cellW}"`)));
 ok('map draws', /<svg/.test(W20.mapSvg({ mode: 'story', L: require('./strings.js').pl.map })));
 console.log(fails ? `${fails} failures` : 'all ok');
 process.exit(fails ? 1 : 0);
