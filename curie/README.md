@@ -10,7 +10,7 @@ seven languages (pl/en/uk/vi/fr/it/es). Card on the home page in the "bigger kid
 | [`worksheet.html`](worksheet.html) | The sheet: "How did Marie work?", three missions, "How it really was", the answers |
 | [`engine.js`](engine.js) | The three missions' generators, the separation tree, the bar chart and the decay graph |
 | [`strings.js`](strings.js) | Texts in seven languages |
-| [`curie-lab.jpg`](curie-lab.jpg), [`curie-room.jpg`](curie-room.jpg), [`curie-shed.jpg`](curie-shed.jpg) | Photos on "How it really was", all public domain (see below) |
+| [`curie-lab.jpg`](curie-lab.jpg), [`curie-room.jpg`](curie-room.jpg), [`curie-notebook.jpg`](curie-notebook.jpg) | Two photos and two pages of Marie's handwritten notebook on "How it really was" (see below) |
 | [`engine.test.js`](engine.test.js) | `node engine.test.js`: 150 seeds × 3 levels (numbers whole, masses and units add up, the right tubes stronger, halves), drawings in every language, the same keys in every language |
 
 ## Pages
@@ -37,7 +37,7 @@ seven languages (pl/en/uk/vi/fr/it/es). Card on the home page in the "bigger kid
    are still radioactive because of radium).
 4. **How it really was** (option, on): Marie's real table of 12 April 1898 (8 rows, original French names, current in
    10⁻¹² A), three questions on it, the July 1898 sentence naming polonium (French + translation), the notebooks at
-   the BnF, the two Nobel Prizes, the Radium Institute in Warsaw (1932), and three photos with captions.
+   the BnF, the two Nobel Prizes, the Radium Institute in Warsaw (1932), two photos and two pages of Marie's handwritten laboratory notebook, with captions.
 5. **Answers** (option, on): the solved tree and graph.
 
 Same code + same settings ⇒ the same sheet. URL: `?seed=&level=easy|mid|hard&how=1|0&real=1|0&key=1|0`.
@@ -55,4 +55,6 @@ sheet says so. Photos, via Wikimedia Commons, made smaller (900 px):
   (`File:Marie Curie in her laboratory.jpg`).
 - `curie-room.jpg`: inside the shed in rue Lhomond where the ore was processed and radium concentrated, *Œuvres de
   Pierre Curie* (1908), plate II, view 1, via Gallica; public domain.
-- `curie-shed.jpg`: the shed and buildings of the École de physique et de chimie, same book, plate I, image 1; public domain.
+- `curie-notebook.jpg`: two pages of Marie Curie's handwritten laboratory notebook (dates 19, 21, 22 January,
+  drawings, measurements, "rien"), Wellcome Collection, CC BY 4.0 (`File:Pages from Marie Curie's notebook, Wellcome
+  L0001764.jpg`); the credit is printed on the page.

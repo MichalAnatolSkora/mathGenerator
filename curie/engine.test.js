@@ -72,7 +72,7 @@ for (const l of Object.keys(T)) {
   ok(`strings ${l}: mission 3 questions`, X.m3.q.easy(150).join().includes('150') && X.m3.q.mid(150).join().includes('150') && X.m3.q.hard(back, 2026).join().includes('280') && X.m3.q.hard(back, 2026).join().includes('2026'));
   ok(`strings ${l}: answers`, X.answers.m3.back(back).includes('200') && X.answers.m3.halvings(323, 2026).includes('323') && X.answers.m2.fin('X', 800, 400, 100).includes('400'));
   ok(`strings ${l}: the real table`, X.real.rows.length === 8 && X.real.rows.every((r, j) => r[0] === T.pl.real.rows[j][0] && r[2] === T.pl.real.rows[j][2]) && X.real.quoteFr === T.pl.real.quoteFr);
-  ok(`strings ${l}: photo captions`, ['lab', 'room', 'shed'].every(k => X.real.photos[k]) && X.real.photosSrc.includes('Wikimedia Commons'));
+  ok(`strings ${l}: photo captions`, ['lab', 'room', 'notebook'].every(k => X.real.photos[k]) && X.real.photosSrc.includes('Wellcome Collection, CC BY 4.0'));
   ok(`strings ${l}: real answers`, X.real.q.length === 3 && X.answers.real.length === 3);
 }
 

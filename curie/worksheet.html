@@ -46,7 +46,7 @@
   .real .quote{border-left:1mm solid #f0a020;padding:1mm 3mm;margin:0 0 3mm;background:#fffaf0;}
   .real .quote .fr{font:italic 12px/1.4 Georgia,serif;margin:0 0 1mm;}
   .real .sec p{font-size:10.8px;line-height:1.35;margin:0 0 2mm;}
-  .real .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;align-items:start;margin:1mm 0 0;}
+  .real .photos{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:4mm;align-items:start;margin:1mm 0 0;}
   .real figure{margin:0;}
   .real figure img{display:block;width:100%;height:auto;border:0.3mm solid #bbb;}
   .real .cap{font-size:9.5px;line-height:1.28;color:#444;margin:1mm 0 0;}
@@ -177,7 +177,7 @@
           <h3>🇵🇱 ${esc(R.quoteT)}</h3>
           <div class="quote"><p class="fr">${esc(R.quoteFr)}</p><p style="margin:0">${esc(R.quote)}</p></div>
           ${R.facts.map(([h, p]) => `<div class="sec"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}
-          <div class="photos">${[['lab', 900, 628], ['room', 900, 663], ['shed', 900, 659]].map(([k, w, h]) => `<figure><img src="curie-${k}.jpg" width="${w}" height="${h}" alt="${esc(R.photos[k])}"><figcaption class="cap">${esc(R.photos[k])}</figcaption></figure>`).join('')}</div>
+          <div class="photos">${[['lab', 900, 628], ['room', 900, 663], ['notebook', 1000, 762]].map(([k, w, h]) => `<figure><img src="curie-${k}.jpg" width="${w}" height="${h}" alt="${esc(R.photos[k])}"><figcaption class="cap">${esc(R.photos[k])}</figcaption></figure>`).join('')}</div>
           <p class="src">${esc(R.sourcesT)} ${esc(R.sources)} ${esc(R.photosSrc)}</p>
         </div>`);
       }
