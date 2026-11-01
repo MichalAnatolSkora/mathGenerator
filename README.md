@@ -1,7 +1,7 @@
 # Zagadki dla dzieci — logic & math puzzles for kids
 
 A small static site of logic and math puzzles for children. Every puzzle is a plain web page
-(HTML + CSS + vanilla JS, no build step, no dependencies, no network) that works from `file://`,
+(HTML + CSS + vanilla JS, no build step, no dependencies, no network apart from the visit counter) that works from `file://`,
 from any static server, and on GitHub Pages. Puzzles can be played online and/or printed as A4
 worksheets with answer keys.
 
@@ -52,6 +52,13 @@ different language than the game texts (`?msg=`).
 | [`sheet-kit/`](sheet-kit/) | Shared kit of the paper-only worksheets above: controls, sheet code, A4 print layout, common texts |
 
 Details: [`cipher-detective/README.md`](cipher-detective/README.md), [`enigma/README.md`](enigma/README.md), [`clock/README.md`](clock/README.md), [`graphic-dictation/README.md`](graphic-dictation/README.md), [`robot-chef/README.md`](robot-chef/README.md), [`curie/README.md`](curie/README.md), [`morse/README.md`](morse/README.md), [`latitude/README.md`](latitude/README.md), [`math-crossword/PRD.md`](math-crossword/PRD.md), [`picture-sudoku/README.md`](picture-sudoku/README.md), [`mazes/README.md`](mazes/README.md), [`connect-dots/README.md`](connect-dots/README.md), [`nonograms/README.md`](nonograms/README.md), [`mirror-drawing/README.md`](mirror-drawing/README.md), [`word-problems/README.md`](word-problems/README.md), [`color-by-math/README.md`](color-by-math/README.md), [`dwojka/README.md`](dwojka/README.md), [`wisla-1920/README.md`](wisla-1920/README.md), [`rewolucja-1920/README.md`](rewolucja-1920/README.md), [`enigma-1932/README.md`](enigma-1932/README.md), [`zygalski-sheets/README.md`](zygalski-sheets/README.md), [`zygalski-full/README.md`](zygalski-full/README.md).
+
+## Visit statistics
+
+[`i18n.js`](i18n.js), which every page loads, also loads the [GoatCounter](https://www.goatcounter.com) counter;
+the dashboard is <https://mathgenerator.goatcounter.com> (countries, pages, referrers, phone or computer). No cookies
+and no personal data, so no consent banner. Pages are counted without `?lang=…`; printing a page is counted as an
+event `print:/path`. Nothing is counted from `file://`, localhost or headless Chrome (the A4 check).
 
 ## Run locally
 
