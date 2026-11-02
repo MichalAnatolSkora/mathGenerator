@@ -4,6 +4,7 @@
  *
  *   W20.ALPHABET            → the Russian alphabet of the telegrams (32 letters, Ё written as Е, as in telegrams)
  *   W20.VOCAB               → every word the telegrams use (the glossary on the sheet); meanings live in strings.js
+ *   W20.EXTRA / W20.DICT    → ★★★★: military words the telegrams do not use / the "military dictionary" (both)
  *   W20.SLOTS               → the three telegrams: [variants…] each { id, text, sign }
  *   W20.key(rnd)            → the day's key: letter → a two-digit number, all different
  *   W20.day(rnd)            → { key, telegrams: [{ slot, id, words: [[number…]…], plain: [word…] }] }
@@ -13,7 +14,9 @@
  *   W20.patternHits(day)    → ★★★ (no gaps): where a ДИВИЗИЯ-shaped run starts in telegram 1 (can be twice)
  *   W20.stream(telegram)    → ★★★★ (no gaps): rows of ROW numbers, each row in groups of five
  *   W20.combSvg(label)      → Kowalewski's comb to cut out, 1:1 with the telegram cells (teeth 2, 4, 6 grey: cut off)
- *   W20.countStreamSolutions(day, known) → ★★★: ways to split the gapless telegrams into glossary words (0, 1 or 2)
+ *   W20.counts(day)         → ★★★★: how many times each number appears in the three telegrams (number → count)
+ *   W20.countStreamSolutions(day, known, vocab) → ★★★★: ways to split the gapless telegrams into words of `vocab`
+ *                             (the glossary, or the dictionary on ★★★★) with one key (0, 1 or 2)
  *   W20.solve(day, known)   → what a child can read, starting from `known` (number → letter) and guessing
  *                             glossary words that fit; returns the final map
  *   W20.mapSvg(opts)        → the map of the battle (base, unit markers, arrows), labels from the strings file
@@ -21,6 +24,9 @@
  * The cipher is a simple substitution: every letter becomes a two-digit number (one of the simpler kinds of
  * cipher of the time). Kowalewski is said to have found his first letter, И, in the word ДИВИЗИЯ — "division"
  * has И in places 2, 4 and 6, so its numbers make a pattern you can spot. That is how the sheet starts too.
+ * ★★★★ adds what is known of the real work: Kowalewski's own memoir names Poe's "The Gold-Bug", i.e. counting
+ * how often each sign appears (vowels come first); the open heading names the sender, so the telegram ends with a
+ * commander's signature; and the codebreakers knew Russian, so the dictionary has words the telegrams do not use.
  */
 const W20 = (() => {
   const ALPHABET = [...'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'];
@@ -43,6 +49,10 @@ const W20 = (() => {
   ];
   const words = v => [...v.text.split(' '), ...(v.sign ? [v.sign] : [])];
   const VOCAB = [...new Set(SLOTS.flat().flatMap(words))].sort((a, b) => a.localeCompare(b, 'ru'));
+  // ★★★★: words a codebreaker would also know, not used by the telegrams (tested: they never give a second reading)
+  const EXTRA = ['ПОЛК', 'ШТАБ', 'ФРОНТ', 'МОСТ', 'ПОЕЗД', 'ПЕХОТА', 'ОТСТУПАТЬ', 'ВАРШАВА', 'ГОРОД', 'РЕКА',
+    'ПАТРОНЫ', 'КОМАНДИР', 'СЕВЕР', 'ЗАПАД'];
+  const DICT = [...VOCAB, ...EXTRA].sort((a, b) => a.localeCompare(b, 'ru'));
 
   function key(rnd) {
     const nums = [];
@@ -117,8 +127,15 @@ const W20 = (() => {
       + `</svg>`;
   }
 
-  /** ★★★: how many ways the three gapless telegrams split into glossary words with one key, from `known` (stops at 2). */
-  function countStreamSolutions(d, known) {
+  /** ★★★★: how many times each number appears in the three telegrams (number → count). */
+  function counts(d) {
+    const c = {};
+    for (const n of d.telegrams.flatMap(t => t.words.flat())) c[n] = (c[n] || 0) + 1;
+    return c;
+  }
+
+  /** ★★★★: how many ways the three gapless telegrams split into words of `vocab` with one key, from `known` (stops at 2). */
+  function countStreamSolutions(d, known, vocab = VOCAB) {
     const streams = d.telegrams.map(t => t.words.flat());
     let count = 0;
     (function seg(t, pos, map) {
@@ -126,7 +143,7 @@ const W20 = (() => {
       if (t === streams.length) { count++; return; }
       const st = streams[t];
       if (pos === st.length) return seg(t + 1, 0, map);
-      for (const w of VOCAB) {
+      for (const w of vocab) {
         if (pos + w.length > st.length) continue;
         const m = { ...map }, used = new Set(Object.values(m));
         let ok = true;
@@ -325,6 +342,6 @@ const W20 = (() => {
     source: 'Archiwum Instytutu Józefa Piłsudskiego w Ameryce, Kolekcja nr 3, t. 1, s. 29 · poznajhistorie.org',
   };
 
-  return { ALPHABET, PATTERN_WORD, SLOTS, VOCAB, REAL, key, day, lettersUsed, halfKey, findPattern, patternHits, ROW, stream, PITCH, combSvg, countStreamSolutions, solve, mapSvg, CHOICE_ANSWER: 'A' };
+  return { ALPHABET, PATTERN_WORD, SLOTS, VOCAB, EXTRA, DICT, REAL, key, day, lettersUsed, halfKey, findPattern, patternHits, ROW, stream, PITCH, combSvg, counts, countStreamSolutions, solve, mapSvg, CHOICE_ANSWER: 'A' };
 })();
 if (typeof module !== 'undefined') module.exports = W20;

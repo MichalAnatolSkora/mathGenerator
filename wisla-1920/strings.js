@@ -8,7 +8,7 @@ const W20_TEXT = {
     title: "Tajne depesze 1920",
     appTitle: "📻 Cud nad Wisłą — Tajne depesze 1920",
     appSub: 'Sierpień 1920, Armia Czerwona pod Warszawą. Odczytaj przechwycone depesze tak jak polski radiowywiad, doradź Naczelnemu Wodzowi, gdzie uderzyć, i poznaj historię Cudu nad Wisłą. Karta do druku z rozwiązaniami.',
-    level: 'Poziom', levels: { easy: '★ Klucz prawie gotowy', mid: '★★ Pół klucza', hard: '★★★ Jak Kowalewski', expert: '★★★★ Bez przerw, jak prawdziwa depesza' },
+    level: 'Poziom', levels: { easy: '★ Klucz prawie gotowy', mid: '★★ Pół klucza', hard: '★★★ Jak Kowalewski', expert: '★★★★ Jak naprawdę: bez przerw i bez listy słów' },
     optStory: 'Strona z historią Cudu nad Wisłą',
     mission: {
       sub: 'Jesteś w polskim radiowywiadzie. Sierpień 1920 roku.',
@@ -20,10 +20,15 @@ const W20_TEXT = {
       easyNext: 'Klucz ma już prawie wszystkie litery — brakuje tylko liter słowa ДИВИЗИЯ. Uzupełnij go i odczytaj depesze: pod każdą liczbą wpisz jej literę.',
       midNext: "Połowa klucza jest już wpisana. Uzupełnij litery ДИВИЗИЯ, wpisz znane litery pod liczbami, a brakujące słowa odgadnij ze słowniczka — każdą nową literę dopisz do klucza.",
       hardNext: 'Potem zgaduj dalej jak prawdziwy kryptolog: weź słowo, w którym znasz już kilka liter, i znajdź w słowniczku słowo tej samej długości, które pasuje. Każdą nową literę wpisz do klucza — przyda się w innych słowach.',
-      expertHint: "Prawdziwe depesze nie miały przerw między słowami: liczby szły w grupach po pięć, a słowo może zacząć się w środku grupy. Szukaj 7 liczb pod rząd, w których liczby nr 2, 4 i 6 są takie same — to może być ДИВИЗИЯ. Uwaga: taki wzór może pasować w dwóch miejscach; sprawdź, które daje sensowne słowa.",
-      expertNext: "Potem szukaj w ciągu liczb słów ze słowniczka, które pasują do znanych liter, i zaznacz kreską, gdzie kończy się każde słowo. Każdą nową literę wpisz do klucza.",
-      keyTitle: 'Klucz dnia', keyNote: 'liczba → litera',
+      expertHint: 'Prawdziwe depesze nie miały przerw między słowami: liczby szły w grupach po pięć, a słowo może zacząć się w środku grupy. Kryptolodzy nie mieli też listy słów z depeszy — znali rosyjski. Pracuj jak oni:',
+      expertSteps: [
+        'Licz jak w „Złotym żuku” Edgara Poego (to opowiadanie Kowalewski wymienia w swoich wspomnieniach): ile razy każda liczba stoi we wszystkich trzech depeszach? Wpisz to w kratki „ile” w kluczu. Najczęstsze liczby to zwykle samogłoski; po rosyjsku najczęstsze są О, Е, А i И.',
+        'Grzebień: szukaj 7 liczb pod rząd, w których liczby nr 2, 4 i 6 są takie same — to może być ДИВИЗИЯ. Czy ta liczba jest jedną z najczęstszych? Wzór może pasować w dwóch miejscach; sprawdź, które daje sensowne słowa.',
+        'Podpis: nasłuch wiedział, która radiostacja nadała depeszę (nagłówek). Depesze kończą się zwykle podpisem dowódcy — jego nazwisko jest w słowniku.',
+        'Słownik wojskowy ma też słowa, których w depeszach nie ma, jak wiedza prawdziwego kryptologa. Szukaj słów, które pasują do znanych liter, i zaznacz kreską, gdzie kończy się każde słowo. Każdą nową literę wpisz do klucza.'],
+      keyTitle: 'Klucz dnia', keyNote: 'liczba → litera', keyNoteExpert: 'liczba → ile razy → litera', countLab: 'ile',
       glossTitle: 'Słowniczek rosyjsko-polski',
+      dictTitle: 'Słownik wojskowy rosyjsko-polski',
       tg: n => `Depesza ${n}`,
     },
     heads: [
@@ -55,6 +60,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'skręcić, zawrócić', 'СИЛ': 'sił (wojska)', 'СТОИТ': 'stoi',
       'ТУХАЧЕВСКИЙ': 'Tuchaczewski — dowódca Frontu Zachodniego', 'У': 'u, przy, pod', 'ЧЕТВЕРТОЙ': 'czwartej',
       'ШУВАЕВ': 'Szuwajew — dowódca 4 Armii', 'ЮГ': 'południe',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'pułk', 'ШТАБ': 'sztab', 'ФРОНТ': 'front', 'МОСТ': 'most', 'ПОЕЗД': 'pociąg', 'ПЕХОТА': 'piechota', 'ОТСТУПАТЬ': 'wycofać się', 'ВАРШАВА': 'Warszawa', 'ГОРОД': 'miasto', 'РЕКА': 'rzeka', 'ПАТРОНЫ': 'naboje', 'КОМАНДИР': 'dowódca', 'СЕВЕР': 'północ', 'ЗАПАД': 'zachód',
     },
     answers: {
       keyTitle: 'Cały klucz dnia',
@@ -126,7 +135,7 @@ const W20_TEXT = {
         "★ — klucz jest prawie pełny, brakuje tylko liter słowa ДИВИЗИЯ.",
         "★★ — połowa klucza jest gotowa: zaczynasz od ДИВИЗИЯ, a resztę słów odgadujesz ze słowniczka.",
         "★★★ — klucz jest pusty: zaczynasz od ДИВИЗИЯ i zgadujesz dalej ze słowniczkiem.",
-        "★★★★ — jak prawdziwa depesza: bez przerw między słowami, liczby w grupach po pięć."
+        "★★★★ — jak naprawdę: bez przerw, liczysz liczby jak u Poego i szukasz podpisów."
       ]
     },
     optReal: "Ciekawostka: prawdziwa depesza z 1920 roku",
@@ -209,7 +218,7 @@ const W20_TEXT = {
     title: "Secret telegrams of 1920",
     appTitle: "📻 The Miracle on the Vistula — Secret telegrams of 1920",
     appSub: 'August 1920, the Red Army outside Warsaw. Read intercepted telegrams the way Polish radio intelligence did, advise the Commander-in-Chief where to strike, and discover the story of the Miracle on the Vistula. A printable sheet with answers.',
-    level: 'Level', levels: { easy: '★ Key almost ready', mid: '★★ Half the key', hard: '★★★ Like Kowalewski', expert: '★★★★ No gaps, like a real telegram' },
+    level: 'Level', levels: { easy: '★ Key almost ready', mid: '★★ Half the key', hard: '★★★ Like Kowalewski', expert: '★★★★ The real way: no gaps, no word list' },
     optStory: 'Page with the story of the Miracle on the Vistula',
     mission: {
       sub: 'You work in Polish radio intelligence. August 1920.',
@@ -221,10 +230,15 @@ const W20_TEXT = {
       easyNext: 'The key already has almost every letter — only the letters of ДИВИЗИЯ are missing. Fill them in and read the telegrams: under every number write its letter.',
       midNext: "Half of the key is already filled in. Add the letters of ДИВИЗИЯ, write the known letters under the numbers, and guess the missing words from the glossary — add every new letter to the key.",
       hardNext: 'Then keep guessing like a real codebreaker: take a word where you already know a few letters and find a word of the same length in the glossary that fits. Write every new letter into the key — it will help in other words.',
-      expertHint: "Real telegrams had no gaps between words: the numbers came in groups of five, and a word can start in the middle of a group. Look for 7 numbers in a row whose 2nd, 4th and 6th numbers are the same — that may be ДИВИЗИЯ. Careful: the pattern can fit in two places; check which one gives words that make sense.",
-      expertNext: "Then look in the row of numbers for glossary words that fit the letters you know, and draw a line where each word ends. Write every new letter into the key.",
-      keyTitle: 'The day’s key', keyNote: 'number → letter',
+      expertHint: 'Real telegrams had no gaps between words: the numbers came in groups of five, and a word can start in the middle of a group. The codebreakers had no list of the telegrams’ words either — they knew Russian. Work like them:',
+      expertSteps: [
+        'Count as in Edgar Allan Poe’s “The Gold-Bug” (Kowalewski names this story in his memoir): how many times does each number appear in all three telegrams? Write it in the “how many” boxes of the key. The most frequent numbers are usually vowels; in Russian the most frequent letters are О, Е, А and И.',
+        'The comb: look for 7 numbers in a row whose 2nd, 4th and 6th numbers are the same — that may be ДИВИЗИЯ. Is that number one of the most frequent? The pattern can fit in two places; check which one gives words that make sense.',
+        'The signature: the listeners knew which radio station sent the telegram (the heading). Telegrams usually end with the commander’s signature — his name is in the dictionary.',
+        'The military dictionary also has words that are not in the telegrams, like a real codebreaker’s knowledge. Look for words that fit the letters you know, and draw a line where each word ends. Write every new letter into the key.'],
+      keyTitle: 'The day’s key', keyNote: 'number → letter', keyNoteExpert: 'number → how many times → letter', countLab: 'how many',
       glossTitle: 'Russian–English glossary',
+      dictTitle: 'Russian–English military dictionary',
       tg: n => `Telegram ${n}`,
     },
     heads: [
@@ -256,6 +270,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'to turn', 'СИЛ': 'forces (soldiers)', 'СТОИТ': 'stands, is',
       'ТУХАЧЕВСКИЙ': 'Tukhachevsky — commander of the Western Front', 'У': 'at, near; У … = … has', 'ЧЕТВЕРТОЙ': 'fourth',
       'ШУВАЕВ': 'Shuvayev — commander of the 4th Army', 'ЮГ': 'south',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'regiment', 'ШТАБ': 'headquarters, staff', 'ФРОНТ': 'front (line)', 'МОСТ': 'bridge', 'ПОЕЗД': 'train', 'ПЕХОТА': 'infantry', 'ОТСТУПАТЬ': 'to retreat', 'ВАРШАВА': 'Warsaw', 'ГОРОД': 'town, city', 'РЕКА': 'river', 'ПАТРОНЫ': 'cartridges', 'КОМАНДИР': 'commander', 'СЕВЕР': 'north', 'ЗАПАД': 'west',
     },
     answers: {
       keyTitle: 'The whole key of the day',
@@ -327,7 +345,7 @@ const W20_TEXT = {
         "★ — the key is almost full; only the letters of ДИВИЗИЯ are missing.",
         "★★ — half the key is ready: you start from ДИВИЗИЯ and guess the other words from the glossary.",
         "★★★ — the key is empty: you start from ДИВИЗИЯ and keep guessing with the glossary.",
-        "★★★★ — like a real telegram: no gaps between words, numbers in groups of five."
+        "★★★★ — the real way: no gaps, you count numbers as in Poe and look for signatures."
       ]
     },
     optReal: "Fun fact: a real telegram from 1920",
@@ -410,7 +428,7 @@ const W20_TEXT = {
     title: "Таємні телеграми 1920 року",
     appTitle: "📻 Чудо на Віслі — Таємні телеграми 1920 року",
     appSub: 'Серпень 1920 року, Червона армія під Варшавою. Прочитай перехоплені телеграми так, як польська радіорозвідка, порадь Головнокомандувачу, де вдарити, і дізнайся історію Чуда на Віслі. Аркуш для друку з відповідями.',
-    level: 'Рівень', levels: { easy: '★ Ключ майже готовий', mid: '★★ Пів ключа', hard: '★★★ Як Ковалевський', expert: '★★★★ Без пропусків, як справжня телеграма' },
+    level: 'Рівень', levels: { easy: '★ Ключ майже готовий', mid: '★★ Пів ключа', hard: '★★★ Як Ковалевський', expert: '★★★★ Як насправді: без пропусків і без списку слів' },
     optStory: 'Сторінка з історією Чуда на Віслі',
     mission: {
       sub: 'Ти працюєш у польській радіорозвідці. Серпень 1920 року.',
@@ -422,10 +440,15 @@ const W20_TEXT = {
       easyNext: 'У ключі вже є майже всі літери — бракує лише літер слова ДИВИЗИЯ. Допиши їх і прочитай телеграми: під кожним числом напиши його літеру.',
       midNext: "Половину ключа вже вписано. Допиши літери ДИВИЗИЯ, впиши відомі літери під числами, а слова, яких бракує, вгадай зі словничка — кожну нову літеру допиши до ключа.",
       hardNext: 'Далі вгадуй, як справжній криптолог: візьми слово, у якому вже знаєш кілька літер, і знайди в словничку слово такої самої довжини, яке підходить. Кожну нову літеру впиши до ключа — вона знадобиться в інших словах.',
-      expertHint: "Справжні телеграми не мали пропусків між словами: числа йшли групами по п’ять, і слово може починатися посеред групи. Шукай 7 чисел поспіль, у яких 2-ге, 4-те і 6-те числа однакові, — це може бути ДИВИЗИЯ. Увага: такий візерунок може підійти у двох місцях; перевір, яке дає слова з сенсом.",
-      expertNext: "Далі шукай у ряду чисел слова зі словничка, які підходять до відомих літер, і познач рискою, де закінчується кожне слово. Кожну нову літеру впиши до ключа.",
-      keyTitle: 'Ключ дня', keyNote: 'число → літера',
+      expertHint: 'Справжні телеграми не мали пропусків між словами: числа йшли групами по п’ять, і слово може починатися посеред групи. Криптологи не мали й списку слів із телеграми — вони знали російську. Працюй як вони:',
+      expertSteps: [
+        'Рахуй, як у «Золотому жуку» Едгара По (це оповідання Ковалевський згадує у своїх спогадах): скільки разів кожне число трапляється в усіх трьох телеграмах? Впиши це в клітинки «скільки» в ключі. Найчастіші числа — зазвичай голосні; у російській найчастіші літери О, Е, А та И.',
+        'Гребінець: шукай 7 чисел поспіль, у яких 2-ге, 4-те і 6-те числа однакові, — це може бути ДИВИЗИЯ. Чи це число одне з найчастіших? Візерунок може підійти у двох місцях; перевір, яке дає слова зі змістом.',
+        'Підпис: радіорозвідка знала, яка радіостанція надіслала телеграму (заголовок). Телеграми зазвичай закінчуються підписом командувача — його прізвище є в словнику.',
+        'Військовий словник має й слова, яких у телеграмах немає, як знання справжнього криптолога. Шукай слова, що підходять до відомих літер, і познач рискою, де закінчується кожне слово. Кожну нову літеру впиши до ключа.'],
+      keyTitle: 'Ключ дня', keyNote: 'число → літера', keyNoteExpert: 'число → скільки разів → літера', countLab: 'скільки',
       glossTitle: 'Російсько-український словничок',
+      dictTitle: 'Російсько-український військовий словник',
       tg: n => `Телеграма ${n}`,
     },
     heads: [
@@ -457,6 +480,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Плоцьк', 'ПОВЕРНУТЬ': 'повернути', 'СИЛ': 'сил (війська)', 'СТОИТ': 'стоїть',
       'ТУХАЧЕВСКИЙ': 'Тухачевський — командувач Західного фронту', 'У': 'у, біля, під', 'ЧЕТВЕРТОЙ': 'четвертій',
       'ШУВАЕВ': 'Шуваєв — командувач 4-ї армії', 'ЮГ': 'південь',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'полк', 'ШТАБ': 'штаб', 'ФРОНТ': 'фронт', 'МОСТ': 'міст', 'ПОЕЗД': 'потяг', 'ПЕХОТА': 'піхота', 'ОТСТУПАТЬ': 'відступати', 'ВАРШАВА': 'Варшава', 'ГОРОД': 'місто', 'РЕКА': 'річка', 'ПАТРОНЫ': 'набої', 'КОМАНДИР': 'командир', 'СЕВЕР': 'північ', 'ЗАПАД': 'захід',
     },
     answers: {
       keyTitle: 'Увесь ключ дня',
@@ -528,7 +555,7 @@ const W20_TEXT = {
         "★ — ключ майже повний, бракує лише літер слова ДИВИЗИЯ.",
         "★★ — половина ключа готова: починаєш з ДИВИЗИЯ, а решту слів вгадуєш зі словничком.",
         "★★★ — ключ порожній: починаєш з ДИВИЗИЯ і вгадуєш далі зі словничком.",
-        "★★★★ — як справжня телеграма: без пропусків між словами, числа групами по п’ять."
+        "★★★★ — як насправді: без пропусків, рахуєш числа, як у По, і шукаєш підписи."
       ]
     },
     optReal: "Цікавинка: справжня телеграма 1920 року",
@@ -611,7 +638,7 @@ const W20_TEXT = {
     title: "Những bức điện mật năm 1920",
     appTitle: "📻 Phép màu trên sông Vistula — Những bức điện mật năm 1920",
     appSub: 'Tháng 8 năm 1920, Hồng quân đứng trước Warszawa. Hãy đọc các bức điện chặn được như tình báo vô tuyến Ba Lan, khuyên Tổng tư lệnh nên tấn công ở đâu và tìm hiểu câu chuyện Phép màu trên sông Vistula. Phiếu để in kèm đáp án.',
-    level: 'Mức độ', levels: { easy: '★ Khóa gần xong', mid: '★★ Nửa khóa', hard: '★★★ Như Kowalewski', expert: '★★★★ Không cách chữ, như điện thật' },
+    level: 'Mức độ', levels: { easy: '★ Khóa gần xong', mid: '★★ Nửa khóa', hard: '★★★ Như Kowalewski', expert: '★★★★ Như thật: không cách chữ, không danh sách từ' },
     optStory: 'Trang kể chuyện Phép màu trên sông Vistula',
     mission: {
       sub: 'Bạn làm việc trong tình báo vô tuyến Ba Lan. Tháng 8 năm 1920.',
@@ -623,10 +650,15 @@ const W20_TEXT = {
       easyNext: 'Khóa đã có gần đủ chữ — chỉ thiếu các chữ của từ ДИВИЗИЯ. Điền vào rồi đọc các bức điện: dưới mỗi số viết chữ của nó.',
       midNext: "Một nửa khóa đã được điền sẵn. Điền các chữ của ДИВИЗИЯ, viết các chữ đã biết dưới các số, rồi đoán các từ còn thiếu nhờ bảng từ — thêm mỗi chữ mới vào khóa.",
       hardNext: 'Sau đó đoán tiếp như một nhà giải mã thật: lấy một từ mà bạn đã biết vài chữ, rồi tìm trong bảng từ một từ cùng độ dài khớp với nó. Viết mỗi chữ mới vào khóa — nó sẽ giúp ở các từ khác.',
-      expertHint: "Điện thật không có khoảng trống giữa các từ: các số đi thành nhóm năm, và một từ có thể bắt đầu ở giữa nhóm. Hãy tìm 7 số liền nhau mà số thứ 2, 4 và 6 giống nhau — đó có thể là ДИВИЗИЯ. Chú ý: mẫu này có thể khớp ở hai chỗ; hãy kiểm tra chỗ nào cho ra các từ có nghĩa.",
-      expertNext: "Sau đó tìm trong dãy số các từ trong bảng từ khớp với những chữ đã biết, và kẻ một vạch ở chỗ mỗi từ kết thúc. Viết mỗi chữ mới vào khóa.",
-      keyTitle: 'Khóa của ngày', keyNote: 'số → chữ',
+      expertHint: 'Điện thật không có khoảng trống giữa các từ: các số đi thành nhóm năm, và một từ có thể bắt đầu ở giữa nhóm. Các nhà mật mã cũng không có danh sách từ của bức điện — họ biết tiếng Nga. Hãy làm như họ:',
+      expertSteps: [
+        'Đếm như trong truyện “Con bọ vàng” của Edgar Allan Poe (Kowalewski nhắc đến truyện này trong hồi ký): mỗi số xuất hiện bao nhiêu lần trong cả ba bức điện? Viết vào các ô “mấy lần” trong khóa. Các số hay gặp nhất thường là nguyên âm; trong tiếng Nga, các chữ hay gặp nhất là О, Е, А và И.',
+        'Cái lược: tìm 7 số liền nhau mà số thứ 2, 4 và 6 giống nhau — đó có thể là ДИВИЗИЯ. Số đó có phải là một trong những số hay gặp nhất không? Mẫu này có thể khớp ở hai chỗ; hãy kiểm tra chỗ nào cho ra các từ có nghĩa.',
+        'Chữ ký: đài nghe trộm biết đài phát nào đã gửi bức điện (tiêu đề). Bức điện thường kết thúc bằng chữ ký của chỉ huy — tên ông ấy có trong từ điển.',
+        'Từ điển quân sự có cả những từ không có trong các bức điện, giống như hiểu biết của một nhà mật mã thật. Hãy tìm các từ khớp với những chữ đã biết, và kẻ một vạch ở chỗ mỗi từ kết thúc. Viết mỗi chữ mới vào khóa.'],
+      keyTitle: 'Khóa của ngày', keyNote: 'số → chữ', keyNoteExpert: 'số → mấy lần → chữ', countLab: 'mấy lần',
       glossTitle: 'Bảng từ Nga–Việt',
+      dictTitle: 'Từ điển quân sự Nga–Việt',
       tg: n => `Bức điện ${n}`,
     },
     heads: [
@@ -658,6 +690,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'quay, rẽ', 'СИЛ': 'lực lượng (quân lính)', 'СТОИТ': 'đứng, ở',
       'ТУХАЧЕВСКИЙ': 'Tukhachevsky — tư lệnh Phương diện quân Tây', 'У': 'ở, gần; У … = … có', 'ЧЕТВЕРТОЙ': 'thứ tư',
       'ШУВАЕВ': 'Shuvayev — tư lệnh Tập đoàn quân 4', 'ЮГ': 'phía nam',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'trung đoàn', 'ШТАБ': 'bộ tham mưu', 'ФРОНТ': 'mặt trận', 'МОСТ': 'cây cầu', 'ПОЕЗД': 'tàu hỏa', 'ПЕХОТА': 'bộ binh', 'ОТСТУПАТЬ': 'rút lui', 'ВАРШАВА': 'Warszawa', 'ГОРОД': 'thành phố', 'РЕКА': 'con sông', 'ПАТРОНЫ': 'đạn', 'КОМАНДИР': 'chỉ huy', 'СЕВЕР': 'phía bắc', 'ЗАПАД': 'phía tây',
     },
     answers: {
       keyTitle: 'Toàn bộ khóa của ngày',
@@ -729,7 +765,7 @@ const W20_TEXT = {
         "★ — khóa gần đầy đủ, chỉ thiếu các chữ của từ ДИВИЗИЯ.",
         "★★ — nửa khóa đã có sẵn: bạn bắt đầu từ ДИВИЗИЯ và đoán các từ còn lại nhờ bảng từ.",
         "★★★ — khóa trống: bạn bắt đầu từ ДИВИЗИЯ rồi đoán tiếp nhờ bảng từ.",
-        "★★★★ — như điện thật: không có khoảng trống giữa các từ, các số theo nhóm năm."
+        "★★★★ — như thật: không cách chữ, em đếm các số như Poe và tìm chữ ký."
       ]
     },
     optReal: "Điều thú vị: một bức điện thật năm 1920",
@@ -812,7 +848,7 @@ const W20_TEXT = {
     title: "Les télégrammes secrets de 1920",
     appTitle: "📻 Le miracle de la Vistule — Les télégrammes secrets de 1920",
     appSub: 'Août 1920, l’Armée rouge aux portes de Varsovie. Lis des télégrammes interceptés comme le renseignement radio polonais, conseille au commandant en chef où frapper et découvre l’histoire du miracle de la Vistule. Une fiche à imprimer avec les solutions.',
-    level: 'Niveau', levels: { easy: '★ Clé presque prête', mid: '★★ Demi-clé', hard: '★★★ Comme Kowalewski', expert: '★★★★ Sans espaces, comme un vrai télégramme' },
+    level: 'Niveau', levels: { easy: '★ Clé presque prête', mid: '★★ Demi-clé', hard: '★★★ Comme Kowalewski', expert: '★★★★ Pour de vrai : sans espaces ni liste de mots' },
     optStory: 'Page avec l’histoire du miracle de la Vistule',
     mission: {
       sub: 'Tu travailles au renseignement radio polonais. Août 1920.',
@@ -824,10 +860,15 @@ const W20_TEXT = {
       easyNext: 'La clé a déjà presque toutes les lettres — il ne manque que celles du mot ДИВИЗИЯ. Complète-la et lis les télégrammes : sous chaque nombre, écris sa lettre.',
       midNext: "La moitié de la clé est déjà remplie. Ajoute les lettres de ДИВИЗИЯ, écris les lettres connues sous les nombres, et devine les mots qui manquent grâce au lexique — ajoute chaque nouvelle lettre à la clé.",
       hardNext: 'Ensuite, devine comme un vrai cryptologue : prends un mot dont tu connais déjà quelques lettres et trouve dans le lexique un mot de la même longueur qui convient. Écris chaque nouvelle lettre dans la clé — elle servira dans d’autres mots.',
-      expertHint: "Les vrais télégrammes n’avaient pas d’espaces entre les mots : les nombres allaient par groupes de cinq, et un mot peut commencer au milieu d’un groupe. Cherche 7 nombres à la suite dont les 2e, 4e et 6e sont les mêmes — c’est peut-être ДИВИЗИЯ. Attention : ce motif peut aller à deux endroits ; vérifie lequel donne des mots qui ont un sens.",
-      expertNext: "Ensuite, cherche dans la suite de nombres des mots du lexique qui collent aux lettres connues, et trace un trait là où finit chaque mot. Écris chaque nouvelle lettre dans la clé.",
-      keyTitle: 'La clé du jour', keyNote: 'nombre → lettre',
+      expertHint: 'Les vrais télégrammes n’avaient pas d’espaces entre les mots : les nombres allaient par groupes de cinq, et un mot peut commencer au milieu d’un groupe. Les cryptologues n’avaient pas non plus la liste des mots du télégramme : ils savaient le russe. Travaille comme eux :',
+      expertSteps: [
+        'Compte comme dans « Le Scarabée d’or » d’Edgar Poe (Kowalewski cite cette histoire dans ses souvenirs) : combien de fois chaque nombre apparaît-il dans les trois télégrammes ? Écris-le dans les cases « combien » de la clé. Les nombres les plus fréquents sont souvent des voyelles ; en russe, les lettres les plus fréquentes sont О, Е, А et И.',
+        'Le peigne : cherche 7 nombres à la suite dont les 2e, 4e et 6e sont les mêmes — c’est peut-être ДИВИЗИЯ. Ce nombre est-il parmi les plus fréquents ? Le motif peut aller à deux endroits ; vérifie lequel donne des mots qui ont un sens.',
+        'La signature : l’écoute savait quelle station radio avait envoyé le télégramme (l’en-tête). Les télégrammes finissent souvent par la signature du chef — son nom est dans le dictionnaire.',
+        'Le dictionnaire militaire a aussi des mots qui ne sont pas dans les télégrammes, comme le savoir d’un vrai cryptologue. Cherche des mots qui collent aux lettres connues, et trace un trait là où finit chaque mot. Écris chaque nouvelle lettre dans la clé.'],
+      keyTitle: 'La clé du jour', keyNote: 'nombre → lettre', keyNoteExpert: 'nombre → combien de fois → lettre', countLab: 'combien',
       glossTitle: 'Petit lexique russe-français',
+      dictTitle: 'Dictionnaire militaire russe-français',
       tg: n => `Télégramme ${n}`,
     },
     heads: [
@@ -859,6 +900,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'tourner', 'СИЛ': 'de forces (de soldats)', 'СТОИТ': 'se tient, est',
       'ТУХАЧЕВСКИЙ': 'Toukhatchevski — chef du front de l’Ouest', 'У': 'près de ; У … = … a', 'ЧЕТВЕРТОЙ': 'quatrième',
       'ШУВАЕВ': 'Chouvaïev — chef de la 4e armée', 'ЮГ': 'sud',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'régiment', 'ШТАБ': 'état-major', 'ФРОНТ': 'front', 'МОСТ': 'pont', 'ПОЕЗД': 'train', 'ПЕХОТА': 'infanterie', 'ОТСТУПАТЬ': 'reculer, battre en retraite', 'ВАРШАВА': 'Varsovie', 'ГОРОД': 'ville', 'РЕКА': 'rivière', 'ПАТРОНЫ': 'cartouches', 'КОМАНДИР': 'commandant', 'СЕВЕР': 'nord', 'ЗАПАД': 'ouest',
     },
     answers: {
       keyTitle: 'Toute la clé du jour',
@@ -930,7 +975,7 @@ const W20_TEXT = {
         "★ — la clé est presque pleine ; il ne manque que les lettres de ДИВИЗИЯ.",
         "★★ — la moitié de la clé est prête : tu pars de ДИВИЗИЯ et tu devines les autres mots avec le lexique.",
         "★★★ — la clé est vide : tu pars de ДИВИЗИЯ et tu devines la suite avec le lexique.",
-        "★★★★ — comme un vrai télégramme : pas d’espaces entre les mots, des nombres par groupes de cinq."
+        "★★★★ — pour de vrai : sans espaces, tu comptes les nombres comme chez Poe et tu cherches les signatures."
       ]
     },
     optReal: "Le saviez-vous ? Un vrai télégramme de 1920",
@@ -1013,7 +1058,7 @@ const W20_TEXT = {
     title: "I telegrammi segreti del 1920",
     appTitle: "📻 Il miracolo della Vistola — I telegrammi segreti del 1920",
     appSub: 'Agosto 1920, l’Armata Rossa alle porte di Varsavia. Leggi i telegrammi intercettati come l’intelligence radio polacca, consiglia al comandante supremo dove attaccare e scopri la storia del miracolo della Vistola. Una scheda da stampare con le soluzioni.',
-    level: 'Livello', levels: { easy: '★ Chiave quasi pronta', mid: '★★ Mezza chiave', hard: '★★★ Come Kowalewski', expert: '★★★★ Senza spazi, come un vero telegramma' },
+    level: 'Livello', levels: { easy: '★ Chiave quasi pronta', mid: '★★ Mezza chiave', hard: '★★★ Come Kowalewski', expert: '★★★★ Davvero: senza spazi né lista di parole' },
     optStory: 'Pagina con la storia del miracolo della Vistola',
     mission: {
       sub: 'Lavori nell’intelligence radio polacca. Agosto 1920.',
@@ -1025,10 +1070,15 @@ const W20_TEXT = {
       easyNext: 'La chiave ha già quasi tutte le lettere — mancano solo quelle della parola ДИВИЗИЯ. Completala e leggi i telegrammi: sotto ogni numero scrivi la sua lettera.',
       midNext: "Metà della chiave è già scritta. Aggiungi le lettere di ДИВИЗИЯ, scrivi le lettere note sotto i numeri e indovina le parole mancanti con il glossario: aggiungi ogni nuova lettera alla chiave.",
       hardNext: 'Poi continua a indovinare come un vero crittologo: prendi una parola di cui conosci già qualche lettera e cerca nel glossario una parola della stessa lunghezza che vada bene. Scrivi ogni nuova lettera nella chiave — servirà in altre parole.',
-      expertHint: "I veri telegrammi non avevano spazi tra le parole: i numeri andavano a gruppi di cinque, e una parola può cominciare a metà di un gruppo. Cerca 7 numeri di fila in cui il 2°, il 4° e il 6° sono uguali: potrebbe essere ДИВИЗИЯ. Attenzione: lo schema può andare bene in due punti; controlla quale dà parole sensate.",
-      expertNext: "Poi cerca nella fila di numeri parole del glossario che vadano bene con le lettere note, e segna con una lineetta dove finisce ogni parola. Scrivi ogni nuova lettera nella chiave.",
-      keyTitle: 'La chiave del giorno', keyNote: 'numero → lettera',
+      expertHint: 'I veri telegrammi non avevano spazi tra le parole: i numeri andavano a gruppi di cinque, e una parola può cominciare a metà di un gruppo. I crittologi non avevano nemmeno la lista delle parole del telegramma: sapevano il russo. Lavora come loro:',
+      expertSteps: [
+        'Conta come nello «Scarabeo d’oro» di Edgar Allan Poe (Kowalewski cita questo racconto nelle sue memorie): quante volte compare ogni numero nei tre telegrammi? Scrivilo nelle caselle «quante» della chiave. I numeri più frequenti di solito sono vocali; in russo le lettere più frequenti sono О, Е, А e И.',
+        'Il pettine: cerca 7 numeri di fila in cui il 2°, il 4° e il 6° sono uguali: potrebbe essere ДИВИЗИЯ. Quel numero è tra i più frequenti? Lo schema può andare bene in due punti; controlla quale dà parole sensate.',
+        'La firma: l’ascolto sapeva quale stazione radio aveva mandato il telegramma (l’intestazione). I telegrammi di solito finiscono con la firma del comandante: il suo nome è nel dizionario.',
+        'Il dizionario militare ha anche parole che nei telegrammi non ci sono, come il sapere di un vero crittologo. Cerca parole che vadano bene con le lettere note, e segna con una lineetta dove finisce ogni parola. Scrivi ogni nuova lettera nella chiave.'],
+      keyTitle: 'La chiave del giorno', keyNote: 'numero → lettera', keyNoteExpert: 'numero → quante volte → lettera', countLab: 'quante',
       glossTitle: 'Piccolo glossario russo-italiano',
+      dictTitle: 'Dizionario militare russo-italiano',
       tg: n => `Telegramma ${n}`,
     },
     heads: [
@@ -1060,6 +1110,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'girare, voltare', 'СИЛ': 'forze (soldati)', 'СТОИТ': 'sta, si trova',
       'ТУХАЧЕВСКИЙ': 'Tuchačevskij — comandante del Fronte occidentale', 'У': 'presso, vicino a; У … = … ha', 'ЧЕТВЕРТОЙ': 'quarta',
       'ШУВАЕВ': 'Šuvaev — comandante della 4ª Armata', 'ЮГ': 'sud',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'reggimento', 'ШТАБ': 'stato maggiore', 'ФРОНТ': 'fronte', 'МОСТ': 'ponte', 'ПОЕЗД': 'treno', 'ПЕХОТА': 'fanteria', 'ОТСТУПАТЬ': 'ritirarsi', 'ВАРШАВА': 'Varsavia', 'ГОРОД': 'città', 'РЕКА': 'fiume', 'ПАТРОНЫ': 'cartucce', 'КОМАНДИР': 'comandante', 'СЕВЕР': 'nord', 'ЗАПАД': 'ovest',
     },
     answers: {
       keyTitle: 'Tutta la chiave del giorno',
@@ -1131,7 +1185,7 @@ const W20_TEXT = {
         "★ — la chiave è quasi piena; mancano solo le lettere di ДИВИЗИЯ.",
         "★★ — metà della chiave è pronta: parti da ДИВИЗИЯ e indovini le altre parole con il glossario.",
         "★★★ — la chiave è vuota: parti da ДИВИЗИЯ e indovini il resto con il glossario.",
-        "★★★★ — come un vero telegramma: niente spazi tra le parole, numeri a gruppi di cinque."
+        "★★★★ — davvero: senza spazi, conti i numeri come in Poe e cerchi le firme."
       ]
     },
     optReal: "Curiosità: un vero telegramma del 1920",
@@ -1214,7 +1268,7 @@ const W20_TEXT = {
     title: "Los telegramas secretos de 1920",
     appTitle: "📻 El milagro del Vístula — Los telegramas secretos de 1920",
     appSub: 'Agosto de 1920, el Ejército Rojo a las puertas de Varsovia. Lee telegramas interceptados como el servicio de escucha polaco, aconseja al comandante en jefe dónde atacar y descubre la historia del milagro del Vístula. Una ficha para imprimir con soluciones.',
-    level: 'Nivel', levels: { easy: '★ Clave casi lista', mid: '★★ Media clave', hard: '★★★ Como Kowalewski', expert: '★★★★ Sin espacios, como un telegrama real' },
+    level: 'Nivel', levels: { easy: '★ Clave casi lista', mid: '★★ Media clave', hard: '★★★ Como Kowalewski', expert: '★★★★ De verdad: sin espacios ni lista de palabras' },
     optStory: 'Página con la historia del milagro del Vístula',
     mission: {
       sub: 'Trabajas en el servicio de escucha de radio polaco. Agosto de 1920.',
@@ -1226,10 +1280,15 @@ const W20_TEXT = {
       easyNext: 'La clave ya tiene casi todas las letras: solo faltan las de la palabra ДИВИЗИЯ. Complétala y lee los telegramas: debajo de cada número escribe su letra.',
       midNext: "La mitad de la clave ya está escrita. Añade las letras de ДИВИЗИЯ, escribe las letras conocidas debajo de los números y adivina las palabras que faltan con el glosario: añade cada letra nueva a la clave.",
       hardNext: 'Después sigue adivinando como un verdadero criptólogo: toma una palabra de la que ya conozcas algunas letras y busca en el glosario una palabra de la misma longitud que encaje. Escribe cada letra nueva en la clave: te servirá en otras palabras.',
-      expertHint: "Los telegramas reales no tenían espacios entre palabras: los números iban en grupos de cinco, y una palabra puede empezar en medio de un grupo. Busca 7 números seguidos en los que el 2.º, el 4.º y el 6.º sean iguales: puede ser ДИВИЗИЯ. Cuidado: el patrón puede encajar en dos sitios; comprueba cuál da palabras con sentido.",
-      expertNext: "Después busca en la fila de números palabras del glosario que encajen con las letras conocidas, y marca con una raya dónde termina cada palabra. Escribe cada letra nueva en la clave.",
-      keyTitle: 'La clave del día', keyNote: 'número → letra',
+      expertHint: 'Los telegramas reales no tenían espacios entre palabras: los números iban en grupos de cinco, y una palabra puede empezar en medio de un grupo. Los criptólogos tampoco tenían la lista de palabras del telegrama: sabían ruso. Trabaja como ellos:',
+      expertSteps: [
+        'Cuenta como en «El escarabajo de oro» de Edgar Allan Poe (Kowalewski menciona este cuento en sus memorias): ¿cuántas veces aparece cada número en los tres telegramas? Escríbelo en las casillas «cuántas» de la clave. Los números más frecuentes suelen ser vocales; en ruso las letras más frecuentes son О, Е, А e И.',
+        'El peine: busca 7 números seguidos cuyos números 2.º, 4.º y 6.º sean iguales: puede ser ДИВИЗИЯ. ¿Es ese número uno de los más frecuentes? El patrón puede encajar en dos sitios; comprueba cuál da palabras con sentido.',
+        'La firma: la escucha sabía qué emisora había enviado el telegrama (el encabezado). Los telegramas suelen terminar con la firma del jefe: su apellido está en el diccionario.',
+        'El diccionario militar tiene también palabras que no están en los telegramas, como el saber de un criptólogo de verdad. Busca palabras que encajen con las letras conocidas y marca con una raya dónde termina cada palabra. Escribe cada letra nueva en la clave.'],
+      keyTitle: 'La clave del día', keyNote: 'número → letra', keyNoteExpert: 'número → cuántas veces → letra', countLab: 'cuántas',
       glossTitle: 'Pequeño glosario ruso-español',
+      dictTitle: 'Diccionario militar ruso-español',
       tg: n => `Telegrama ${n}`,
     },
     heads: [
@@ -1261,6 +1320,10 @@ const W20_TEXT = {
       'ПЛОЦК': 'Płock', 'ПОВЕРНУТЬ': 'girar', 'СИЛ': 'fuerzas (soldados)', 'СТОИТ': 'está',
       'ТУХАЧЕВСКИЙ': 'Tujachevski — jefe del Frente Occidental', 'У': 'junto a, cerca de; У … = … tiene', 'ЧЕТВЕРТОЙ': 'cuarto',
       'ШУВАЕВ': 'Shuváyev — jefe del 4.º Ejército', 'ЮГ': 'sur',
+    },
+    // ★★★★: the words of the military dictionary that the telegrams do not use (W20.EXTRA)
+    extra: {
+      'ПОЛК': 'regimiento', 'ШТАБ': 'estado mayor', 'ФРОНТ': 'frente', 'МОСТ': 'puente', 'ПОЕЗД': 'tren', 'ПЕХОТА': 'infantería', 'ОТСТУПАТЬ': 'retirarse', 'ВАРШАВА': 'Varsovia', 'ГОРОД': 'ciudad', 'РЕКА': 'río', 'ПАТРОНЫ': 'cartuchos', 'КОМАНДИР': 'comandante', 'СЕВЕР': 'norte', 'ЗАПАД': 'oeste',
     },
     answers: {
       keyTitle: 'Toda la clave del día',
@@ -1332,7 +1395,7 @@ const W20_TEXT = {
         "★ — la clave está casi llena; solo faltan las letras de ДИВИЗИЯ.",
         "★★ — la mitad de la clave está lista: empiezas por ДИВИЗИЯ y adivinas las demás palabras con el glosario.",
         "★★★ — la clave está vacía: empiezas por ДИВИЗИЯ y sigues adivinando con el glosario.",
-        "★★★★ — como un telegrama real: sin espacios entre palabras, números en grupos de cinco."
+        "★★★★ — de verdad: sin espacios, cuentas los números como en Poe y buscas las firmas."
       ]
     },
     optReal: "Curiosidad: un telegrama real de 1920",

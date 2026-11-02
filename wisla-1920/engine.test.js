@@ -5,7 +5,8 @@ let fails = 0;
 const ok = (name, cond) => { if (!cond) { fails++; console.log('FAIL', name); } };
 
 ok('32 letters', W20.ALPHABET.length === 32);
-ok('every telegram letter is in the alphabet', W20.VOCAB.every(w => [...w].every(ch => W20.ALPHABET.includes(ch))));
+ok('every telegram letter is in the alphabet', W20.DICT.every(w => [...w].every(ch => W20.ALPHABET.includes(ch))));
+ok('the dictionary: the glossary and the extra words, each once', W20.DICT.length === W20.VOCAB.length + W20.EXTRA.length && new Set(W20.DICT).size === W20.DICT.length);
 for (let s = 0; s < 300; s++) {
   const d = W20.day(KIT.rng('t' + s));
   const nums = Object.values(d.key);
@@ -43,6 +44,13 @@ for (let s = 0; s < 300; s++) {
   ok(`${s}: expert: ДИВИЗИЯ inside one row`, real.every(i => i % W20.ROW <= W20.ROW - 7));
   if (s < 40) ok(`${s}: expert: one answer from ДИВИЗИЯ, none from the false hit`,
     hits.every(i => W20.countStreamSolutions(d, from(i)) === (real.includes(i) ? 1 : 0)));
+  // ★★★★ the real way: the bigger military dictionary still gives one reading, and none from the false hit
+  if (s < 40) ok(`${s}: expert: one answer with the dictionary`,
+    hits.every(i => W20.countStreamSolutions(d, from(i), W20.DICT) === (real.includes(i) ? 1 : 0)));
+  // the counts add up to every number of the telegrams; И (the comb's letter) is among the three most frequent
+  const c = W20.counts(d), total = d.telegrams.reduce((n, t) => n + t.words.flat().length, 0);
+  ok(`${s}: counts add up`, Object.values(c).reduce((a, b) => a + b, 0) === total && Object.keys(c).length === used.length);
+  ok(`${s}: И among the most frequent`, Object.values(c).filter(v => v > c[d.key['И']]).length < 3);
 }
 // the comb is 1:1 with the telegram cells: tooth pitch = cell width + gap between cells, in words and in ★★★★ rows
 const css = require('fs').readFileSync(__dirname + '/worksheet.html', 'utf8');

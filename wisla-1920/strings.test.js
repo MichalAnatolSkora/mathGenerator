@@ -10,6 +10,8 @@ const ids = W20.SLOTS.flat().map(v => v.id);
 for (const [l, C] of Object.entries(T)) {
   if (l !== 'pl') ok(`${l}: same keys and list lengths as pl`, JSON.stringify(shape(C)) === JSON.stringify(shape(T.pl)));
   ok(`${l}: every glossary word explained`, W20.VOCAB.every(w => C.gloss[w]) && Object.keys(C.gloss).length === W20.VOCAB.length);
+  ok(`${l}: every extra word of the ★★★★ dictionary explained`, W20.EXTRA.every(w => C.extra[w]) && Object.keys(C.extra).length === W20.EXTRA.length);
+  ok(`${l}: four ★★★★ steps`, C.mission.expertSteps.length === 4);
   ok(`${l}: every telegram translated`, ids.every(id => C.answers.tr[id]));
   ok(`${l}: telegram headers`, W20.SLOTS.every((vars, i) => typeof C.heads[i] === 'string' || vars.every(v => C.heads[i][v.id])));
   ok(`${l}: answers 1 and 2`, W20.SLOTS[0].every(v => C.answers.a1[v.id]) && W20.SLOTS[1].every(v => C.answers.a2[v.id]));

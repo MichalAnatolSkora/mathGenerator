@@ -65,19 +65,33 @@
   .pr .row2 .d + .d{border-left:0;}
   .pr .lt{height:6.6mm;border:0.4mm solid #555;border-radius:0.8mm;background:#fff;text-align:center;font:700 14px/6.2mm ui-monospace,Menlo,Consolas,monospace;color:#1f4fbf;}
   .pr .lt.pre{color:#888;}
-  /* trials (★★★) */
-  .trials{display:flex;gap:3mm;align-items:flex-start;flex-wrap:wrap;}
-  .trials .labs{padding-top:9.8mm;gap:0.5mm;}
-  .trial h4{margin:0 0 0.6mm;height:4.4mm;font:700 12px/4.4mm ui-monospace,Menlo,Consolas,monospace;color:#1b2a6b;}
-  .trial h4 small{color:#999;font-weight:400;}
-  .trial h4 .yn{float:right;font:400 9.5px system-ui,sans-serif;margin:0;}
-  .trials .labs div{font-size:8.5px;height:4.7mm;line-height:4.7mm;}
-  .trial .pr .c,.trial .d{width:3.8mm;}
-  .trial .d{height:4.7mm;line-height:4.4mm;}
-  .trial .pr .c{height:4.7mm;line-height:4.7mm;}
-  .trial .pr .lt{height:4.7mm;line-height:4.3mm;font-size:12px;}
-  .trial .blk:nth-child(2){background:none;}
-  .yn{font-size:9.5px;color:#555;margin-top:0.8mm;}
+  /* the telegrams in depth and the dials (★★★) */
+  .deepbox{font-size:10.5px;line-height:1.32;}
+  .deepbox ol{margin:0 0 1.6mm;padding-left:4.5mm;}
+  .deepbox li{margin:0 0 0.6mm;}
+  .dtop{display:grid;grid-template-columns:1fr 50mm;gap:4mm;align-items:start;}
+  .dex{border:0.3mm dashed #bbb;border-radius:1.5mm;padding:1.2mm 2mm;font-size:9.5px;line-height:1.28;text-align:center;}
+  .dex h4{margin:0;font-size:10.5px;}
+  .dex .dial{display:block;margin:0.6mm auto;}
+  .deep{border-collapse:separate;border-spacing:0;font:700 12.5px/1 ui-monospace,Menlo,Consolas,monospace;margin:0 0 0.8mm;}
+  .deep td,.deep th{width:4.6mm;height:5.2mm;text-align:center;padding:0;}
+  .deep td{border-bottom:0.2mm solid #ccc;}
+  .deep th{font-size:10.5px;font-weight:400;color:#999;}
+  .deep th.w{font-weight:700;}
+  .deep th.w.fw{color:#2a6cb0;}
+  .deep th.w.bw{color:#e08a00;}
+  .deep .w{background:#dcdcdc;}
+  .deep .np{border-left:0.9mm solid #fff;}
+  .deep .nb{border-left:2.4mm solid #fff;}
+  .deep td,.deep th:not(.lab){min-width:4.6mm;}
+  .deep th.lab{width:auto;font:400 9px/1.1 system-ui,sans-serif;color:#5a4b30;text-align:right;padding-right:1.5mm;white-space:nowrap;background:none;}
+  .dials{display:flex;justify-content:space-between;gap:1mm;margin:1.2mm 0 1mm;}
+  .dials > div{text-align:center;font-size:9px;color:#5a4b30;}
+  .dial{display:block;}
+  .dials .d{margin:0.4mm auto 0;width:5mm;height:5.8mm;line-height:5.5mm;font-size:13px;}
+  .dans{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0.4mm 6mm;margin:1.2mm 0 0;font-size:11px;}
+  .duo2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start;}
+  .sw{display:inline-block;width:4mm;height:3mm;background:#dcdcdc;vertical-align:-0.4mm;margin-right:1mm;}
   /* glossary, report, map */
   .gloss{columns:2;column-gap:4mm;font-size:9px;line-height:1.2;margin:0 0 1.4mm;}
   .gloss div{break-inside:avoid;margin:0 0 0.6mm;}
@@ -131,10 +145,10 @@
   .ans .tr{margin:0 0 2.4mm;font-size:12px;}
   .ans ol{margin:0;padding-left:5mm;}
   .ans li{margin:0 0 1.4mm;}
-  .ok{color:#1d7a32;font-weight:700;}
-  .no{color:#a01d22;}
   @media (max-width:600px){
-    .duo,.top,.stop,.steps,.realtop,.notes,.warm,.trials{grid-template-columns:1fr;}
+    .duo,.top,.stop,.steps,.realtop,.notes,.warm,.dtop{grid-template-columns:1fr;}
+    .dials{flex-wrap:wrap;justify-content:center;}
+    .deepbox{overflow-x:auto;}
     .cols,.gloss{columns:1;}
     .grid{overflow-x:auto;}
     .keybox,.keybox .keyline{flex-wrap:wrap;}
@@ -201,20 +215,47 @@
       <div class="blocks">${blocks.join('')}</div></div>`;
   }
 
-  /** ★★★: try a word under the first 12 digits of telegram 1 (the row labels are drawn once, by trials()). */
-  function trial(t, w, fill) {
-    const word = w.slice(0, 6), tail = w.slice(6), dig = REW.digitsOf(word), key = REW.keyFrom(t.cipher, word), pairs = [];
-    for (let i = 0; i < 12; i += 2) pairs.push(`<div class="pr">
-      <div class="lt">${word[i / 2]}</div>
-      <div class="row2"><div class="c">${t.cipher[i]}</div><div class="c">${t.cipher[i + 1]}</div></div>
-      <div class="row2">${d1(fill ? dig[i] : '')}${d1(fill ? dig[i + 1] : '')}</div>
-      <div class="row2">${d1(fill ? key[i] : '', i < 6 ? 'fw' : 'bw')}${d1(fill ? key[i + 1] : '', i + 1 < 6 ? 'fw' : 'bw')}</div></div>`);
-    return { word, tail, mirror: REW.isMirror(key), html: `<div class="blk">${pairs.join('')}</div>` };
+  /**
+   * ★★★: the telegrams in depth, one under another, digit by digit; over every column the number of the key digit
+   * (1 2 3 4 5 6 6 5 4 3 2 1 …, blue / orange as in the key frame). Grey = row digits, the first of each pair.
+   */
+  function depthTable(ts, D, M) {
+    const n = Math.max(...ts.map(t => t.cipher.length));
+    const cls = p => [p % 2 ? '' : 'w', p % 12 < 6 ? 'fw' : 'bw', p % 12 === 0 ? (p ? 'nb' : '') : (p % 2 ? '' : 'np')].filter(Boolean).join(' ');
+    const cols = Array.from({ length: n }, (_, p) => p);
+    return `<table class="deep"><tr><th class="lab">${esc(D.numLab)}</th>${cols.map(p => `<th class="${cls(p)}">${REW.keyIndex(p) + 1}</th>`).join('')}</tr>`
+      + ts.map((t, i) => `<tr><th class="lab">${esc(M.tg(i + 1))}</th>${cols.map(p => p < t.cipher.length
+        ? `<td class="${cls(p)}">${t.cipher[p]}</td>` : `<td class="${cls(p).replace(/\bw\b/, '')}" style="border:0"></td>`).join('')}</tr>`).join('')
+      + '</table>';
   }
-  const trials = (t, L, fill) => `<div class="trials"><div class="labs"><div>${esc(L.cipher)}</div><div>− ${esc(L.wordDigits)}</div><div>= ${esc(L.keyShort)}</div></div>`
-    + REW.CANDIDATES.map(w => { const r = trial(t, w, fill);
-      return `<div class="trial"><h4>${r.word}${r.tail ? `<small>${r.tail}</small>` : ''}<span class="yn">${fill
-        ? `<span class="${r.mirror ? 'ok' : 'no'}">${esc(r.mirror ? L.yes : L.no)}</span>` : esc(L.mirrorQ)}</span></h4>${r.html}</div>`; }).join('') + '</div>';
+
+  /** ★★★: a dial 0–9 (0 at the top, clockwise) for key digit `n`; `marks` are circled (answers, example), `k` ringed. */
+  function dial(n, marks = [], k = null, size = 21) {
+    const at = (d, r) => { const a = (d * 36 - 90) * Math.PI / 180; return [r * Math.cos(a), r * Math.sin(a)]; };
+    const f = x => x.toFixed(2);
+    // the arrow: an arc over the number in the middle, clockwise
+    const [x0, y0] = at(-2.2, 4.4), [x1, y1] = at(2.2, 4.4), a1 = (2.2 * 36 - 90) * Math.PI / 180;
+    const tx = -Math.sin(a1), ty = Math.cos(a1), nx = Math.cos(a1), ny = Math.sin(a1);
+    let s = `<svg class="dial" viewBox="-10.6 -10.6 21.2 21.2" width="${size}mm" height="${size}mm" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,Menlo,Consolas,monospace">`
+      + `<circle r="10.2" fill="#fff" stroke="#7a6a4f" stroke-width="0.35"/>`
+      + `<path d="M${f(x0)} ${f(y0)}A4.4 4.4 0 0 1 ${f(x1)} ${f(y1)}" fill="none" stroke="#888" stroke-width="0.45"/>`
+      + `<path d="M${f(x1 + tx * 1.3)} ${f(y1 + ty * 1.3)}L${f(x1 + nx * 0.8)} ${f(y1 + ny * 0.8)}L${f(x1 - nx * 0.8)} ${f(y1 - ny * 0.8)}Z" fill="#888"/>`
+      + `<text y="2.6" font-size="5" font-weight="700" text-anchor="middle" fill="#1b2a6b">${n}</text>`;
+    for (let d = 0; d < 10; d++) {
+      const [x, y] = at(d, 7.5);
+      if (marks.includes(d)) s += `<circle cx="${f(x)}" cy="${f(y)}" r="2.15" fill="#ffe36b" stroke="#d29a00" stroke-width="0.35"/>`;
+      if (d === k) s += `<circle cx="${f(x)}" cy="${f(y)}" r="2.45" fill="none" stroke="#1f4fbf" stroke-width="0.6"/>`;
+      s += `<text x="${f(x)}" y="${f(y + 1.3)}" font-size="3.7" font-weight="700" text-anchor="middle" fill="#222">${d}</text>`;
+    }
+    return s + '</svg>';
+  }
+  /** The six empty dials under the depth table, each with a box for its key digit. */
+  const dials = (d, D) => `<div class="dials">${d.key6.map((_, i) => `<div>${dial(i + 1)}${esc(D.dial)} ${i + 1}${d1('', 'fw')}</div>`).join('')}</div>`;
+  /** Answers: the digits to circle on each dial, from the key digit on (k, k+1, k+2, k+3), → the key digit. */
+  const dialAnswers = (d, D) => `<p class="dans">${d.key6.map((k, i) => {
+    const marks = [...new Set(REW.rowDigits(d.telegrams, i))].sort((a, b) => REW.sub(a, k) - REW.sub(b, k));
+    return `<span>${esc(D.dial)} ${i + 1}: <span class="cy">${marks.join(' ')}</span> → <b class="cy">${k}</b></span>`;
+  }).join('')}</p>`;
 
   KIT.app({
     store: 'rewolucja1920.sheet',
@@ -223,7 +264,8 @@
     checks: [{ id: 'how', def: true, label: 'optHow' }, { id: 'story', def: true, label: 'optStory' }, { id: 'real', def: true, label: 'optReal' }],
     render(s, api) {
       const { C } = api, W = W20_TEXT[I18N.get()] || W20_TEXT.en;   // map labels, the Russian alphabet and the story map's title
-      const d = REW.day(api.rnd('day')), M = C.mission, G = C.grid, t1 = d.telegrams[0];
+      const d = REW.day(api.rnd('day')), M = C.mission, G = C.grid, hard = s.level === 'hard';
+      const ts = d.telegrams.slice(0, hard ? 3 : 2);   // the third telegram is there to set three in depth (★★★)
       const L = { ...W.map, units: { ...W.map.units, army16: C.map.army16 } };
       const mapChoice = () => W20.mapSvg({ mode: 'choice', L,
         units: { army4: [53.15, 20.0], army16: [52.5, 23.0] },
@@ -280,9 +322,8 @@
       // 1. the mission
       const hint = { easy: M.easy(d.num, d.key6.join('')), mid: M.mid(d.start), hard: M.hard }[s.level];
       const keyShown = s.level === 'easy' ? i => (i < 6 ? d.key6[i] : '') : () => '';
-      pages.push(`<div class="sheet rw">
-        ${api.head(C.title, M.sub, true)}
-        <p style="font-size:10.5px;line-height:1.32;margin:0 0 1.6mm">${esc(M.intro(d.num))}</p>
+      const top = `${api.head(C.title, M.sub, true)}
+        <p style="font-size:10.5px;line-height:1.32;margin:0 0 1.6mm">${esc(M.intro(d.num, hard))}</p>
         <div class="top">
           <div class="box"><h3>▦ ${esc(G.gridTitle)}</h3>${krata()}<p class="kcap">${esc(G.gridNote)}</p></div>
           <div>
@@ -290,17 +331,32 @@
             <div class="box keybox"><h3>🔑 ${esc(M.keyTitle(d.num))}</h3>${keyBoxes(keyShown, i => s.level === 'easy' && i < 6)}
               <div class="legend"><span><i style="background:#2a6cb0"></i>${esc(G.fw)}</span><span><i style="background:#e08a00"></i>${esc(G.bw)}</span></div></div>
           </div>
-        </div>
-        ${s.level === 'hard' ? `<div class="box" style="padding:1.2mm 3mm 1.6mm"><h3>🧪 ${esc(M.trialsT)}</h3>${trials(t1, G, false)}</div>` : ''}
-        ${d.telegrams.map((t, i) => telegram(t, i, false)).join('')}
+        </div>`;
+      const gloss = REW.VOCAB.filter(w => hard || !REW.T3.words.includes(w));
+      const work = `${ts.map((t, i) => telegram(t, i, false)).join('')}
         <div class="duo">
           <div><h3>📖 ${esc(M.glossTitle)}</h3>
-            <div class="gloss">${REW.VOCAB.map(w => `<div><span class="cy">${w}</span> — ${esc(C.gloss[w])}</div>`).join('')}</div>
+            <div class="gloss">${gloss.map(w => `<div><span class="cy">${w}</span> — ${esc(C.gloss[w])}</div>`).join('')}</div>
             <h3>📝 ${esc(C.report.title)}</h3>
             ${C.report.q.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}${i === 1 ? '' : '<span class="ln"></span>'}</div>`).join('')}</div>
           <div class="map">${mapChoice()}</div>
-        </div>
-      </div>`);
+        </div>`;
+      if (!hard) pages.push(`<div class="sheet rw">${top}${work}</div>`);
+      else {
+        // ★★★: the depth sheet first, the telegrams to read on the next page
+        const D = M.depth;
+        pages.push(`<div class="sheet rw">${top}
+          <div class="box deepbox"><h3>🧮 ${esc(D.title)}</h3>
+            <div class="dtop"><ol>${D.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+              <div class="dex"><h4>${esc(D.exT)}</h4>${dial('', [7, 8, 9, 0], 7, 19)}${esc(D.ex)}</div></div>
+            ${depthTable(ts, D, M)}
+            <p class="small" style="margin:0"><span class="sw"></span>${esc(D.rowLab)}</p>
+            ${dials(d, D, false)}
+            <p class="small" style="margin:0">${esc(D.note)}</p>
+          </div>
+        </div>`);
+        pages.push(`<div class="sheet rw">${api.head(C.title, M.sub, false)}${work}</div>`);
+      }
 
       // 2. the story
       if (s.story) {
@@ -348,20 +404,23 @@
 
       // 4. answers
       if (s.key) {
-        const A = C.answers, t2 = d.telegrams[1], H = C.how;
+        const A = C.answers, H = C.how;
         pages.push(`<div class="sheet rw ans">
           ${api.head(api.t('keyTitle'), C.title, false)}
           <div class="box"><h3>🔑 ${esc(M.keyTitle(d.num))}: <span class="cy">${d.key6.join('')} ${d.key6.slice().reverse().join('')}</span></h3>
-            <p style="margin:0">${esc(A.keyHow(d.start))}</p>
-            ${s.level === 'hard' ? `<div style="margin-top:1.5mm">${trials(t1, G, true)}</div>` : ''}</div>
-          ${d.telegrams.map((t, i) => telegram(t, i, true) + `<p class="tr">➜ <span class="cy">${esc(t.words.join(' '))}</span> — ${esc(i ? A.tr2[t.id] : A.tr1[d.start])}</p>`).join('')}
+            <p style="margin:0">${esc(hard ? A.keyHowHard(d.start) : A.keyHow(d.start))}</p>
+            ${hard ? dialAnswers(d, M.depth) : ''}</div>
+          ${ts.map((t, i) => telegram(t, i, true) + `<p class="tr">➜ <span class="cy">${esc(t.words.join(' '))}</span> — ${esc([A.tr1[d.start], A.tr2[t.id], A.tr3[t.id]][i])}</p>`).join('')}
           <h3>📝 ${esc(C.report.title)}</h3>
           <ol>${A.report(d.num).map(a => `<li>${esc(a)}</li>`).join('')}</ol>
+          ${hard && s.how && s.real ? '<div class="duo2"><div>' : ''}
           ${s.how ? `<h3 style="margin-top:2.5mm">${esc(H.warmT)}</h3><ol><li>2, 8, 0</li><li>5, 5, 4</li><li><span class="cy">418620 026814</span></li><li>${REW.digitsOf('МИР').join('').replace(/(..)(?=.)/g, '$1 ')} = <span class="cy">МИР</span> — ${esc(H.mir)}</li></ol>` : ''}
+          ${hard && s.how && s.real ? '</div><div>' : ''}
           ${s.real ? `<h3 style="margin-top:2.5mm">${esc(C.real.title)}</h3><ol>${C.real.answers.map(a => `<li>${esc(a)}</li>`).join('')}</ol>` : ''}
+          ${hard && s.how && s.real ? '</div></div>' : ''}
         </div>`);
       }
-      return { html: pages.join(''), tasks: 2, pages: pages.length };
+      return { html: pages.join(''), tasks: ts.length, pages: pages.length };
     },
   });
 })();

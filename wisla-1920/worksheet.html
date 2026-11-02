@@ -11,11 +11,11 @@
   .w20 p{margin:0 0 2mm;}
   .w20 h3{font-size:13px;margin:0 0 1mm;}
   .box{border:0.3mm solid #bbb;border-radius:2mm;padding:2mm 3mm;margin:0 0 3mm;}
-  .tip{border-color:#d29a00;background:#fff8dc;font-size:10.5px;line-height:1.32;padding:1.6mm 3mm;}
+  .tip{border-color:#d29a00;background:#fff8dc;font-size:10.5px;line-height:1.32;padding:1.6mm 3mm;margin:0 0 2mm;}
   .comb{float:right;margin:0.4mm 0 0.6mm 3mm;}
   .cy{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.04em;}
   /* telegram */
-  .tg{border:0.4mm solid #7a6a4f;background:#fbf7ec;border-radius:1.5mm;padding:1.2mm 2.5mm 1.6mm;margin:0 0 2mm;}
+  .tg{border:0.4mm solid #7a6a4f;background:#fbf7ec;border-radius:1.5mm;padding:1.2mm 2.5mm 1.4mm;margin:0 0 1.6mm;}
   .tg .th{font-size:10px;color:#5a4b30;margin:0 0 0.8mm;display:flex;gap:2mm;flex-wrap:wrap;align-items:baseline;}
   .tg .th b{font-size:12px;color:#222;}
   .cells{display:flex;flex-wrap:wrap;gap:1.2mm 3.2mm;}
@@ -34,17 +34,21 @@
   /* key */
   .keyrow{display:flex;flex-wrap:wrap;gap:1.2mm 0.6mm;margin:1mm 0 0;}
   .keyrow .c .n{font-size:10px;}
-  .keybox{border:0.4mm solid #333;border-radius:1.5mm;padding:1.2mm 2.5mm 1.6mm;margin:0 0 2mm;}
+  .keyrow .c .k{height:4.2mm;margin:0 0 0.5mm;border:0.3mm dashed #aaa;border-radius:0.8mm;font:600 9.5px/4mm ui-monospace,Menlo,Consolas,monospace;color:#8a6400;}
+  /* ★★★★: the steps of the real way */
+  .tip ol{margin:0.8mm 0 0;padding-left:4.5mm;}
+  .tip li{margin:0 0 0.5mm;}
+  .keybox{border:0.4mm solid #333;border-radius:1.5mm;padding:1.2mm 2.5mm 1.6mm;margin:0 0 1.6mm;}
   .keybox h3 small{font-weight:400;color:#666;margin-left:2mm;}
   /* glossary + map */
-  .duo{display:grid;grid-template-columns:1fr 58mm;gap:4mm;align-items:start;}
-  .gloss{columns:3;column-gap:4mm;font-size:9.5px;line-height:1.25;margin:0 0 2mm;}
-  .gloss div{break-inside:avoid;margin:0 0 0.6mm;}
-  .gloss .cy{font-size:9.5px;}
+  .duo{display:grid;grid-template-columns:1fr 55mm;gap:4mm;align-items:start;}
+  .gloss{columns:3;column-gap:4mm;font-size:9px;line-height:1.2;margin:0 0 2mm;}
+  .gloss div{break-inside:avoid;margin:0 0 0.4mm;}
+  .gloss .cy{font-size:9px;}
   .map svg{display:block;width:100%;height:auto;}
   .map .cap{font-size:10px;color:#555;text-align:center;margin-top:0.6mm;}
-  .q{margin:0 0 1.2mm;font-size:11px;line-height:1.3;}
-  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5.4mm;}
+  .q{margin:0 0 1mm;font-size:11px;line-height:1.3;}
+  .q .ln{display:block;border-bottom:0.3mm solid #444;height:5mm;}
   /* story */
   .top{display:grid;grid-template-columns:1fr 84mm;gap:5mm;align-items:start;}
   .cols{columns:2;column-gap:5mm;}
@@ -150,8 +154,10 @@
       const telegram = (t, i, fill) => `<div class="tg"><div class="th"><b>📻 ${esc(M.tg(i + 1))}</b><span>${esc(head(t, i))}</span></div>
         ${!fill && s.level === 'expert' ? `<div class="cells flat">${W20.stream(t).map(r => `<div class="trow">${r.map(g => word(g, null)).join('')}</div>`).join('')}</div>`
           : `<div class="cells">${t.words.map((w, j) => word(w, fill ? t.plain[j] : null, t.sign && j === t.words.length - 1 ? 'sign' : '')).join('')}</div>`}</div>`;
-      const keyRow = show => `<div class="keyrow">${used.map(ch =>
-        `<div class="c"><div class="n">${d.key[ch]}</div><div class="l${show(ch) === 'pre' ? ' pre' : ''}">${show(ch) ? ch : ''}</div></div>`).join('')}</div>`;
+      // ★★★★: a box for how many times the number appears (`count`: '' to fill in, true: written in, answers)
+      const expert = s.level === 'expert', n = expert ? W20.counts(d) : {};
+      const keyRow = (show, count) => `<div class="keyrow">${used.map(ch =>
+        `<div class="c"><div class="n">${d.key[ch]}</div>${count === undefined ? '' : `<div class="k">${count ? n[d.key[ch]] : ''}</div>`}<div class="l${show(ch) === 'pre' ? ' pre' : ''}">${show(ch) ? ch : ''}</div></div>`).join('')}</div>`;
       const pages = [];
 
       // the Russian alphabet with how each letter sounds in the page's language (Ё is in the alphabet, not in telegrams)
@@ -192,22 +198,27 @@
       // 1. the mission: three telegrams, the key, the glossary, the map and the report
       const half = s.level === 'mid' ? W20.halfKey(d, api.rnd('half')) : null;
       const pre = ch => (s.level === 'easy' && !W20.PATTERN_WORD.includes(ch)) || (half && half.has(ch)) ? 'pre' : '';
-      pages.push(`<div class="sheet w20">
-        ${api.head(C.title, M.sub, true)}
+      const hint = expert
+        ? `<p style="margin:0">${esc(M.expertHint)}</p><ol>${M.expertSteps.map(x => `<li>${esc(x)}</li>`).join('')}</ol><p style="margin:0">${esc(M.comb)}</p>`
+        : `<p style="margin:0">${esc(M.hint)} ${esc(M.comb)} ${esc({ easy: M.easyNext, mid: M.midNext, hard: M.hardNext }[s.level])}</p>`;
+      const work = `${api.head(C.title, M.sub, true)}
         <p style="font-size:11px;line-height:1.35">${esc(M.intro)}</p>
-        <div class="box tip">${W20.combSvg(esc(M.combName))}<h3>🔎 ${esc(M.hintTitle)}</h3><p style="margin:0">${esc(s.level === 'expert' ? M.expertHint : M.hint)} ${esc(M.comb)} ${esc({ easy: M.easyNext, mid: M.midNext, hard: M.hardNext, expert: M.expertNext }[s.level])}</p></div>
+        <div class="box tip">${W20.combSvg(esc(M.combName))}<h3>🔎 ${esc(M.hintTitle)}</h3>${hint}</div>
         ${d.telegrams.map((t, i) => telegram(t, i, false)).join('')}
-        <div class="keybox"><h3>🔑 ${esc(M.keyTitle)}<small>${esc(M.keyNote)}</small></h3>${keyRow(pre)}</div>
-        <h3>📖 ${esc(M.glossTitle)}</h3>
-        <div class="gloss">${W20.VOCAB.map(w => `<div><span class="cy">${w}</span> — ${esc(C.gloss[w])}</div>`).join('')}</div>
+        <div class="keybox"><h3>🔑 ${esc(M.keyTitle)}<small>${esc(expert ? M.keyNoteExpert : M.keyNote)}</small></h3>${keyRow(pre, expert ? '' : undefined)}</div>`;
+      // ★★★★: the military dictionary has words the telegrams do not use; it goes with the report on a page of its own
+      const dict = expert ? W20.DICT : W20.VOCAB, mean = w => C.gloss[w] || C.extra[w];
+      const rest = `<h3>📖 ${esc(expert ? M.dictTitle : M.glossTitle)}</h3>
+        <div class="gloss">${dict.map(w => `<div><span class="cy">${w}</span> — ${esc(mean(w))}</div>`).join('')}</div>
         <div class="duo">
           <div>
             <h3>📝 ${esc(C.report.title)}</h3>
             ${C.report.q.map((q, i) => `<div class="q">${i + 1}. ${esc(q)}${i === 2 ? '' : '<span class="ln"></span>'.repeat(i === 3 ? 1 : 2)}</div>`).join('')}
           </div>
           <div class="map">${W20.mapSvg({ mode: 'choice', L: C.map })}</div>
-        </div>
-      </div>`);
+        </div>`;
+      if (expert) pages.push(`<div class="sheet w20">${work}</div>`, `<div class="sheet w20">${api.head(C.title, M.sub, false)}${rest}</div>`);
+      else pages.push(`<div class="sheet w20">${work}${rest}</div>`);
 
       // 2. the story of the Miracle on the Vistula
       if (s.story) {
@@ -264,7 +275,7 @@
         const A = C.answers, t1 = d.telegrams[0], t2 = d.telegrams[1];
         pages.push(`<div class="sheet w20 ans">
           ${api.head(api.t('keyTitle'), C.title, false)}
-          <div class="keybox"><h3>🔑 ${esc(A.keyTitle)}<small>${esc(A.pattern(W20.findPattern(d) + 1))}</small></h3>${keyRow(() => 'x')}</div>
+          <div class="keybox"><h3>🔑 ${esc(A.keyTitle)}<small>${esc(A.pattern(W20.findPattern(d) + 1))}</small></h3>${keyRow(() => 'x', expert ? true : undefined)}</div>
           ${d.telegrams.map((t, i) => telegram(t, i, true) + `<p class="tr">➜ ${esc(A.tr[t.id])}</p>`).join('')}
           <h3>📝 ${esc(C.report.title)}</h3>
           <ol>

@@ -13,7 +13,7 @@ intelligence did before the Battle of Warsaw, advise the Commander-in-Chief wher
 | [`worksheet.html`](worksheet.html) | The sheet: how the cipher works, the mission, the story, a real decrypt (photo + transcription), the answers |
 | [`engine.js`](engine.js) | Telegrams, the day's key, the solvers used by the tests, the map (SVG; the ["Revolution" cipher](../rewolucja-1920/README.md) sheet draws its own arrows and units on it), the real decrypt's text |
 | [`strings.js`](strings.js) | Texts in seven languages |
-| [`engine.test.js`](engine.test.js) | `node engine.test.js`: keys, the ДИВИЗИЯ pattern, every level solvable (★★★★ with exactly one answer) |
+| [`engine.test.js`](engine.test.js) | `node engine.test.js`: keys, the ДИВИЗИЯ pattern, every level solvable (★★★★ with exactly one answer, also with the bigger dictionary), the counts |
 | [`strings.test.js`](strings.test.js) | `node strings.test.js`: same keys in every language, every word and telegram explained |
 | [`depesza-1920.jpg`](depesza-1920.jpg) | Photo of a real "Tłumaczenie szyfrogramu" of 25 July 1920, signed by Jan Kowalewski (public domain; Archive of the Piłsudski Institute of America, coll. 3, vol. 1, p. 29, via poznajhistorie.org) |
 
@@ -34,10 +34,23 @@ can see in the numbers. Every level starts from it.
 - **★★** half the key: half of the other letters the telegrams use are given (`W20.halfKey`, seeded); with
   ДИВИЗИЯ and the glossary the rest follows (tested);
 - **★★★** the key table is empty: from ДИВИЗИЯ, guess glossary words that fit (tested: always reads to the end);
-- **★★★★** like a real telegram: no gaps between words, numbers in groups of five, in rows of 25 (`W20.stream`)
-  with equal cells: groups are split by a thin line, not a gap, so the comb fits anywhere in a row. The
-  ДИВИЗИЯ pattern may also fit one overlapping false place (ВИЗИЯИД); tested: the false place leads to no
-  reading, the true one to exactly one, and ДИВИЗИЯ never crosses a row.
+- **★★★★** the real way: like a real telegram, no gaps between words, numbers in groups of five, in rows of 25
+  (`W20.stream`) with equal cells: groups are split by a thin line, not a gap, so the comb fits anywhere in a row.
+  The ДИВИЗИЯ pattern may also fit one overlapping false place (ВИЗИЯИД). And worked the way the codebreakers
+  worked, as far as it is known (the hint lists four steps):
+  1. counting, as in Poe's "The Gold-Bug", which Kowalewski's memoir names: the key table gets a "how many" box
+     under every number (`W20.counts`; the answers fill it in); the most frequent numbers are usually vowels
+     (О, Е, А, И in Russian) — И, the letter of the comb, is the most frequent number on most sheets and the
+     third on the rest;
+  2. the comb (the legend below);
+  3. the signature: the listeners knew which station sent a telegram (the heading), and telegrams usually end with
+     the commander's name;
+  4. no list of exactly the telegrams' words: the codebreakers knew Russian, so the "military dictionary" has
+     14 more words the telegrams do not use (`W20.EXTRA`, `W20.DICT`; meanings in `extra` in strings.js).
+
+  Tested: with the dictionary the false comb place leads to no reading and the true one to exactly one, and
+  ДИВИЗИЯ never crosses a row. ★★★★ has two mission pages: the hint, the telegrams and the key; then the
+  dictionary, the report and the map.
 
 ### The comb
 
