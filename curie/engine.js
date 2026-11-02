@@ -38,7 +38,7 @@ const CU = (() => {
         { id: 'ore', a: ore },
         { id: 'chalNat', a: chal },
         { id: 'chalArt', a: 1 },
-        { id: 'thor', a: pick(rnd, [2, 3]) },
+        { id: 'thor', a: U },   // thorium is about as active as uranium: never "stronger than uranium" on ★/★★
         { id: 'quartz', a: 0 },
       ];
       for (const s of list) {
@@ -60,7 +60,11 @@ const CU = (() => {
         const ex = list.filter(s => s.extra > 0 && s.id !== 'thor');
         if (ex.length !== 2 || ex[0].extra / ex[0].m === ex[1].extra / ex[1].m) continue;
       }
-      if (level === 'mid' && new Set(list.map(s => s.read)).size < list.length - 1) continue;
+      if (level === 'mid') {
+        // the sample with the most units must not be the strongest per gram: "most units ≠ strongest" is the point
+        const big = list.reduce((b, x) => (x.read > b.read ? x : b)), best = list.reduce((b, x) => (x.a > b.a ? x : b));
+        if (list.filter(x => x.read === big.read).length > 1 || big.id === best.id) continue;
+      }
       const shown = [list[0], ...shuffle(rnd, list.slice(1))];
       return { level, list: shown, ore, chal, times: { ore: ore / U, chalNat: chal / U } };
     }

@@ -45,8 +45,8 @@
   .real table.t td.fr{font-style:italic;color:#555;font-size:9.5px;}
   .real .quote{border-left:1mm solid #f0a020;padding:1mm 3mm;margin:0 0 3mm;background:#fffaf0;}
   .real .quote .fr{font:italic 12px/1.4 Georgia,serif;margin:0 0 1mm;}
-  .real .sec p{font-size:10.8px;line-height:1.35;margin:0 0 2mm;}
-  .real .photos{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:4mm;align-items:start;margin:1mm 0 0;}
+  .real .sec p{font-size:10.4px;line-height:1.32;margin:0 0 1.6mm;}
+  .real .photos{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:4mm;align-items:start;margin:1mm 0 0;}
   .real figure{margin:0;}
   .real figure img{display:block;width:100%;height:auto;border:0.3mm solid #bbb;}
   .real .cap{font-size:9.5px;line-height:1.28;color:#444;margin:1mm 0 0;}
@@ -56,7 +56,7 @@
     table.t{font-size:10px;} table.t th,table.t td{padding:.8mm 1mm;} table.t td.blank{min-width:8mm;}
     .wide{overflow-x:auto;}
   }
-  @media print{ .cu{font-size:11.5px;} }
+  @media print{ .cu{font-size:11.5px;} .cu.how{font-size:10.8px;line-height:1.36;} }
 </style>
 </head>
 <body>
@@ -139,7 +139,7 @@
       const finals = lv === 'easy' ? ['po'] : ['po', 'ra'];
       const finBox = id => `<div class="fin"><div class="small">${esc(M2.finT)} · ${esc(M2.hints[id])}</div>
         <div class="nm">${esc(CU.blanks(M2.names[id]))}</div>
-        <div class="row"><span>${esc(M2.timesT)}</span><b></b></div><div class="row"><span>${esc(M2.oreT)}</span><b></b></div></div>`;
+        <div class="row"><span>${esc(M2.timesT)}${lv === 'easy' ? ` <i>(÷ ${CU.U})</i>` : ''}</span><b></b></div><div class="row"><span>${esc(M2.oreT)}${lv === 'easy' ? ` <i>(÷ ${T.N.ore.a})</i>` : ''}</span><b></b></div></div>`;
       pages.push(`<div class="sheet cu">${mhead('m2', M2)}
         <p>${esc(M2.intro)} ${lv === 'hard' ? `<b>${esc(M2.introHard)}</b>` : esc(M2.introPerG)}</p>
         <div class="box tip">${esc(M2.rule[lv])}</div>
@@ -159,7 +159,7 @@
         ${lv === 'easy'
           ? q3.map((t, i) => q(i + 1, t, i === 0 ? 0 : 2)).join('')
           : `<div class="m3"><div class="graph"><p class="small">${esc(M3.graphT)}</p>${CU.decaySvg(D, { L: M3 })}</div>
-              <div>${q3.map((t, i) => q(i + 1, t, i === 0 ? 0 : 3)).join('')}</div></div>`}
+              <div>${q3.map((t, i) => q(i + 1, t, i === 0 ? 0 : lv === 'hard' ? 2 : 3)).join('')}</div></div>`}
       </div>`);
 
       /* ---- how it really was: Marie's own table, the naming of polonium ---- */
@@ -191,7 +191,7 @@
           a1.push(A.m1.stronger(S.list.filter(x => x.a > CU.U).map(x => nm(x.id)).join(', ')), A.m1.times(nm('ore'), S.times.ore), A.m1.chal);
         } else if (lv === 'mid') {
           const big = S.list.reduce((b, x) => (x.read > b.read ? x : b));
-          a1.push(A.m1.perG(S.list.map(x => `${nm(x.id)} ${x.a}`).join(', ')), A.m1.times(nm('ore'), S.times.ore), A.m1.times(nm('chalNat'), S.times.chalNat), A.m1.biggest(nm(big.id)), A.m1.chal);
+          a1.push(A.m1.perG(S.list.map(x => `${nm(x.id)} ${x.a}`).join(', ')), A.m1.times(nm('ore'), S.times.ore), A.m1.times(nm('chalNat'), S.times.chalNat), A.m1.biggest(nm(big.id), nm(S.list.reduce((b, x) => (x.a > b.a ? x : b)).id)), A.m1.chal);
         } else {
           const best = S.list.filter(x => x.id === 'ore' || x.id === 'chalNat').reduce((b, x) => (x.extra / x.m > b.extra / b.m ? x : b));
           a1.push(A.m1.extra(S.list.filter(x => x.extra > 0).map(x => `${nm(x.id)} ${x.read} − ${x.expected} = ${x.extra} (${x.extra / x.m})`).join('; ')), A.m1.most(nm(best.id)), A.m1.thor, A.m1.art);
@@ -209,7 +209,7 @@
         }
         // mission 3
         const a3 = [A.m3.table(D.days.map((d, i) => `${d}: ${D.values[i]}`).join(', '))];
-        if (lv === 'hard') a3.push(A.m3.back(D.back), A.m3.radium, A.m3.halvings(Math.round((YEAR - 1902) * 365.25 / CU.HALF), YEAR));
+        if (lv === 'hard') a3.push(A.m3.back(D.back), A.m3.radium, A.m3.perYear, A.m3.halvings(Math.round((YEAR - 1902) * 365.25 / CU.HALF), YEAR));
         else a3.push(A.m3.below(D.belowDay), lv === 'easy' ? A.m3.year : A.m3.sixteenth);
         const solvedTable = lv === 'easy' ? '' : `<div class="graph">${CU.decaySvg(D, { L: M3, solved: true })}</div>`;
         pages.push(`<div class="sheet cu ans">

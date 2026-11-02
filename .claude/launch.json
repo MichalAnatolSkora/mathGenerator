@@ -20,6 +20,16 @@
         "8124"
       ],
       "port": 8124
+    },
+    {
+      "name": "static-8125",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8125"
+      ],
+      "port": 8125
     }
   ]
 }

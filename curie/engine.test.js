@@ -15,6 +15,11 @@ for (const lv of LEVELS) for (let i = 0; i < 150; i++) {
   ok(`samples ${lv} #${i}: ores stronger than uranium`, by('ore').read / by('ore').m > C.U && by('chalNat').read / by('chalNat').m > C.U);
   ok(`samples ${lv} #${i}: made chalcolite weaker`, by('chalArt').read / by('chalArt').m < C.U);
   ok(`samples ${lv} #${i}: whole ratios`, S.times.ore === by('ore').a / 2 && Number.isInteger(S.times.ore) && Number.isInteger(S.times.chalNat));
+  ok(`samples ${lv} #${i}: thorite as strong as uranium per gram`, lv === 'hard' || by('thor').a === C.U);
+  if (lv === 'mid') {
+    const big = S.list.reduce((b, x) => (x.read > b.read ? x : b));
+    ok(`samples mid #${i}: most units is not the strongest per gram`, S.list.filter(x => x.read === big.read).length === 1 && S.list.some(x => x.a > big.a));
+  }
   if (lv === 'easy') ok(`samples easy #${i}: 1 g each, fits the bar chart`, S.list.every(x => x.m === 1 && x.read <= 14));
   if (lv !== 'hard') ok(`samples ${lv} #${i}: per gram is whole`, S.list.every(x => x.read % x.m === 0 && x.read / x.m === x.a));
   if (lv === 'hard') {

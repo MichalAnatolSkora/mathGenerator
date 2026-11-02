@@ -20,8 +20,8 @@ seven languages (pl/en/uk/vi/fr/it/es). Card on the home page in the "bigger kid
    stronger tube; what we simplified (including that she carried tubes in her pocket, not knowing the danger).
 1. **Mission 1 · Something is hiding in the ore** (comparing, division): six samples measured with the electrometer
    (pure uranium, pitchblende, natural chalcolite, chalcolite made by Marie, thorite, quartz). Our made-up scale:
-   1 g of uranium = 2 units. ★ 1 g each, a bar chart to colour, "stronger than uranium?", times = units ÷ 2;
-   ★★ different masses (units per 1 g = units ÷ grams); ★★★ grams of uranium in each sample, "extra" = units − 2 ×
+   1 g of uranium = 2 units; thorite is as active as uranium per gram, so on ★/★★ it is never "stronger than uranium". ★ 1 g each, a bar chart to colour, "stronger than uranium?", times = units ÷ 2;
+   ★★ different masses (units per 1 g = units ÷ grams), and the sample with the most units is never the strongest per gram (the question asks why); ★★★ grams of uranium in each sample, "extra" = units − 2 ×
    uranium, extra per gram; thorite has extra but it is thorium (not new), the made chalcolite has none.
 2. **Mission 2 · Follow the stronger test tube** (comparing, division): 1 kg of pitchblende split in three steps as
    in 1898 (sulphides / solution / rest → bismuth → the sulphide that flies off when heated = polonium; solution →
