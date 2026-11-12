@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zadania dla 12-latków</title>
+<meta name="description" content="Karty pracy do druku jak sprawdzian „Liczby i działania” z klasy 5–6: liczenie w pamięci i pisemne, ułamki zwykłe i dziesiętne, kolejność działań, zadania z treścią. Grupy A i B, z rozwiązaniami.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  .tk{display:grid;grid-template-columns:8mm 1fr;padding:0 0 4.5mm;break-inside:avoid;page-break-inside:avoid;}
+  .tk .tn{font:800 16px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .tk .tb{min-width:0;font-size:13.5px;line-height:1.5;}
+  .tk .q{margin:0 0 1.5mm;}
+  .tk .q i{font-style:normal;color:#333;}
+  /* math */
+  .m{font-size:14.5px;}
+  .fr{display:inline-flex;align-items:center;gap:.12em;vertical-align:middle;margin:0 .08em;}
+  .fw{font-weight:600;}
+  .fd{display:inline-flex;flex-direction:column;align-items:center;font-size:.8em;line-height:1.12;font-weight:600;}
+  .fd > span:first-child{border-bottom:1.2px solid currentColor;padding:0 .2em .05em;}
+  .fd > span:last-child{padding:.05em .2em 0;}
+  .bx{display:inline-block;width:7mm;height:4.6mm;border:1px solid #555;border-radius:1px;vertical-align:middle;margin:.3mm 0;}
+  .bl{display:inline-block;width:24mm;border-bottom:1px solid #333;height:1em;vertical-align:baseline;}
+  .nw{white-space:nowrap;}
+  .lines{display:flex;flex-wrap:wrap;align-items:center;gap:2.4mm 14mm;margin:1mm 0 0 2mm;}
+  /* two answers to choose from on each line */
+  .pairs{display:grid;grid-template-columns:auto 26mm 26mm;gap:2.4mm 8mm;align-items:center;justify-content:center;margin:1mm 0;}
+  /* choices with a box to tick */
+  .ch{display:flex;flex-direction:column;gap:1.8mm;margin:1mm 0 0 2mm;}
+  .ch.row{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm 4mm;}
+  .ch > div{display:flex;align-items:center;gap:2mm;}
+  .cb{display:inline-block;width:4mm;height:4mm;border:1px solid #333;flex:0 0 auto;vertical-align:middle;}
+  /* true / false */
+  .tf{display:flex;align-items:center;gap:3mm;margin:1.2mm 0 0 2mm;}
+  .tf .pf{margin-left:auto;display:flex;align-items:center;gap:1.5mm;white-space:nowrap;}
+  .tf .pf .cb{margin-right:3mm;}
+  /* table of parts */
+  table.ft{border-collapse:collapse;margin:1.5mm auto 0;font-size:12.5px;}
+  table.ft th,table.ft td{border:1px solid #777;padding:1mm 3mm;text-align:center;font-weight:400;}
+  table.ft td{height:8.5mm;min-width:30mm;}
+  table.ft th{background:#f2f3f5;}
+  /* matching */
+  .mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;margin:1.5mm 0 0 2mm;align-items:center;}
+  .mrow.o{grid-template-columns:repeat(6,1fr);}
+  .mrow .bl{width:12mm;}
+  /* squared paper for the working */
+  .work{margin:1.5mm 0 0;border:1px solid #c9ced8;background-color:#fff;
+    background-image:linear-gradient(#dde1e8 1px,transparent 1px),linear-gradient(90deg,#dde1e8 1px,transparent 1px);background-size:5mm 5mm;background-position:-1px -1px;}
+  .sheet-head-wrap{display:flow-root;}
+  .sheet-head.slim{padding-bottom:4px;margin-bottom:8px;}
+  .sheet-head.slim .title{font-size:15px;}
+  /* answer key */
+  .key-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 8mm;align-items:start;}
+  .key-list{font-size:12.5px;line-height:1.5;min-width:0;}
+  .key-list > div{break-inside:avoid;page-break-inside:avoid;padding:0 0 2.2mm;}
+  .key-list b.kn{display:inline-block;min-width:6mm;}
+  .key-list .m{font-size:13px;}
+  .key-list .ka{color:#333;}
+  .measure .print-qr-more{display:block !important;}   /* hidden on narrow screens, printed always */
+  .measure{position:absolute !important;left:-10000px;top:0;visibility:hidden;width:210mm !important;max-width:none !important;padding:12mm !important;}
+  @media (max-width:600px){
+    .pairs{grid-template-columns:auto auto auto;gap:2mm 4mm;}
+    .ch.row{grid-template-columns:1fr 1fr;}
+    .mrow.o{grid-template-columns:repeat(3,1fr);}
+    .key-cols{grid-template-columns:1fr;}
+  }
+  @media print{
+    .pairs{grid-template-columns:auto 26mm 26mm;gap:2.4mm 8mm;}
+    .ch.row{grid-template-columns:repeat(4,1fr);}
+    .mrow.o{grid-template-columns:repeat(6,1fr);}
+    .key-cols{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">📐 Zadania dla 12-latków</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="math.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const LET = 'ABCDEF', ROM = ['I', 'II', 'III', 'IV'];
+  const PAGE_MM = 270;                     // 273 mm of A4 inside the margins, less a little to spare
+  const PX_PER_MM = 96 / 25.4;
+  const WORK_MIN = 10, WORK_MAX = 60;       // squared paper: at least 2 rows, at most 12
+
+  /** HTML of one task. */
+  function taskHtml(t, k, lang, C, work) {
+    const M = x => `<span class="m">${T12M.html(x, lang)}</span>`;
+    const $ = x => T12M.money(x, lang);
+    const ctx = { v: t.v, M, $, name: w => C.names[w] };
+    let b = `<div class="q">${C.tasks[t.id].q(ctx)}</div>`;
+    if (t.lines) b += `<div class="lines">${t.lines.map(l => `<div>${M(l)}</div>`).join('')}</div>`;
+    if (t.pairs) b += `<div class="pairs">${t.pairs.map((p, j) => `<div>${M(p.expr)}</div>${p.opts.map((o, m) => `<div><b>${LET[2 * j + m]}.</b> ${M(o)}</div>`).join('')}`).join('')}</div>`;
+    if (t.choices) b += `<div class="ch${t.row ? ' row' : ''}">${t.choices.map((c, m) => `<div><i class="cb"></i><b>${LET[m]}.</b> ${t.chMoney ? $(c) : M(c)}</div>`).join('')}</div>`;
+    if (t.tf) b += t.tf.map((x, j) => `<div class="tf"><b>${LET[j]}.</b> ${M(x.dsl)}<span class="pf">${C.tf[0]} <i class="cb"></i> ${C.tf[1]} <i class="cb"></i></span></div>`).join('');
+    if (t.table) {
+      const th = C.th;
+      b += `<table class="ft"><thead><tr><th rowspan="2">${th[0]}</th><th colspan="2">${th[1]}</th></tr><tr><th>${th[2]}</th><th>${th[3]}</th></tr></thead><tbody>`
+        + t.table.map((x, j) => `<tr><td>${KIT.esc(C.colors[j])}</td><td>${x.given === 'fr' ? M(x.fr) : ''}</td><td>${x.given === 'de' ? M(x.de) : ''}</td></tr>`).join('')
+        + '</tbody></table>';
+    }
+    if (t.match) {
+      b += `<div class="mrow">${t.match.fracs.map((f, j) => `<div><b>${ROM[j]}.</b> ${M(f)}</div>`).join('')}</div>`
+        + `<div class="mrow o">${t.match.opts.map((o, j) => `<div><b>${LET[j]}.</b> ${M(o)}</div>`).join('')}</div>`
+        + `<div class="mrow">${ROM.map(r => `<div>${r} – <span class="bl"></span></div>`).join('')}</div>`;
+    }
+    if (work && t.work) b += `<div class="work" data-w="${t.work}" style="height:${WORK_MIN}mm"></div>`;
+    return `<div class="tk"><div class="tn">${k}.</div><div class="tb">${b}</div></div>`;
+  }
+
+  /** The answer of one task for the key. */
+  function keyHtml(t, k, lang, C) {
+    const M = x => `<span class="m">${T12M.html(x, lang)}</span>`;
+    const $ = x => T12M.money(x, lang);
+    const ctx = { v: t.v, M, $, name: w => C.names[w] };
+    let a = t.tf ? t.tf.map((x, j) => `${LET[j]}. ${x.truth ? C.tf[0] : C.tf[1]} (${M(`${x.dsl.split(' = ')[0]} = ${x.real}`)})`).join('<br>')
+      : t.table ? t.table.map((x, j) => `${KIT.esc(C.colors[j])}: ${M(`${x.fr} = ${x.de}`)}`).join('<br>')
+        : t.ans.map(M).join('<br>');
+    if (C.tasks[t.id].a) a += `<br><span class="ka">${C.tasks[t.id].a(ctx)}</span>`;
+    return `<div><b class="kn">${k}.</b> ${a}</div>`;
+  }
+
+  /** Heights in mm of the pieces of HTML, measured in a hidden A4 sheet (with the QR code in the head). */
+  function measure(pieces, sel) {
+    const box = document.createElement('div');
+    box.className = 'sheet measure';
+    box.innerHTML = pieces.join('');
+    document.body.appendChild(box);
+    if (typeof PRINTQR !== 'undefined') PRINTQR.stamp(box);   // a const of a classic script, not on window
+    const els = [...box.querySelectorAll(sel)];
+    const hs = els.map(e => { const cs = getComputedStyle(e); return (e.getBoundingClientRect().height + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom)) / PX_PER_MM; });
+    box.remove();
+    return hs;
+  }
+  /** Split items into pages: first page under `first` mm, the others under `rest` mm. */
+  function pack(hs, first, rest) {
+    const pages = [[]];
+    let left = first;
+    hs.forEach((h, j) => {
+      if (h > left && pages[pages.length - 1].length) { pages.push([]); left = rest; }
+      pages[pages.length - 1].push(j);
+      left -= h;
+    });
+    return pages;
+  }
+
+  KIT.app({
+    store: 'tasks12.sheet',
+    text: T12_TEXT,
+    groups: [
+      { id: 'topic', values: ['mix', 'nat', 'frac', 'ops', 'dec', 'all'], def: 'mix', label: (v, C) => C.topics[v] },
+      { id: 'grp', values: ['A', 'B'], def: 'A', label: (v, C) => C.grpLabel(v) },
+    ],
+    checks: [{ id: 'work', def: true, label: 'optWork' }],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const lang = I18N.get();
+      const ids = T12.sheet(`${s.seed}|${s.grp}`, s.topic);
+      const tasks = ids.map(id => T12.task(api.rnd(`${s.grp}|${id}`), id));
+      const sub = `${C.topics[s.topic]} · ${C.grpLabel(s.grp)}`;
+      const head1 = `<div class="sheet-head-wrap">${api.head(t('sheetTitle'), sub, true)}</div>`;
+      const headN = `<div class="sheet-head-wrap"><div class="sheet-head slim"><div><div class="title">${esc(t('sheetTitle'))} · ${esc(C.grpLabel(s.grp))} (${esc(t('more'))})</div><div class="seedlabel">${esc(t('seedLabel'))} ${esc(s.seed)}</div></div></div></div>`;
+      const th = tasks.map((x, j) => taskHtml(x, j + 1, lang, C, s.work));
+      const [h1, hN] = measure([head1, headN], '.sheet-head-wrap');
+      const hs = measure(th, '.tk');
+      const pages = pack(hs, PAGE_MM - h1, PAGE_MM - hN);
+      // the free space of each page goes to the squared paper of its tasks, by their weights, in whole squares
+      const grown = th.slice();
+      if (s.work) pages.forEach((pg, p) => {
+        let free = PAGE_MM - (p ? hN : h1) - pg.reduce((a, j) => a + hs[j], 0);
+        const ws = pg.filter(j => tasks[j].work), sum = ws.reduce((a, j) => a + tasks[j].work, 0);
+        for (const j of ws) {
+          const extra = Math.min(WORK_MAX - WORK_MIN, Math.floor(free * tasks[j].work / sum / 5) * 5);
+          grown[j] = th[j].replace(`height:${WORK_MIN}mm`, `height:${WORK_MIN + extra}mm`);
+        }
+      });
+      let html = pages.map((pg, p) => `<div class="sheet">${p ? headN : head1}${pg.map(j => grown[j]).join('')}</div>`).join('');
+      let n = pages.length;
+      if (s.key) {
+        const kh = tasks.map((x, j) => keyHtml(x, j + 1, lang, C));
+        const keyHead = api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false);
+        const [hk] = measure([`<div class="sheet-head-wrap">${keyHead}</div>`], '.sheet-head-wrap');
+        // two columns of 89 mm: fill columns, two to a page
+        const khs = measure([`<div class="key-list" style="width:89mm">${kh.join('')}</div>`], '.key-list > div');
+        const cols = pack(khs, PAGE_MM - hk, PAGE_MM - hk);
+        const kp = [];
+        for (let c = 0; c < cols.length; c += 2) kp.push([cols[c], cols[c + 1] || []]);
+        const col = ids => `<div class="key-list">${ids.map(j => kh[j]).join('')}</div>`;
+        html += kp.map(([a, b]) => `<div class="sheet key">${keyHead}<div class="key-cols">${col(a)}${col(b)}</div></div>`).join('');
+        n += kp.length;
+      }
+      return { html, tasks: tasks.length, pages: n };
+    },
+  });
+})();
+</script>
+</body>
+</html>
