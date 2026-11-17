@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ukryte przedmioty — karta pracy</title>
+<meta name="description" content="Karty pracy A4 do druku: obrazek z ukrytymi przedmiotami (las, wieś, pod wodą, kosmos). Za każdym kodem inny obrazek, przedmioty wbudowane w rysunek. Z rozwiązaniem.">
+<link rel="stylesheet" href="../sheet-kit/kit.css">
+<style>
+  /* the picture in its frame; the things to find stand on its margins: a column on the right and a row below */
+  .hid{display:grid;grid-template-columns:160fr 24fr;gap:2mm;}
+  .hid-pic{display:block;width:100%;height:auto;}
+  .hid-side{display:flex;flex-direction:column;justify-content:space-around;gap:1mm;}
+  .hid-bottom{grid-column:1 / -1;display:grid;grid-template-columns:repeat(8,1fr);gap:1mm;}
+  .hid-bottom.n4{grid-template-columns:repeat(4,1fr);} .hid-bottom.n6{grid-template-columns:repeat(6,1fr);}
+  .hid-item{text-align:center;font-size:10.5px;line-height:1.15;min-width:0;overflow-wrap:anywhere;}
+  .hid-item svg{display:block;margin:0 auto 0.5mm;max-width:100%;height:auto;}
+  .hid.words{grid-template-columns:1fr;} .hid.words .hid-pic{width:86%;margin:0 auto;}
+  .hid.words .hid-bottom{grid-template-columns:repeat(4,1fr);gap:1.2mm 3mm;}
+  .hid.words .hid-item{font-size:12.5px;text-align:left;} .hid.words .hid-item::before{content:"☐ ";}
+  @media screen and (max-width:600px){
+    .hid{grid-template-columns:1fr;} .hid-side{flex-direction:row;flex-wrap:wrap;justify-content:center;} .hid-side .hid-item{flex:0 0 24%;}
+    .hid-bottom,.hid-bottom.n4,.hid-bottom.n6{grid-template-columns:repeat(4,1fr);} .hid.words .hid-bottom{grid-template-columns:repeat(2,1fr);} .hid.words .hid-pic{width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="grow">
+    <h1 data-i18n="appTitle">🔎 Ukryte przedmioty — karta pracy</h1>
+    <p data-i18n="appSub"></p>
+  </div>
+  <a class="navlink" href="../index.html" data-keep-lang data-i18n="allPuzzles">🧩 Wszystkie zagadki</a>
+  <nav class="langs" aria-label="Język"></nav>
+</div>
+
+<div class="wrap">
+  <form class="controls no-print" id="controls" onsubmit="return false"></form>
+  <div class="stage"><div id="out"></div></div>
+</div>
+
+<script src="../i18n.js"></script>
+<script src="../print-qr.js"></script>
+<script src="../sheet-kit/kit.js"></script>
+<script src="engine.js"></script>
+<script src="objects.js"></script>
+<script src="scenes.js"></script>
+<script src="strings.js"></script>
+<script>
+(() => {
+  const SCENE_IDS = Object.keys(HID.SCENES);
+  KIT.app({
+    store: 'hidden-objects.sheet',
+    text: HID_TEXT,
+    groups: [
+      { id: 'scene', values: ['mix', ...SCENE_IDS], def: 'mix', label: (v, C) => C.scenes[v] },
+      { id: 'level', values: Object.keys(HID.LEVELS), def: 'medium', label: (v, C) => C.levels[v] },
+    ],
+    checks: [{ id: 'words', def: false, label: 'optWords' }],
+    render(s, api) {
+      const { t, C, esc } = api;
+      const scene = s.scene === 'mix' ? KIT.pick(api.rnd('scene'), SCENE_IDS) : s.scene;
+      const pic = HID.make(s.seed, scene, s.level), n = pic.found.length;
+      const sub = `${C.scenes[scene].replace(/^\S+\s/, '')} · ${C.levels[s.level].replace(/\s·.*/, '')}`;
+      // the list in the order of the alphabet of the names, so it does not give the places away
+      const list = pic.found.map(f => ({ id: f.id, name: C.objects[f.id] })).sort((a, b) => a.name.localeCompare(b.name));
+      const item = (o, words) => `<div class="hid-item">${words ? '' : HID.icon(o.id, 13)}${esc(o.name)}</div>`;
+      const side = Math.ceil(n * 0.45);       // how many stand in the right margin; the rest go below
+      const block = (solved, words) => `<div class="hid${words ? ' words' : ''}">${pic.svg(HID.W, solved)}`
+        + (words ? '' : `<div class="hid-side">${list.slice(0, side).map(o => item(o)).join('')}</div>`)
+        + `<div class="hid-bottom n${n - side}">${list.slice(words ? 0 : side).map(o => item(o, words)).join('')}</div></div>`;
+      let html = `<div class="sheet">
+        ${api.head(t('sheetTitle'), sub, true)}
+        <p class="instr">${esc(t('instr', n))}</p>
+        ${block(false, s.words)}
+      </div>`;
+      if (s.key) html += `<div class="sheet key">${api.head(t('keyTitle'), `${t('sheetTitle')} · ${sub}`, false)}${block(true, false)}</div>`;
+      return { html, tasks: 1, pages: s.key ? 2 : 1 };
+    },
+  });
+})();
+</script>
+</body>
+</html>
