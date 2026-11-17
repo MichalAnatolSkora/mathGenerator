@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Test — pytania na oficera, etap 1</title>
+<style>
+  :root{ --bg:#f4f6fb; --panel:#ffffff; --ink:#1e2436; --muted:#667085; --line:#dfe5f1; --accent:#4f5bd5; --accent-d:#3d48b8;
+         --ok:#1a7f4b; --ok-bg:#e6f5ec; --ok-line:#9fd4b6; --bad:#b42318; --bad-bg:#fdecea; --bad-line:#f1b0a9; }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  body{margin:0;font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  .page{max-width:760px;margin:0 auto;padding:20px 16px 48px;}
+  h1{font-size:22px;line-height:1.25;letter-spacing:-.01em;margin:0 0 16px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;}
+  p{margin:0 0 14px;}
+  .muted{color:var(--muted);font-size:15px;}
+  button{font:inherit;color:inherit;cursor:pointer;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 22px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:700;}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+
+  /* gate */
+  #pass{width:100%;max-width:320px;min-height:52px;font:inherit;font-size:18px;border:2px solid var(--line);border-radius:12px;padding:8px 14px;color:var(--ink);background:#fff;}
+  #pass:focus{outline:none;border-color:var(--accent);}
+  #gateErr{color:var(--bad);font-weight:700;margin:10px 0 0;}
+
+  /* start */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;}
+  .chips label{position:relative;}
+  .chips input{position:absolute;opacity:0;inset:0;}
+  .chips span{display:inline-flex;align-items:center;justify-content:center;min-width:64px;min-height:48px;padding:8px 16px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;}
+  .chips input:checked + span{border-color:var(--accent);background:#eef0ff;color:var(--accent-d);}
+  .chips input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px;}
+  .check{display:flex;gap:10px;align-items:flex-start;margin:0 0 20px;}
+  .check input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--accent);}
+
+  /* question */
+  .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:15px;color:var(--muted);font-weight:700;margin:0 0 8px;}
+  .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin:0 0 16px;}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;}
+  .q{font-size:18px;font-weight:700;line-height:1.4;margin:0 0 16px;overflow-wrap:anywhere;}
+  .opts{display:grid;gap:10px;margin:0 0 18px;}
+  .opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;min-height:52px;overflow-wrap:anywhere;}
+  .opt:hover:not(:disabled){border-color:var(--accent);}
+  .opt .l{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg);font-weight:800;font-size:15px;}
+  .opt .t{flex:1;min-width:0;padding-top:1px;}
+  .opt ul{margin:0;padding-left:20px;}
+  .opt.sel{border-color:var(--accent);background:#eef0ff;}
+  .opt.sel .l{background:var(--accent);color:#fff;}
+  .opt.ok{border-color:var(--ok-line);background:var(--ok-bg);}
+  .opt.ok .l{background:var(--ok);color:#fff;}
+  .opt.bad{border-color:var(--bad-line);background:var(--bad-bg);}
+  .opt.bad .l{background:var(--bad);color:#fff;}
+  .opt:disabled{cursor:default;color:inherit;}
+  .verdict{font-weight:800;margin:0 0 14px;}
+  .verdict.ok{color:var(--ok);}
+  .verdict.bad{color:var(--bad);}
+
+  /* result */
+  .score{font-size:40px;font-weight:800;line-height:1.1;margin:0 0 4px;letter-spacing:-.02em;}
+  .review{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:12px;}
+  .review li{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--ok);border-radius:12px;padding:14px 16px;overflow-wrap:anywhere;}
+  .review li.bad{border-left-color:var(--bad);}
+  .review .rq{font-weight:700;margin:0 0 8px;}
+  .review .ra{margin:0 0 4px;font-size:16px;}
+  .review .ra b{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  .review .ra.wrong b{color:var(--bad);}
+  .review .ra.right b{color:var(--ok);}
+  .review ul{margin:0;padding-left:20px;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Test — pytania na oficera, etap 1</h1>
+
+  <section id="sGate" class="card">
+    <form id="gateForm" autocomplete="off">
+      <p><label for="pass">Podaj hasło:</label></p>
+      <div class="row">
+        <input id="pass" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="gateErr">
+        <button class="btn primary" type="submit">Wejdź</button>
+      </div>
+      <p id="gateErr" role="alert" hidden>Złe hasło.</p>
+    </form>
+  </section>
+
+  <section id="sStart" class="card" hidden>
+    <p>Test jednokrotnego wyboru. Pytania są losowane z puli <b id="poolN"></b> pytań, a odpowiedzi w każdym pytaniu są wymieszane.</p>
+    <p><b>Ile pytań?</b></p>
+    <div class="chips" id="counts"></div>
+    <label class="check"><input type="checkbox" id="instant" checked><span>Pokazuj poprawną odpowiedź od razu po zaznaczeniu</span></label>
+    <button class="btn primary" id="startBtn" type="button">Losuj test</button>
+  </section>
+
+  <section id="sQuiz" hidden>
+    <div class="top"><span id="qNo"></span><span id="qScore"></span></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="card">
+      <p class="q" id="qText"></p>
+      <div class="opts" id="opts"></div>
+      <p class="verdict" id="verdict" role="status" hidden></p>
+      <div class="row">
+        <button class="btn primary" id="nextBtn" type="button" disabled>Dalej</button>
+        <button class="btn" id="quitBtn" type="button">Zakończ test</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="sResult" hidden>
+    <div class="card">
+      <p class="muted" style="margin:0">Wynik</p>
+      <p class="score" id="score"></p>
+      <p id="scoreSub"></p>
+      <div class="row">
+        <button class="btn primary" id="againBtn" type="button">Nowy test</button>
+        <button class="btn" id="retryBtn" type="button">Powtórz błędne</button>
+      </div>
+    </div>
+    <ol class="review" id="review"></ol>
+  </section>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const KEY = 'testOficer';
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  let POOL = [];
+  const $ = (id) => document.getElementById(id);
+  const sections = ['sGate', 'sStart', 'sQuiz', 'sResult'];
+  const show = (id) => { sections.forEach((s) => { $(s).hidden = s !== id; }); window.scrollTo(0, 0); };
+
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // an answer is plain text, or a list of points (one question in the document has bulleted answers)
+  const fill = (el, answer) => {
+    el.textContent = '';
+    if (Array.isArray(answer)) {
+      const ul = document.createElement('ul');
+      answer.forEach((x) => { const li = document.createElement('li'); li.textContent = x; ul.appendChild(li); });
+      el.appendChild(ul);
+    } else {
+      el.textContent = answer;
+    }
+  };
+
+  // ---------- gate ----------
+  const decrypt = async (pass) => {
+    const raw = Uint8Array.from(atob(window.DATA), (c) => c.charCodeAt(0));
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt: raw.subarray(0, 16), iterations: 600000 },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.subarray(16, 28) }, key, raw.subarray(28));
+    return JSON.parse(new TextDecoder().decode(plain));
+  };
+  const remembered = () => { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
+  const gateError = (text) => {
+    $('gateErr').textContent = text;
+    $('gateErr').hidden = false;
+    $('pass').value = '';
+    $('pass').focus();
+  };
+  let busy = false;
+  const unlock = async (pass, typed) => {
+    if (busy || !pass) return;
+    if (!window.crypto || !crypto.subtle || !window.DATA) {
+      return gateError('Nie udało się wczytać pytań. Otwórz stronę przez https.');
+    }
+    busy = true;
+    $('pass').disabled = true;
+    try {
+      POOL = await decrypt(pass);
+    } catch (e) {
+      POOL = [];
+    }
+    busy = false;
+    $('pass').disabled = false;
+    if (POOL.length) {
+      try { localStorage.setItem(KEY, pass); } catch (e) { /* private window: ask again next time */ }
+      $('pass').value = '';
+      setupStart();
+      show('sStart');
+    } else {
+      try { localStorage.removeItem(KEY); } catch (e) { /* nothing to forget */ }
+      show('sGate');
+      if (typed) gateError('Złe hasło.'); else $('pass').focus();
+    }
+  };
+  $('gateForm').addEventListener('submit', (e) => { e.preventDefault(); unlock($('pass').value, true); });
+  $('pass').addEventListener('input', () => { $('gateErr').hidden = true; });
+
+  // ---------- start ----------
+  const setupStart = () => {
+    $('poolN').textContent = POOL.length;
+    $('counts').textContent = '';
+    [10, 20, 40, 0].forEach((n, i) => {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'radio'; input.name = 'count'; input.value = n; input.checked = i === 1;
+      const span = document.createElement('span');
+      span.textContent = n ? n : 'Wszystkie (' + POOL.length + ')';
+      label.append(input, span);
+      $('counts').appendChild(label);
+    });
+  };
+
+  // Draw n questions. A few questions appear in the document twice with slightly different
+  // answers; a short test takes at most one of each such pair.
+  const draw = (n) => {
+    const all = shuffle(POOL);
+    if (!n || n >= all.length) return all;
+    const seen = new Set();
+    const out = [];
+    for (const item of all) {
+      if (seen.has(item.q)) continue;
+      seen.add(item.q);
+      out.push(item);
+      if (out.length === n) break;
+    }
+    return out;
+  };
+
+  // ---------- quiz ----------
+  let test = [];      // [{q, options:[answer…], correct:index, picked:index|null}]
+  let at = 0;
+  let instant = true;
+
+  const begin = (items) => {
+    test = items.map((item) => {
+      const order = shuffle(item.a.map((_, i) => i));
+      return { q: item.q, options: order.map((i) => item.a[i]), correct: order.indexOf(0), picked: null };
+    });
+    at = 0;
+    show('sQuiz');
+    render();
+  };
+
+  const right = () => test.filter((t) => t.picked === t.correct).length;
+
+  const render = () => {
+    const t = test[at];
+    const locked = instant && t.picked !== null;
+    $('qNo').textContent = 'Pytanie ' + (at + 1) + ' z ' + test.length;
+    $('qScore').textContent = instant ? 'Dobrze: ' + right() : '';
+    $('barFill').style.width = (100 * at / test.length) + '%';
+    $('qText').textContent = t.q;
+    const box = $('opts');
+    box.textContent = '';
+    t.options.forEach((answer, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt';
+      const l = document.createElement('span'); l.className = 'l'; l.textContent = LETTERS[i];
+      const tx = document.createElement('span'); tx.className = 't'; fill(tx, answer);
+      b.append(l, tx);
+      if (locked) {
+        b.disabled = true;
+        if (i === t.correct) b.classList.add('ok');
+        else if (i === t.picked) b.classList.add('bad');
+      } else if (i === t.picked) {
+        b.classList.add('sel');
+      }
+      b.setAttribute('aria-pressed', i === t.picked ? 'true' : 'false');
+      b.addEventListener('click', () => pick(i));
+      box.appendChild(b);
+    });
+    const v = $('verdict');
+    v.hidden = !locked;
+    if (locked) {
+      const good = t.picked === t.correct;
+      v.className = 'verdict ' + (good ? 'ok' : 'bad');
+      v.textContent = good ? 'Dobrze.' : 'Źle. Poprawna odpowiedź: ' + LETTERS[t.correct] + '.';
+    }
+    $('nextBtn').disabled = t.picked === null;
+    $('nextBtn').textContent = at === test.length - 1 ? 'Zobacz wynik' : 'Dalej';
+  };
+
+  const pick = (i) => {
+    const t = test[at];
+    if (instant && t.picked !== null) return;
+    t.picked = i;
+    render();
+    if (instant) $('nextBtn').focus({ preventScroll: true });
+  };
+
+  const next = () => {
+    if (test[at].picked === null) return;
+    if (at === test.length - 1) return finish();
+    at++;
+    render();
+    window.scrollTo(0, 0);
+  };
+
+  // ---------- result ----------
+  const finish = () => {
+    const done = test.filter((t) => t.picked !== null);
+    const good = right();
+    const total = test.length;
+    $('score').textContent = good + ' / ' + total;
+    const pct = total ? Math.round(100 * good / total) : 0;
+    const skipped = total - done.length;
+    $('scoreSub').textContent = pct + '% poprawnych odpowiedzi.' + (skipped ? ' Bez odpowiedzi: ' + skipped + '.' : '');
+    $('retryBtn').hidden = good === total;
+    const list = $('review');
+    list.textContent = '';
+    test.forEach((t, n) => {
+      const ok = t.picked === t.correct;
+      const li = document.createElement('li');
+      if (!ok) li.className = 'bad';
+      const q = document.createElement('p'); q.className = 'rq'; q.textContent = (n + 1) + '. ' + t.q;
+      li.appendChild(q);
+      const line = (cls, title, answer) => {
+        const d = document.createElement('div'); d.className = 'ra ' + cls;
+        const b = document.createElement('b'); b.textContent = title;
+        const s = document.createElement('div'); fill(s, answer);
+        d.append(b, s);
+        li.appendChild(d);
+      };
+      if (ok) {
+        line('right', 'Twoja odpowiedź — dobrze', t.options[t.correct]);
+      } else {
+        if (t.picked === null) line('wrong', 'Twoja odpowiedź', '(brak)');
+        else line('wrong', 'Twoja odpowiedź — źle', t.options[t.picked]);
+        line('right', 'Poprawna odpowiedź', t.options[t.correct]);
+      }
+      list.appendChild(li);
+    });
+    show('sResult');
+  };
+
+  $('startBtn').addEventListener('click', () => {
+    instant = $('instant').checked;
+    const n = Number(document.querySelector('input[name="count"]:checked').value);
+    begin(draw(n));
+  });
+  $('nextBtn').addEventListener('click', next);
+  $('quitBtn').addEventListener('click', () => {
+    const left = test.filter((t) => t.picked === null).length;
+    if (!left || window.confirm('Zakończyć test teraz? Pytań bez odpowiedzi: ' + left + '.')) finish();
+  });
+  $('againBtn').addEventListener('click', () => show('sStart'));
+  $('retryBtn').addEventListener('click', () => {
+    const wrong = test.filter((t) => t.picked !== t.correct).map((t) => ({ q: t.q, a: [t.options[t.correct]].concat(t.options.filter((_, i) => i !== t.correct)) }));
+    begin(shuffle(wrong));
+  });
+
+  // keyboard: A–D or 1–4 marks an answer, Enter goes on
+  document.addEventListener('keydown', (e) => {
+    if ($('sQuiz').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key.toUpperCase();
+    let i = LETTERS.indexOf(k);
+    if (i < 0 && k >= '1' && k <= '4') i = Number(k) - 1;
+    if (i >= 0 && i < test[at].options.length) { e.preventDefault(); pick(i); }
+    else if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') { e.preventDefault(); next(); }
+  });
+
+  // remembered on this device: open the test straight away
+  show('sGate');
+  if (remembered()) unlock(remembered(), false); else $('pass').focus();
+})();
+</script>
+</body>
+</html>
